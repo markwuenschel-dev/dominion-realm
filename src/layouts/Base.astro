@@ -1,0 +1,29 @@
+---
+import "../styles/global.css";
+const base = import.meta.env.BASE_URL;
+const desc =
+  "An Earth gamer's cybernetic implant translates a real metaphysical world into RPG logic — until he realizes the interface is not the world. It is only his way of surviving contact with it.";
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Dominion Realm — An Interface Fantasy Novel</title>
+    <meta name="description" content={desc} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="The Dominion Realm" />
+    <meta property="og:description" content={desc} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

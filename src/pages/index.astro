@@ -1,0 +1,350 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base>
+<div class="grain"></div>
+<div class="vignette"></div>
+
+<!-- Mobile top bar -->
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-title">The Dominion <em>Realm</em></span>
+  </div>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<!-- Mobile menu overlay -->
+<nav class="mobile-menu" id="mobileMenu">
+  <a href="#hero"><span class="idx">00</span> Cover</a>
+  <a href="#story"><span class="idx">01</span> The Story</a>
+  <a href="#characters"><span class="idx">02</span> Characters</a>
+  <a href="#world"><span class="idx">03</span> The World</a>
+  <a href="#power"><span class="idx">04</span> The Eyes</a>
+  <a href="#join"><span class="idx">05</span> Join</a>
+</nav>
+
+<div class="shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">An Interface Fantasy</span>
+      <span class="brand-title">The Dominion <em>Realm</em></span>
+    </div>
+    <nav class="nav" id="sideNav">
+      <a href="#hero"><span class="idx">00</span> Cover</a>
+      <a href="#story"><span class="idx">01</span> The Story</a>
+      <a href="#characters"><span class="idx">02</span> Characters</a>
+      <a href="#world"><span class="idx">03</span> The World</a>
+      <a href="#power"><span class="idx">04</span> The Eyes</a>
+      <a href="#join"><span class="idx">05</span> Join</a>
+    </nav>
+    <div class="sidebar-foot">
+      Realmwalkers <span>·</span> Book One<br />
+      Est. <span>MMXXVI</span>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+      <div class="hero-glow a"></div>
+      <div class="hero-glow b"></div>
+      <div class="hero-glow c"></div>
+      <div class="wrap">
+        <span class="hero-genre reveal">Interface Fantasy / LitRPG</span>
+        <h1 class="hero-title reveal">
+          <span class="the">The Dominion</span>
+          <em>Realm</em>
+        </h1>
+        <p class="hero-logline reveal">
+          An Earth gamer's cybernetic implant translates a real metaphysical world into RPG logic —
+          until he realizes the interface is not the world. <em>It is only his way of surviving contact with it.</em>
+        </p>
+        <div class="buy-row reveal">
+          <a href="#" class="btn btn-primary">Buy on Amazon <span class="arrow">→</span></a>
+          <a href="#" class="btn btn-ghost">Barnes &amp; Noble <span class="arrow">→</span></a>
+          <span class="buy-note">Hardcover · eBook · Audio</span>
+        </div>
+      </div>
+      <div class="scroll-cue">
+        <span>Scroll</span>
+        <span class="bar"></span>
+      </div>
+    </section>
+
+    <!-- THE STORY -->
+    <section class="band" id="story">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <span class="sec-label">01 — The Story</span>
+          <h2 class="sec-title">A world that was never <em>a game</em></h2>
+          <div class="spectral-rule"></div>
+        </div>
+        <div class="story-body">
+          <p class="dropcap reveal"><span class="lead">Earth's most gifted gamers are recruited for an experiment they barely understand</span> — the implantation of an experimental neuroquantum lattice, threaded directly into the optic nerve. When they wake, they are no longer on Earth. They are in the Realm: a real, breathing metaphysical world that answers to laws older than language.</p>
+          <p class="reveal">Soren, the protagonist, sees it differently than the others. His implant renders the Realm as RPG logic — health bars, skill trees, loot, levels. It is legible. It is survivable. But the power humming beneath the interface is not code, and it was not built for him. It is ancient, and it is real.</p>
+          <p class="reveal">The deeper he descends, the more the abstraction frays. The numbers are a mercy, not a truth — a fragile membrane between a fragile mind and something that does not care to be understood. To master the Realm, Soren must first accept that everything he can read about it is a translation. And every translation leaves something out.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHARACTERS -->
+    <section class="band raise" id="characters">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <span class="sec-label">02 — Dramatis Personae</span>
+          <h2 class="sec-title">Those who <em>walk in</em></h2>
+          <div class="spectral-rule"></div>
+        </div>
+        <div class="char-grid">
+          <article class="char-card reveal">
+            <div class="char-portrait"><span>Portrait — Soren</span></div>
+            <span class="char-role">Protagonist · Ocular Anomaly</span>
+            <h3 class="char-name">Soren</h3>
+            <p class="char-desc">The only walker whose interface bleeds into the substrate itself. He reads the Realm as a game — and slowly learns what the game refuses to show him.</p>
+          </article>
+          <article class="char-card reveal">
+            <div class="char-portrait"><span>Portrait — Serra</span></div>
+            <span class="char-role">The Blade</span>
+            <h3 class="char-name">Serra Hawthorne</h3>
+            <p class="char-desc">Precise, unflinching, lethal at range and in reach. She trusts steel over systems and has buried more than she will admit.</p>
+          </article>
+          <article class="char-card reveal">
+            <div class="char-portrait"><span>Portrait — Seb</span></div>
+            <span class="char-role">The Leader</span>
+            <h3 class="char-name">Seb Rainier</h3>
+            <p class="char-desc">The one who keeps the party intact when the Realm tries to pull it apart. A strategist who reads people as fluently as terrain.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- THE WORLD -->
+    <section class="band" id="world">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <span class="sec-label">03 — The World</span>
+          <h2 class="sec-title">Convergence &amp; <em>contagion</em></h2>
+          <div class="spectral-rule"></div>
+        </div>
+        <div class="world-cols reveal">
+          <div class="world-col">
+            <div class="glow-tab"></div>
+            <div class="world-kicker">The Place</div>
+            <h3 class="world-name">Eriadne, <em>the Thread City</em></h3>
+            <p class="world-sub">A ley-line convergence point.</p>
+            <p class="world-text">Where the Realm's deep currents knot together, Eriadne rises — a city stitched across intersecting ley-lines, where every interface, faction, and creed is drawn to collide. Power is dense here, and so is danger. Nothing crosses the Realm without passing through its threads.</p>
+          </div>
+          <div class="world-col">
+            <div class="glow-tab"></div>
+            <div class="world-kicker">The Threats</div>
+            <h3 class="world-name">Two kinds of <em>ending</em></h3>
+            <div class="threat-row">
+              <div class="threat x">
+                <h4>The Xyloryn</h4>
+                <p>A biological, adaptive swarm. It learns what kills it and stops dying. To fight it twice the same way is to lose.</p>
+              </div>
+              <div class="vs-mark">versus</div>
+              <div class="threat z">
+                <h4>The Zalgorans</h4>
+                <p>Extra-planar entities that denature reality and meaning itself. Where they pass, the interface fails — and so does the mind reading it.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- POWER SYSTEM -->
+    <section class="band raise" id="power">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <span class="sec-label">04 — The Power System</span>
+          <h2 class="sec-title">The Eyes of <em>Meszkhal</em></h2>
+          <div class="spectral-rule"></div>
+        </div>
+        <p class="power-intro reveal">Also called the Neurochromatic Eyes — the progression of sight that lets a walker perceive, and eventually command, the spectral substrate beneath the interface. Six stages. Each one costs more than the last.</p>
+        <div class="rail">
+          <div class="stage reveal" style="--node-glow: rgba(79,214,224,0.7);">
+            <span class="node"></span>
+            <span class="stage-num">STAGE I</span>
+            <h3 class="stage-name">Limbal Shift</h3>
+            <p class="stage-desc">The first awakening. The edge of the iris begins to refract ambient spectral light — the walker sees that the Realm is layered, even if they cannot yet read the layers.</p>
+          </div>
+          <div class="stage reveal" style="--node-glow: rgba(91,141,239,0.7);">
+            <span class="node"></span>
+            <span class="stage-num">STAGE II</span>
+            <h3 class="stage-name">Iris Refraction</h3>
+            <p class="stage-desc">Sight resolves into bands. Threats, leylines, and intentions take on color and weight. The interface stabilizes into something a mind can hold.</p>
+          </div>
+          <div class="stage reveal" style="--node-glow: rgba(123,124,240,0.75);">
+            <span class="node"></span>
+            <span class="stage-num">STAGE III</span>
+            <h3 class="stage-name">Neuro-Optical Overdrive</h3>
+            <p class="stage-desc">Perception outpaces the body. The walker reads faster than they can act — a dangerous gap where seeing too much can break the one who sees.</p>
+          </div>
+          <div class="stage reveal" style="--node-glow: rgba(155,108,240,0.75);">
+            <span class="node"></span>
+            <span class="stage-num">STAGE IV</span>
+            <h3 class="stage-name">Spectral Partition</h3>
+            <p class="stage-desc">The eye learns to split the substrate into discrete channels — isolating a single thread of reality and holding it apart from the rest. The first true act of command.</p>
+          </div>
+          <div class="stage reveal" style="--node-glow: rgba(239,111,158,0.75);">
+            <span class="node"></span>
+            <span class="stage-num">STAGE V</span>
+            <h3 class="stage-name">Gaze Interference</h3>
+            <p class="stage-desc">To look is to alter. The walker's attention becomes a force — bending, dampening, or amplifying what they fix upon. Reality flinches under the gaze.</p>
+          </div>
+          <div class="stage reveal" style="--node-glow: rgba(224,168,80,0.8);">
+            <span class="node"></span>
+            <span class="stage-num">STAGE VI</span>
+            <h3 class="stage-name">Prism Coherence</h3>
+            <p class="stage-desc">All bands resolve into one. The interface dissolves; the walker no longer translates the Realm — they perceive it whole, and unmediated. Few survive the clarity.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PULL QUOTE -->
+    <section class="pull">
+      <div class="hero-glow c" style="top:10%; left:50%; opacity:0.6;"></div>
+      <div class="pull-inner reveal">
+        <blockquote>
+          <p>One substrate.<br />Many <em>interfaces.</em></p>
+          <cite>— The First Axiom of the Realm</cite>
+        </blockquote>
+      </div>
+    </section>
+
+    <!-- FOOTER / JOIN -->
+    <footer class="footer" id="join">
+      <div class="wrap">
+        <div class="foot-grid">
+          <div class="reveal">
+            <h2 class="foot-title">Walk in <em>first.</em></h2>
+            <p class="foot-meta">
+              The Dominion Realm<br />
+              <span>Realmwalkers</span> · Book One<br />
+              A novel by <span>[ Author Name ]</span>
+            </p>
+            <div class="socials">
+              <a href="#">Instagram</a>
+              <a href="#">Goodreads</a>
+              <a href="#">TikTok</a>
+              <a href="#">Discord</a>
+            </div>
+          </div>
+          <div class="reveal">
+            <span class="signup-label">Join the Realmwalkers</span>
+            <form class="signup-form" id="signupForm">
+              <input type="email" placeholder="your@email.com" aria-label="Email" required />
+              <button type="submit">Enter</button>
+            </form>
+            <p class="signup-note" id="signupNote">Early chapters · cover reveals · launch news</p>
+          </div>
+        </div>
+        <div class="foot-base">
+          <span>© MMXXVI — The Dominion Realm</span>
+          <span>An Interface Fantasy</span>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script is:inline>
+  // ---- Mobile menu toggle ----
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  hamburger.addEventListener('click', () => {
+    document.body.classList.toggle('menu-open');
+  });
+  mobileMenu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => document.body.classList.remove('menu-open'));
+  });
+
+  // ---- Scroll-driven reveal / rail / scrollspy (robust, no IntersectionObserver) ----
+  const reveals = [...document.querySelectorAll('.reveal')];
+  const stages = [...document.querySelectorAll('.stage')];
+  const sections = [...document.querySelectorAll('section[id], footer[id]')];
+  const navLinks = [...document.querySelectorAll('#sideNav a')];
+
+  let ticking = false;
+  function onScroll() {
+    const vh = window.innerHeight;
+
+    // Reveal when element top crosses ~90% of viewport
+    for (let i = 0; i < reveals.length; i++) {
+      const el = reveals[i];
+      if (el.classList.contains('in')) continue;
+      const r = el.getBoundingClientRect();
+      if (r.top < vh * 0.9 && r.bottom > 0) el.classList.add('in');
+    }
+
+    // Power-rail nodes light as they pass the middle of the screen
+    stages.forEach(s => {
+      const r = s.getBoundingClientRect();
+      if (r.top < vh * 0.7 && r.bottom > vh * 0.2) s.classList.add('lit');
+    });
+
+    // Scrollspy: active = last section whose top is above the viewport mid-line
+    const mid = vh * 0.42;
+    let activeId = sections[0] ? sections[0].id : null;
+    for (const sec of sections) {
+      if (sec.getBoundingClientRect().top <= mid) activeId = sec.id;
+    }
+    if (activeId) {
+      navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + activeId));
+    }
+    ticking = false;
+  }
+  function requestScroll() {
+    if (!ticking) { ticking = true; requestAnimationFrame(onScroll); }
+  }
+  window.addEventListener('scroll', requestScroll, { passive: true });
+  window.addEventListener('resize', requestScroll);
+
+  // Arm the fade-in animations ONLY if the animation clock is actually
+  // advancing (it's frozen in unfocused/preview contexts). If frozen,
+  // content simply stays visible — never stuck at opacity 0.
+  function armReveals() {
+    reveals.forEach((el, i) => {
+      el.style.transitionDelay = (Math.min(i % 4, 3) * 0.07) + 's';
+      el.classList.add('armed');
+    });
+    onScroll();
+  }
+  const probe = document.createElement('div');
+  probe.style.cssText = 'position:fixed;opacity:0;pointer-events:none;transition:opacity .15s linear';
+  document.body.appendChild(probe);
+  requestAnimationFrame(() => { probe.style.opacity = '1'; });
+  setTimeout(() => {
+    const advancing = parseFloat(getComputedStyle(probe).opacity) > 0.05;
+    probe.remove();
+    if (advancing && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      armReveals();
+    }
+    // Always run scrollspy + rail lighting regardless
+    onScroll();
+  }, 260);
+
+  // Keep scrollspy / rail responsive immediately too
+  onScroll();
+  window.addEventListener('load', onScroll);
+
+  // ---- Signup (mock) ----
+  const form = document.getElementById('signupForm');
+  const note = document.getElementById('signupNote');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    note.textContent = 'You are on the list. Welcome, walker.';
+    note.style.color = 'var(--gold-bright)';
+    form.reset();
+  });
+</script>
+</Base>
