@@ -15,9 +15,9 @@
     --grain-op: 0.05;
     --glow-op: 1;
     --sidebar-w: 248px;
-    --serif-display: 'Cormorant Garamond', Georgia, serif;
-    --serif-body: 'Spectral', Georgia, serif;
-    --mono: 'Space Mono', ui-monospace, monospace;
+    --serif-display: var(--font-display), Georgia, serif;
+    --serif-body: var(--font-body), Georgia, serif;
+    --mono: var(--font-mono), ui-monospace, monospace;
     --ease: cubic-bezier(0.22, 1, 0.36, 1);
   }
 

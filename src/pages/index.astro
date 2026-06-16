@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+const base = import.meta.env.BASE_URL;
 ---
 <Base>
 <div class="grain"></div>
@@ -205,6 +206,9 @@ import Base from '../layouts/Base.astro';
             <h3 class="stage-name">Prism Coherence</h3>
             <p class="stage-desc">All bands resolve into one. The interface dissolves; the walker no longer translates the Realm — they perceive it whole, and unmediated. Few survive the clarity.</p>
           </div>
+        </div>
+        <div class="reveal" style="margin-top: 2.4rem; text-align: center;">
+          <a href={`${base}eyes`} class="btn btn-primary">Enter the Eyes of Meszkhal <span class="arrow">&rarr;</span></a>
         </div>
       </div>
     </section>

@@ -1,6 +1,6 @@
 # The Dominion Realm — Showcase Site
 
-Public showcase for *The Dominion Realm* (Realmwalkers · Book One). [Astro](https://astro.build)static site,
+Public showcase for *The Dominion Realm* (Realmwalkers · Book One). Astro static site,
 ported from the original single-file design with the visual identity preserved exactly:
 deep blue-black palette, bone text, gold accent, the spectral gradient, film grain,
 ambient glow, scroll reveals, scrollspy, and the lighting power-rail.
@@ -89,7 +89,3 @@ astro.config.mjs               site + auto base-path
   (`@fontsource/cormorant-garamond`, `@fontsource/spectral`, `@fontsource/space-mono`) to drop the external request.
 - **Componentize** the character and stage blocks into `src/components/` once you start adding more — the markup is plain Astro, so each repeating block lifts out cleanly.
 - **Real signup:** the form is a mock (`signupForm` handler in `index.astro`). Point it at a Netlify Form, Buttondown, or your own endpoint when ready.
-
-
-
-© Mark Wuenschel. This work is licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/). You may share it with attribution for non-commercial purposes, but may not adapt, transform, or build upon it.
