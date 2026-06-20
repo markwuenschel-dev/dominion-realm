@@ -1,0 +1,56 @@
+/* =====================================================================
+   Design tokens — the single source of truth for the Dominion Realm's
+   visual identity (ADR-0007: evolve & systematize, don't reinvent).
+
+   Imported by both global.css (homepage + Base-layout pages) and eyes.css
+   (the standalone /eyes page). Page-specific tokens (e.g. --sidebar-w,
+   --stage-hue) stay in those files.
+   ===================================================================== */
+:root {
+  /* ---- Surfaces ---- */
+  --bg: #080910;
+  --bg-raise: #0d0f1a;
+  --bg-panel: #11131f;
+
+  /* ---- Ink (text) ---- */
+  --ink: #ece7da;
+  --ink-dim: #a8a496;
+  --ink-faint: #6d6a60;
+
+  /* ---- Gold (primary accent) ---- */
+  --gold: #c8a86a;
+  --gold-bright: #e3c486;
+  --btn-ink: #15110a;
+
+  /* ---- Lines / hairlines ---- */
+  --line: rgba(200, 168, 106, 0.18);
+  --line-soft: rgba(236, 231, 218, 0.08);
+
+  /* ---- Spectral gradient (the six-Eyes signature) ---- */
+  --spectral: linear-gradient(90deg, #4fd6e0 0%, #5b8def 26%, #9b6cf0 52%, #ef6f9e 76%, #e0a850 100%);
+  --spectral-v: linear-gradient(180deg, #4fd6e0 0%, #5b8def 26%, #9b6cf0 52%, #ef6f9e 76%, #e0a850 100%);
+
+  /* ---- Atmosphere ---- */
+  --grain-op: 0.05;
+  --glow-op: 1;
+
+  /* ---- Typography (families resolve via Astro's generated font vars) ---- */
+  --serif-display: var(--font-display), Georgia, serif;
+  --serif-body: var(--font-body), Georgia, serif;
+  --mono: var(--font-mono), ui-monospace, monospace;
+
+  /* ---- Motion ---- */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ---- Radii (named from existing usage) ---- */
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+
+  /* ---- Z-index layers (named for the stacking already in play) ---- */
+  --z-content: 100;
+  --z-nav: 200;
+  --z-vignette: 8000;
+  --z-grain: 9000;
+  --z-consent: 9700;
+}
