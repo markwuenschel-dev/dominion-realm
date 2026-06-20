@@ -1,6 +1,12 @@
 ---
 import Base from '../layouts/Base.astro';
 const base = import.meta.env.BASE_URL;
+
+// Email capture via Kit (ADR-0005). The form posts straight to Kit's form
+// endpoint — no backend — and the inline script enhances it with an in-page
+// confirmation, falling back to a native submit if the fetch is ever blocked.
+const kitFormId = import.meta.env.PUBLIC_KIT_FORM_ID;
+const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscriptions` : undefined;
 ---
 <Base>
 <div class="grain"></div>
@@ -244,8 +250,8 @@ const base = import.meta.env.BASE_URL;
           </div>
           <div class="reveal">
             <span class="signup-label">Join the Realmwalkers</span>
-            <form class="signup-form" id="signupForm">
-              <input type="email" placeholder="your@email.com" aria-label="Email" required />
+            <form class="signup-form" id="signupForm" action={kitAction} method="post">
+              <input type="email" name="email_address" placeholder="your@email.com" aria-label="Email" required />
               <button type="submit">Enter</button>
             </form>
             <p class="signup-note" id="signupNote">Early chapters · cover reveals · launch news</p>
@@ -341,14 +347,39 @@ const base = import.meta.env.BASE_URL;
   onScroll();
   window.addEventListener('load', onScroll);
 
-  // ---- Signup (mock) ----
+  // ---- Signup (Kit) ----
   const form = document.getElementById('signupForm');
   const note = document.getElementById('signupNote');
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    note.textContent = 'You are on the list. Welcome, walker.';
-    note.style.color = 'var(--gold-bright)';
-    form.reset();
-  });
+  if (form && note) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const action = form.getAttribute('action');
+      if (!action) {
+        // No Kit form id configured — keep a friendly local confirmation.
+        note.textContent = 'You are on the list. Welcome, walker.';
+        note.style.color = 'var(--gold-bright)';
+        form.reset();
+        return;
+      }
+      note.textContent = 'Joining the Realmwalkers…';
+      note.style.color = 'var(--ink-dim)';
+      try {
+        const res = await fetch(action, {
+          method: 'POST',
+          headers: { 'Accept': 'application/json' },
+          body: new URLSearchParams(new FormData(form)),
+        });
+        if (!res.ok) throw new Error('Signup failed: ' + res.status);
+        note.textContent = 'You are on the list. Welcome, walker.';
+        note.style.color = 'var(--gold-bright)';
+        form.reset();
+      } catch (err) {
+        // Fetch blocked (e.g. CORS) — submit natively so the reader still
+        // subscribes via Kit's hosted confirmation page.
+        note.textContent = 'Confirming your signup…';
+        form.submit();
+      }
+    });
+  }
 </script>
 </Base>

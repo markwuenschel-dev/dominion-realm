@@ -1,24 +1,8 @@
+@import "./tokens.css";
+
+  /* Shared design tokens live in tokens.css; only homepage-specific ones here. */
   :root {
-    --bg: #080910;
-    --bg-raise: #0d0f1a;
-    --bg-panel: #11131f;
-    --ink: #ece7da;
-    --ink-dim: #a8a496;
-    --ink-faint: #6d6a60;
-    --gold: #c8a86a;
-    --gold-bright: #e3c486;
-    --line: rgba(200, 168, 106, 0.18);
-    --line-soft: rgba(236, 231, 218, 0.08);
-    --spectral: linear-gradient(90deg, #4fd6e0 0%, #5b8def 26%, #9b6cf0 52%, #ef6f9e 76%, #e0a850 100%);
-    --spectral-v: linear-gradient(180deg, #4fd6e0 0%, #5b8def 26%, #9b6cf0 52%, #ef6f9e 76%, #e0a850 100%);
-    --btn-ink: #15110a;
-    --grain-op: 0.05;
-    --glow-op: 1;
     --sidebar-w: 248px;
-    --serif-display: var(--font-display), Georgia, serif;
-    --serif-body: var(--font-body), Georgia, serif;
-    --mono: var(--font-mono), ui-monospace, monospace;
-    --ease: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -768,3 +752,67 @@
 
   /* ---------- Tweaks mount (panel paints itself; this is just the React root) ---------- */
   #tweaks-root { position: relative; z-index: 9500; }
+
+  /* ---------- Reveal model (Teaser / Reader / Deep / Beyond) ---------- */
+  .reveal-toggle { border: none; padding: 0; margin: 0; min-width: 0; }
+  .reveal-toggle__legend {
+    font-family: var(--mono);
+    font-size: 0.56rem;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--gold);
+    padding: 0;
+    margin-bottom: 10px;
+  }
+  .reveal-toggle__options {
+    display: inline-flex;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .reveal-toggle__btn {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    background: transparent;
+    border: none;
+    border-left: 1px solid var(--line-soft);
+    padding: 9px 13px;
+    cursor: pointer;
+    transition: color 0.35s var(--ease), background 0.35s var(--ease);
+  }
+  .reveal-toggle__btn:first-child { border-left: none; }
+  .reveal-toggle__btn:hover { color: var(--ink-dim); }
+  .reveal-toggle__btn[aria-checked="true"] { color: var(--btn-ink); background: var(--gold); }
+
+  /* Gated sections: smooth reveal, never collapse layout when sealed. */
+  .reveal-gate { display: block; }
+  .reveal-gate__sealed {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 18px 20px;
+    border: 1px dashed var(--line);
+    border-radius: 3px;
+    background: rgba(200, 168, 106, 0.04);
+  }
+  .reveal-gate__lock {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .reveal-gate__msg {
+    font-family: var(--serif-body);
+    font-style: italic;
+    font-size: 0.96rem;
+    color: var(--ink-dim);
+  }
+  .reveal-gate__mount > :first-child { margin-top: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal-toggle__btn { transition: none; }
+  }

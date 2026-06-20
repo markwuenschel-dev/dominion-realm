@@ -1,16 +1,7 @@
+@import "./tokens.css";
+
+  /* Shared design tokens live in tokens.css; only the /eyes-specific one here. */
   :root {
-    --bg: #080910; --bg-raise: #0d0f1a; --bg-panel: #11131f;
-    --ink: #ece7da; --ink-dim: #a8a496; --ink-faint: #6d6a60;
-    --gold: #c8a86a; --gold-bright: #e3c486;
-    --line: rgba(200,168,106,0.18); --line-soft: rgba(236,231,218,0.08);
-    --spectral: linear-gradient(90deg, #4fd6e0 0%, #5b8def 26%, #9b6cf0 52%, #ef6f9e 76%, #e0a850 100%);
-    --spectral-v: linear-gradient(180deg, #4fd6e0 0%, #5b8def 26%, #9b6cf0 52%, #ef6f9e 76%, #e0a850 100%);
-    --btn-ink: #15110a;
-    --grain-op: 0.05; --glow-op: 1;
-    --serif-display: var(--font-display), Georgia, serif;
-    --serif-body: var(--font-body), Georgia, serif;
-    --mono: var(--font-mono), ui-monospace, monospace;
-    --ease: cubic-bezier(0.22,1,0.36,1);
     /* current stage hue, driven by JS */
     --stage-hue: #4fd6e0;
   }
