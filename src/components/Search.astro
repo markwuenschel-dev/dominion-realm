@@ -1,0 +1,55 @@
+---
+/**
+ * Client-side static search over built content, powered by Pagefind (PRD
+ * "Search"). Pagefind indexes the *built* HTML and emits its runtime into
+ * `dist/pagefind/`; generate it with `npm run build:search` (or `npm run
+ * search` after a build). The default `npm run build` deliberately skips
+ * indexing so CI / ship builds don't depend on the Pagefind binary.
+ *
+ * Not yet mounted on any page: it has nothing to index until the Phase 2 codex
+ * pages exist. Drop <Search /> into the codex layout then, switch the deploy to
+ * `build:search`, and it lights up.
+ *
+ * Loaded via plain DOM injection (not ESM import) so it no-ops gracefully in
+ * dev / before the index is built, with no module-resolution errors.
+ */
+const base = import.meta.env.BASE_URL;
+---
+<div id="dr-search" class="dr-search"></div>
+
+<script is:inline define:vars={{ base }}>
+  (function () {
+    var el = document.getElementById('dr-search');
+    if (!el) return;
+
+    var css = document.createElement('link');
+    css.rel = 'stylesheet';
+    css.href = base + 'pagefind/pagefind-ui.css';
+    document.head.appendChild(css);
+
+    var js = document.createElement('script');
+    js.src = base + 'pagefind/pagefind-ui.js';
+    js.onload = function () {
+      if (window.PagefindUI) {
+        new window.PagefindUI({ element: '#dr-search', showSubResults: true, showImages: false });
+      }
+    };
+    js.onerror = function () {
+      /* Pagefind bundle absent (dev or un-indexed build) — search stays hidden. */
+    };
+    document.body.appendChild(js);
+  })();
+</script>
+
+<style>
+  /* Theme Pagefind's UI to the Realm's tokens (ADR-0007). */
+  .dr-search {
+    --pagefind-ui-primary: var(--gold, #c8a86a);
+    --pagefind-ui-text: var(--ink, #ece7da);
+    --pagefind-ui-background: var(--bg-panel, #11131f);
+    --pagefind-ui-border: var(--line, rgba(200, 168, 106, 0.18));
+    --pagefind-ui-tag: var(--bg-raise, #0d0f1a);
+    --pagefind-ui-border-radius: var(--radius-lg, 4px);
+    --pagefind-ui-font: var(--serif-body, Georgia, serif);
+  }
+</style>
