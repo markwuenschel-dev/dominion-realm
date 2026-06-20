@@ -8,7 +8,9 @@ export default defineConfig({
   site: onGitHubPages
     ? 'https://markwuenschel-dev.github.io'
     : 'https://dominion-realm.netlify.app', // ← change to your real Netlify URL
-  base: onGitHubPages ? '/dominion-realm' : '/',
+  // Trailing slash matters: links are built as `${BASE_URL}path`, so the base
+  // must end in '/' or GitHub Pages URLs collapse to `/dominion-realmpath`.
+  base: onGitHubPages ? '/dominion-realm/' : '/',
 
   // Self-hosted fonts (Astro 6). Downloads + caches at build time, generates
   // optimized fallbacks, and emits preload hints. No runtime Google request.
