@@ -1,0 +1,179 @@
+---
+/**
+ * GA4 analytics, consent-gated (ADR-0006). GA4 sets cookies, so we must not
+ * load it until the visitor opts in: this renders a small consent banner, and
+ * only on "Accept" is the gtag script injected and the choice remembered.
+ * Renders nothing when no GA id is configured (no tracking → no banner needed).
+ *
+ * Self-contained — scoped styles with token fallbacks — so it drops into any
+ * page, including the standalone /eyes page that doesn't use the Base layout.
+ */
+const gaId = import.meta.env.PUBLIC_GA4_ID;
+---
+{
+  gaId && (
+    <div id="dr-analytics" data-ga-id={gaId}>
+      <aside
+        class="consent"
+        id="dr-consent"
+        role="dialog"
+        aria-label="Cookie consent"
+        aria-live="polite"
+        hidden
+      >
+        <p class="consent__text">
+          We use <strong>Google&nbsp;Analytics</strong> to learn whether the Realm is finding its
+          readers. Cookies load only if you accept.
+        </p>
+        <div class="consent__actions">
+          <button type="button" class="consent__btn consent__btn--ghost" data-consent="denied">
+            Decline
+          </button>
+          <button type="button" class="consent__btn consent__btn--solid" data-consent="granted">
+            Accept
+          </button>
+        </div>
+      </aside>
+    </div>
+  )
+}
+
+<style>
+  .consent {
+    position: fixed;
+    z-index: var(--z-consent, 9700);
+    left: 50%;
+    bottom: clamp(14px, 3vw, 28px);
+    transform: translateX(-50%);
+    width: min(640px, calc(100vw - 28px));
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 22px;
+    padding: 18px 22px;
+    background: var(--bg-panel, #11131f);
+    border: 1px solid var(--line, rgba(200, 168, 106, 0.18));
+    border-radius: 4px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+  }
+  .consent__text {
+    flex: 1 1 280px;
+    margin: 0;
+    font-family: var(--font-body, Georgia, serif);
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--ink-dim, #a8a496);
+  }
+  .consent__text strong {
+    color: var(--ink, #ece7da);
+    font-weight: 500;
+  }
+  .consent__actions {
+    display: flex;
+    gap: 12px;
+    margin-left: auto;
+  }
+  .consent__btn {
+    font-family: var(--mono, ui-monospace, monospace);
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 11px 18px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition:
+      background 0.35s var(--ease, ease),
+      border-color 0.35s var(--ease, ease),
+      color 0.35s var(--ease, ease);
+  }
+  .consent__btn--solid {
+    background: var(--gold, #c8a86a);
+    border: 1px solid var(--gold, #c8a86a);
+    color: #15110a;
+  }
+  .consent__btn--solid:hover {
+    background: var(--gold-bright, #e3c486);
+    border-color: var(--gold-bright, #e3c486);
+  }
+  .consent__btn--ghost {
+    background: transparent;
+    border: 1px solid var(--line, rgba(200, 168, 106, 0.18));
+    color: var(--ink-dim, #a8a496);
+  }
+  .consent__btn--ghost:hover {
+    color: var(--ink, #ece7da);
+    border-color: var(--gold, #c8a86a);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .consent__btn {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  declare global {
+    interface Window {
+      dataLayer: unknown[];
+      __drGaLoaded?: boolean;
+    }
+  }
+
+  const CONSENT_KEY = 'dr-consent';
+  const root = document.getElementById('dr-analytics');
+
+  if (root) {
+    const gaId = root.dataset.gaId ?? '';
+    const banner = document.getElementById('dr-consent');
+
+    function loadGA(): void {
+      if (!gaId || window.__drGaLoaded) return;
+      window.__drGaLoaded = true;
+
+      const tag = document.createElement('script');
+      tag.async = true;
+      tag.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(gaId);
+      document.head.appendChild(tag);
+
+      window.dataLayer = window.dataLayer || [];
+      // gtag.js reads each dataLayer entry as a command tuple; an array works
+      // the same as the canonical `arguments` object and keeps this typed.
+      function gtag(...args: unknown[]): void {
+        window.dataLayer.push(args);
+      }
+      gtag('js', new Date());
+      gtag('config', gaId);
+    }
+
+    function readConsent(): string | null {
+      try {
+        return localStorage.getItem(CONSENT_KEY);
+      } catch {
+        return null;
+      }
+    }
+
+    function decide(choice: 'granted' | 'denied'): void {
+      try {
+        localStorage.setItem(CONSENT_KEY, choice);
+      } catch {
+        /* storage blocked — honor the choice for this session only */
+      }
+      if (banner) banner.hidden = true;
+      if (choice === 'granted') loadGA();
+    }
+
+    const prior = readConsent();
+    if (prior === 'granted') {
+      loadGA();
+    } else if (prior !== 'denied' && banner) {
+      banner.hidden = false; // no decision yet → ask
+    }
+
+    root.querySelectorAll<HTMLButtonElement>('[data-consent]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        decide(btn.dataset.consent === 'granted' ? 'granted' : 'denied');
+      });
+    });
+  }
+</script>

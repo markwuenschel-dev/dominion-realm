@@ -1,5 +1,6 @@
 ---
 import { Font } from 'astro:assets';
+import Analytics from '../components/Analytics.astro';
 import "../styles/eyes.css";
 const base = import.meta.env.BASE_URL;
 const desc =
@@ -611,5 +612,6 @@ const desc =
     }, 260);
   })();
 </script>
+<Analytics />
   </body>
 </html>
