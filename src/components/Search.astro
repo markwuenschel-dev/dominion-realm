@@ -2,16 +2,13 @@
 /**
  * Client-side static search over built content, powered by Pagefind (PRD
  * "Search"). Pagefind indexes the *built* HTML and emits its runtime into
- * `dist/pagefind/`; generate it with `npm run build:search` (or `npm run
- * search` after a build). The default `npm run build` deliberately skips
- * indexing so CI / ship builds don't depend on the Pagefind binary.
- *
- * Not yet mounted on any page: it has nothing to index until the Phase 2 codex
- * pages exist. Drop <Search /> into the codex layout then, switch the deploy to
- * `build:search`, and it lights up.
+ * `dist/pagefind/`; `npm run build` runs it automatically after `astro build`.
+ * Sealed (above-baseline) reveal content is marked `data-pagefind-ignore` in
+ * RevealGate, so spoilers never enter the index.
  *
  * Loaded via plain DOM injection (not ESM import) so it no-ops gracefully in
- * dev / before the index is built, with no module-resolution errors.
+ * dev (where there's no `/pagefind/` bundle yet), with no module-resolution
+ * errors. Mounted on the codex index.
  */
 const base = import.meta.env.BASE_URL;
 ---

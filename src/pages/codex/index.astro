@@ -1,0 +1,48 @@
+---
+import CodexLayout from '../../layouts/CodexLayout.astro';
+import CodexCard from '../../components/CodexCard.astro';
+import Search from '../../components/Search.astro';
+import { getAllCodexEntries, COLLECTION_ORDER, COLLECTION_LABELS } from '../../lib/codex';
+
+const entries = await getAllCodexEntries();
+const groups = COLLECTION_ORDER.map((collection) => ({
+  collection,
+  label: COLLECTION_LABELS[collection],
+  items: entries.filter((e) => e.collection === collection),
+})).filter((g) => g.items.length > 0);
+---
+<CodexLayout
+  title="The World Codex"
+  description="Explore the characters, powers, factions, and places of The Dominion Realm — spoiler-gated by your chosen reveal level."
+>
+  <div class="codex-head">
+    <span class="codex-head__label">The World Codex</span>
+    <h1 class="codex-head__title">Walk the <em>Realm</em></h1>
+    <p class="codex-head__intro">
+      Characters, powers, factions, and places drawn from the world of The Dominion Realm.
+      Set your reveal level above to unseal deeper lore as you read — everything defaults to
+      spoiler-safe.
+    </p>
+    <div class="codex-rule"></div>
+  </div>
+
+  <div class="codex-search">
+    <Search />
+  </div>
+
+  {
+    groups.map((group) => (
+      <section class="codex-group">
+        <div class="codex-group__head">
+          <h2 class="codex-group__title">{group.label}</h2>
+          <span class="codex-group__count">{group.items.length}</span>
+        </div>
+        <div class="codex-grid">
+          {group.items.map((entry) => (
+            <CodexCard entry={entry} />
+          ))}
+        </div>
+      </section>
+    ))
+  }
+</CodexLayout>

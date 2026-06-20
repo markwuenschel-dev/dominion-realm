@@ -1,0 +1,304 @@
+/* =====================================================================
+   World Codex styles (Phase 2). Builds on the shared tokens (tokens.css,
+   pulled in via global.css through the Base layout).
+   ===================================================================== */
+
+.codex {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 60px) 60px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Top bar ---- */
+.codex-top {
+  display: flex;
+  align-items: center;
+  gap: 18px 30px;
+  flex-wrap: wrap;
+  padding: 26px 0 24px;
+  border-bottom: 1px solid var(--line-soft);
+  margin-bottom: clamp(40px, 7vw, 72px);
+}
+.codex-top__home {
+  font-family: var(--serif-display);
+  font-size: 1.05rem;
+  color: var(--ink-dim);
+  text-decoration: none;
+  transition: color 0.35s var(--ease);
+}
+.codex-top__home em { font-style: italic; color: var(--gold-bright); }
+.codex-top__home:hover { color: var(--ink); }
+.codex-top__nav { display: flex; gap: 22px; margin-right: auto; }
+.codex-top__nav a {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-decoration: none;
+  transition: color 0.35s var(--ease);
+}
+.codex-top__nav a:hover { color: var(--gold); }
+
+/* ---- Page heading ---- */
+.codex-head { margin-bottom: clamp(32px, 5vw, 52px); }
+.codex-head__label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 16px;
+}
+.codex-head__title {
+  font-family: var(--serif-display);
+  font-weight: 500;
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  line-height: 1.04;
+  color: var(--ink);
+}
+.codex-head__title em { font-style: italic; color: var(--gold-bright); }
+.codex-head__intro {
+  margin-top: 18px;
+  max-width: 640px;
+  font-weight: 300;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--ink-dim);
+  text-wrap: pretty;
+}
+.codex-rule {
+  height: 1.5px;
+  width: 100%;
+  margin-top: 24px;
+  background: var(--spectral);
+  opacity: 0.85;
+  mask-image: linear-gradient(90deg, #000 0%, #000 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 60%, transparent 100%);
+}
+
+/* ---- Search mount ---- */
+.codex-search { margin: 0 0 clamp(34px, 6vw, 56px); max-width: 540px; }
+
+/* ---- Collection group ---- */
+.codex-group { margin-bottom: clamp(46px, 8vw, 80px); }
+.codex-group__head {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.codex-group__title {
+  font-family: var(--serif-display);
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+.codex-group__count {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  color: var(--ink-faint);
+}
+
+/* ---- Card grid ---- */
+.codex-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(258px, 1fr));
+  gap: 18px;
+}
+.codex-card {
+  position: relative;
+  display: block;
+  background: var(--bg-panel);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-lg);
+  padding: 26px 24px 28px;
+  text-decoration: none;
+  overflow: hidden;
+  transition: transform 0.5s var(--ease), border-color 0.5s var(--ease), background 0.5s var(--ease);
+}
+.codex-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--spectral);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.6s var(--ease);
+}
+.codex-card:hover { transform: translateY(-6px); border-color: var(--line); background: #13151f; }
+.codex-card:hover::before { transform: scaleX(1); }
+.codex-card__kicker {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 12px;
+  padding-right: 56px;
+}
+.codex-card__name {
+  font-family: var(--serif-display);
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.06;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+.codex-card__summary {
+  font-size: 0.94rem;
+  font-weight: 300;
+  line-height: 1.58;
+  color: var(--ink-dim);
+  text-wrap: pretty;
+}
+.codex-card__tier {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-family: var(--mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  padding: 3px 8px;
+}
+
+/* ---- Entry page ---- */
+.codex-entry { max-width: 760px; }
+.codex-entry__kicker {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 14px;
+}
+.codex-entry__title {
+  font-family: var(--serif-display);
+  font-weight: 500;
+  font-size: clamp(2.4rem, 6vw, 3.8rem);
+  line-height: 1.02;
+  color: var(--ink);
+}
+.codex-entry__summary {
+  margin-top: 18px;
+  font-style: italic;
+  font-size: 1.15rem;
+  line-height: 1.5;
+  color: var(--ink-dim);
+  max-width: 620px;
+  text-wrap: pretty;
+}
+.codex-entry__media { margin: 30px 0 0; }
+.codex-entry__media img {
+  width: 100%;
+  max-width: 340px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line-soft);
+}
+
+.codex-prose { margin-top: 34px; }
+.codex-prose p {
+  font-size: 1.08rem;
+  font-weight: 300;
+  line-height: 1.72;
+  color: var(--ink-dim);
+  margin-bottom: 1.3em;
+  text-wrap: pretty;
+}
+.codex-prose p:last-child { margin-bottom: 0; }
+.codex-prose strong { color: var(--ink); font-weight: 500; }
+.codex-prose em { font-style: italic; }
+.codex-prose h2,
+.codex-prose h3 {
+  font-family: var(--serif-display);
+  color: var(--ink);
+  font-weight: 500;
+  line-height: 1.12;
+  margin: 1.6em 0 0.5em;
+}
+.codex-prose h2 { font-size: 1.7rem; }
+.codex-prose h3 { font-size: 1.35rem; }
+.codex-prose a {
+  color: var(--gold-bright);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---- Relationships (cross-links) ---- */
+.codex-rel {
+  margin-top: 48px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line-soft);
+}
+.codex-rel__label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+.codex-rel__list { display: flex; flex-wrap: wrap; gap: 10px; }
+.codex-rel__item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 9px;
+  font-family: var(--serif-body);
+  font-size: 0.95rem;
+  color: var(--ink);
+  text-decoration: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 16px;
+  transition: border-color 0.35s var(--ease), color 0.35s var(--ease);
+}
+.codex-rel__item:hover { border-color: var(--gold); color: var(--gold-bright); }
+.codex-rel__rel {
+  font-family: var(--mono);
+  font-size: 0.54rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.codex-back {
+  display: inline-block;
+  margin-top: 52px;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-decoration: none;
+  transition: color 0.35s var(--ease);
+}
+.codex-back:hover { color: var(--gold); }
+
+/* ---- Footer ---- */
+.codex-footer {
+  margin-top: 76px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line-soft);
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+@media (max-width: 560px) {
+  .codex-grid { grid-template-columns: 1fr; }
+}
