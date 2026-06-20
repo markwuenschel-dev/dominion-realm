@@ -26,6 +26,12 @@ jobs:
         uses: withastro/action@v3
         with:
           node-version: 22
+        env:
+          # Non-secret public IDs (visible in page source). Set these as repo
+          # Variables: Settings → Secrets and variables → Actions → Variables.
+          # If unset, the build still succeeds; Kit/GA4 just stay inactive.
+          PUBLIC_KIT_FORM_ID: ${{ vars.PUBLIC_KIT_FORM_ID }}
+          PUBLIC_GA4_ID: ${{ vars.PUBLIC_GA4_ID }}
 
   deploy:
     name: Deploy
