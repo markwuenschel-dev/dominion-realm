@@ -41,7 +41,7 @@ const sealedMessage = label ?? `Raise your reveal level to ${TIER_LABELS[tier]} 
         <span class="reveal-gate__msg">{sealedMessage}</span>
       </p>
       <div class="reveal-gate__mount" />
-      <template data-reveal-content>
+      <template data-reveal-content data-pagefind-ignore>
         <slot />
       </template>
     </div>
