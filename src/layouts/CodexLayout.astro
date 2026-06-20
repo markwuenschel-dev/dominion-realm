@@ -1,0 +1,38 @@
+---
+/**
+ * Chrome for the World Codex (index + entry pages): atmosphere overlays, a top
+ * bar with a home link, cross-section nav, and the global RevealToggle that
+ * governs spoiler gating across the page. Wraps the parameterized Base layout.
+ */
+import Base from './Base.astro';
+import RevealToggle from '../components/RevealToggle.astro';
+import '../styles/codex.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+<Base title={`${title} — The Dominion Realm`} description={description} ogTitle={title}>
+  <div class="grain"></div>
+  <div class="vignette"></div>
+  <div class="codex">
+    <header class="codex-top">
+      <a class="codex-top__home" href={base}>← The Dominion <em>Realm</em></a>
+      <nav class="codex-top__nav">
+        <a href={`${base}codex`}>Codex</a>
+        <a href={`${base}eyes`}>The Eyes</a>
+      </nav>
+      <RevealToggle />
+    </header>
+    <main class="codex-wrap">
+      <slot />
+    </main>
+    <footer class="codex-footer">
+      The Dominion Realm — Realmwalkers · Book One
+    </footer>
+  </div>
+</Base>
