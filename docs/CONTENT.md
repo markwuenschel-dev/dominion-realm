@@ -331,10 +331,10 @@ A **Keystatic** CMS sits on top of these exact same collections and gives you a
 no git commands. It runs in **GitHub cloud mode**, which means it reads from and
 writes to this repo directly.
 
-> **Heads up:** the Keystatic CMS lands alongside this guide as a sibling change.
-> The setup details below describe the standard Keystatic-cloud workflow; confirm
-> the exact admin URL and any project-specific steps against
-> [ADR-0009 — Keystatic CMS](adr/0009-cms-keystatic.md) once it's in place.
+> **One-time setup required.** Cloud editing only works after the site owner
+> creates a GitHub App and adds three secrets to Netlify — see the full checklist
+> in [ADR-0009 — Keystatic CMS](adr/0009-cms-keystatic.md). Until that's done, use
+> the Markdown/git paths above. The admin lives **only** on the Netlify URL.
 
 ### How to use it
 
