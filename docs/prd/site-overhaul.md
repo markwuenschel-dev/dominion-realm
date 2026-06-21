@@ -95,7 +95,7 @@ Good tests here assert externally observable behavior, not implementation detail
 ## Out of Scope
 
 - Interactive world map (backlog; most build-heavy, needs map art — codex Places entries can hook into it later).
-- A GUI CMS (Keystatic/Decap) — deferred; collections are edited in-repo for now.
+- ~~A GUI CMS (Keystatic/Decap) — deferred; collections are edited in-repo for now.~~ **Adopted post-overhaul:** Keystatic in GitHub storage mode (see [ADR-0009](../adr/0009-cms-keystatic.md)); in-repo Markdown editing remains supported.
 - Reading-sample downloads (epub/PDF) — deferred; web reader only.
 - Accounts, comments, or any community/social features.
 - Real retailer/buy integration and any sales-conversion optimization (the book isn't buyable yet).

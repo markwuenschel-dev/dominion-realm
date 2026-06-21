@@ -2,6 +2,10 @@
 
 Planning and decision records for the showcase site.
 
+## Guides
+
+- [Editing the Site](CONTENT.md) — author's guide to updating content (collections, reveal tiers, the Keystatic CMS, and how to publish).
+
 ## PRDs
 
 - [Site Overhaul](prd/site-overhaul.md) — master PRD for the pre-launch overhaul.
@@ -16,3 +20,4 @@ Planning and decision records for the showcase site.
 - [ADR-0006](adr/0006-analytics-ga4.md) — Analytics via Google Analytics 4
 - [ADR-0007](adr/0007-evolve-not-reinvent-identity.md) — Evolve & systematize the visual identity (don't reinvent)
 - [ADR-0008](adr/0008-stack-astro-typescript-vanilla-islands.md) — Stack: Astro + TypeScript, vanilla-first islands
+- [ADR-0009](adr/0009-cms-keystatic.md) — Browser authoring via Keystatic (GitHub storage mode); admin on Netlify, Pages stays static

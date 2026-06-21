@@ -54,38 +54,59 @@ serves under the `/dominion-realm` base path automatically.
 
 ## Where to edit content
 
-Everything lives in **`src/pages/index.astro`** (search for the marker text):
+Content lives in two places. **Most of it is Markdown.**
+
+**1. Content Collections** (the World Codex, the Journal, the Reading Sample) — folders of
+Markdown files under `src/content/`. Add a file, write the frontmatter + body, commit. The
+filename becomes the URL slug.
+
+| Collection | Folder | URL |
+|---|---|---|
+| Codex — characters / concepts / factions / places | `src/content/<collection>/` | `/codex/<collection>/<slug>` |
+| Author Journal (Field Notes + From the Desk) | `src/content/journal/` | `/journal/<slug>` |
+| Reading Sample (Prologue + Chapter One) | `src/content/reading/` | `/read/<slug>` |
+
+**2. The hand-coded homepage** (`src/pages/index.astro`) and Eyes page (`src/pages/eyes.astro`) —
+edit the markup directly (search for the marker text):
 
 | To change… | Search for |
 |---|---|
 | Logline / hero | `hero-logline` |
 | Buy links (Amazon, B&N) | `Buy on Amazon` |
-| Characters (Soren, Serra, Seb) | `char-name` |
-| The World (Eriadne, Xyloryn, Zalgorans) | `world-name` |
+| Homepage characters (Soren, Serra, Seb) | `char-name` |
+| The World pitch (Eriadne, the two endings) | `world-name` |
 | The six Eyes stages | `stage-name` |
 | Author name / socials | `[ Author Name ]` |
 
-Design tokens (palette, fonts, the spectral gradient) are the `:root` block at the top of
-**`src/styles/global.css`**. The favicon is `public/favicon.svg`.
+Design tokens (palette, fonts, the spectral gradient) are in **`src/styles/tokens.css`**.
+The favicon is `public/favicon.svg`.
+
+📖 **Full author's guide: [`docs/CONTENT.md`](docs/CONTENT.md)** — frontmatter fields, the
+reveal-tier model, the `draft` flag, worked examples, the publish flow, and the Keystatic CMS.
 
 ## Structure
 
 ```
 src/
+  content/               the Markdown content collections (codex, journal, reading)
+  content.config.ts      the schema for every collection — validated at build time
+  lib/reveal.ts          the four-tier reveal vocabulary (single source of truth)
   layouts/Base.astro     <head>, fonts, meta, the <body> shell
-  pages/index.astro      all page content + the site JS (verbatim, is:inline)
-  styles/global.css      the full original stylesheet, unchanged
+  pages/index.astro      hand-coded homepage (all hero/pitch markup + site JS)
+  pages/eyes.astro       the Eyes of Meszkhal interactive
+  styles/tokens.css      design tokens (palette, fonts, gradient) — single source of truth
+  styles/global.css      the homepage + shared stylesheet
 public/
   favicon.svg            spectral-iris mark
   .nojekyll              lets GitHub Pages serve the _astro/ asset folder
 .github/workflows/deploy.yml   GitHub Pages CI
 netlify.toml                   Netlify build config
 astro.config.mjs               site + auto base-path
+docs/                          PRD, ADRs, and the author's content guide (CONTENT.md)
 ```
 
 ## Optional later
 
 - **Offline fonts:** swap the Google Fonts `<link>` in `Base.astro` for `@fontsource` packages
   (`@fontsource/cormorant-garamond`, `@fontsource/spectral`, `@fontsource/space-mono`) to drop the external request.
-- **Componentize** the character and stage blocks into `src/components/` once you start adding more — the markup is plain Astro, so each repeating block lifts out cleanly.
-- **Real signup:** the form is a mock (`signupForm` handler in `index.astro`). Point it at a Netlify Form, Buttondown, or your own endpoint when ready.
+- **Email signup:** already wired to Kit (ADR-0005) — set `PUBLIC_KIT_FORM_ID` to point it at your form; without it the form falls back to a friendly local confirmation.
