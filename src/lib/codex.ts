@@ -48,7 +48,8 @@ export function codexUrl(base: string, collection: string, id: string): string {
 export function entryKicker(entry: CodexEntry): string {
   const data = entry.data;
   if ('role' in data && data.role) return data.role;
-  if ('kind' in data && data.kind) return KIND_LABELS[data.kind] ?? COLLECTION_LABELS[entry.collection];
+  if ('kind' in data && data.kind)
+    return KIND_LABELS[data.kind] ?? COLLECTION_LABELS[entry.collection];
   if ('region' in data && data.region) return data.region;
   return COLLECTION_LABELS[entry.collection];
 }

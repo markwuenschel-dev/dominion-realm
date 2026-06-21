@@ -12,7 +12,9 @@
     "preview": "astro preview",
     "sync": "astro sync",
     "check": "astro check",
-    "search": "pagefind --site dist"
+    "search": "pagefind --site dist",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "astro": "^6.4.7"
@@ -20,6 +22,8 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
     "pagefind": "^1.5.2",
+    "prettier": "^3.8.4",
+    "prettier-plugin-astro": "^0.14.1",
     "typescript": "^6.0.3"
   }
 }

@@ -18,11 +18,16 @@ const url = codexUrl(base, entry.collection, entry.id);
 const kicker = entryKicker(entry);
 const tier = entry.data.reveal;
 ---
+
 <a class="codex-card" href={url}>
   <span class="codex-card__kicker">{kicker}</span>
   <h3 class="codex-card__name">{entry.data.name}</h3>
   <p class="codex-card__summary">{entry.data.summary}</p>
-  {tier !== 'teaser' && (
-    <span class="codex-card__tier" data-tier={tier}>{TIER_LABELS[tier]}</span>
-  )}
+  {
+    tier !== 'teaser' && (
+      <span class="codex-card__tier" data-tier={tier}>
+        {TIER_LABELS[tier]}
+      </span>
+    )
+  }
 </a>

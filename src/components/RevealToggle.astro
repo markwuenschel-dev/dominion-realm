@@ -10,6 +10,7 @@
  */
 import { REVEAL_TIERS, TIER_LABELS, TIER_DESCRIPTIONS, DEFAULT_TIER } from '../lib/reveal';
 ---
+
 <fieldset class="reveal-toggle" aria-label="Spoiler reveal level">
   <legend class="reveal-toggle__legend">Reveal</legend>
   <div class="reveal-toggle__options" role="radiogroup">
@@ -51,11 +52,9 @@ import { REVEAL_TIERS, TIER_LABELS, TIER_DESCRIPTIONS, DEFAULT_TIER } from '../l
     document.documentElement.dataset.reveal = level;
 
     // Keep every toggle instance's pressed state in sync.
-    document
-      .querySelectorAll<HTMLButtonElement>('[data-reveal-set]')
-      .forEach((btn) => {
-        btn.setAttribute('aria-checked', btn.dataset.revealSet === level ? 'true' : 'false');
-      });
+    document.querySelectorAll<HTMLButtonElement>('[data-reveal-set]').forEach((btn) => {
+      btn.setAttribute('aria-checked', btn.dataset.revealSet === level ? 'true' : 'false');
+    });
 
     // Open or re-seal each gated section.
     document.querySelectorAll<HTMLElement>('.reveal-gate').forEach((gate) => {
@@ -91,11 +90,9 @@ import { REVEAL_TIERS, TIER_LABELS, TIER_DESCRIPTIONS, DEFAULT_TIER } from '../l
     applyReveal(level);
   }
 
-  document
-    .querySelectorAll<HTMLButtonElement>('[data-reveal-set]')
-    .forEach((btn) => {
-      btn.addEventListener('click', () => setLevel(parseTier(btn.dataset.revealSet)));
-    });
+  document.querySelectorAll<HTMLButtonElement>('[data-reveal-set]').forEach((btn) => {
+    btn.addEventListener('click', () => setLevel(parseTier(btn.dataset.revealSet)));
+  });
 
   // Restore the reader's persisted choice on load.
   applyReveal(readLevel());

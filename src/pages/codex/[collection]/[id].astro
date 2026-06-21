@@ -25,6 +25,7 @@ const kicker = entryKicker(entry);
 const tier = entry.data.reveal;
 const links = resolveRelationships(base, entry, all);
 ---
+
 <CodexLayout title={entry.data.name} description={entry.data.summary}>
   <article class="codex-entry">
     <span class="codex-entry__kicker">{COLLECTION_LABELS[entry.collection]} · {kicker}</span>
