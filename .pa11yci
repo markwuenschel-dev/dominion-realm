@@ -1,0 +1,14 @@
+{
+  "defaults": {
+    "standard": "WCAG2AA",
+    "timeout": 30000,
+    "chromeLaunchConfig": { "args": ["--no-sandbox"] }
+  },
+  "urls": [
+    "http://localhost:4321/dominion-realm/",
+    "http://localhost:4321/dominion-realm/codex/",
+    "http://localhost:4321/dominion-realm/codex/characters/soren/",
+    "http://localhost:4321/dominion-realm/codex/concepts/neuroquantum-lattice/",
+    "http://localhost:4321/dominion-realm/eyes/"
+  ]
+}

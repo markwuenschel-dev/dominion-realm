@@ -1,0 +1,65 @@
+name: CI
+
+# Validation gate for every pull request. The `verify` job is what branch
+# protection should require before merge; the `a11y` job is advisory for now.
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Build & validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # Non-secret public IDs (repo Variables) so the build matches production.
+      PUBLIC_KIT_FORM_ID: ${{ vars.PUBLIC_KIT_FORM_ID }}
+      PUBLIC_GA4_ID: ${{ vars.PUBLIC_GA4_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Formatting
+        run: npm run format:check
+      - name: Types & content schema
+        run: npm run check
+      - name: Build (Astro + Pagefind)
+        run: npm run build
+      - name: Link & base-path guard
+        # CI builds in the GitHub Pages context, so links carry the project base.
+        run: node scripts/check-links.mjs dist /dominion-realm/
+
+  a11y:
+    name: Accessibility (advisory)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PUBLIC_KIT_FORM_ID: ${{ vars.PUBLIC_KIT_FORM_ID }}
+      PUBLIC_GA4_ID: ${{ vars.PUBLIC_GA4_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Serve and audit
+        # Advisory: report WCAG findings in the log without failing the check.
+        # Remove this line to promote accessibility to a required gate once the
+        # existing contrast issues are addressed.
+        continue-on-error: true
+        run: |
+          npm run preview -- --host &
+          npx --yes wait-on -t 60000 http://localhost:4321/dominion-realm/
+          npx --yes pa11y-ci

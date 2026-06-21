@@ -38,9 +38,10 @@ export const TIER_DESCRIPTIONS: Record<RevealTier, string> = {
   beyond: 'Series-level hints toward books still to come.',
 };
 
-const TIER_RANK = Object.fromEntries(
-  REVEAL_TIERS.map((tier, index) => [tier, index]),
-) as Record<RevealTier, number>;
+const TIER_RANK = Object.fromEntries(REVEAL_TIERS.map((tier, index) => [tier, index])) as Record<
+  RevealTier,
+  number
+>;
 
 /** Numeric rank of a tier (teaser = 0 … beyond = 3). */
 export function rankOf(tier: RevealTier): number {
@@ -58,10 +59,7 @@ export function isRevealed(required: RevealTier, level: RevealTier): boolean {
 
 /** Type guard: is `value` one of the four canonical tiers? */
 export function isRevealTier(value: unknown): value is RevealTier {
-  return (
-    typeof value === 'string' &&
-    (REVEAL_TIERS as readonly string[]).includes(value)
-  );
+  return typeof value === 'string' && (REVEAL_TIERS as readonly string[]).includes(value);
 }
 
 /**

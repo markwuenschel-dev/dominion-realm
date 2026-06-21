@@ -11,6 +11,7 @@ const groups = COLLECTION_ORDER.map((collection) => ({
   items: entries.filter((e) => e.collection === collection),
 })).filter((g) => g.items.length > 0);
 ---
+
 <CodexLayout
   title="The World Codex"
   description="Explore the characters, powers, factions, and places of The Dominion Realm — spoiler-gated by your chosen reveal level."
@@ -19,9 +20,8 @@ const groups = COLLECTION_ORDER.map((collection) => ({
     <span class="codex-head__label">The World Codex</span>
     <h1 class="codex-head__title">Walk the <em>Realm</em></h1>
     <p class="codex-head__intro">
-      Characters, powers, factions, and places drawn from the world of The Dominion Realm.
-      Set your reveal level above to unseal deeper lore as you read — everything defaults to
-      spoiler-safe.
+      Characters, powers, factions, and places drawn from the world of The Dominion Realm. Set your
+      reveal level above to unseal deeper lore as you read — everything defaults to spoiler-safe.
     </p>
     <div class="codex-rule"></div>
   </div>

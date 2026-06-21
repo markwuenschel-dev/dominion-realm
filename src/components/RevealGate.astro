@@ -29,6 +29,7 @@ const { tier, label } = Astro.props;
 const isBaseline = tier === 'teaser';
 const sealedMessage = label ?? `Raise your reveal level to ${TIER_LABELS[tier]} to read this.`;
 ---
+
 {
   isBaseline ? (
     <div class="reveal-gate" data-reveal-tier={tier}>

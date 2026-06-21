@@ -74,9 +74,7 @@ const concepts = defineCollection({
   loader: codexLoader('concepts'),
   schema: (ctx) =>
     codexBase(ctx).extend({
-      kind: z
-        .enum(['magic-system', 'artifact', 'phenomenon', 'term'])
-        .default('term'),
+      kind: z.enum(['magic-system', 'artifact', 'phenomenon', 'term']).default('term'),
       /**
        * For the Eyes of Meszkhal: the stage number (1–6) so the /eyes page can
        * render its progression over structured concept data.

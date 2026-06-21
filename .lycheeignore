@@ -1,0 +1,7 @@
+# Endpoints that don't answer a plain GET / are loaded at runtime, not crawlable.
+app.kit.com
+googletagmanager.com
+# Social placeholders until real profiles exist.
+instagram.com
+goodreads.com
+tiktok.com
