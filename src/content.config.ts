@@ -121,4 +121,25 @@ const journal = defineCollection({
     }),
 });
 
-export const collections = { characters, concepts, factions, places, journal };
+/**
+ * The Reading Sample (Track A): the Prologue + Chapter One, published in full
+ * with NO reveal gate — this is the open bait that wins readers, so there is
+ * deliberately no `reveal` field here. Order is an explicit sort key so the
+ * reader's prev/next navigation is independent of filenames.
+ */
+const reading = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/reading' }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      kind: z.enum(['prologue', 'chapter']).default('chapter'),
+      /** Sort key for reading order (and prev/next derivation). */
+      order: z.number(),
+      summary: z.string(),
+      image: image().optional(),
+      imageAlt: z.string().optional(),
+      draft: z.boolean().default(false),
+    }),
+});
+
+export const collections = { characters, concepts, factions, places, journal, reading };
