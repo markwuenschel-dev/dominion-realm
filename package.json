@@ -17,11 +17,19 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@astrojs/netlify": "^7.0.13",
+    "@astrojs/react": "^5.0.7",
     "@astrojs/rss": "^4.0.18",
-    "astro": "^6.4.7"
+    "@keystatic/astro": "^5.1.0",
+    "@keystatic/core": "^0.5.50",
+    "astro": "^6.4.7",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
     "pagefind": "^1.5.2",
     "prettier": "^3.8.4",
     "prettier-plugin-astro": "^0.14.1",
