@@ -1,0 +1,42 @@
+---
+/**
+ * Chrome for the Reading Sample (Track A): atmosphere overlays, a top bar with a
+ * home link and a link back to the reading index, a centered reading column, and
+ * a footer. Wraps the parameterized Base layout.
+ *
+ * Deliberately has NO RevealToggle — the reading sample is fully open (PRD: the
+ * bait that wins readers), so nothing here is gated.
+ */
+import Base from './Base.astro';
+import '../styles/reading.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** When false, hides the "The Reading" back-link (used on the index itself). */
+  showIndexLink?: boolean;
+}
+
+const { title, description, showIndexLink = true } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+
+<Base title={`${title} — The Dominion Realm`} description={description} ogTitle={title}>
+  <div class="grain"></div>
+  <div class="vignette"></div>
+  <div class="reading">
+    <header class="reading-top">
+      <a class="reading-top__home" href={base}>← The Dominion <em>Realm</em></a>
+      <nav class="reading-top__nav">
+        {showIndexLink && <a href={`${base}read`}>The Reading</a>}
+        <a href={`${base}codex`}>Codex</a>
+        <a href={`${base}journal`}>Journal</a>
+        <a href={`${base}eyes`}>The Eyes</a>
+      </nav>
+    </header>
+    <main class="reading-wrap">
+      <slot />
+    </main>
+    <footer class="reading-footer">The Dominion Realm — Realmwalkers · Book One</footer>
+  </div>
+</Base>

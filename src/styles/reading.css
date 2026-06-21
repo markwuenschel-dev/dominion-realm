@@ -1,0 +1,425 @@
+/* =====================================================================
+   Reading Sample styles (Track A — the open Prologue + Chapter One).
+   Builds on the shared tokens (tokens.css, pulled in via global.css through
+   the Base layout). Goal: a real, beautifully typeset reading experience —
+   comfortable measure, generous leading, scene-break ornament, drop cap.
+   ===================================================================== */
+
+.reading {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 60px) 60px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Top bar (mirrors the codex chrome) ---- */
+.reading-top {
+  display: flex;
+  align-items: center;
+  gap: 18px 30px;
+  flex-wrap: wrap;
+  padding: 26px 0 24px;
+  border-bottom: 1px solid var(--line-soft);
+  margin-bottom: clamp(40px, 7vw, 72px);
+}
+.reading-top__home {
+  font-family: var(--serif-display);
+  font-size: 1.05rem;
+  color: var(--ink-dim);
+  text-decoration: none;
+  transition: color 0.35s var(--ease);
+}
+.reading-top__home em {
+  font-style: italic;
+  color: var(--gold-bright);
+}
+.reading-top__home:hover {
+  color: var(--ink);
+}
+.reading-top__nav {
+  display: flex;
+  gap: 22px;
+  margin-left: auto;
+}
+.reading-top__nav a {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-decoration: none;
+  transition: color 0.35s var(--ease);
+}
+.reading-top__nav a:hover {
+  color: var(--gold);
+}
+
+/* =====================================================================
+   Reading index — the "begin reading" landing.
+   ===================================================================== */
+.reading-head {
+  margin-bottom: clamp(40px, 6vw, 64px);
+  max-width: 720px;
+}
+.reading-head__label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 16px;
+}
+.reading-head__title {
+  font-family: var(--serif-display);
+  font-weight: 500;
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  line-height: 1.04;
+  color: var(--ink);
+}
+.reading-head__title em {
+  font-style: italic;
+  color: var(--gold-bright);
+}
+.reading-head__intro {
+  margin-top: 18px;
+  font-weight: 300;
+  font-size: 1.08rem;
+  line-height: 1.66;
+  color: var(--ink-dim);
+  text-wrap: pretty;
+}
+.reading-rule {
+  height: 1.5px;
+  width: 100%;
+  margin-top: 24px;
+  background: var(--spectral);
+  opacity: 0.85;
+  mask-image: linear-gradient(90deg, #000 0%, #000 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 60%, transparent 100%);
+}
+
+/* ---- Primary CTA into the Prologue ---- */
+.reading-cta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 14px;
+  margin: 6px 0 clamp(40px, 6vw, 60px);
+  padding: 16px 28px;
+  font-family: var(--serif-display);
+  font-size: 1.15rem;
+  color: var(--btn-ink);
+  background: var(--gold);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: background 0.35s var(--ease), transform 0.35s var(--ease);
+}
+.reading-cta__hint {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.reading-cta:hover {
+  background: var(--gold-bright);
+  transform: translateY(-2px);
+}
+
+/* ---- Contents list (Prologue, Chapter One …) ---- */
+.reading-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 760px;
+}
+.reading-item {
+  position: relative;
+  display: block;
+  background: var(--bg-panel);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-lg);
+  padding: 26px 28px 28px;
+  text-decoration: none;
+  overflow: hidden;
+  transition: transform 0.5s var(--ease), border-color 0.5s var(--ease), background 0.5s var(--ease);
+}
+.reading-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--spectral-v);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.6s var(--ease);
+}
+.reading-item:hover {
+  transform: translateY(-4px);
+  border-color: var(--line);
+  background: #13151f;
+}
+.reading-item:hover::before {
+  transform: scaleY(1);
+}
+.reading-item__kicker {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 10px;
+}
+.reading-item__title {
+  font-family: var(--serif-display);
+  font-size: 1.6rem;
+  font-weight: 500;
+  line-height: 1.08;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+.reading-item__summary {
+  font-size: 0.96rem;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--ink-dim);
+  text-wrap: pretty;
+}
+
+/* =====================================================================
+   The reader — the actual prose page.
+   ===================================================================== */
+.reading-article {
+  max-width: 720px;
+  margin: 0 auto;
+}
+.reading-article__kicker {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 14px;
+}
+.reading-article__title {
+  font-family: var(--serif-display);
+  font-weight: 500;
+  font-size: clamp(2.3rem, 6vw, 3.6rem);
+  line-height: 1.04;
+  color: var(--ink);
+}
+.reading-article__summary {
+  margin-top: 18px;
+  font-style: italic;
+  font-size: 1.12rem;
+  line-height: 1.5;
+  color: var(--ink-dim);
+  max-width: 620px;
+  text-wrap: pretty;
+}
+.reading-article__rule {
+  height: 1.5px;
+  width: 100%;
+  margin-top: 24px;
+  background: var(--spectral);
+  opacity: 0.7;
+  mask-image: linear-gradient(90deg, #000 0%, #000 55%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 55%, transparent 100%);
+}
+
+/* ---- Prose: comfortable measure (~64ch), generous leading ---- */
+.reading-prose {
+  margin-top: clamp(32px, 5vw, 48px);
+  max-width: 64ch;
+  font-family: var(--serif-body);
+}
+.reading-prose p {
+  font-size: clamp(1.06rem, 0.5vw + 1rem, 1.18rem);
+  font-weight: 400;
+  line-height: 1.8;
+  color: var(--ink);
+  margin-bottom: 1.4em;
+  text-wrap: pretty;
+}
+.reading-prose p:last-child {
+  margin-bottom: 0;
+}
+
+/* Drop cap on the opening paragraph for a "beautifully typeset" first line. */
+.reading-prose > p:first-of-type::first-letter {
+  float: left;
+  font-family: var(--serif-display);
+  font-weight: 600;
+  font-size: 3.6em;
+  line-height: 0.78;
+  padding: 0.04em 0.1em 0 0;
+  margin-right: 0.04em;
+  color: var(--gold-bright);
+}
+/* First few words in small caps, easing the eye in after the drop cap. */
+.reading-prose > p:first-of-type::first-line {
+  font-variant: small-caps;
+  letter-spacing: 0.01em;
+}
+
+.reading-prose em {
+  font-style: italic;
+}
+.reading-prose strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+.reading-prose a {
+  color: var(--gold-bright);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.reading-prose h2,
+.reading-prose h3 {
+  font-family: var(--serif-display);
+  color: var(--ink);
+  font-weight: 500;
+  line-height: 1.12;
+  margin: 1.8em 0 0.5em;
+}
+.reading-prose h2 {
+  font-size: 1.8rem;
+}
+.reading-prose h3 {
+  font-size: 1.4rem;
+}
+.reading-prose blockquote {
+  margin: 1.6em 0;
+  padding-left: 1.2em;
+  border-left: 2px solid var(--line);
+  font-style: italic;
+  color: var(--ink-dim);
+}
+
+/* Scene-break ornament: markdown `---` (a thematic break) becomes an
+   asterism rather than a hard rule. */
+.reading-prose hr {
+  border: 0;
+  margin: 2.4em auto;
+  width: 100%;
+  text-align: center;
+  overflow: visible;
+}
+.reading-prose hr::before {
+  content: '✦   ✦   ✦';
+  display: block;
+  font-family: var(--serif-display);
+  font-size: 0.9rem;
+  letter-spacing: 0.4em;
+  color: var(--gold);
+  opacity: 0.7;
+  /* Pull the glyphs back so the letter-spacing stays optically centered. */
+  padding-left: 0.4em;
+}
+
+/* =====================================================================
+   Chapter navigation (prev / next) + back link.
+   ===================================================================== */
+.reading-nav {
+  margin: clamp(56px, 9vw, 88px) auto 0;
+  max-width: 720px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line-soft);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.reading-nav__link {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 20px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  transition: border-color 0.4s var(--ease), background 0.4s var(--ease);
+}
+.reading-nav__link:hover {
+  border-color: var(--line);
+  background: var(--bg-panel);
+}
+.reading-nav__link--next {
+  text-align: right;
+  grid-column: 2;
+}
+.reading-nav__dir {
+  font-family: var(--mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.reading-nav__title {
+  font-family: var(--serif-display);
+  font-size: 1.15rem;
+  color: var(--ink);
+}
+.reading-nav__link:hover .reading-nav__title {
+  color: var(--gold-bright);
+}
+
+.reading-back {
+  display: inline-block;
+  margin: clamp(36px, 6vw, 52px) auto 0;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-decoration: none;
+  transition: color 0.35s var(--ease);
+}
+.reading-back:hover {
+  color: var(--gold);
+}
+
+/* ---- Footer ---- */
+.reading-footer {
+  margin-top: 76px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line-soft);
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+@media (max-width: 560px) {
+  .reading-nav {
+    grid-template-columns: 1fr;
+  }
+  .reading-nav__link--next {
+    grid-column: 1;
+    text-align: left;
+  }
+  .reading-prose > p:first-of-type::first-letter {
+    font-size: 3.1em;
+  }
+}
+
+/* Respect reduced-motion: drop the lift/transform transitions. The site's
+   global stylesheet already silences keyframe animations; here we make sure
+   the reading-specific hover transforms don't move either. */
+@media (prefers-reduced-motion: reduce) {
+  .reading-item,
+  .reading-item::before,
+  .reading-cta,
+  .reading-nav__link {
+    transition: none;
+  }
+  .reading-item:hover,
+  .reading-cta:hover {
+    transform: none;
+  }
+}
