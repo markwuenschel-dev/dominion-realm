@@ -1,0 +1,264 @@
+/* =====================================================================
+   Author Journal styles (ADR-0003). Reuses the codex chrome (.codex,
+   .codex-top, .codex-footer come from codex.css via CodexLayout) and the
+   shared tokens; this file adds the journal index list, the stream filter,
+   and the post page.
+   ===================================================================== */
+
+/* ---- Index heading ---- */
+.journal-head {
+  margin-bottom: clamp(28px, 5vw, 44px);
+}
+.journal-head__label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 16px;
+}
+.journal-head__title {
+  font-family: var(--serif-display);
+  font-weight: 500;
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  line-height: 1.04;
+  color: var(--ink);
+}
+.journal-head__title em {
+  font-style: italic;
+  color: var(--gold-bright);
+}
+.journal-head__intro {
+  margin-top: 18px;
+  max-width: 640px;
+  font-weight: 300;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--ink-dim);
+  text-wrap: pretty;
+}
+
+/* ---- Filter bar + feed link ---- */
+.journal-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  margin: clamp(24px, 4vw, 38px) 0 clamp(30px, 5vw, 48px);
+}
+.journal-filter {
+  display: inline-flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.journal-filter__btn {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 16px;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    color 0.35s var(--ease),
+    border-color 0.35s var(--ease),
+    background 0.35s var(--ease);
+}
+.journal-filter__btn:hover {
+  color: var(--gold-bright);
+  border-color: var(--gold);
+}
+.journal-filter__btn[aria-pressed='true'],
+.journal-filter__btn.is-active {
+  color: var(--btn-ink);
+  background: var(--gold);
+  border-color: var(--gold);
+}
+.journal-feed {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-decoration: none;
+  transition: color 0.35s var(--ease);
+}
+.journal-feed:hover {
+  color: var(--gold);
+}
+
+/* ---- Post list ---- */
+.journal-list {
+  display: flex;
+  flex-direction: column;
+}
+.journal-item {
+  display: block;
+  padding: clamp(22px, 3vw, 30px) 0;
+  border-top: 1px solid var(--line-soft);
+  text-decoration: none;
+  transition: border-color 0.4s var(--ease);
+}
+.journal-item:last-child {
+  border-bottom: 1px solid var(--line-soft);
+}
+.journal-item:hover {
+  border-color: var(--line);
+}
+.journal-item:hover .journal-item__title {
+  color: var(--gold-bright);
+}
+.journal-item__kicker {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 12px;
+}
+.journal-item__title {
+  font-family: var(--serif-display);
+  font-size: clamp(1.5rem, 3.4vw, 2rem);
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: 10px;
+  transition: color 0.35s var(--ease);
+}
+.journal-item__summary {
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--ink-dim);
+  max-width: 640px;
+  text-wrap: pretty;
+}
+
+/* The filter hides non-matching items by data-attribute; no-JS shows all. */
+.journal-item.is-hidden {
+  display: none;
+}
+
+.journal-empty {
+  padding: 28px 0;
+  font-style: italic;
+  color: var(--ink-faint);
+}
+
+/* ---- Post page ---- */
+.journal-post {
+  max-width: 760px;
+}
+.journal-post__kicker {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 14px;
+}
+.journal-post__title {
+  font-family: var(--serif-display);
+  font-weight: 500;
+  font-size: clamp(2.2rem, 5.5vw, 3.6rem);
+  line-height: 1.04;
+  color: var(--ink);
+}
+.journal-post__summary {
+  margin-top: 18px;
+  font-style: italic;
+  font-size: 1.15rem;
+  line-height: 1.5;
+  color: var(--ink-dim);
+  max-width: 620px;
+  text-wrap: pretty;
+}
+.journal-post__updated {
+  display: block;
+  margin-top: 14px;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.journal-post__media {
+  margin: 30px 0 0;
+}
+.journal-post__media img {
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line-soft);
+}
+
+/* Body prose mirrors the codex prose treatment. */
+.journal-prose {
+  margin-top: 34px;
+}
+.journal-prose p {
+  font-size: 1.08rem;
+  font-weight: 300;
+  line-height: 1.72;
+  color: var(--ink-dim);
+  margin-bottom: 1.3em;
+  text-wrap: pretty;
+}
+.journal-prose p:last-child {
+  margin-bottom: 0;
+}
+.journal-prose strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+.journal-prose em {
+  font-style: italic;
+}
+.journal-prose h2,
+.journal-prose h3 {
+  font-family: var(--serif-display);
+  color: var(--ink);
+  font-weight: 500;
+  line-height: 1.12;
+  margin: 1.6em 0 0.5em;
+}
+.journal-prose h2 {
+  font-size: 1.7rem;
+}
+.journal-prose h3 {
+  font-size: 1.35rem;
+}
+.journal-prose a {
+  color: var(--gold-bright);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.journal-prose blockquote {
+  margin: 1.4em 0;
+  padding-left: 20px;
+  border-left: 2px solid var(--line);
+  font-style: italic;
+  color: var(--ink);
+}
+
+.journal-back {
+  display: inline-block;
+  margin-top: 52px;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-decoration: none;
+  transition: color 0.35s var(--ease);
+}
+.journal-back:hover {
+  color: var(--gold);
+}
