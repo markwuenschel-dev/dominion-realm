@@ -205,6 +205,7 @@
 .codex-entry__media img {
   width: 100%;
   max-width: 340px;
+  height: auto;
   border-radius: var(--radius-md);
   border: 1px solid var(--line-soft);
 }
