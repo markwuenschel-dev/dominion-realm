@@ -202,12 +202,21 @@
   text-wrap: pretty;
 }
 .codex-entry__media { margin: 30px 0 0; }
+.codex-entry__media a {
+  display: block;
+  cursor: zoom-in;
+}
 .codex-entry__media img {
   width: 100%;
-  max-width: 340px;
   height: auto;
   border-radius: var(--radius-md);
   border: 1px solid var(--line-soft);
+}
+.codex-entry__media-hint {
+  margin-top: 8px;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--ink-dim);
 }
 
 .codex-prose { margin-top: 34px; }

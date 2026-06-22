@@ -36,12 +36,20 @@ const links = resolveRelationships(base, entry, all);
     {
       entry.data.image && (
         <figure class="codex-entry__media">
-          <img
-            src={entry.data.image.src}
-            width={entry.data.image.width}
-            height={entry.data.image.height}
-            alt={entry.data.imageAlt ?? entry.data.name}
-          />
+          <a
+            href={entry.data.image.src}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Open the full-size character file for ${entry.data.name}`}
+          >
+            <img
+              src={entry.data.image.src}
+              width={entry.data.image.width}
+              height={entry.data.image.height}
+              alt={entry.data.imageAlt ?? entry.data.name}
+            />
+          </a>
+          <figcaption class="codex-entry__media-hint">Click to view full size</figcaption>
         </figure>
       )
     }
