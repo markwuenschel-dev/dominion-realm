@@ -1,23 +1,38 @@
 ---
 name: Serra Hawthorne
-summary: Precise, unflinching, lethal at range and in reach — she trusts steel over systems and has buried more than she will admit.
-role: The Blade
+summary: >-
+  The most socially radiant person in any room — and the most dangerous. A
+  self-made disruptor who reads a formation's weak point by feel and is through
+  it before the enemy decides how to respond.
+role: The Disruptor
 reveal: teaser
-eyeStage: 2
 status: alive
 relationships:
-  - entry: soren
+  - entry: marcus
     collection: characters
-    label: fights alongside
+    label: the unaddressed thing
+  - entry: mara-valeria
+    collection: characters
+    label: tandem partner
   - entry: seb-rainier
     collection: characters
-    label: serves under
+    label: ran with his roster
 ---
 
-Where the others hesitate at the edge of a fight, Serra has already chosen her
-line through it. She came into the Realm with a soldier's economy of motion and
-a refusal to mistake the interface for the truth — a number over an enemy's head
-is a suggestion, not a promise.
+Serra came from nowhere in particular and made her name *mean* something — no
+connections, no shortcuts, just social intelligence sharpened young into a
+survival tool and competitive mastery clawed out one match at a time. She is the
+warm center of a group, the person everyone leans toward. People feel her before
+they understand why.
 
-She trusts what her hands can reach. The Realm has given her reasons to, and
-reasons to grieve; she carries both without letting either slow the blade.
+In a fight she is entry. Where others hesitate at the edge, Serra has already
+chosen her line through — reading the seam in a formation and committing past the
+point a careful player would bail. Not reckless. She is betting her instinct is
+faster than their reaction, and she is usually right.
+
+Her power makes that gift physical and then makes it costly: emotional commitment
+becomes pressure, and pressure finds whatever is weakest and makes it yield. The
+harder she fights for something, the more the field presses on everyone near her.
+She is most dangerous, and least controllable, precisely when she cares most —
+which is the shape of her whole life made visible. She is warm. She is decisive.
+And she does not ask anyone to stay.

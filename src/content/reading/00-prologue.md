@@ -5,13 +5,13 @@ order: 0
 summary: Before the Realm, there was a chair, a needle of light, and a question no recruiter would answer honestly — what happens to a mind that is too good at pretending the world is a game.
 ---
 
-There is a particular silence that lives inside the best players, and Soren Vael had spent eighteen years cultivating his.
+There is a particular silence that lives inside the best players, and Marcus Vye had spent eighteen years cultivating his.
 
 It was not the silence of an empty room. It was the silence behind the eyes when the noise of a thing falls away and only its structure remains — the moment a board stops being wood and ivory and becomes pure consequence, the moment a raid boss stops being spectacle and becomes a sequence of windows, each one a half-second wide, each one a door. Coaches called it focus. His mother had called it *somewhere else.* The recruiters had a different word, and they had flown him across an ocean to use it.
 
-"Legibility," the woman said. Her badge read only **PROJECT HÄLVE — OBSERVATION**, which told him nothing, which was probably the point. "That's what we measure. Not reflexes. Not memory. The rate at which a person turns chaos into rules they can act on. You score higher than anyone we've tested."
+"Legibility," the woman said. Her badge read only **ASTRIA — OBSERVATION**, which told him nothing, which was probably the point. "That's what we measure. Not reflexes. Not memory. The rate at which a person turns chaos into rules they can act on. You score higher than anyone we've tested."
 
-"People say that like it's a compliment," Soren said.
+"People say that like it's a compliment," Marcus said.
 
 "It isn't one." She did not smile. "It's a specification."
 
@@ -37,7 +37,7 @@ That was the only word for it. The walls did not change, and yet the walls acqui
 
 "There," she said, and now she did smile, and he hated that the smile looked relieved. "What do you see?"
 
-Soren opened his mouth to answer.
+Marcus opened his mouth to answer.
 
 He never did. Because the floor was already gone — not falling away, nothing so dramatic, simply *replaced,* the laboratory peeling back from his vision like a loading screen that had only ever been there to keep him calm while the real place finished assembling itself underneath. Cold air. The smell of stone and green water and something burnt a long time ago. A sky the wrong color over mountains that no recruiter had mentioned, because no recruiter had known, because the paperwork had lied in the gentlest place of all: it had told him where he was going.
 

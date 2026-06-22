@@ -1,23 +1,32 @@
 ---
 name: The Eyes of Meszkhal
-summary: Also called the Neurochromatic Eyes — a six-stage progression of sight that lets a walker perceive, and eventually command, the spectral substrate beneath the interface.
-kind: magic-system
-reveal: teaser
+summary: >-
+  A Unique item won in a bargain with the archdemon Xazzidiuk — it lays one
+  confident verdict over everything a walker sees. Certainty that lies with
+  confidence.
+kind: artifact
+reveal: reader
 relationships:
-  - entry: soren
+  - entry: marcus
     collection: characters
-    label: perceived by
-  - entry: neuroquantum-lattice
+    label: granted to
+  - entry: neurochromatic-eyes
     collection: concepts
-    label: translated through
+    label: distinct from the interface
 ---
 
-The Realm does not run on numbers. The numbers are a mercy — a way for a fragile
-mind to hold contact with a power older than language. The Eyes of Meszkhal are
-the progression by which a walker learns to see past that mercy to the spectral
-substrate itself, and at the far end, to act upon it.
+The Eyes of Meszkhal are not the Neurochromatic Eyes. They are a separate thing
+entirely — a **Unique item**, granted to Marcus by the archdemon Xazzidiuk in the
+mindscape, with a cost paid the moment the bargain closed.
 
-There are six stages, each costing more than the last: **Limbal Shift**, **Iris
-Refraction**, **Neuro-Optical Overdrive**, **Spectral Partition**, **Gaze
-Interference**, and **Prism Coherence**. The earliest only reveal that the Realm
-is layered; the last dissolve the interface entirely. Few survive the clarity.
+The item does two things. It lets him *copy* — absorbing muscle memory and
+movement by reading weight, timing, and intent, and learning skills at twice the
+ordinary rate, all billed in mana. And it *interprets*: it collapses ambiguity
+into a single confident verdict and offers it as truth. The verdict is
+demon-biased, and it is sometimes wrong — but it never sounds wrong. This is its
+whole nature: **certainty that lies with confidence.**
+
+It was made for Marcus's exact flaw. His perception is already accurate; what he
+craves is to be *sure*. The Eyes of Meszkhal promise to end his doubt, and the
+temptation is not power but relief — which is why the hardest thing he ever has to
+do with them is refuse what they tell him.

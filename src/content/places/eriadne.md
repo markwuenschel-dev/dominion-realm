@@ -1,23 +1,37 @@
 ---
 name: Eriadne
-summary: The Thread City — a metropolis stitched across intersecting ley-lines, where every interface, faction, and creed is drawn to collide.
+summary: >-
+  The Thread City — a frontier town that accreted over a convergence of the eight
+  elemental ley lines, with ancient ruins on its outskirts and no authority but
+  reputation.
 region: Ley-line convergence
 timeline: Present day of Book One
 reveal: teaser
 relationships:
+  - entry: marcus
+    collection: characters
+    label: claims a foothold here
   - entry: the-xyloryn
     collection: factions
-    label: besieged by
-  - entry: the-zalgorans
-    collection: factions
-    label: threatened by
+    label: invades at its ruins-portal
 ---
 
-Where the Realm's deep currents knot together, Eriadne rises. It is a city built
-on a convergence point — a place where ley-lines cross and power runs dense
-enough to draw everything toward it: trade, faction, creed, and danger in equal
-measure. Nothing crosses the Realm for long without passing through its threads.
+Eriadne was not built. It accumulated. The ruins came first — ancient structures
+left by a civilization that no longer exists — and around them grew a trade
+crossroads, because the geography made it easier to be here than not. Merchants
+came, then craftsmen, then people who had nowhere else to go. The ruins sit on the
+*outskirts*, not beneath the city: adjacent to it, incorporated at the edges where
+the settlement thins out.
 
-That density is its gift and its curse. Eriadne is where walkers find allies,
-markets, and answers — and where the Realm's two endings, the Xyloryn and the
-Zalgorans, are most apt to arrive looking for the same.
+It has no formal governance — no mayor, no council with real power, no guard with
+real jurisdiction. Power in Eriadne is maintained constantly through
+relationships, reputation, and credible consequence. There is no authority to
+petition and none to oppose; you become relevant by becoming useful to people the
+existing order has written off.
+
+Beneath the ruins, the **eight elemental ley lines** converge, and at their knot
+lies a dormant natural portal — the reason the place feels wrong in ways most
+residents have learned not to examine. Marcus claims his first foothold in the
+neglected ruin-fringe, and the ruins begin responding to his interface before he
+understands why. He is the man who sees threads. Eriadne is the city of threads.
+He belongs here before he knows it.

@@ -39,8 +39,8 @@ markup (Section 4).**
 ## 2. The file map — where each kind of content lives
 
 Every collection is a folder under `src/content/`. **The filename becomes the URL
-slug.** For example, `src/content/characters/soren.md` is served at
-`/codex/characters/soren`. Use lowercase, hyphenated filenames (`serra-hawthorne.md`,
+slug.** For example, `src/content/characters/marcus.md` is served at
+`/codex/characters/marcus`. Use lowercase, hyphenated filenames (`serra-hawthorne.md`,
 not `Serra Hawthorne.md`).
 
 The four **codex** collections — characters, concepts, factions, places — share a
@@ -147,7 +147,7 @@ aliases:
 eyeStage: 1
 status: alive
 relationships:
-  - entry: soren
+  - entry: marcus
     collection: characters
     label: travels with
   - entry: eriadne
@@ -176,7 +176,7 @@ the seams.
 The journal has **two streams**, set by the `category` field:
 
 - **`field-notes`** — *in-world* writing. The voice of someone inside the Realm
-  (e.g. Soren's observations). This is lore.
+  (e.g. Marcus's observations). This is lore.
 - **`from-the-desk`** — *author-voice* writing. You, talking about craft, process,
   and progress. This is the platform/blog side.
 
@@ -188,7 +188,7 @@ File: `src/content/journal/the-seams-keep-score.md` → lives at `/journal/the-s
 ```markdown
 ---
 title: The Seams Keep Score
-summary: Soren notices the Realm logging things it has no interface for.
+summary: Marcus notices the Realm logging things it has no interface for.
 category: field-notes
 pubDate: 2026-06-21
 reveal: teaser
@@ -222,7 +222,7 @@ summary: The party crosses the first seam, and the interface flinches.
 The road ended the way the interface said it would — and then it kept going,
 which the interface had nothing to say about at all.
 
-Soren took the extra step anyway.
+Marcus took the extra step anyway.
 ```
 
 - `title`, `order`, and `summary` are required. `kind` defaults to `chapter`, so
@@ -239,14 +239,14 @@ Soren took the extra step anyway.
 The homepage and Eyes page aren't Markdown — they're hand-coded markup. To change
 their text, open the file and search for a marker, then edit the words.
 
-**`src/pages/index.astro`** — the homepage (hero, buy links, the
+**`src/pages/index.astro`** — the homepage (hero, the read/explore CTAs, the
 character/world/Eyes pitch blocks, the author bio/socials):
 
 | To change… | Search for |
 |---|---|
 | Logline / hero | `hero-logline` |
-| Buy links (Amazon, B&N) | `Buy on Amazon` |
-| Homepage characters (Soren, Serra, Seb) | `char-name` |
+| Hero call-to-action buttons | `buy-row` |
+| Homepage characters (Marcus, Serra, Seb) | `char-name` |
 | The World pitch (Eriadne, the two endings) | `world-name` |
 | The six Eyes stages | `stage-name` |
 | Author name / socials | `[ Author Name ]` |
@@ -256,7 +256,7 @@ from the full codex entries under `src/content/`. Updating a character's codex
 profile does not change the homepage block, and vice versa; edit both if you want
 them in sync.
 
-**`src/pages/eyes.astro`** — the Eyes of Meszkhal interactive. The six stages can
+**`src/pages/eyes.astro`** — the Neurochromatic Eyes interactive. The six stages can
 also be backed by codex `concepts` entries (with a `stage:` number), but the page's
 own copy and interaction live in this file.
 

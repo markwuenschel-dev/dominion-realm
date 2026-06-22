@@ -96,7 +96,7 @@ export default config({
         }),
         eyeStage: fields.integer({
           label: 'Eye stage',
-          description: 'Current Eye of Meszkhal stage (1–6), if applicable.',
+          description: 'Current Neurochromatic Eyes stage (1–6), if applicable.',
           validation: { isRequired: false, min: 1, max: 6 },
         }),
         status: fields.select({
@@ -132,7 +132,7 @@ export default config({
         }),
         stage: fields.integer({
           label: 'Stage',
-          description: 'Eyes of Meszkhal stage number (1–6), if applicable.',
+          description: 'Neurochromatic Eyes stage number (1–6), if applicable.',
           validation: { isRequired: false, min: 1, max: 6 },
         }),
         content: bodyField,

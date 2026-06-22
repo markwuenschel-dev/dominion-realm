@@ -1,23 +1,37 @@
 ---
 name: Seb Rainier
-summary: The one who keeps the party intact when the Realm tries to pull it apart — a strategist who reads people as fluently as terrain.
+summary: >-
+  The leader who turned a roster of strong individuals into one coordinated
+  whole — and Marcus's mirror. Both fear helplessness. Seb answers it with
+  control.
 role: The Leader
+aliases:
+  - Sebastion Rainier
 reveal: teaser
-eyeStage: 2
 status: alive
 relationships:
-  - entry: soren
+  - entry: marcus
     collection: characters
-    label: leads
+    label: mirror-rival
   - entry: serra-hawthorne
     collection: characters
-    label: relies on
+    label: led her on the roster
 ---
 
-Every party that survives the Realm has someone holding the shape of it together.
-For this one, that is Seb. He reads a room the way Serra reads a duel and the way
-Soren reads a skill tree — fluently, and a half-second ahead.
+Seb ran a top-tier guild, and not just in name — he held the roster together,
+made the hard calls on composition and strategy, and managed the personalities
+that would have fractured under anyone else. He is genuinely good at it:
+strategic, persuasive, responsible, the kind of leader people listen to because
+his presence implies competence before he says a word.
 
-He is not the strongest walker, and he knows it. His talent is for the thing the
-interface cannot quantify: keeping frightened people moving in the same direction
-when the ground beneath the numbers starts to give way.
+What he notices first is the *cost* of a plan. Where Marcus sees the broken
+assumption, Seb sees the sacrifice — what a decision spends, who carries it, and
+whether the people involved can actually bear it. In the Realm that talent makes
+him one of the most formidable of the scattered guild, not the least.
+
+He and Marcus are the same wound expressed as opposite strategies. Both are
+high-agency. Both fear helplessness. Marcus answers it by building something real
+with people and letting the uncertainty be bearable; Seb answers it by managing
+every variable and making every sacrifice worth it. His danger begins the moment
+responsibility quietly becomes authority — when carrying the cost starts to feel
+like the right to decide what everyone else must pay.
