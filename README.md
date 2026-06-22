@@ -72,8 +72,8 @@ edit the markup directly (search for the marker text):
 | To change… | Search for |
 |---|---|
 | Logline / hero | `hero-logline` |
-| Buy links (Amazon, B&N) | `Buy on Amazon` |
-| Homepage characters (Soren, Serra, Seb) | `char-name` |
+| Hero call-to-action buttons | `buy-row` |
+| Homepage characters (Marcus, Serra, Seb) | `char-name` |
 | The World pitch (Eriadne, the two endings) | `world-name` |
 | The six Eyes stages | `stage-name` |
 | Author name / socials | `[ Author Name ]` |
