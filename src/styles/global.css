@@ -387,6 +387,9 @@
   }
   .char-card {
     position: relative;
+    display: block;
+    color: inherit;
+    text-decoration: none;
     background: var(--bg-panel);
     border: 1px solid var(--line-soft);
     border-radius: 4px;
@@ -394,6 +397,7 @@
     overflow: hidden;
     transition: transform 0.5s var(--ease), border-color 0.5s var(--ease), background 0.5s var(--ease);
   }
+  .char-card:hover .char-name { color: var(--gold-bright); }
   .char-card::before {
     content: "";
     position: absolute;
@@ -431,6 +435,16 @@
     text-transform: uppercase;
     color: var(--ink-faint);
   }
+  .char-portrait img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    border-radius: 3px;
+  }
+  .char-name { transition: color 0.35s var(--ease); }
   .char-role {
     font-family: var(--mono);
     font-size: 0.6rem;
