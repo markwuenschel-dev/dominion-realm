@@ -31,7 +31,10 @@ jobs:
         uses: lycheeverse/lychee-action@v2
         with:
           # Only http(s) links — internal base-path links are covered by the PR gate.
-          args: --scheme https --scheme http --no-progress "dist/**/*.html"
+          # --root-dir lets lychee resolve the site's root-relative links
+          # (/dominion-realm/...) to file:// paths, which the --scheme filter then
+          # skips; without it every internal link errors as an unresolvable URL.
+          args: --root-dir "${{ github.workspace }}/dist" --scheme https --scheme http --no-progress "dist/**/*.html"
           fail: false
       - name: Open issue on broken links
         if: steps.lychee.outputs.exit_code != 0
