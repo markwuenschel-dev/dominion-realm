@@ -1,5 +1,9 @@
 ---
+import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
+import marcusPortrait from '../content/characters/Marcus.png';
+import serraPortrait from '../content/characters/Serra.png';
+import sebPortrait from '../content/characters/Seb.png';
 const base = import.meta.env.BASE_URL;
 
 // Email capture via Kit (ADR-0005). The form posts straight to Kit's form
@@ -137,33 +141,39 @@ const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscripti
             <div class="spectral-rule"></div>
           </div>
           <div class="char-grid">
-            <article class="char-card reveal">
-              <div class="char-portrait"><span>Portrait — Marcus</span></div>
+            <a class="char-card reveal" href={`${base}codex/characters/marcus`}>
+              <div class="char-portrait">
+                <Image src={marcusPortrait} width={600} alt="Marcus" />
+              </div>
               <span class="char-role">Protagonist · The Ocular Interface</span>
               <h3 class="char-name">Marcus</h3>
               <p class="char-desc">
                 An Astria engineer whose implant renders the Realm as a game. He perceives
                 everything accurately — and keeps drawing the wrong conclusion from what he sees.
               </p>
-            </article>
-            <article class="char-card reveal">
-              <div class="char-portrait"><span>Portrait — Serra</span></div>
+            </a>
+            <a class="char-card reveal" href={`${base}codex/characters/serra-hawthorne`}>
+              <div class="char-portrait">
+                <Image src={serraPortrait} width={600} alt="Serra Hawthorne" />
+              </div>
               <span class="char-role">The Disruptor</span>
               <h3 class="char-name">Serra Hawthorne</h3>
               <p class="char-desc">
                 The warmest person in the room and the most dangerous. She reads a formation's weak
                 point by feel and is through it before the enemy decides how to respond.
               </p>
-            </article>
-            <article class="char-card reveal">
-              <div class="char-portrait"><span>Portrait — Seb</span></div>
+            </a>
+            <a class="char-card reveal" href={`${base}codex/characters/seb-rainier`}>
+              <div class="char-portrait">
+                <Image src={sebPortrait} width={600} alt="Seb Rainier" />
+              </div>
               <span class="char-role">The Leader</span>
               <h3 class="char-name">Seb Rainier</h3>
               <p class="char-desc">
                 The one who turned a roster of strong individuals into a whole. Marcus's mirror —
                 the same fear of helplessness, the opposite answer: control.
               </p>
-            </article>
+            </a>
           </div>
         </div>
       </section>
