@@ -2,7 +2,7 @@
 title: Tutorial Zone
 kind: chapter
 order: 1
-summary: Soren wakes in a forest that runs on rules he can read but did not write — a health bar he cannot dismiss, a level he did not earn, and a stranger with a sword who is very much not part of the lesson.
+summary: Marcus wakes in a forest that runs on rules he can read but did not write — a health bar he cannot dismiss, a level he did not earn, and a stranger with a sword who is very much not part of the lesson.
 ---
 
 The first thing the Realm taught him was that he could die in it, and the second thing it taught him was that it would warn him politely first.
@@ -19,13 +19,13 @@ He tried to blink it away. You could always blink a thing away, in the old life 
 
 *Cannot dismiss tutorial elements,* the Realm informed him, in text that arrived without sound and yet felt spoken. *Some prompts are load-bearing.*
 
-"Load-bearing," Soren said, out loud, to the forest, and his voice came out cracked and small and entirely human, and the sound of it was the first thing in an hour that did not feel designed.
+"Load-bearing," Marcus said, out loud, to the forest, and his voice came out cracked and small and entirely human, and the sound of it was the first thing in an hour that did not feel designed.
 
 ---
 
 He stood. The interface adjusted — a thin reticle finding the centre of his attention, distances blooming as numbers and fading when he stopped caring about them. He learned its grammar the way he'd learned every interface that had ever been put in front of him: fast, by touching it, by paying attention to what it rewarded. A fallen branch, when he looked at it, offered up a faint outline and a single word — **Branch (improvised)** — and a number, *3,* which he understood to be how badly it could hurt something. A cluster of pale mushrooms reported **Unknown — sample to identify.** The moss reported nothing, which he was obscurely grateful for. Not everything wanted to be useful. Some things were allowed to just be moss.
 
-This was, he realized, exactly the part he was good at. The part the recruiters had measured. The world had handed him chaos and the implant had handed him *rules,* and between the two of them was the narrow bright country where Soren Vael had always lived — the place where a frightening thing becomes a solvable one, where panic gets quietly converted into a list. *Take the branch. Stay off the open ground. Find water by going downhill. Do not eat the mushrooms.* He could survive a list. He had been surviving lists his whole life. The trembling in his hands began, fractionally, to ease.
+This was, he realized, exactly the part he was good at. The part the recruiters had measured. The world had handed him chaos and the implant had handed him *rules,* and between the two of them was the narrow bright country where Marcus Vye had always lived — the place where a frightening thing becomes a solvable one, where panic gets quietly converted into a list. *Take the branch. Stay off the open ground. Find water by going downhill. Do not eat the mushrooms.* He could survive a list. He had been surviving lists his whole life. The trembling in his hands began, fractionally, to ease.
 
 Which is when he understood the trap of it, all at once, with the cold clean clarity that the implant could not give him because it was the one thing the implant did not want him to feel.
 
@@ -43,7 +43,7 @@ She came out of the treeline at a dead, controlled run, low and quiet, a blade a
 
 "You're new," she said. Not a question. Her gaze flicked up, above his head, to the thing he couldn't see from the inside — his own bar, his own absurd glowing **Lv. 1** — and something in her face closed like a door. "God. You're *brand* new. You don't even have a class yet."
 
-"I don't," Soren agreed carefully, "have any idea what that means."
+"I don't," Marcus agreed carefully, "have any idea what that means."
 
 "It means run when I tell you to." She wasn't looking at him anymore. She was looking back the way she'd come, at the trees, at the long tired bars of light, and the light was different now — he saw it the instant she did, saw the interface struggle to find a number for the thing moving through the canopy and *fail,* the reticle stuttering, the helpful little outline flickering on and off around a shape that was simply too large to be a branch with a damage value of three.
 

@@ -2,7 +2,7 @@
 title: Field Observation — The Loot Glow
 summary: >-
   A dead man's satchel glows the gentle green the interface uses for "common."
-  Soren records what the glow leaves out.
+  Marcus records what the glow leaves out.
 category: field-notes
 pubDate: 2026-06-11
 reveal: teaser
