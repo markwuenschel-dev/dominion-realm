@@ -4,7 +4,7 @@ import Analytics from '../components/Analytics.astro';
 import '../styles/eyes.css';
 const base = import.meta.env.BASE_URL;
 const desc =
-  'The Eyes of Meszkhal — six stages of ocular progression onto the spectral substrate. Select a stage to read what the walker sees.';
+  'The Neurochromatic Eyes — six stages of ocular progression onto the spectral substrate. Select a stage to read what the walker sees.';
 ---
 
 <!doctype html>
@@ -12,10 +12,10 @@ const desc =
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>The Eyes of Meszkhal — The Dominion Realm</title>
+    <title>The Neurochromatic Eyes — The Dominion Realm</title>
     <meta name="description" content={desc} />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="The Eyes of Meszkhal" />
+    <meta property="og:title" content="The Neurochromatic Eyes" />
     <meta property="og:description" content={desc} />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
@@ -31,11 +31,11 @@ const desc =
       <div class="left">
         <a class="back" href={base}>← The Dominion <em style="font-style:italic">Realm</em></a>
         <span class="brand" style="opacity:.5">·</span>
-        <span class="brand">The Eyes of <em>Meszkhal</em></span>
+        <span class="brand">The Neurochromatic <em>Eyes</em></span>
       </div>
       <div class="sys-readout">
-        <span>SUBJECT <b>SOREN</b></span>
-        <span class="live" id="liveStage">STAGE II</span>
+        <span>SUBJECT <b>MARCUS</b></span>
+        <span class="live" id="liveStage">STAGE I</span>
         <span>DRIFT <b id="driftVal">+0.04</b></span>
       </div>
     </header>
@@ -43,13 +43,13 @@ const desc =
     <section class="intro">
       <div class="intro-glow"></div>
       <span class="eyebrow">04 — The Power System</span>
-      <h1>The Eyes of <em>Meszkhal</em></h1>
+      <h1>The Neurochromatic <em>Eyes</em></h1>
       <p class="sub">
-        A Unique item bound to Soren at the mindscape bargain — distinct from the <em
-          >Neurochromatic Eyes</em
-        >, his interface. The Eyes of Meszkhal layer a second kind of sight over the first: six
-        stages of perception that open wider channels onto the spectral substrate. Each one costs
-        more than the last. Select a stage to read what the walker sees.
+        Marcus's emergent interface — <em>distinct</em> from the <em>Eyes of Meszkhal</em>, the
+        Unique item he wins in the mindscape bargain. Where the item only interprets, the
+        Neurochromatic Eyes <em>perceive</em>: six stages of sight that open wider channels onto the
+        spectral substrate, and tell the truth about what they find. Each one costs more than the
+        last. Select a stage to read what the walker sees.
       </p>
       <div class="spectral-rule"></div>
     </section>
@@ -534,9 +534,9 @@ const desc =
     <!-- closer -->
     <section class="closer">
       <div class="closer-in">
-        <h2>The interface is a mercy, not a truth. <em>Soren is only at Stage II.</em></h2>
+        <h2>The interface is a mercy, not a truth. <em>Marcus is only at Stage I.</em></h2>
         <div class="actions">
-          <a href={base} class="btn btn-primary">Buy the book <span>→</span></a>
+          <a href={`${base}read`} class="btn btn-primary">Read the Opening <span>→</span></a>
           <a href={`${base}codex`} class="btn btn-ghost">Explore the World <span>→</span></a>
         </div>
       </div>
@@ -553,7 +553,7 @@ const desc =
           band: 'CYAN BAND',
           wl: 'λ 488nm',
           desc: 'The first awakening.',
-          see: 'A faint iridescence at the rim of everything — doorways, hands, the horizon — as if the world were laminated under glass and the edge of the glass had just caught the light. The walker cannot yet read it. They only know, for the first time, that the Realm has more than one layer.',
+          see: 'A faint iridescence at the rim of everything — doorways, hands, the horizon — as if the world were laminated under glass and the edge of the glass had just caught the light. The walker cannot yet read it. They only know, for the first time, that the Realm has more than one layer. It is where Marcus stands now, his eyes only beginning to change.',
           effect:
             '<span class="tag">UNLOCKS</span> passive layer-sense. The walker registers that interfaces exist, but cannot resolve them. No active control.',
           perception: 18,
@@ -569,7 +569,7 @@ const desc =
           band: 'AZURE BAND',
           wl: 'λ 470nm',
           desc: 'Sight resolves into bands.',
-          see: 'The iridescence separates into legible color. Threats glow one hue, ley-lines another, intention a third; the world sorts itself into a readable spectrum. This is where the implant stabilizes the Realm into something a human mind can hold — the stage Soren walks in now.',
+          see: 'The iridescence separates into legible color. Threats glow one hue, ley-lines another, intention a third; the world sorts itself into a readable spectrum. This is where the implant stabilizes the Realm into something a human mind can hold.',
           effect:
             '<span class="tag">STABILIZES</span> the RPG interface. Health, threat, and affinity render as discrete bands. First reliable reading of the substrate.',
           perception: 38,
@@ -647,7 +647,7 @@ const desc =
       const eye = document.getElementById('eye');
       // rings driven by SVG now
       const root = document.documentElement;
-      let current = 1; // start at Iris Refraction (Soren's stage)
+      let current = 0; // start at Limbal Shift (Marcus's stage)
       // build rail buttons
       STAGES.forEach((s, i) => {
         const btn = document.createElement('button');

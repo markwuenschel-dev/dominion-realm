@@ -80,9 +80,9 @@ const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscripti
             >
           </p>
           <div class="buy-row reveal">
-            <a href="#" class="btn btn-primary">Buy on Amazon <span class="arrow">→</span></a>
-            <a href="#" class="btn btn-ghost">Barnes &amp; Noble <span class="arrow">→</span></a>
-            <span class="buy-note">Hardcover · eBook · Audio</span>
+            <a href={`${base}read`} class="btn btn-primary">Read the Opening <span class="arrow">→</span></a>
+            <a href={`${base}codex`} class="btn btn-ghost">Explore the World <span class="arrow">→</span></a>
+            <span class="buy-note">Prologue &amp; Chapter One · free, no sign-up</span>
           </div>
         </div>
         <div class="scroll-cue">
@@ -102,13 +102,14 @@ const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscripti
           <div class="story-body">
             <p class="dropcap reveal">
               <span class="lead"
-                >Earth's most gifted gamers are recruited for an experiment they barely understand</span
+                >Six of Earth's most gifted gamers are manipulated by Astria into an experiment they
+                barely understand</span
               > — the implantation of an experimental neuroquantum lattice, threaded directly into the
               optic nerve. When they wake, they are no longer on Earth. They are in the Realm: a real,
               breathing metaphysical world that answers to laws older than language.
             </p>
             <p class="reveal">
-              Soren, the protagonist, sees it differently than the others. His implant renders the
+              Marcus, the protagonist, sees it differently than the others. His implant renders the
               Realm as RPG logic — health bars, skill trees, loot, levels. It is legible. It is
               survivable. But the power humming beneath the interface is not code, and it was not
               built for him. It is ancient, and it is real.
@@ -116,7 +117,7 @@ const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscripti
             <p class="reveal">
               The deeper he descends, the more the abstraction frays. The numbers are a mercy, not a
               truth — a fragile membrane between a fragile mind and something that does not care to
-              be understood. To master the Realm, Soren must first accept that everything he can
+              be understood. To master the Realm, Marcus must first accept that everything he can
               read about it is a translation. And every translation leaves something out.
             </p>
           </div>
@@ -133,21 +134,21 @@ const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscripti
           </div>
           <div class="char-grid">
             <article class="char-card reveal">
-              <div class="char-portrait"><span>Portrait — Soren</span></div>
-              <span class="char-role">Protagonist · Ocular Anomaly</span>
-              <h3 class="char-name">Soren</h3>
+              <div class="char-portrait"><span>Portrait — Marcus</span></div>
+              <span class="char-role">Protagonist · The Ocular Interface</span>
+              <h3 class="char-name">Marcus</h3>
               <p class="char-desc">
-                The only walker whose interface bleeds into the substrate itself. He reads the Realm
-                as a game — and slowly learns what the game refuses to show him.
+                An Astria engineer whose implant renders the Realm as a game. He perceives everything
+                accurately — and keeps drawing the wrong conclusion from what he sees.
               </p>
             </article>
             <article class="char-card reveal">
               <div class="char-portrait"><span>Portrait — Serra</span></div>
-              <span class="char-role">The Blade</span>
+              <span class="char-role">The Disruptor</span>
               <h3 class="char-name">Serra Hawthorne</h3>
               <p class="char-desc">
-                Precise, unflinching, lethal at range and in reach. She trusts steel over systems
-                and has buried more than she will admit.
+                The warmest person in the room and the most dangerous. She reads a formation's weak
+                point by feel and is through it before the enemy decides how to respond.
               </p>
             </article>
             <article class="char-card reveal">
@@ -155,8 +156,8 @@ const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscripti
               <span class="char-role">The Leader</span>
               <h3 class="char-name">Seb Rainier</h3>
               <p class="char-desc">
-                The one who keeps the party intact when the Realm tries to pull it apart. A
-                strategist who reads people as fluently as terrain.
+                The one who turned a roster of strong individuals into a whole. Marcus's mirror —
+                the same fear of helplessness, the opposite answer: control.
               </p>
             </article>
           </div>
@@ -176,12 +177,13 @@ const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscripti
               <div class="glow-tab"></div>
               <div class="world-kicker">The Place</div>
               <h3 class="world-name">Eriadne, <em>the Thread City</em></h3>
-              <p class="world-sub">A ley-line convergence point.</p>
+              <p class="world-sub">Where the eight ley lines meet.</p>
               <p class="world-text">
-                Where the Realm's deep currents knot together, Eriadne rises — a city stitched
-                across intersecting ley-lines, where every interface, faction, and creed is drawn to
-                collide. Power is dense here, and so is danger. Nothing crosses the Realm without
-                passing through its threads.
+                Eriadne was never built — it accreted over a trade crossroads that happened to sit
+                above the convergence of the eight elemental ley lines, with ancient ruins on its
+                outskirts. It has no rulers, only reputation; power here is relationship and
+                consequence. And the ruins answer to something older than the city that grew beside
+                them.
               </p>
             </div>
             <div class="world-col">
@@ -198,10 +200,10 @@ const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscripti
                 </div>
                 <div class="vs-mark">versus</div>
                 <div class="threat z">
-                  <h4>The Zalgorans</h4>
+                  <h4>The N'hal</h4>
                   <p>
-                    Extra-planar entities that denature reality and meaning itself. Where they pass,
-                    the interface fails — and so does the mind reading it.
+                    Ontological predators that denature reality itself. Where they pass, names
+                    detach, places stop being locatable — and the interface goes dark.
                   </p>
                 </div>
               </div>
@@ -215,13 +217,14 @@ const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscripti
         <div class="wrap">
           <div class="sec-head reveal">
             <span class="sec-label">04 — The Power System</span>
-            <h2 class="sec-title">The Eyes of <em>Meszkhal</em></h2>
+            <h2 class="sec-title">The Neurochromatic <em>Eyes</em></h2>
             <div class="spectral-rule"></div>
           </div>
           <p class="power-intro reveal">
-            Also called the Neurochromatic Eyes — the progression of sight that lets a walker
+            Marcus's emergent ocular interface — the progression of sight that lets a walker
             perceive, and eventually command, the spectral substrate beneath the interface. Six
-            stages. Each one costs more than the last.
+            stages. Each one costs more than the last. (Not to be confused with the Eyes of Meszkhal,
+            a separate item that only sounds certain.)
           </p>
           <div class="rail">
             <div class="stage reveal" style="--node-glow: rgba(79,214,224,0.7);">
@@ -281,7 +284,7 @@ const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscripti
           </div>
           <div class="reveal" style="margin-top: 2.4rem; text-align: center;">
             <a href={`${base}eyes`} class="btn btn-primary"
-              >Enter the Eyes of Meszkhal <span class="arrow">&rarr;</span></a
+              >Enter the Neurochromatic Eyes <span class="arrow">&rarr;</span></a
             >
           </div>
         </div>
@@ -329,7 +332,7 @@ const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscripti
                 <button type="submit">Enter</button>
               </form>
               <p class="signup-note" id="signupNote">
-                Early chapters · cover reveals · launch news
+                Early chapters · field notes · new codex entries
               </p>
             </div>
           </div>

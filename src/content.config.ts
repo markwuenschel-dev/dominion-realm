@@ -64,7 +64,7 @@ const characters = defineCollection({
       /** Role / epithet, e.g. "Protagonist · Ocular Anomaly". */
       role: z.string(),
       aliases: z.array(z.string()).default([]),
-      /** Current Eye of Meszkhal stage (1–6), if the character has the Eyes. */
+      /** Current Neurochromatic Eyes stage (1–6), if the character has them. */
       eyeStage: z.number().int().min(1).max(6).optional(),
       status: z.enum(['alive', 'dead', 'unknown']).default('unknown'),
     }),
@@ -76,8 +76,8 @@ const concepts = defineCollection({
     codexBase(ctx).extend({
       kind: z.enum(['magic-system', 'artifact', 'phenomenon', 'term']).default('term'),
       /**
-       * For the Eyes of Meszkhal: the stage number (1–6) so the /eyes page can
-       * render its progression over structured concept data.
+       * For the Neurochromatic Eyes: the stage number (1–6) so the /eyes page
+       * can render its progression over structured concept data.
        */
       stage: z.number().int().min(1).max(6).optional(),
     }),
