@@ -114,6 +114,21 @@
 .journal-item:hover .journal-item__title {
   color: var(--gold-bright);
 }
+.journal-item__media {
+  aspect-ratio: 16 / 9;
+  max-width: 640px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line-soft);
+}
+.journal-item__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
 .journal-item__kicker {
   font-family: var(--mono);
   font-size: 0.6rem;
@@ -195,6 +210,7 @@
 }
 .journal-post__media img {
   width: 100%;
+  height: auto;
   border-radius: var(--radius-md);
   border: 1px solid var(--line-soft);
 }
