@@ -1,5 +1,7 @@
 ---
 name: Marcus
+image: ./Marcus.png
+imageAlt: Marcus on Earth
 summary: >-
   An Astria machine-learning engineer pulled into the Realm, where his implant
   renders a real metaphysical world as RPG logic. He perceives everything

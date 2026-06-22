@@ -1,5 +1,7 @@
 ---
 name: Brent Donovan
+image: ./Brent.png
+imageAlt: Brent on Earth
 summary: >-
   Practical, anti-abstraction competence — a civil engineer who asks what holds
   and what breaks, and drags Marcus out of his own head and back into the room.

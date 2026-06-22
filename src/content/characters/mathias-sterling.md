@@ -1,5 +1,7 @@
 ---
 name: Mathias Sterling
+image: ./Mathias.png
+imageAlt: Mathias on Earth
 summary: >-
   A systems mind who sees the connections between things — the group's warm,
   curious balance-keeper, and the first to recognize a scattered threat as a

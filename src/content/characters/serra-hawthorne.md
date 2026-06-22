@@ -1,5 +1,7 @@
 ---
 name: Serra Hawthorne
+image: ./Serra.png
+imageAlt: Serra on Earth
 summary: >-
   The most socially radiant person in any room — and the most dangerous. A
   self-made disruptor who reads a formation's weak point by feel and is through
