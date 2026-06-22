@@ -25,6 +25,19 @@ const { prev, next } = getNeighbors(entries, entry.id);
     <p class="reading-article__summary">{entry.data.summary}</p>
     <div class="reading-article__rule"></div>
 
+    {
+      entry.data.image && (
+        <figure class="reading-article__media">
+          <img
+            src={entry.data.image.src}
+            width={entry.data.image.width}
+            height={entry.data.image.height}
+            alt={entry.data.imageAlt ?? entry.data.title}
+          />
+        </figure>
+      )
+    }
+
     <div class="reading-prose">
       <Content />
     </div>

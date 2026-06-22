@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import CodexLayout from '../../layouts/CodexLayout.astro';
 import {
   getJournalPosts,
@@ -64,6 +65,15 @@ const filters = [
             href={journalUrl(base, post.id)}
             data-category={post.data.category}
           >
+            {post.data.image && (
+              <figure class="journal-item__media">
+                <Image
+                  src={post.data.image}
+                  width={600}
+                  alt={post.data.imageAlt ?? post.data.title}
+                />
+              </figure>
+            )}
             <span class="journal-item__kicker">{journalKicker(post)}</span>
             <h2 class="journal-item__title">{post.data.title}</h2>
             <p class="journal-item__summary">{post.data.summary}</p>

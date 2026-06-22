@@ -135,6 +135,21 @@
 }
 .codex-card:hover { transform: translateY(-6px); border-color: var(--line); background: #13151f; }
 .codex-card:hover::before { transform: scaleX(1); }
+/* Full-bleed banner crop at the top of the card; the negative margins pull it
+   out past the card padding to the rounded edges (clipped by overflow:hidden). */
+.codex-card__media {
+  margin: -26px -24px 20px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line-soft);
+}
+.codex-card__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
 .codex-card__kicker {
   font-family: var(--mono);
   font-size: 0.58rem;
