@@ -1,5 +1,7 @@
 ---
 name: Seb Rainier
+image: ./Seb.png
+imageAlt: Seb on Earth
 summary: >-
   The leader who turned a roster of strong individuals into one coordinated
   whole — and Marcus's mirror. Both fear helplessness. Seb answers it with

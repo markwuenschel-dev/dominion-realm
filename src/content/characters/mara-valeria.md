@@ -1,5 +1,7 @@
 ---
 name: Mara Valeria
+image: ./Mara.png
+imageAlt: Mara on Earth
 summary: >-
   An observer and pattern-connector who makes herself easy to overlook — on
   Earth a creative professional, in the Realm a mind that authors attention
