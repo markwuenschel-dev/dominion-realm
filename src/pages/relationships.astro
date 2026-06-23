@@ -185,6 +185,7 @@ const legend = COLLECTION_ORDER.filter((c) => nodeEntries.some((n) => n.collecti
                 class:list={['node', { 'node--hub': n.id === hub.id }]}
                 href={codexUrl(base, n.collection, n.id)}
                 data-id={n.id}
+                tabindex="-1"
                 style={`--c:${COLLECTION_COLOR[n.collection]}`}
               >
                 <title>
