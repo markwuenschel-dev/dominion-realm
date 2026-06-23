@@ -60,19 +60,50 @@ const pct = (s: { value: number; max: number }) => Math.round((s.value / s.max) 
 
         <p class="sheet-readout" data-type>{sheet.readout}</p>
 
-        <div class="sheet-tabs" role="tablist">
-          <button class="sheet-tab is-active" role="tab" aria-selected="true" data-tab="stats">
+        <div class="sheet-tabs" role="tablist" aria-label="Character sheet sections">
+          <button
+            id="tab-stats"
+            class="sheet-tab is-active"
+            type="button"
+            role="tab"
+            aria-selected="true"
+            aria-controls="panel-stats"
+            data-tab="stats"
+          >
             Stats
           </button>
-          <button class="sheet-tab" role="tab" aria-selected="false" data-tab="skills"
-            >Skills</button
+          <button
+            id="tab-skills"
+            class="sheet-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="panel-skills"
+            tabindex="-1"
+            data-tab="skills">Skills</button
           >
-          <button class="sheet-tab" role="tab" aria-selected="false" data-tab="inventory">
+          <button
+            id="tab-inventory"
+            class="sheet-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="panel-inventory"
+            tabindex="-1"
+            data-tab="inventory"
+          >
             Inventory
           </button>
         </div>
 
-        <div class="sheet-panel is-active" data-panel="stats">
+        <div
+          id="panel-stats"
+          class="sheet-panel is-active"
+          role="tabpanel"
+          aria-labelledby="tab-stats"
+          tabindex="0"
+          data-panel="stats"
+        >
           <ul class="stat-list">
             {
               sheet.stats.map((s) => (
@@ -94,7 +125,14 @@ const pct = (s: { value: number; max: number }) => Math.round((s.value / s.max) 
           </ul>
         </div>
 
-        <div class="sheet-panel" data-panel="skills">
+        <div
+          id="panel-skills"
+          class="sheet-panel"
+          role="tabpanel"
+          aria-labelledby="tab-skills"
+          tabindex="0"
+          data-panel="skills"
+        >
           <ul class="skill-list">
             {
               sheet.skills.map((sk) => (
@@ -110,7 +148,14 @@ const pct = (s: { value: number; max: number }) => Math.round((s.value / s.max) 
           </ul>
         </div>
 
-        <div class="sheet-panel" data-panel="inventory">
+        <div
+          id="panel-inventory"
+          class="sheet-panel"
+          role="tabpanel"
+          aria-labelledby="tab-inventory"
+          tabindex="0"
+          data-panel="inventory"
+        >
           <ul class="inv-grid">
             {
               sheet.inventory.map((it) => (
@@ -131,18 +176,33 @@ const pct = (s: { value: number; max: number }) => Math.round((s.value / s.max) 
 
   <script is:inline>
     (() => {
-      // ---- Tab panels ----
+      // ---- Tab panels (ARIA tabs pattern: roving tabindex + arrow keys) ----
+      const tablist = document.querySelector('.sheet-tabs');
       const tabs = [...document.querySelectorAll('.sheet-tab')];
       const panels = [...document.querySelectorAll('.sheet-panel')];
-      function select(name) {
+      function select(name, moveFocus) {
         for (const t of tabs) {
           const on = t.dataset.tab === name;
           t.classList.toggle('is-active', on);
           t.setAttribute('aria-selected', on ? 'true' : 'false');
+          t.tabIndex = on ? 0 : -1;
+          if (on && moveFocus) t.focus();
         }
         for (const p of panels) p.classList.toggle('is-active', p.dataset.panel === name);
       }
       for (const t of tabs) t.addEventListener('click', () => select(t.dataset.tab));
+      tablist?.addEventListener('keydown', (e) => {
+        const cur = tabs.findIndex((t) => t.getAttribute('aria-selected') === 'true');
+        let next = cur;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (cur + 1) % tabs.length;
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp')
+          next = (cur - 1 + tabs.length) % tabs.length;
+        else if (e.key === 'Home') next = 0;
+        else if (e.key === 'End') next = tabs.length - 1;
+        else return;
+        e.preventDefault();
+        select(tabs[next].dataset.tab, true);
+      });
 
       // ---- Stat bars fill on load (only if the animation clock advances) ----
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -198,7 +258,8 @@ const pct = (s: { value: number; max: number }) => Math.round((s.value / s.max) 
     font-size: 0.66rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--ink-faint);
+    /* --ink-dim (not --ink-faint) so these nav links clear WCAG AA contrast. */
+    color: var(--ink-dim);
     text-decoration: none;
     transition: color 0.35s var(--ease);
   }
@@ -469,7 +530,8 @@ const pct = (s: { value: number; max: number }) => Math.round((s.value / s.max) 
     font-size: 0.54rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--ink-faint);
+    /* --ink-dim: AA-safe once the (load-hidden) inventory panel is shown. */
+    color: var(--ink-dim);
   }
   .inv-name {
     font-family: var(--serif-display);
@@ -492,7 +554,7 @@ const pct = (s: { value: number; max: number }) => Math.round((s.value / s.max) 
     font-size: 0.64rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--ink-faint);
+    color: var(--ink-dim);
     text-decoration: none;
     transition: color 0.35s var(--ease);
   }
