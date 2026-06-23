@@ -9,6 +9,10 @@
     "http://localhost:4321/dominion-realm/codex/",
     "http://localhost:4321/dominion-realm/codex/characters/soren/",
     "http://localhost:4321/dominion-realm/codex/concepts/neuroquantum-lattice/",
-    "http://localhost:4321/dominion-realm/eyes/"
+    "http://localhost:4321/dominion-realm/eyes/",
+    "http://localhost:4321/dominion-realm/relationships/",
+    "http://localhost:4321/dominion-realm/about/",
+    "http://localhost:4321/dominion-realm/map/",
+    "http://localhost:4321/dominion-realm/interface/"
   ]
 }
