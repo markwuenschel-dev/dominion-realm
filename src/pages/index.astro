@@ -1,11 +1,16 @@
 ---
 import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
-import marcusPortrait from '../content/characters/Marcus.png';
-import serraPortrait from '../content/characters/Serra.png';
-import sebPortrait from '../content/characters/Seb.png';
-import brentPortrait from '../content/characters/Brent.png';
-import maraPortrait from '../content/characters/Mara.png';
+// Homepage cast cards use dedicated portraits in src/assets/cast/ — kept
+// separate from the Codex's full character-file sheets in
+// src/content/characters/ (referenced by each entry's `image:` frontmatter),
+// so the two surfaces can carry different art.
+import marcusPortrait from '../assets/cast/marcus.png';
+import serraPortrait from '../assets/cast/serra.png';
+import sebPortrait from '../assets/cast/seb.png';
+import brentPortrait from '../assets/cast/brent.png';
+import maraPortrait from '../assets/cast/mara.png';
+import mathiasPortrait from '../assets/cast/mathias.png';
 import { SITE, liveSocials, NAV_SECTIONS, liveNavPages, navHref, navPageReady } from '../lib/site';
 const base = import.meta.env.BASE_URL;
 const socials = liveSocials();
@@ -219,6 +224,17 @@ const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscripti
               <p class="char-desc">
                 She notices everything and draws no notice to herself. The setup to Serra's strike —
                 she has already arranged the moment so the opening exists.
+              </p>
+            </a>
+            <a class="char-card reveal" href={`${base}codex/characters/mathias-sterling`}>
+              <div class="char-portrait">
+                <Image src={mathiasPortrait} width={600} alt="Mathias Sterling" />
+              </div>
+              <span class="char-role">The Scout</span>
+              <h3 class="char-name">Mathias Sterling</h3>
+              <p class="char-desc">
+                A systems mind who reads the connections between things — the group's warm, curious
+                balance-keeper, and the first to see a scattered threat as a single organism.
               </p>
             </a>
           </div>
