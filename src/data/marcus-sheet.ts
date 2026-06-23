@@ -56,7 +56,12 @@ export const marcusSheet: CharacterSheet = {
   level: 1,
   readout: 'INTERFACE ONLINE — translation layer nominal. Substrate pressure: rising.',
   stats: [
-    { label: 'Perception', value: 9, max: 10, note: 'Reads the structure under things — accurately, then wrongly.' },
+    {
+      label: 'Perception',
+      value: 9,
+      max: 10,
+      note: 'Reads the structure under things — accurately, then wrongly.',
+    },
     { label: 'Reason', value: 8, max: 10, note: 'Models the Realm faster than it can be lived.' },
     { label: 'Resolve', value: 5, max: 10, note: 'Holds, until the numbers stop reassuring him.' },
     { label: 'Vitality', value: 4, max: 10, note: 'A fragile mind behind a fragile body.' },
@@ -80,7 +85,11 @@ export const marcusSheet: CharacterSheet = {
     },
   ],
   inventory: [
-    { name: 'Neuroquantum Lattice', kind: 'Implant', note: 'Threaded into the optic nerve. Not removable.' },
+    {
+      name: 'Neuroquantum Lattice',
+      kind: 'Implant',
+      note: 'Threaded into the optic nerve. Not removable.',
+    },
     { name: 'Neurochromatic Eyes', kind: 'Interface', note: 'Stage I — Limbal Shift.' },
     { name: '[ placeholder item ]', kind: 'Relic', note: 'Mark: fill from the manuscript.' },
   ],

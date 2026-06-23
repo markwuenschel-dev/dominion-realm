@@ -30,18 +30,20 @@ const named = SITE.author && !SITE.author.startsWith('[');
     </p>
     <div class="reading-article__rule"></div>
 
-    {/*
+    {
+      /*
     <figure class="reading-article__media">
       <Image src={authorPhoto} width={720} alt={`${SITE.author}, author of The Dominion Realm`} />
     </figure>
-    */}
+    */
+    }
 
     <div class="reading-prose">
       <p>
-        <em>[ Placeholder bio — Mark to replace. ]</em> {named ? SITE.author : 'The author'} is the
-        author of <em>The Dominion Realm</em>, the first book in the Realmwalkers saga: a story about
-        a man who can read the numbers under the world and keeps mistaking the translation for the
-        truth.
+        <em>[ Placeholder bio — Mark to replace. ]</em>
+        {named ? SITE.author : 'The author'} is the author of <em>The Dominion Realm</em>, the first
+        book in the Realmwalkers saga: a story about a man who can read the numbers under the world
+        and keeps mistaking the translation for the truth.
       </p>
       <p>
         This is where the author's voice goes — where the idea came from, what interface fantasy
