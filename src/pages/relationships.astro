@@ -400,7 +400,8 @@ const legend = COLLECTION_ORDER.filter((c) => nodeEntries.some((n) => n.collecti
     font-size: 0.56rem;
     letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: var(--ink-faint);
+    /* --ink-dim (not --ink-faint) to clear WCAG AA contrast on the dark bg. */
+    color: var(--ink-dim);
   }
   .rel-row__conns {
     grid-column: 2;

@@ -258,7 +258,8 @@ const pct = (s: { value: number; max: number }) => Math.round((s.value / s.max) 
     font-size: 0.66rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--ink-faint);
+    /* --ink-dim (not --ink-faint) so these nav links clear WCAG AA contrast. */
+    color: var(--ink-dim);
     text-decoration: none;
     transition: color 0.35s var(--ease);
   }
@@ -529,7 +530,8 @@ const pct = (s: { value: number; max: number }) => Math.round((s.value / s.max) 
     font-size: 0.54rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--ink-faint);
+    /* --ink-dim: AA-safe once the (load-hidden) inventory panel is shown. */
+    color: var(--ink-dim);
   }
   .inv-name {
     font-family: var(--serif-display);
@@ -552,7 +554,7 @@ const pct = (s: { value: number; max: number }) => Math.round((s.value / s.max) 
     font-size: 0.64rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--ink-faint);
+    color: var(--ink-dim);
     text-decoration: none;
     transition: color 0.35s var(--ease);
   }
