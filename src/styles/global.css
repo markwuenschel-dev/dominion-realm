@@ -382,7 +382,7 @@
   /* ---------- CHARACTERS ---------- */
   .char-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 22px;
   }
   .char-card {
@@ -666,6 +666,8 @@
   .foot-title em { font-style: italic; color: var(--gold-bright); }
   .foot-meta { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-faint); line-height: 2.2; }
   .foot-meta span { color: var(--gold); }
+  .foot-author { color: var(--gold); text-decoration: none; transition: color 0.35s var(--ease); }
+  .foot-author:hover { color: var(--gold-bright); }
 
   .signup-label {
     font-family: var(--mono);
@@ -727,6 +729,124 @@
     text-transform: uppercase;
     color: var(--ink-faint);
   }
+
+  /* ---------- Comp titles ("for readers of …") ---------- */
+  .comps {
+    margin-top: clamp(28px, 4vw, 44px);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px 16px;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+  .comps-label { color: var(--gold); }
+  .comps-list { color: var(--ink); letter-spacing: 0.1em; }
+
+  /* ---------- Map teaser (03 — The World) ---------- */
+  .world-map-teaser { margin-top: clamp(28px, 4vw, 44px); }
+  .world-map-teaser a {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    text-decoration: none;
+    transition: color 0.35s var(--ease);
+  }
+  .world-map-teaser a:hover { color: var(--gold-bright); }
+  .world-map-teaser .arrow { transition: transform 0.35s var(--ease); }
+  .world-map-teaser a:hover .arrow { transform: translateX(4px); }
+
+  /* ---------- The Axioms ---------- */
+  .axioms { list-style: none; display: grid; gap: clamp(20px, 3vw, 34px); max-width: 760px; }
+  .axiom {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0 clamp(20px, 4vw, 40px);
+    align-items: baseline;
+    padding-bottom: clamp(20px, 3vw, 32px);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .axiom:last-child { border-bottom: 0; padding-bottom: 0; }
+  .axiom-num {
+    font-family: var(--serif-display);
+    font-style: italic;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    line-height: 1;
+    color: var(--gold);
+    min-width: 1.4em;
+  }
+  .axiom-text {
+    font-family: var(--serif-display);
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    line-height: 1.2;
+    color: var(--ink);
+  }
+  .axiom-gloss {
+    margin-top: 12px;
+    font-weight: 300;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--ink-dim);
+    max-width: 56ch;
+    text-wrap: pretty;
+  }
+
+  /* ---------- Publication timeline ---------- */
+  .timeline { list-style: none; max-width: 720px; }
+  .milestone {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(90px, 130px) 1fr;
+    gap: 4px 26px;
+    align-items: baseline;
+    margin-left: 6px;
+    padding: 0 0 clamp(24px, 4vw, 38px) 28px;
+    border-left: 1px solid var(--line);
+  }
+  .milestone:last-child { border-left-color: transparent; padding-bottom: 0; }
+  .milestone-dot {
+    position: absolute;
+    left: -5px;
+    top: 0.4em;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1.5px solid var(--gold);
+  }
+  .milestone.is-done .milestone-dot { background: var(--gold); box-shadow: 0 0 10px -1px var(--gold); }
+  .milestone-when {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .milestone-what { font-family: var(--serif-body); font-size: 1.08rem; line-height: 1.5; color: var(--ink); }
+  .timeline-cta { margin-top: clamp(28px, 4vw, 40px); }
+  .timeline-cta a {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-decoration: none;
+    transition: color 0.35s var(--ease);
+  }
+  .timeline-cta a:hover { color: var(--gold-bright); }
+  .timeline-cta .arrow { transition: transform 0.35s var(--ease); }
+  .timeline-cta a:hover .arrow { transform: translateX(4px); }
 
   /* ---------- Scroll reveal ----------
      Visible by default. Only the .armed class (added by JS *after*

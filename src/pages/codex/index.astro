@@ -4,6 +4,7 @@ import CodexCard from '../../components/CodexCard.astro';
 import Search from '../../components/Search.astro';
 import { getAllCodexEntries, COLLECTION_ORDER, COLLECTION_LABELS } from '../../lib/codex';
 
+const base = import.meta.env.BASE_URL;
 const entries = await getAllCodexEntries();
 const groups = COLLECTION_ORDER.map((collection) => ({
   collection,
@@ -24,6 +25,11 @@ const groups = COLLECTION_ORDER.map((collection) => ({
       reveal level above to unseal deeper lore as you read — everything defaults to spoiler-safe.
     </p>
     <div class="codex-rule"></div>
+    <a class="codex-head__map" href={`${base}relationships`}>
+      <span class="codex-head__map-mark">✦</span>
+      See the whole codex as a relationship map
+      <span class="codex-head__map-arrow">→</span>
+    </a>
   </div>
 
   <div class="codex-search">
