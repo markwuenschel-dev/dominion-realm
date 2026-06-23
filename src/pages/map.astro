@@ -1,0 +1,124 @@
+---
+/**
+ * The Map of the Realm (backlog Phase 2 #4). The route and chrome are real; the
+ * map art is Mark's to supply. Until it exists the page shows a tasteful
+ * "in progress" state and stays out of the live nav (NAV_PAGES `map` is
+ * `ready: false`).
+ *
+ * To publish the map: drop the image in `src/assets/` (e.g. `realm-map.jpg`),
+ * uncomment the import + <figure> below (it reuses the codex click-to-zoom
+ * pattern), then set `ready: true` on the `map` entry in `src/lib/site.ts` —
+ * that lights up the nav link and the homepage "03 — The World" teaser.
+ */
+import ReadingLayout from '../layouts/ReadingLayout.astro';
+// import { Image } from 'astro:assets';
+// import realmMap from '../assets/realm-map.jpg';
+
+const base = import.meta.env.BASE_URL;
+const mapReady = false;
+---
+
+<ReadingLayout
+  title="The Map"
+  description="A map of the Realm — Eriadne, the eight ley lines, and the lands beyond."
+>
+  <article class="reading-article">
+    <span class="reading-article__kicker">Cartography of the Realm</span>
+    <h1 class="reading-article__title">The <em>Map</em></h1>
+    <p class="reading-article__summary">
+      Eriadne at the convergence of the eight ley lines — and what spreads out from it.
+    </p>
+    <div class="reading-article__rule"></div>
+
+    {
+      mapReady ? (
+        <figure class="map-figure">
+          {/*
+          <a
+            href={realmMap.src}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open the full-size map of the Realm"
+          >
+            <Image src={realmMap} width={1400} alt="Map of the Realm" />
+          </a>
+          <figcaption class="map-figure__hint">Click to view full size</figcaption>
+          */}
+        </figure>
+      ) : (
+        <div class="map-pending">
+          <div class="map-pending__mark">✦</div>
+          <p class="map-pending__lead">The cartographer is still at work.</p>
+          <p class="map-pending__note">
+            A map of the Realm is being drawn — Eriadne where the eight ley lines meet, the
+            ruins-portal at its edge, and the lands the threats come from. Until then, walk the
+            world through the <a href={`${base}codex`}>codex</a> and the{' '}
+            <a href={`${base}relationships`}>constellation</a>.
+          </p>
+        </div>
+      )
+    }
+
+    <a class="reading-back" href={base}>← Back to The Dominion Realm</a>
+  </article>
+</ReadingLayout>
+
+<style>
+  .map-figure {
+    margin: clamp(28px, 5vw, 44px) 0 0;
+  }
+  .map-figure a {
+    display: block;
+  }
+  .map-figure :global(img) {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--line-soft);
+  }
+  .map-figure__hint {
+    margin-top: 12px;
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .map-pending {
+    margin: clamp(32px, 6vw, 56px) auto 0;
+    max-width: 560px;
+    text-align: center;
+    padding: clamp(36px, 6vw, 64px) clamp(24px, 5vw, 48px);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius-lg);
+    background:
+      radial-gradient(120% 80% at 50% 0%, rgba(200, 168, 106, 0.06), transparent 70%),
+      var(--bg-panel);
+  }
+  .map-pending__mark {
+    font-family: var(--serif-display);
+    font-size: 1.6rem;
+    color: var(--gold);
+    opacity: 0.8;
+    margin-bottom: 18px;
+  }
+  .map-pending__lead {
+    font-family: var(--serif-display);
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+    color: var(--ink);
+    margin-bottom: 14px;
+  }
+  .map-pending__note {
+    font-weight: 300;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--ink-dim);
+    text-wrap: pretty;
+  }
+  .map-pending__note a {
+    color: var(--gold-bright);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>

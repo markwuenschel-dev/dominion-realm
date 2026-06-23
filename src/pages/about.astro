@@ -1,0 +1,61 @@
+---
+/**
+ * About the Author (backlog Phase 1 #1). Scaffolding only: the chrome, layout,
+ * and author-name wiring are real; the bio prose and the optional author photo
+ * are placeholders for Mark to fill. Reuses ReadingLayout (centered prose
+ * column, no reveal toggle) and the `.reading-*` typography.
+ *
+ * To add an author photo: drop the file in `src/assets/` (e.g. `author.jpg`),
+ * then uncomment the import + <figure> below. Astro's <Image> needs a static
+ * ESM import for local art, so the slot stays commented until the asset exists.
+ */
+import ReadingLayout from '../layouts/ReadingLayout.astro';
+import { SITE } from '../lib/site';
+// import { Image } from 'astro:assets';
+// import authorPhoto from '../assets/author.jpg';
+
+const base = import.meta.env.BASE_URL;
+const named = SITE.author && !SITE.author.startsWith('[');
+---
+
+<ReadingLayout
+  title="About the Author"
+  description="The author behind The Dominion Realm — an interface-fantasy / LitRPG novel."
+>
+  <article class="reading-article">
+    <span class="reading-article__kicker">About the Author</span>
+    <h1 class="reading-article__title">{named ? SITE.author : 'The Author'}</h1>
+    <p class="reading-article__summary">
+      Writing interface fantasy from the seam where game logic meets a world that was never a game.
+    </p>
+    <div class="reading-article__rule"></div>
+
+    {/*
+    <figure class="reading-article__media">
+      <Image src={authorPhoto} width={720} alt={`${SITE.author}, author of The Dominion Realm`} />
+    </figure>
+    */}
+
+    <div class="reading-prose">
+      <p>
+        <em>[ Placeholder bio — Mark to replace. ]</em> {named ? SITE.author : 'The author'} is the
+        author of <em>The Dominion Realm</em>, the first book in the Realmwalkers saga: a story about
+        a man who can read the numbers under the world and keeps mistaking the translation for the
+        truth.
+      </p>
+      <p>
+        This is where the author's voice goes — where the idea came from, what interface fantasy
+        means to them, and why a health bar can be the most honest lie a frightened mind ever tells
+        itself. A paragraph or two of real biography lands here, in the author's own words.
+      </p>
+      <p>
+        For early chapters, field notes, and new codex entries as the Realm fills in, join the
+        Realmwalkers from <a href={base}>the home page</a> — or step straight into <a
+          href={`${base}read`}>the opening pages</a
+        >.
+      </p>
+    </div>
+
+    <a class="reading-back" href={base}>← Back to The Dominion Realm</a>
+  </article>
+</ReadingLayout>
