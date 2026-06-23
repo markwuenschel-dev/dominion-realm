@@ -4,7 +4,14 @@ import Base from '../layouts/Base.astro';
 import marcusPortrait from '../content/characters/Marcus.png';
 import serraPortrait from '../content/characters/Serra.png';
 import sebPortrait from '../content/characters/Seb.png';
+import brentPortrait from '../content/characters/Brent.png';
+import maraPortrait from '../content/characters/Mara.png';
+import { SITE, liveSocials, NAV_SECTIONS, liveNavPages, navHref, navPageReady } from '../lib/site';
 const base = import.meta.env.BASE_URL;
+const socials = liveSocials();
+const navPages = liveNavPages();
+const { axioms, comps, pubMilestones } = SITE;
+const mapReady = navPageReady('map');
 
 // Email capture via Kit (ADR-0005). The form posts straight to Kit's form
 // endpoint — no backend — and the inline script enhances it with an in-page
@@ -29,15 +36,20 @@ const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscripti
 
   <!-- Mobile menu overlay -->
   <nav class="mobile-menu" id="mobileMenu">
-    <a href="#hero"><span class="idx">00</span> Cover</a>
-    <a href="#story"><span class="idx">01</span> The Story</a>
-    <a href="#characters"><span class="idx">02</span> Characters</a>
-    <a href="#world"><span class="idx">03</span> The World</a>
-    <a href="#power"><span class="idx">04</span> The Eyes</a>
-    <a href="#join"><span class="idx">05</span> Join</a>
-    <a href={`${base}codex`}><span class="idx">→</span> Codex</a>
-    <a href={`${base}read`}><span class="idx">→</span> Read</a>
-    <a href={`${base}journal`}><span class="idx">→</span> Journal</a>
+    {
+      NAV_SECTIONS.map((s) => (
+        <a href={s.hash}>
+          <span class="idx">{s.idx}</span> {s.label}
+        </a>
+      ))
+    }
+    {
+      navPages.map((p) => (
+        <a href={navHref(base, p.slug)}>
+          <span class="idx">{p.idx}</span> {p.label}
+        </a>
+      ))
+    }
   </nav>
 
   <div class="shell">
@@ -48,15 +60,20 @@ const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscripti
         <span class="brand-title">The Dominion <em>Realm</em></span>
       </div>
       <nav class="nav" id="sideNav">
-        <a href="#hero"><span class="idx">00</span> Cover</a>
-        <a href="#story"><span class="idx">01</span> The Story</a>
-        <a href="#characters"><span class="idx">02</span> Characters</a>
-        <a href="#world"><span class="idx">03</span> The World</a>
-        <a href="#power"><span class="idx">04</span> The Eyes</a>
-        <a href="#join"><span class="idx">05</span> Join</a>
-        <a href={`${base}codex`}><span class="idx">→</span> Codex</a>
-        <a href={`${base}read`}><span class="idx">→</span> Read</a>
-        <a href={`${base}journal`}><span class="idx">→</span> Journal</a>
+        {
+          NAV_SECTIONS.map((s) => (
+            <a href={s.hash}>
+              <span class="idx">{s.idx}</span> {s.label}
+            </a>
+          ))
+        }
+        {
+          navPages.map((p) => (
+            <a href={navHref(base, p.slug)}>
+              <span class="idx">{p.idx}</span> {p.label}
+            </a>
+          ))
+        }
       </nav>
       <div class="sidebar-foot">
         Realmwalkers <span>·</span> Book One<br />
@@ -129,6 +146,14 @@ const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscripti
               read about it is a translation. And every translation leaves something out.
             </p>
           </div>
+          {
+            comps.length > 0 && (
+              <p class="comps reveal">
+                <span class="comps-label">For readers of</span>
+                <span class="comps-list">{comps.join(' · ')}</span>
+              </p>
+            )
+          }
         </div>
       </section>
 
@@ -172,6 +197,28 @@ const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscripti
               <p class="char-desc">
                 The one who turned a roster of strong individuals into a whole. Marcus's mirror —
                 the same fear of helplessness, the opposite answer: control.
+              </p>
+            </a>
+            <a class="char-card reveal" href={`${base}codex/characters/brent-donovan`}>
+              <div class="char-portrait">
+                <Image src={brentPortrait} width={600} alt="Brent Donovan" />
+              </div>
+              <span class="char-role">The Floor</span>
+              <h3 class="char-name">Brent Donovan</h3>
+              <p class="char-desc">
+                A civil engineer who asks the only two questions that matter under pressure: what
+                holds this up, and what makes it fall. When Marcus spirals, Brent is the ground.
+              </p>
+            </a>
+            <a class="char-card reveal" href={`${base}codex/characters/mara-valeria`}>
+              <div class="char-portrait">
+                <Image src={maraPortrait} width={600} alt="Mara Valeria" />
+              </div>
+              <span class="char-role">The Watcher</span>
+              <h3 class="char-name">Mara Valeria</h3>
+              <p class="char-desc">
+                She notices everything and draws no notice to herself. The setup to Serra's strike —
+                she has already arranged the moment so the opening exists.
               </p>
             </a>
           </div>
@@ -223,6 +270,16 @@ const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscripti
               </div>
             </div>
           </div>
+          {
+            mapReady && (
+              <p class="world-map-teaser reveal">
+                <a href={`${base}map`}>
+                  See the Realm drawn — the map of Eriadne and beyond{' '}
+                  <span class="arrow">→</span>
+                </a>
+              </p>
+            )
+          }
         </div>
       </section>
 
@@ -304,6 +361,41 @@ const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscripti
         </div>
       </section>
 
+      <!-- THE AXIOMS -->
+      {
+        axioms.length >= 2 && (
+          <section class="band" id="axioms">
+            <div class="wrap">
+              <div class="sec-head reveal">
+                <span class="sec-label">05 — The Axioms</span>
+                <h2 class="sec-title">
+                  The laws beneath <em>the laws</em>
+                </h2>
+                <div class="spectral-rule" />
+              </div>
+              <ol class="axioms">
+                {axioms.map((ax) => (
+                  <li class="axiom reveal">
+                    <span class="axiom-num">{ax.numeral}</span>
+                    <div class="axiom-body">
+                      <p class="axiom-text">
+                        {ax.text.split(' / ').map((line, i) => (
+                          <Fragment>
+                            {i > 0 && <br />}
+                            {line}
+                          </Fragment>
+                        ))}
+                      </p>
+                      {ax.gloss && <p class="axiom-gloss">{ax.gloss}</p>}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </section>
+        )
+      }
+
       <!-- PULL QUOTE -->
       <section class="pull">
         <div class="hero-glow c" style="top:10%; left:50%; opacity:0.6;"></div>
@@ -315,6 +407,37 @@ const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscripti
         </div>
       </section>
 
+      <!-- PUBLICATION TIMELINE -->
+      {
+        pubMilestones.length > 0 && (
+          <section class="band raise" id="timeline">
+            <div class="wrap">
+              <div class="sec-head reveal">
+                <span class="sec-label">06 — The Road to Publication</span>
+                <h2 class="sec-title">
+                  From first page to <em>first reader</em>
+                </h2>
+                <div class="spectral-rule" />
+              </div>
+              <ol class="timeline">
+                {pubMilestones.map((m) => (
+                  <li class:list={['milestone reveal', { 'is-done': m.done }]}>
+                    <span class="milestone-when">{m.when}</span>
+                    <span class="milestone-dot" />
+                    <span class="milestone-what">{m.what}</span>
+                  </li>
+                ))}
+              </ol>
+              <p class="timeline-cta reveal">
+                <a href="#join">
+                  Be first to know <span class="arrow">→</span>
+                </a>
+              </p>
+            </div>
+          </section>
+        )
+      }
+
       <!-- FOOTER / JOIN -->
       <footer class="footer" id="join">
         <div class="wrap">
@@ -324,14 +447,19 @@ const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscripti
               <p class="foot-meta">
                 The Dominion Realm<br />
                 <span>Realmwalkers</span> · Book One<br />
-                A novel by <span>[ Author Name ]</span>
+                A novel by <a class="foot-author" href={`${base}about`}>{SITE.author}</a>
               </p>
-              <div class="socials">
-                <a href="#">Instagram</a>
-                <a href="#">Goodreads</a>
-                <a href="#">TikTok</a>
-                <a href="#">Discord</a>
-              </div>
+              {
+                socials.length > 0 && (
+                  <div class="socials">
+                    {socials.map((s) => (
+                      <a href={s.url} target="_blank" rel="noopener noreferrer me">
+                        {s.label}
+                      </a>
+                    ))}
+                  </div>
+                )
+              }
             </div>
             <div class="reveal">
               <span class="signup-label">Join the Realmwalkers</span>
