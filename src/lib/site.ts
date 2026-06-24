@@ -115,11 +115,11 @@ export const NAV_PAGES: NavPage[] = [
   { idx: '→', label: 'Codex', slug: 'codex' },
   { idx: '→', label: 'Read', slug: 'read' },
   { idx: '→', label: 'Journal', slug: 'journal' },
+  { idx: '→', label: 'The Map', slug: 'map' },
   { idx: '→', label: 'Constellation', slug: 'relationships' },
   { idx: '→', label: 'About', slug: 'about' },
-  // Routes below are built but not yet linked — flip `ready: true` once Mark's
-  // art/data lands (the map image, Marcus's sheet stats).
-  { idx: '→', label: 'The Map', slug: 'map', ready: false },
+  // Built but not yet linked — flip `ready: true` once Marcus's sheet carries
+  // the manuscript's real numbers (src/data/marcus-sheet.ts, drop `provisional`).
   { idx: '→', label: 'The Sheet', slug: 'interface', ready: false },
 ];
 
