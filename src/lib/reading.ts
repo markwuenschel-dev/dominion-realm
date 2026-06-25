@@ -1,36 +1,25 @@
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getReadingEntries, getReadingEntry, type ReadingEntry } from './content';
 
 /**
  * Helpers for the Reading Sample (Track A): the open Prologue + Chapter One web
- * reader. Unlike the codex, this collection is ungated — there is no reveal tier
- * — so the loading logic only draft-filters (in prod) and sorts by `order`.
- * Centralizing it here keeps the index and reader pages thin.
+ * reader. Unlike the codex, this collection is ungated — no reveal tier — so the
+ * loader only draft-filters (in prod) and sorts by `order`.
  */
 
-export type ReadingEntry = CollectionEntry<'reading'>;
+export { getReadingEntries, getReadingEntry };
+export type { ReadingEntry };
 
 const KIND_LABELS: Record<ReadingEntry['data']['kind'], string> = {
   prologue: 'Prologue',
   chapter: 'Chapter',
 };
 
-/**
- * Every reading piece in reading order. Drafts are filtered out in production
- * (mirroring the codex) but visible during local development so unfinished
- * chapters can be previewed. Sorted by the explicit `order` key.
- */
-export async function getReadingEntries(): Promise<ReadingEntry[]> {
-  const all = await getCollection('reading');
-  const visible = import.meta.env.PROD ? all.filter((e) => !e.data.draft) : all;
-  return visible.sort((a, b) => a.data.order - b.data.order);
+/** Canonical URL for a reading piece (root-served). */
+export function readingUrl(id: string): string {
+  return `/read/${id}`;
 }
 
-/** Canonical URL for a reading piece, base-path aware. */
-export function readingUrl(base: string, id: string): string {
-  return `${base}read/${id}`;
-}
-
-/** Short kicker line for a card / header, e.g. "Prologue" or "Chapter One". */
+/** Short kicker line for a card / header, e.g. "Prologue" or "Chapter". */
 export function readingKicker(entry: ReadingEntry): string {
   return KIND_LABELS[entry.data.kind];
 }
@@ -40,10 +29,7 @@ export interface ReadingNeighbors {
   next?: ReadingEntry;
 }
 
-/**
- * Resolve the previous/next pieces around a given entry within an already-sorted
- * list. Used to render chapter navigation; either end may be undefined.
- */
+/** Resolve previous/next pieces around an entry within an already-sorted list. */
 export function getNeighbors(entries: ReadingEntry[], id: string): ReadingNeighbors {
   const index = entries.findIndex((e) => e.id === id);
   if (index === -1) return {};
