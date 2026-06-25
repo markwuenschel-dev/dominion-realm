@@ -1,0 +1,327 @@
+diff --git a/next.config.mjs b/next.config.mjs
+index d5f0d2e..44c8074 100644
+--- a/next.config.mjs
++++ b/next.config.mjs
+@@ -22,6 +22,28 @@ const withMDX = createMDX({
+   },
+ });
+ 
++/**
++ * Baseline security headers, applied to every route. These are
++ * framework-agnostic hardening that won't interfere with Keystatic, GA4, or the
++ * Kit signup. A strict `Content-Security-Policy` is deliberately NOT set here
++ * yet: GA4 + Kit + Keystatic each inject scripts/connections, so a real CSP
++ * needs a per-source allowlist and should ship in `report-only` first. Track
++ * that as a follow-up rather than risk silently breaking the CMS or analytics.
++ */
++const securityHeaders = [
++  // Force HTTPS for two years, including subdomains. Railway serves over TLS.
++  { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
++  // Don't let the site be framed by other origins (clickjacking). SAMEORIGIN
++  // (not DENY) leaves room for the Keystatic admin UI's own same-origin frames.
++  { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
++  // Disable MIME sniffing.
++  { key: 'X-Content-Type-Options', value: 'nosniff' },
++  // Send only the origin on cross-origin navigations.
++  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
++  // No page on this marketing/content site needs these powerful features.
++  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
++];
++
+ /** @type {import('next').NextConfig} */
+ const nextConfig = {
+   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
+@@ -34,6 +56,9 @@ const nextConfig = {
+     // remote patterns are needed yet.
+     formats: ['image/avif', 'image/webp'],
+   },
++  async headers() {
++    return [{ source: '/:path*', headers: securityHeaders }];
++  },
+ };
+ 
+ export default withMDX(nextConfig);
+diff --git a/src/app/error.tsx b/src/app/error.tsx
+new file mode 100644
+index 0000000..c59be47
+--- /dev/null
++++ b/src/app/error.tsx
+@@ -0,0 +1,73 @@
++'use client';
++
++import { useEffect } from 'react';
++import '@/styles/reading.css';
++
++/**
++ * Route error boundary (App Router `error.tsx`). Must be a Client Component and
++ * receives the thrown error plus a `reset()` to retry the segment. Renders a
++ * branded fallback (reading layout) instead of the bare Next.js error screen,
++ * and logs the error so it surfaces in the Railway logs / a future error
++ * reporter. A global, layout-level failure is handled by `global-error.tsx`.
++ */
++export default function Error({
++  error,
++  reset,
++}: {
++  error: Error & { digest?: string };
++  reset: () => void;
++}) {
++  useEffect(() => {
++    // Surfaces in server/browser logs; swap for a real reporter (Sentry, …) later.
++    console.error(error);
++  }, [error]);
++
++  return (
++    <>
++      <div className="grain" />
++      <div className="vignette" />
++      <div className="reading">
++        <header className="reading-top">
++          <a className="reading-top__home" href="/">
++            ← The Dominion <em>Realm</em>
++          </a>
++          <nav className="reading-top__nav">
++            <a href="/read">The Reading</a>
++            <a href="/codex">Codex</a>
++            <a href="/journal">Journal</a>
++            <a href="/eyes">The Eyes</a>
++          </nav>
++        </header>
++        <main className="reading-wrap">
++          <article className="reading-article">
++            <span className="reading-article__kicker">Something broke</span>
++            <h1 className="reading-article__title">The interface lost the signal</h1>
++            <p className="reading-article__summary">
++              An unexpected error interrupted this page. The fault is on our side of the Realm, not
++              yours.
++            </p>
++            <div className="reading-article__rule" />
++
++            <div className="reading-prose">
++              <p>
++                Try again — the segment may recover. If it keeps happening, step back to the home
++                page and pick the path up from there.
++              </p>
++            </div>
++
++            <p className="reading-prose">
++              <button type="button" className="reading-back" onClick={() => reset()}>
++                ↻ Try again
++              </button>
++            </p>
++
++            <a className="reading-back" href="/">
++              ← Back to The Dominion Realm
++            </a>
++          </article>
++        </main>
++        <footer className="reading-footer">The Dominion Realm — Realmwalkers · Book One</footer>
++      </div>
++    </>
++  );
++}
+diff --git a/src/app/layout.tsx b/src/app/layout.tsx
+index a1de619..02bccf0 100644
+--- a/src/app/layout.tsx
++++ b/src/app/layout.tsx
+@@ -37,8 +37,16 @@ const mono = Space_Mono({
+ const DESCRIPTION =
+   "An Earth gamer's cybernetic implant translates a real metaphysical world into RPG logic — until he realizes the interface is not the world. It is only his way of surviving contact with it.";
+ 
++// Canonical origin for OG/canonical/sitemap URLs. Reads NEXT_PUBLIC_SITE_URL
++// (set per environment on Railway) so prod and preview emit correct absolute
++// URLs, falling back to the production domain. Mirrors rss.xml/sitemap.ts.
++const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://dominionrealm.com').replace(
++  /\/$/,
++  '',
++);
++
+ export const metadata: Metadata = {
+-  metadataBase: new URL('https://dominionrealm.com'),
++  metadataBase: new URL(SITE_URL),
+   title: {
+     default: 'The Dominion Realm — An Interface Fantasy Novel',
+     template: '%s — The Dominion Realm',
+diff --git a/src/app/not-found.tsx b/src/app/not-found.tsx
+new file mode 100644
+index 0000000..428f1f8
+--- /dev/null
++++ b/src/app/not-found.tsx
+@@ -0,0 +1,66 @@
++import type { Metadata } from 'next';
++import '@/styles/reading.css';
++
++export const metadata: Metadata = {
++  title: 'Page Not Found',
++  description: 'This page has slipped past the edge of the Realm.',
++};
++
++/**
++ * 404 page (App Router `not-found.tsx`). Rendered whenever `notFound()` is
++ * called — e.g. an unknown codex/journal/reading slug — or a route simply does
++ * not exist. Reuses the reading layout so a missing page still feels like part
++ * of the Realm rather than the bare Next.js default.
++ */
++export default function NotFound() {
++  return (
++    <>
++      <div className="grain" />
++      <div className="vignette" />
++      <div className="reading">
++        <header className="reading-top">
++          <a className="reading-top__home" href="/">
++            ← The Dominion <em>Realm</em>
++          </a>
++          <nav className="reading-top__nav">
++            <a href="/read">The Reading</a>
++            <a href="/codex">Codex</a>
++            <a href="/journal">Journal</a>
++            <a href="/eyes">The Eyes</a>
++          </nav>
++        </header>
++        <main className="reading-wrap">
++          <article className="reading-article">
++            <span className="reading-article__kicker">Error 404</span>
++            <h1 className="reading-article__title">Beyond the map&apos;s edge</h1>
++            <p className="reading-article__summary">
++              This page isn&apos;t part of the Realm — or not yet. The thread you followed leads
++              nowhere the interface can read.
++            </p>
++            <div className="reading-article__rule" />
++
++            <div className="reading-prose">
++              <p>
++                The link may be mistyped, or the entry may have moved as the Codex fills in. Try one
++                of the ways back below.
++              </p>
++            </div>
++
++            <nav className="reading-prose" aria-label="Where to go next">
++              <p>
++                <a href="/codex">Browse the World Codex</a> ·{' '}
++                <a href="/read">Read the opening pages</a> ·{' '}
++                <a href="/journal">The Author Journal</a>
++              </p>
++            </nav>
++
++            <a className="reading-back" href="/">
++              ← Back to The Dominion Realm
++            </a>
++          </article>
++        </main>
++        <footer className="reading-footer">The Dominion Realm — Realmwalkers · Book One</footer>
++      </div>
++    </>
++  );
++}
+diff --git a/src/app/robots.ts b/src/app/robots.ts
+new file mode 100644
+index 0000000..1efa258
+--- /dev/null
++++ b/src/app/robots.ts
+@@ -0,0 +1,21 @@
++import type { MetadataRoute } from 'next';
++
++/**
++ * robots.txt (App Router `robots.ts`, served at /robots.txt). Allows general
++ * crawling, disallows the CMS + its OAuth endpoint (no SEO value, and not for
++ * public indexing), and points crawlers at the sitemap. Base origin mirrors
++ * sitemap.ts / rss.xml: NEXT_PUBLIC_SITE_URL with the canonical fallback.
++ */
++
++const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://dominionrealm.com').replace(/\/$/, '');
++
++export default function robots(): MetadataRoute.Robots {
++  return {
++    rules: {
++      userAgent: '*',
++      allow: '/',
++      disallow: ['/keystatic', '/api/'],
++    },
++    sitemap: `${SITE}/sitemap.xml`,
++  };
++}
+diff --git a/src/app/sitemap.ts b/src/app/sitemap.ts
+new file mode 100644
+index 0000000..5da9452
+--- /dev/null
++++ b/src/app/sitemap.ts
+@@ -0,0 +1,59 @@
++import type { MetadataRoute } from 'next';
++import { getCodexEntries, codexUrl } from '@/lib/codex';
++import { getJournalPosts, journalUrl } from '@/lib/journal';
++import { getReadingEntries, readingUrl } from '@/lib/reading';
++
++/**
++ * XML sitemap (App Router `sitemap.ts`, served at /sitemap.xml). Enumerates the
++ * static routes plus every published codex/journal/reading entry via the same
++ * loaders + URL helpers the pages use, so the map can never drift from what is
++ * actually routable. Loaders draft-filter in prod, so drafts never leak here.
++ *
++ * The base origin mirrors rss.xml/route.ts: NEXT_PUBLIC_SITE_URL with the
++ * canonical domain as the fallback, trailing slash stripped.
++ */
++
++const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://dominionrealm.com').replace(/\/$/, '');
++
++/** Standalone, hand-maintained routes (the homepage and the page-level routes
++ *  registered in src/lib/site.ts). `/interface` is intentionally excluded until
++ *  it is flagged `ready` in NAV_PAGES. */
++const STATIC_PATHS = [
++  '/',
++  '/codex',
++  '/read',
++  '/journal',
++  '/map',
++  '/relationships',
++  '/eyes',
++  '/about',
++];
++
++export default function sitemap(): MetadataRoute.Sitemap {
++  const staticEntries: MetadataRoute.Sitemap = STATIC_PATHS.map((path) => ({
++    url: `${SITE}${path}`,
++    changeFrequency: 'monthly',
++    priority: path === '/' ? 1 : 0.7,
++  }));
++
++  const codexEntries: MetadataRoute.Sitemap = getCodexEntries().map((entry) => ({
++    url: `${SITE}${codexUrl(entry.collection, entry.id)}`,
++    changeFrequency: 'monthly',
++    priority: 0.5,
++  }));
++
++  const journalEntries: MetadataRoute.Sitemap = getJournalPosts().map((post) => ({
++    url: `${SITE}${journalUrl(post.id)}`,
++    lastModified: post.data.updatedDate ?? post.data.pubDate,
++    changeFrequency: 'yearly',
++    priority: 0.5,
++  }));
++
++  const readingEntries: MetadataRoute.Sitemap = getReadingEntries().map((entry) => ({
++    url: `${SITE}${readingUrl(entry.id)}`,
++    changeFrequency: 'yearly',
++    priority: 0.6,
++  }));
++
++  return [...staticEntries, ...codexEntries, ...journalEntries, ...readingEntries];
++}
+diff --git a/src/styles/reading.css b/src/styles/reading.css
+index 2e5b113..c370201 100644
+--- a/src/styles/reading.css
++++ b/src/styles/reading.css
+@@ -405,6 +405,14 @@
+ .reading-back:hover {
+   color: var(--gold);
+ }
++/* Allow `.reading-back` on a <button> (error boundary's "Try again") without
++   inheriting the UA button chrome. */
++button.reading-back {
++  background: none;
++  border: 0;
++  padding: 0;
++  cursor: pointer;
++}
+ 
+ /* ---- Footer ---- */
+ .reading-footer {
