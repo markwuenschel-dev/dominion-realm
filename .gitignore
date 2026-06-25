@@ -4,6 +4,8 @@ next-env.d.ts
 *.tsbuildinfo
 # generated content media (copied from src/content at prebuild)
 public/content-media/
+# generated reading-sample downloads (EPUB/PDF built at prebuild)
+public/downloads/
 # dependencies
 node_modules/
 # stale build output from the pre-Next.js Astro/Netlify stack (ADR-0010)

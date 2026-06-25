@@ -8,6 +8,7 @@ import maraPortrait from '@/assets/cast/mara.png';
 import mathiasPortrait from '@/assets/cast/mathias.png';
 import { SITE, liveSocials, NAV_SECTIONS, liveNavPages, navPageReady } from '@/lib/site';
 import { HomeClient } from '@/components/HomeClient';
+import { BuyCta } from '@/components/BuyCta';
 
 // Homepage cast cards use dedicated portraits in src/assets/cast/ — kept separate
 // from the Codex's full character-file sheets so the two surfaces can differ.
@@ -104,6 +105,7 @@ export default function Home() {
                   Explore the World <span className="arrow">→</span>
                 </a>
                 <span className="buy-note">Prologue &amp; Chapter One · free, no sign-up</span>
+                <BuyCta className="buy-cta--hero" newsletterHref="#join" />
               </div>
             </div>
             <div className="scroll-cue">

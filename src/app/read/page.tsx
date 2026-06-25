@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { getReadingEntries, readingUrl, readingKicker } from '@/lib/reading';
+import { getSampleDownloads } from '@/lib/downloads';
 import { ReadingChrome } from '@/components/reading/ReadingChrome';
+import { BuyCta } from '@/components/BuyCta';
 
 export const metadata: Metadata = {
   title: 'Read the Opening',
@@ -11,6 +13,7 @@ export const metadata: Metadata = {
 export default function ReadIndex() {
   const entries = getReadingEntries();
   const first = entries[0];
+  const downloads = getSampleDownloads();
 
   return (
     <ReadingChrome showIndexLink={false}>
@@ -52,6 +55,38 @@ export default function ReadIndex() {
           </a>
         ))}
       </div>
+
+      <section className="reading-downloads" aria-labelledby="reading-downloads-title">
+        <h2 className="reading-downloads__title" id="reading-downloads-title">
+          Take the sample with you
+        </h2>
+        <p className="reading-downloads__intro">
+          The same Prologue and Chapter One, generated from this site&apos;s text — for your
+          e-reader or to read offline.
+        </p>
+        <div className="reading-downloads__row">
+          {downloads.map((d) => (
+            <a
+              key={d.format}
+              className="reading-download"
+              href={d.href}
+              download={d.filename}
+              rel="nofollow"
+            >
+              <span className="reading-download__format">{d.format}</span>
+              <span className="reading-download__hint">{d.hint}</span>
+              <span className="reading-download__action">Download ↓</span>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section className="reading-buy" aria-labelledby="reading-buy-title">
+        <h2 className="reading-buy__title" id="reading-buy-title">
+          Want the whole book?
+        </h2>
+        <BuyCta note="The full novel is on its way. Be first to know when it lands." />
+      </section>
     </ReadingChrome>
   );
 }

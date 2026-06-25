@@ -5,6 +5,7 @@ import {
   type CodexCollection,
   type CodexEntry,
 } from './content';
+import { hasCoords, type PlaceMarker } from './map';
 
 /**
  * Helpers for the World Codex (ADR-0002). The four codex collections share a
@@ -50,23 +51,66 @@ export function entryKicker(entry: CodexEntry): string {
   return COLLECTION_LABELS[entry.collection];
 }
 
+/**
+ * Build interactive map markers from the `places` collection: every place that
+ * carries `mapX`/`mapY` coordinates becomes a marker, so authoring a place is
+ * all it takes to put it on /map. Tier-gating is applied later, client-side, by
+ * `selectVisibleMarkers` (lib/map.ts) so it can respond to the reveal toggle.
+ */
+export function getPlaceMarkers(): PlaceMarker[] {
+  return getCodexEntries()
+    .filter((e) => e.collection === 'places')
+    .flatMap((e) => {
+      const data = e.data as { region?: string; mapX?: number; mapY?: number };
+      if (!hasCoords({ x: data.mapX, y: data.mapY })) return [];
+      return [
+        {
+          id: e.id,
+          name: e.data.name,
+          kind: data.region ?? COLLECTION_LABELS.places,
+          summary: e.data.summary,
+          href: codexUrl('places', e.id),
+          reveal: e.data.reveal,
+          x: data.mapX as number,
+          y: data.mapY as number,
+        },
+      ];
+    });
+}
+
 export interface ResolvedLink {
   url: string;
   name: string;
   label?: string;
 }
 
+/** A single declared relationship from an entry's frontmatter. */
+export type Relationship = CodexEntry['data']['relationships'][number];
+
 /**
- * Resolve an entry's `relationships` to live links. Targets are matched by id
- * (optionally constrained to a collection); dangling links are skipped so a
- * not-yet-written cross-reference never breaks the build.
+ * Find the codex entry a declared `relationship` points at. Targets are matched
+ * by id, optionally constrained to a collection; a dangling link (e.g. a
+ * not-yet-written cross-reference) resolves to `undefined` rather than throwing,
+ * so the build never breaks on an unresolved tie. Shared by the entry-page
+ * link list and the constellation edge graph so both honor the same rule.
+ */
+export function matchRelationship(
+  rel: Relationship,
+  candidates: CodexEntry[],
+): CodexEntry | undefined {
+  return candidates.find(
+    (e) => e.id === rel.entry && (!rel.collection || e.collection === rel.collection),
+  );
+}
+
+/**
+ * Resolve an entry's `relationships` to live links. Dangling links are skipped
+ * so a not-yet-written cross-reference never breaks the build.
  */
 export function resolveRelationships(entry: CodexEntry, all: CodexEntry[]): ResolvedLink[] {
   const links: ResolvedLink[] = [];
   for (const rel of entry.data.relationships) {
-    const target = all.find(
-      (e) => e.id === rel.entry && (!rel.collection || e.collection === rel.collection),
-    );
+    const target = matchRelationship(rel, all);
     if (!target) continue;
     links.push({
       url: codexUrl(target.collection, target.id),
