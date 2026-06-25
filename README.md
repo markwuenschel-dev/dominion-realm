@@ -1,64 +1,57 @@
 # The Dominion Realm — Showcase Site
 
-Public showcase for *The Dominion Realm* (Realmwalkers · Book One). Astro static site,
-ported from the original single-file design with the visual identity preserved exactly:
-deep blue-black palette, bone text, gold accent, the spectral gradient, film grain,
-ambient glow, scroll reveals, scrollspy, and the lighting power-rail.
+Public showcase for *The Dominion Realm* (Realmwalkers · Book One). **Next.js (App
+Router) + React**, served as a Node process on **Railway** (see
+[ADR-0010](docs/adr/0010-migrate-astro-to-nextjs.md)). Ported from the original
+single-file design with the visual identity preserved exactly: deep blue-black
+palette, bone text, gold accent, the spectral gradient, film grain, ambient glow,
+scroll reveals, scrollspy, and the lighting power-rail.
 
-Deploys to **GitHub Pages** and **Netlify** from the same repo with no config to toggle —
-the build environment picks the right base path automatically.
+The site is served from the root path (`/`) — there is no GitHub Pages subpath or
+dual-host base-path toggle anymore.
 
-## Run locally (PowerShell 7+)
+## Run locally
 
-```powershell
-# from the unzipped folder
+```bash
 npm install
-npm run dev          # http://localhost:4321
+npm run dev          # http://localhost:3000
 ```
 
-```powershell
-npm run build        # outputs to .\dist
-npm run preview      # serve the production build locally
+```bash
+npm run build        # production build (.next/)
+npm run start        # serve the production build (reads $PORT, defaults to 3000)
+npm run check        # tsc --noEmit (types + content-schema sanity)
+npm run format       # prettier --write .
 ```
 
-Requires Node 18+ (you have 22). `.nvmrc` pins 22.
+Requires Node 22+ (`.nvmrc` pins 22; `package.json` engines pin `>=22`).
 
-## Push to GitHub (repo already exists)
+Environment variables: copy `.env.example` to `.env` and fill in the Keystatic
+GitHub-App credentials (for `/keystatic` cloud editing) and the optional public
+IDs (`NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_GA4_ID`, `NEXT_PUBLIC_KIT_FORM_ID`).
 
-```powershell
-git init
-git add .
-git commit -m "Showcase site: Astro port"
-git branch -M main
-git remote add origin https://github.com/markwuenschel-dev/dominion-realm.git
-git push -u origin main
-```
+## Deploy — Railway
 
-If the remote already has commits: `git pull --rebase origin main` first, then push.
+1. Railway → **New Project → Deploy from GitHub repo → `dominion-realm`**.
+2. Railpack auto-detects the Next.js build from `package.json`; `railway.json`
+   pins `npm run start` (→ `next start`) as the start command.
+3. Set the env vars from `.env.example` in the service's **Variables** tab.
+4. Railway deploys automatically on push to `main`. Set `NEXT_PUBLIC_SITE_URL`
+   to the Railway domain so canonical/OG tags and the RSS feed are correct.
+5. Point the Keystatic GitHub App's OAuth **callback URL** at the Railway host:
+   `https://<railway-domain>/api/keystatic/github/oauth/callback`.
 
-## Deploy — GitHub Pages
-
-1. Push to `main` (above). The workflow in `.github/workflows/deploy.yml` runs automatically.
-2. One-time: repo **Settings → Pages → Build and deployment → Source = "GitHub Actions"**.
-3. Live at **https://markwuenschel-dev.github.io/dominion-realm/**
-
-The build runs inside GitHub Actions, where `GITHUB_ACTIONS=true`, so `astro.config.mjs`
-serves under the `/dominion-realm` base path automatically.
-
-## Deploy — Netlify
-
-1. Netlify → **Add new site → Import an existing project → GitHub → `dominion-realm`**.
-2. Build command and publish dir come from `netlify.toml` (`npm run build` → `dist`). Nothing to type.
-3. Netlify builds at the **root** base path (no `GITHUB_ACTIONS` var), so links resolve correctly there too.
-4. After you get your Netlify URL, set it as `site` in `astro.config.mjs` (the Netlify branch of the ternary) so canonical/OG tags are right.
+CI (`.github/workflows/ci.yml`) gates every PR with `format:check` → `npm run check`
+→ `next build`, plus an advisory a11y audit. Deployment is Railway's job, not CI's.
 
 ## Where to edit content
 
 Content lives in two places. **Most of it is Markdown.**
 
-**1. Content Collections** (the World Codex, the Journal, the Reading Sample) — folders of
-Markdown files under `src/content/`. Add a file, write the frontmatter + body, commit. The
-filename becomes the URL slug.
+**1. Content collections** (the World Codex, the Journal, the Reading Sample) —
+folders of Markdown files under `src/content/`. Add a file, write the frontmatter +
+body, commit. The filename becomes the URL slug. The schema is validated at build
+time by the Zod loader in `src/lib/content.ts`.
 
 | Collection | Folder | URL |
 |---|---|---|
@@ -66,8 +59,12 @@ filename becomes the URL slug.
 | Author Journal (Field Notes + From the Desk) | `src/content/journal/` | `/journal/<slug>` |
 | Reading Sample (Prologue + Chapter One) | `src/content/reading/` | `/read/<slug>` |
 
-**2. The hand-coded homepage** (`src/pages/index.astro`) and Eyes page (`src/pages/eyes.astro`) —
-edit the markup directly (search for the marker text):
+Or edit in the browser via **Keystatic** at `/keystatic` (commits straight to the
+repo — ADR-0009).
+
+**2. The hand-coded homepage** (`src/app/page.tsx` + `src/components/HomeClient.tsx`)
+and the Eyes page (`src/app/eyes/page.tsx`) — edit the markup directly (search for
+the marker text):
 
 | To change… | Search for |
 |---|---|
@@ -76,7 +73,7 @@ edit the markup directly (search for the marker text):
 | Homepage characters (Marcus, Serra, Seb) | `char-name` |
 | The World pitch (Eriadne, the two endings) | `world-name` |
 | The six Eyes stages | `stage-name` |
-| Author name / socials | `[ Author Name ]` |
+| Author name / socials | `[ Author Name ]` (in `src/lib/site.ts`) |
 
 Design tokens (palette, fonts, the spectral gradient) are in **`src/styles/tokens.css`**.
 The favicon is `public/favicon.svg`.
@@ -88,25 +85,26 @@ reveal-tier model, the `draft` flag, worked examples, the publish flow, and the 
 
 ```
 src/
+  app/                   App Router routes (pages + /api/keystatic, rss.xml)
+  components/            React components (HomeClient, reveal gate, search, …)
   content/               the Markdown content collections (codex, journal, reading)
-  content.config.ts      the schema for every collection — validated at build time
+  lib/content.ts         the Zod schema + loader for every collection (build-time validation)
   lib/reveal.ts          the four-tier reveal vocabulary (single source of truth)
-  layouts/Base.astro     <head>, fonts, meta, the <body> shell
-  pages/index.astro      hand-coded homepage (all hero/pitch markup + site JS)
-  pages/eyes.astro       the Eyes of Meszkhal interactive
+  lib/site.ts            site chrome data (nav, socials, axioms, timeline)
   styles/tokens.css      design tokens (palette, fonts, gradient) — single source of truth
   styles/global.css      the homepage + shared stylesheet
 public/
   favicon.svg            spectral-iris mark
-  .nojekyll              lets GitHub Pages serve the _astro/ asset folder
-.github/workflows/deploy.yml   GitHub Pages CI
-netlify.toml                   Netlify build config
-astro.config.mjs               site + auto base-path
-docs/                          PRD, ADRs, and the author's content guide (CONTENT.md)
+  content-media/         art copied from src/content at prebuild (gitignored)
+keystatic.config.ts      Keystatic CMS schema (mirrors the content loader)
+next.config.mjs          Next.js + MDX config
+railway.json             Railway deploy config (start command, restart policy)
+.github/workflows/ci.yml PR validation gate
+docs/                    PRD, ADRs, and the author's content guide (CONTENT.md)
 ```
 
 ## Optional later
 
-- **Offline fonts:** swap the Google Fonts `<link>` in `Base.astro` for `@fontsource` packages
-  (`@fontsource/cormorant-garamond`, `@fontsource/spectral`, `@fontsource/space-mono`) to drop the external request.
-- **Email signup:** already wired to Kit (ADR-0005) — set `PUBLIC_KIT_FORM_ID` to point it at your form; without it the form falls back to a friendly local confirmation.
+- **Email signup:** already wired to Kit (ADR-0005) — set `NEXT_PUBLIC_KIT_FORM_ID`
+  to point it at your form; without it the form falls back to a friendly local confirmation.
+- **Analytics:** set `NEXT_PUBLIC_GA4_ID` to enable Google Analytics 4.

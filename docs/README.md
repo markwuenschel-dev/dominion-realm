@@ -20,4 +20,4 @@ Planning and decision records for the showcase site.
 - [ADR-0006](adr/0006-analytics-ga4.md) — Analytics via Google Analytics 4
 - [ADR-0007](adr/0007-evolve-not-reinvent-identity.md) — Evolve & systematize the visual identity (don't reinvent)
 - [ADR-0008](adr/0008-stack-astro-typescript-vanilla-islands.md) — Stack: Astro + TypeScript, vanilla-first islands
-- [ADR-0009](adr/0009-cms-keystatic.md) — Browser authoring via Keystatic (GitHub storage mode); admin on Netlify, Pages stays static
+- [ADR-0009](adr/0009-cms-keystatic.md) — Browser authoring via Keystatic (GitHub storage mode); admin served on the main Railway deploy (amended by ADR-0010)
