@@ -38,16 +38,33 @@ export default function AboutPage() {
 
             <div className="reading-prose">
               <p>
-                <em>[ Placeholder bio — Mark to replace. ]</em> {named ? SITE.author : 'The author'}{' '}
-                is the author of <em>The Dominion Realm</em>, the first book in the Realmwalkers
-                saga: a story about a man who can read the numbers under the world and keeps
-                mistaking the translation for the truth.
+                I wrote <em>Realmwalkers</em> because I wanted the fantasy I kept looking for and
+                never found — the one where all the things I love share a single universe. The
+                powers, the magic systems, the fighting styles, the worlds. Not as a gimmick, but as
+                a real place where they collide, strike bargains, and force each other to make
+                sense.
               </p>
               <p>
-                This is where the author&apos;s voice goes — where the idea came from, what
-                interface fantasy means to them, and why a health bar can be the most honest lie a
-                frightened mind ever tells itself. A paragraph or two of real biography lands here,
-                in the author&apos;s own words.
+                It runs at two scales at once. Above, there are cosmic factions, ancient threats,
+                and systems large enough to reshape worlds. Below, there is a small party of
+                dangerously capable people — each with their own specialty, their own independence,
+                and real consequences when they fail one another. The Realm is vast; the story is
+                the handful of people trying to survive it together.
+              </p>
+              <p>
+                I love watching a character get measurably stronger on the page, so there is real
+                machinery under this world: classes, stats, biology, the interface itself. But you
+                won&apos;t be doing homework. The math is there to make the wonder hold weight — so
+                that when someone is hurt, transformed, or pushed past their limit, the world has
+                rules beneath it and the cost is real.
+              </p>
+              <p>
+                At the center is a romance that spans the whole series — two strangers becoming
+                something larger and stranger and harder than any simple love story — surrounded by
+                the friendships, rivalries, and quiet betrayals that come with it. Every character
+                carries a piece of me, or of someone who shaped me. The aim was never to feel
+                generic: familiar enough that you recognize what you love, distinct enough that it
+                becomes something new.
               </p>
               <p>
                 For early chapters, field notes, and new codex entries as the Realm fills in, join
