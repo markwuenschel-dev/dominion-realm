@@ -1,5 +1,4 @@
-# build output
-dist/
+# build output (Next.js)
 .next/
 next-env.d.ts
 *.tsbuildinfo
@@ -7,8 +6,10 @@ next-env.d.ts
 public/content-media/
 # dependencies
 node_modules/
-# astro
+# stale build output from the pre-Next.js Astro/Netlify stack (ADR-0010)
+dist/
 .astro/
+.netlify/
 # logs / env / os
 *.log
 .env

@@ -364,7 +364,7 @@ writes to this repo directly.
 
 Before anyone can log in, the **site owner** does a **one-time GitHub App setup**
 (creating/connecting the Keystatic GitHub App and adding its credentials to the
-Netlify environment). This is a one-off; after it's done, the `/keystatic` form
+Railway service's environment variables). This is a one-off; after it's done, the `/keystatic` form
 just works. The steps live in
 [ADR-0009 — Keystatic CMS](adr/0009-cms-keystatic.md).
 

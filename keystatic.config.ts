@@ -2,13 +2,14 @@ import { config, fields, collection } from '@keystatic/core';
 import { REVEAL_TIERS, TIER_LABELS } from './src/lib/reveal';
 
 /**
- * Keystatic CMS (ADR-0009) — a browser-based editor that commits straight to
- * this repo. It runs ONLY on the Netlify (SSR) deploy; the GitHub Pages build
- * stays pure-static and ships none of this. See `astro.config.mjs`.
+ * Keystatic CMS (ADR-0009, amended by ADR-0010) — a browser-based editor that
+ * commits straight to this repo. On Railway (a Node server) it ships with the
+ * main deploy and is served under `/keystatic`, backed by the GitHub-OAuth
+ * route handler at `/api/keystatic`.
  *
- * Every field below mirrors `src/content.config.ts` so that existing entries
- * load unchanged and anything authored here validates against the Astro
- * Content Collections schema. The Markdown *body* round-trips into the same
+ * Every field below mirrors the Zod content schema in `src/lib/content.ts` so
+ * that existing entries load unchanged and anything authored here validates
+ * against the same schema. The Markdown *body* round-trips into the same
  * `src/content/<collection>/*.md` files via `format.contentField`.
  */
 

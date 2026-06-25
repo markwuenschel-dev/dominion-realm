@@ -26,8 +26,8 @@ const withMDX = createMDX({
 const nextConfig = {
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
   reactStrictMode: true,
-  // Railway + Nixpacks runs `next build` then `next start` (reads $PORT). Pin the
-  // tracing/workspace root so a stray parent lockfile doesn't misinfer it.
+  // Railway (Railpack builder) runs `next build` then `next start` (reads $PORT).
+  // Pin the tracing/workspace root so a stray parent lockfile doesn't misinfer it.
   outputFileTracingRoot: projectRoot,
   images: {
     // Codex/journal art is bundled locally (public/ or src/content), so no

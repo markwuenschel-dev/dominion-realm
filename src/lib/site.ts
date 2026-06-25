@@ -4,9 +4,10 @@
  * and the shared navigation all read from here so a new page or a real social
  * URL is a one-line change instead of an edit hunt across templates.
  *
- * Everything here is plain data (no `import.meta.env`): page links are stored
- * as base-relative slugs and the consuming template prepends `BASE_URL`, so the
- * same array works on GitHub Pages (`/dominion-realm/`) and Netlify (`/`).
+ * Everything here is plain data: page links are stored as base-relative slugs
+ * and the consuming template prepends the base path. On Railway the site is
+ * served from the root (`/`), so the base is simply `/`; keeping links
+ * base-relative leaves room for a future subpath deploy without an edit hunt.
  */
 
 export interface Social {
@@ -74,7 +75,7 @@ export const SITE: SiteConfig = {
 /** Socials that actually have a URL — the only ones we render. */
 export const liveSocials = (): Social[] => SITE.socials.filter((s) => Boolean(s.url));
 
-/** A homepage section anchor (scrollspy target on `index.astro`). */
+/** A homepage section anchor (scrollspy target on the home route `/`). */
 export interface NavSection {
   /** Two-digit index shown in the rail, e.g. "02". */
   idx: string;
