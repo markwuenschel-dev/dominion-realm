@@ -39,6 +39,8 @@ jobs:
         run: npm run check
       - name: Build (Next.js)
         run: npm run build
+      - name: Unit tests (Vitest)
+        run: npm test
 
   a11y:
     name: Accessibility (advisory)

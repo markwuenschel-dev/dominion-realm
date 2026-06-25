@@ -21,7 +21,6 @@ import { REVEAL_TIERS } from './reveal';
  */
 
 const CONTENT_DIR = path.join(process.cwd(), 'src', 'content');
-const IS_PROD = process.env.NODE_ENV === 'production';
 
 const revealEnum = z.enum(REVEAL_TIERS);
 
@@ -100,7 +99,7 @@ export type JournalEntry = Entry<'journal'>;
 export type ReadingEntry = Entry<'reading'>;
 
 /** Rewrite a frontmatter image path to its public /content-media URL. */
-function resolveImage(collection: string, image: string | undefined): string | undefined {
+export function resolveImage(collection: string, image: string | undefined): string | undefined {
   if (!image) return undefined;
   const base = image
     .replace(/^\.?\//, '')
@@ -137,7 +136,11 @@ function loadCollection<C extends CollectionName>(collection: C): Entry<C>[] {
     } satisfies Entry<C>;
   });
 
-  return IS_PROD ? entries.filter((e) => !(e.data as { draft?: boolean }).draft) : entries;
+  // Read NODE_ENV at call time (not import time) so the draft gate is honored
+  // even when the environment is set after this module loads — and so tests can
+  // exercise both branches without module-reset gymnastics.
+  const isProd = process.env.NODE_ENV === 'production';
+  return isProd ? entries.filter((e) => !(e.data as { draft?: boolean }).draft) : entries;
 }
 
 /* ---- Raw loaders (consumed by the lib/codex|journal|reading helpers) ---- */
