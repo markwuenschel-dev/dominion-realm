@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { getCodexEntries, COLLECTION_ORDER, COLLECTION_LABELS } from '@/lib/codex';
 import { CodexCard } from '@/components/CodexCard';
 import { SearchBox } from '@/components/SearchBox';
@@ -31,11 +32,11 @@ export default function CodexIndex() {
           spoiler-safe.
         </p>
         <div className="codex-rule" />
-        <a className="codex-head__map" href="/relationships">
+        <Link className="codex-head__map" href="/relationships">
           <span className="codex-head__map-mark">✦</span>
           See the whole codex as a relationship map
           <span className="codex-head__map-arrow">→</span>
-        </a>
+        </Link>
       </div>
 
       <div className="codex-search">

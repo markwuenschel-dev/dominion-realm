@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import '@/styles/reading.css';
 
 /**
@@ -18,14 +19,14 @@ export function ReadingChrome({
       <div className="vignette" />
       <div className="reading">
         <header className="reading-top">
-          <a className="reading-top__home" href="/">
+          <Link className="reading-top__home" href="/">
             ← The Dominion <em>Realm</em>
-          </a>
+          </Link>
           <nav className="reading-top__nav">
-            {showIndexLink && <a href="/read">The Reading</a>}
-            <a href="/codex">Codex</a>
-            <a href="/journal">Journal</a>
-            <a href="/eyes">The Eyes</a>
+            {showIndexLink && <Link href="/read">The Reading</Link>}
+            <Link href="/codex">Codex</Link>
+            <Link href="/journal">Journal</Link>
+            <Link href="/eyes">The Eyes</Link>
           </nav>
         </header>
         <main className="reading-wrap">{children}</main>

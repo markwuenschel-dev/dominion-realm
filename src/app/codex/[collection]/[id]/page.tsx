@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import {
   getCodexEntries,
@@ -9,6 +10,7 @@ import {
   type CodexCollection,
 } from '@/lib/codex';
 import { MdxBody } from '@/components/MdxBody';
+import { ContentImage } from '@/components/ContentImage';
 import { RevealGate } from '@/components/reveal/RevealGate';
 
 type Params = { collection: string; id: string };
@@ -44,14 +46,14 @@ export default async function CodexEntryPage({ params }: { params: Promise<Param
 
       {image && (
         <figure className="codex-entry__media">
+          {/* Full-size view opens the raw asset in a new tab — stays a plain <a>. */}
           <a
             href={image}
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Open the full-size character file for ${entry.data.name}`}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={image} alt={entry.data.imageAlt ?? entry.data.name} />
+            <ContentImage src={image} alt={entry.data.imageAlt ?? entry.data.name} />
           </a>
           <figcaption className="codex-entry__media-hint">Click to view full size</figcaption>
         </figure>
@@ -68,18 +70,18 @@ export default async function CodexEntryPage({ params }: { params: Promise<Param
           <p className="codex-rel__label">Connected threads</p>
           <div className="codex-rel__list">
             {links.map((link) => (
-              <a className="codex-rel__item" href={link.url} key={link.url}>
+              <Link className="codex-rel__item" href={link.url} key={link.url}>
                 {link.label && <span className="codex-rel__rel">{link.label}</span>}
                 <span>{link.name}</span>
-              </a>
+              </Link>
             ))}
           </div>
         </section>
       )}
 
-      <a className="codex-back" href="/codex">
+      <Link className="codex-back" href="/codex">
         ← All entries
-      </a>
+      </Link>
     </article>
   );
 }
