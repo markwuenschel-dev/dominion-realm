@@ -5,6 +5,7 @@ import {
   type CodexCollection,
   type CodexEntry,
 } from './content';
+import { hasCoords, type PlaceMarker } from './map';
 
 /**
  * Helpers for the World Codex (ADR-0002). The four codex collections share a
@@ -48,6 +49,33 @@ export function entryKicker(entry: CodexEntry): string {
     return KIND_LABELS[data.kind] ?? COLLECTION_LABELS[entry.collection];
   if ('region' in data && data.region) return data.region;
   return COLLECTION_LABELS[entry.collection];
+}
+
+/**
+ * Build interactive map markers from the `places` collection: every place that
+ * carries `mapX`/`mapY` coordinates becomes a marker, so authoring a place is
+ * all it takes to put it on /map. Tier-gating is applied later, client-side, by
+ * `selectVisibleMarkers` (lib/map.ts) so it can respond to the reveal toggle.
+ */
+export function getPlaceMarkers(): PlaceMarker[] {
+  return getCodexEntries()
+    .filter((e) => e.collection === 'places')
+    .flatMap((e) => {
+      const data = e.data as { region?: string; mapX?: number; mapY?: number };
+      if (!hasCoords({ x: data.mapX, y: data.mapY })) return [];
+      return [
+        {
+          id: e.id,
+          name: e.data.name,
+          kind: data.region ?? COLLECTION_LABELS.places,
+          summary: e.data.summary,
+          href: codexUrl('places', e.id),
+          reveal: e.data.reveal,
+          x: data.mapX as number,
+          y: data.mapY as number,
+        },
+      ];
+    });
 }
 
 export interface ResolvedLink {

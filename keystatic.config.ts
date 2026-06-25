@@ -179,6 +179,19 @@ export default config({
           description: 'Free-form position on the world timeline, if relevant.',
           validation: { isRequired: false },
         }),
+        // Optional position on the interactive /map, as a percent (0–100) of the
+        // figure. Set BOTH to place a marker; leave blank to keep the place off
+        // the map. Optional so existing entries validate unchanged.
+        mapX: fields.number({
+          label: 'Map X (0–100%)',
+          description: 'Horizontal position on /map: 0 = far west, 100 = far east.',
+          validation: { isRequired: false, min: 0, max: 100 },
+        }),
+        mapY: fields.number({
+          label: 'Map Y (0–100%)',
+          description: 'Vertical position on /map: 0 = far north, 100 = far south.',
+          validation: { isRequired: false, min: 0, max: 100 },
+        }),
         content: bodyField,
       },
     }),

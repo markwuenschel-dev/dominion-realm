@@ -6,6 +6,10 @@ summary: >-
   reputation.
 region: Ley-line convergence
 timeline: Present day of Book One
+# PLACEHOLDER coords — Eriadne sits at the convergence, i.e. the map's center.
+# Percent of the /map figure (0–100). Adjust freely from the manuscript's geography.
+mapX: 50
+mapY: 50
 reveal: teaser
 relationships:
   - entry: marcus
