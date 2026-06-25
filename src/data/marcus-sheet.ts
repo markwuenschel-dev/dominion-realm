@@ -49,7 +49,7 @@ export interface CharacterSheet {
 
 export const marcusSheet: CharacterSheet = {
   provisional: true,
-  name: 'Marcus',
+  name: 'Marcus Vye',
   handle: 'the Ocular Interface',
   archetype: 'Systems Reader · Interface Walker',
   title: 'The one who keeps mistaking the map for the world',
