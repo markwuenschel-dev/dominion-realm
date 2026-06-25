@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { getReadingEntries, readingUrl, readingKicker } from '@/lib/reading';
 import { getSampleDownloads } from '@/lib/downloads';
 import { ReadingChrome } from '@/components/reading/ReadingChrome';
+import { ContentImage } from '@/components/ContentImage';
 import { BuyCta } from '@/components/BuyCta';
 
 export const metadata: Metadata = {
@@ -31,18 +33,18 @@ export default function ReadIndex() {
       </div>
 
       {first && (
-        <a className="reading-cta" href={readingUrl(first.id)}>
+        <Link className="reading-cta" href={readingUrl(first.id)}>
           <span>Start reading</span>
           <span className="reading-cta__hint">{readingKicker(first)}</span>
-        </a>
+        </Link>
       )}
 
       <div className="reading-list">
         {entries.map((entry) => (
-          <a key={entry.id} className="reading-item" href={readingUrl(entry.id)}>
+          <Link key={entry.id} className="reading-item" href={readingUrl(entry.id)}>
             {entry.data.image && (
               <figure className="reading-item__media">
-                <img
+                <ContentImage
                   src={entry.data.image}
                   alt={entry.data.imageAlt ?? entry.data.title}
                   loading="lazy"
@@ -52,7 +54,7 @@ export default function ReadIndex() {
             <span className="reading-item__kicker">{readingKicker(entry)}</span>
             <h2 className="reading-item__title">{entry.data.title}</h2>
             <p className="reading-item__summary">{entry.data.summary}</p>
-          </a>
+          </Link>
         ))}
       </div>
 

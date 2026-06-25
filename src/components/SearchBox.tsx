@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import MiniSearch from 'minisearch';
 import type { SearchDoc } from '@/lib/search';
 
@@ -39,11 +40,11 @@ export function SearchBox({ docs }: { docs: SearchDoc[] }) {
           {results.length === 0 && <li className="dr-search__empty">No matches.</li>}
           {results.slice(0, 12).map((r) => (
             <li key={r.id} className="dr-search__result">
-              <a href={r.url as string}>
+              <Link href={r.url as string}>
                 <span className="dr-search__kind">{r.kind as string}</span>
                 <span className="dr-search__title">{r.title as string}</span>
                 <span className="dr-search__summary">{r.summary as string}</span>
-              </a>
+              </Link>
             </li>
           ))}
         </ul>

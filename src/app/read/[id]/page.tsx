@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import {
   getReadingEntries,
@@ -8,6 +9,7 @@ import {
   getNeighbors,
 } from '@/lib/reading';
 import { MdxBody } from '@/components/MdxBody';
+import { ContentImage } from '@/components/ContentImage';
 import { ReadingChrome } from '@/components/reading/ReadingChrome';
 
 export function generateStaticParams() {
@@ -42,7 +44,7 @@ export default async function ReadChapter({ params }: { params: Promise<{ id: st
 
         {entry.data.image && (
           <figure className="reading-article__media">
-            <img src={entry.data.image} alt={entry.data.imageAlt ?? entry.data.title} />
+            <ContentImage src={entry.data.image} alt={entry.data.imageAlt ?? entry.data.title} />
           </figure>
         )}
 
@@ -54,23 +56,23 @@ export default async function ReadChapter({ params }: { params: Promise<{ id: st
       {(prev || next) && (
         <nav className="reading-nav" aria-label="Chapter navigation">
           {prev && (
-            <a className="reading-nav__link reading-nav__link--prev" href={readingUrl(prev.id)}>
+            <Link className="reading-nav__link reading-nav__link--prev" href={readingUrl(prev.id)}>
               <span className="reading-nav__dir">← Previous</span>
               <span className="reading-nav__title">{prev.data.title}</span>
-            </a>
+            </Link>
           )}
           {next && (
-            <a className="reading-nav__link reading-nav__link--next" href={readingUrl(next.id)}>
+            <Link className="reading-nav__link reading-nav__link--next" href={readingUrl(next.id)}>
               <span className="reading-nav__dir">Next →</span>
               <span className="reading-nav__title">{next.data.title}</span>
-            </a>
+            </Link>
           )}
         </nav>
       )}
 
-      <a className="reading-back" href="/read">
+      <Link className="reading-back" href="/read">
         ← All chapters
-      </a>
+      </Link>
     </ReadingChrome>
   );
 }
