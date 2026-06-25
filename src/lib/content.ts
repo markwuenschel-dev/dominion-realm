@@ -58,6 +58,11 @@ const schemas = {
   places: codexBase.extend({
     region: z.string().optional(),
     timeline: z.string().optional(),
+    // Optional map position as a percent (0–100) of the /map figure — both must
+    // be present for the place to get an interactive marker. Optional so every
+    // existing entry still validates and the build stays green.
+    mapX: z.number().min(0).max(100).optional(),
+    mapY: z.number().min(0).max(100).optional(),
   }),
   journal: z.object({
     title: z.string(),
