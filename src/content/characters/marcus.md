@@ -5,7 +5,7 @@ imageAlt: Marcus on Earth
 summary: >-
   An Astria machine-learning engineer pulled into the Realm, where his implant
   renders a real metaphysical world as RPG logic. He perceives everything
-  accurately — and keeps drawing the wrong conclusion from what he sees.
+  accurately, then reaches — every time — for the wrong conclusion.
 role: Protagonist · The Ocular Interface
 aliases:
   - Marcus Vye
