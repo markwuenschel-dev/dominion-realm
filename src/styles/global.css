@@ -333,6 +333,22 @@
     color: var(--ink-faint);
   }
 
+  /* Buy / pre-order CTA (Tier 3) — used on the homepage hero and /read. */
+  .buy-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .buy-cta__eyebrow {
+    font-family: var(--mono);
+    font-size: 0.56rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .buy-cta--hero { flex-basis: 100%; margin-top: 4px; }
+
   .scroll-cue {
     position: absolute;
     bottom: 40px;
