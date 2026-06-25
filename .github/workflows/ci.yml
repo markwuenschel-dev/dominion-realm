@@ -1,7 +1,8 @@
 name: CI
 
-# Validation gate for every pull request. The `verify` job is what branch
-# protection should require before merge; the `a11y` job is advisory for now.
+# Validation gate for every pull request (ADR-0010 — Next.js on Railway). The
+# `verify` job is what branch protection should require before merge; `a11y` is
+# advisory for now. Deployment is handled by Railway on push to `main`, not here.
 on:
   pull_request:
   workflow_dispatch:
@@ -20,8 +21,9 @@ jobs:
     timeout-minutes: 10
     env:
       # Non-secret public IDs (repo Variables) so the build matches production.
-      PUBLIC_KIT_FORM_ID: ${{ vars.PUBLIC_KIT_FORM_ID }}
-      PUBLIC_GA4_ID: ${{ vars.PUBLIC_GA4_ID }}
+      NEXT_PUBLIC_KIT_FORM_ID: ${{ vars.NEXT_PUBLIC_KIT_FORM_ID }}
+      NEXT_PUBLIC_GA4_ID: ${{ vars.NEXT_PUBLIC_GA4_ID }}
+      NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -32,20 +34,20 @@ jobs:
       - name: Formatting
         run: npm run format:check
       - name: Types & content schema
+        # `tsc --noEmit`; the Zod content loader (src/lib/content.ts) throws on a
+        # malformed entry, so `next build` below is the real content-schema gate.
         run: npm run check
-      - name: Build (Astro + Pagefind)
+      - name: Build (Next.js)
         run: npm run build
-      - name: Link & base-path guard
-        # CI builds in the GitHub Pages context, so links carry the project base.
-        run: node scripts/check-links.mjs dist /dominion-realm/
 
   a11y:
     name: Accessibility (advisory)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      PUBLIC_KIT_FORM_ID: ${{ vars.PUBLIC_KIT_FORM_ID }}
-      PUBLIC_GA4_ID: ${{ vars.PUBLIC_GA4_ID }}
+      NEXT_PUBLIC_KIT_FORM_ID: ${{ vars.NEXT_PUBLIC_KIT_FORM_ID }}
+      NEXT_PUBLIC_GA4_ID: ${{ vars.NEXT_PUBLIC_GA4_ID }}
+      NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -56,10 +58,10 @@ jobs:
       - run: npm run build
       - name: Serve and audit
         # Advisory: report WCAG findings in the log without failing the check.
-        # Remove this line to promote accessibility to a required gate once the
-        # existing contrast issues are addressed.
+        # Remove `continue-on-error` to promote accessibility to a required gate
+        # once the existing contrast issues are addressed.
         continue-on-error: true
         run: |
-          npm run preview -- --host &
-          npx --yes wait-on -t 60000 http://localhost:4321/dominion-realm/
+          npx next start &
+          npx --yes wait-on -t 60000 http://localhost:3000/
           npx --yes pa11y-ci

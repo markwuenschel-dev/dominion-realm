@@ -1,0 +1,103 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+
+/**
+ * Journal stream filter (ported from the inline script in journal/index.astro).
+ * Every post is rendered up-front (so no-JS readers see all of them); the filter
+ * just toggles `.is-hidden` by category and reflects state in the URL hash. The
+ * server passes already-serialized items (no Date objects cross the boundary).
+ */
+
+export interface JournalItem {
+  id: string;
+  href: string;
+  category: string;
+  kicker: string;
+  title: string;
+  summary: string;
+  image?: string;
+  imageAlt?: string;
+}
+
+const VALID = ['all', 'field-notes', 'from-the-desk'];
+
+export function JournalListClient({
+  items,
+  filters,
+}: {
+  items: JournalItem[];
+  filters: { value: string; label: string }[];
+}) {
+  const [filter, setFilter] = useState('all');
+
+  useEffect(() => {
+    const norm = () => {
+      const v = location.hash.replace(/^#/, '');
+      setFilter(VALID.includes(v) ? v : 'all');
+    };
+    norm();
+    window.addEventListener('hashchange', norm);
+    return () => window.removeEventListener('hashchange', norm);
+  }, []);
+
+  function pick(value: string) {
+    const url = value === 'all' ? location.pathname + location.search : '#' + value;
+    history.replaceState(null, '', url);
+    setFilter(value);
+  }
+
+  return (
+    <>
+      <div className="journal-controls">
+        <div className="journal-filter" role="group" aria-label="Filter by stream">
+          {filters.map((f) => (
+            <a
+              key={f.value}
+              className="journal-filter__btn"
+              href={f.value === 'all' ? '/journal' : `/journal#${f.value}`}
+              data-filter={f.value}
+              aria-pressed={filter === f.value ? 'true' : 'false'}
+              onClick={(e) => {
+                e.preventDefault();
+                pick(f.value);
+              }}
+            >
+              {f.label}
+            </a>
+          ))}
+        </div>
+        <a className="journal-feed" href="/rss.xml">
+          RSS Feed →
+        </a>
+      </div>
+
+      {items.length === 0 ? (
+        <p className="journal-empty">No entries yet. Check back soon.</p>
+      ) : (
+        <div className="journal-list" id="journal-list">
+          {items.map((p) => {
+            const hidden = !(filter === 'all' || p.category === filter);
+            return (
+              <a
+                key={p.id}
+                className={`journal-item${hidden ? ' is-hidden' : ''}`}
+                href={p.href}
+                data-category={p.category}
+              >
+                {p.image && (
+                  <figure className="journal-item__media">
+                    <img src={p.image} alt={p.imageAlt ?? p.title} loading="lazy" />
+                  </figure>
+                )}
+                <span className="journal-item__kicker">{p.kicker}</span>
+                <h2 className="journal-item__title">{p.title}</h2>
+                <p className="journal-item__summary">{p.summary}</p>
+              </a>
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+}

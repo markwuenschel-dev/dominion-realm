@@ -102,7 +102,10 @@ export type ReadingEntry = Entry<'reading'>;
 /** Rewrite a frontmatter image path to its public /content-media URL. */
 function resolveImage(collection: string, image: string | undefined): string | undefined {
   if (!image) return undefined;
-  const base = image.replace(/^\.?\//, '').split('/').pop();
+  const base = image
+    .replace(/^\.?\//, '')
+    .split('/')
+    .pop();
   return base ? `/content-media/${collection}/${base}` : undefined;
 }
 

@@ -2,6 +2,7 @@
 dist/
 .next/
 next-env.d.ts
+*.tsbuildinfo
 # generated content media (copied from src/content at prebuild)
 public/content-media/
 # dependencies
