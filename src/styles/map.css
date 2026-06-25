@@ -11,6 +11,10 @@
 .realm-map {
   margin: 0;
 }
+/* The marker overlay shares this box with the SVG, positioned over it. */
+.realm-map__stage {
+  position: relative;
+}
 .realm-map__svg {
   display: block;
   width: 100%;
@@ -29,6 +33,153 @@
   text-transform: uppercase;
   color: var(--ink-faint);
   text-wrap: pretty;
+}
+
+/* =====================================================================
+   Interactive place markers (data-driven overlay, reveal-gated)
+   Positioned by percent over the SVG; the container lets SVG hovers
+   through so the ley-thread interactions keep working underneath.
+   ===================================================================== */
+.map-markers {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none;
+}
+.map-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+.map-marker__hit {
+  pointer-events: auto;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 6px;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  outline: none;
+}
+.map-marker--sealed .map-marker__hit {
+  cursor: help;
+}
+.map-marker__dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 1.5px solid var(--gold);
+  background: rgba(200, 168, 106, 0.12);
+  box-shadow: 0 0 8px -1px var(--gold);
+  transition:
+    transform 0.3s var(--ease),
+    background 0.3s var(--ease),
+    box-shadow 0.3s var(--ease);
+}
+.map-marker__name {
+  font-family: var(--serif-display);
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--ink);
+  padding: 2px 7px;
+  border-radius: var(--radius-md);
+  background: rgba(8, 9, 16, 0.62);
+  white-space: nowrap;
+  transition: color 0.3s var(--ease);
+}
+.map-marker__hit:hover .map-marker__dot,
+.map-marker__hit:focus-visible .map-marker__dot {
+  transform: scale(1.25);
+  background: var(--gold-bright);
+  box-shadow: 0 0 12px 0 var(--gold-bright);
+}
+.map-marker__hit:hover .map-marker__name,
+.map-marker__hit:focus-visible .map-marker__name {
+  color: var(--gold-bright);
+}
+.map-marker__hit:focus-visible {
+  outline: 1px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* Sealed (above the reader's reveal tier): muted, dashed, never named. */
+.map-marker--sealed .map-marker__dot {
+  border-style: dashed;
+  border-color: var(--ink-faint);
+  background: rgba(8, 9, 16, 0.5);
+  box-shadow: none;
+}
+.map-marker--sealed .map-marker__hit:hover .map-marker__dot,
+.map-marker--sealed .map-marker__hit:focus-visible .map-marker__dot {
+  transform: scale(1.15);
+  background: rgba(8, 9, 16, 0.7);
+  border-color: var(--ink-dim);
+  box-shadow: none;
+}
+
+/* Tooltip card shown on hover/focus. */
+.map-marker__tip {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translate(-50%, 4px);
+  width: max-content;
+  max-width: 220px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: center;
+  background: rgba(10, 12, 20, 0.96);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: 0 6px 22px -8px rgba(0, 0, 0, 0.8);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.25s var(--ease),
+    transform 0.25s var(--ease),
+    visibility 0s linear 0.25s;
+  z-index: 2;
+}
+.map-marker__hit:hover .map-marker__tip,
+.map-marker__hit:focus-visible .map-marker__tip {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+  transition-delay: 0s;
+}
+.map-marker__tip-name {
+  font-family: var(--serif-display);
+  font-size: 1rem;
+  color: var(--ink);
+}
+.map-marker__tip-kind {
+  font-family: var(--mono);
+  font-size: 0.54rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.map-marker__tip-sum {
+  font-weight: 300;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--ink-dim);
+  text-wrap: pretty;
+}
+
+@media (max-width: 560px) {
+  .map-marker__name {
+    font-size: 0.78rem;
+  }
+  .map-marker__tip {
+    max-width: 168px;
+  }
 }
 
 /* ---- Threat frontiers ---- */
@@ -387,5 +538,14 @@
   }
   .hub-ring--spin {
     animation: none;
+  }
+  .map-marker__dot,
+  .map-marker__name,
+  .map-marker__tip {
+    transition: none;
+  }
+  .map-marker__hit:hover .map-marker__dot,
+  .map-marker__hit:focus-visible .map-marker__dot {
+    transform: none;
   }
 }
