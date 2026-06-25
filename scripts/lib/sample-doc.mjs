@@ -1,0 +1,163 @@
+/**
+ * Pure, dependency-free core for the reading-sample downloads (Tier 3).
+ *
+ * This module holds the *logic* that turns the reading-sample MDX bodies
+ * (Prologue + Chapter One under src/content/reading) into an ordered chapter
+ * model plus the inline/block parsing the EPUB and PDF generators share. It is
+ * deliberately plain JavaScript with JSDoc types and imports NOTHING (no
+ * `node:fs`, no libs) so that:
+ *
+ *   - `scripts/generate-downloads.mjs` (the build-time generator) can run it on
+ *     CI's Node 22 without TypeScript transpilation, and
+ *   - `src/lib/downloads.ts` (the React UI) and the Vitest suite can import the
+ *     same constants/functions for a single source of truth.
+ *
+ * The reading sample is placeholder AI-drafted prose the author will replace, so
+ * the downloads are generated FROM this content at build time — never hardcoded.
+ */
+
+/** Public download metadata. The author can rename the files here; the prebuild
+ *  generator writes to `public/${DOWNLOAD_DIR}/` and the UI links to the hrefs. */
+export const DOWNLOAD_DIR = 'downloads';
+export const EPUB_FILENAME = 'the-dominion-realm-sample.epub';
+export const PDF_FILENAME = 'the-dominion-realm-sample.pdf';
+export const EPUB_HREF = `/${DOWNLOAD_DIR}/${EPUB_FILENAME}`;
+export const PDF_HREF = `/${DOWNLOAD_DIR}/${PDF_FILENAME}`;
+
+/** Book-level metadata baked into both formats. Placeholder author until the
+ *  real byline lands (mirrors SITE.author in src/lib/site.ts). */
+export const BOOK = {
+  title: 'The Dominion Realm',
+  subtitle: 'The Reading Sample — Prologue & Chapter One',
+  series: 'Realmwalkers · Book One',
+  author: 'The Dominion Realm',
+  language: 'en',
+  /** Stable identifier + timestamp keep EPUB output deterministic across builds. */
+  identifier: 'urn:dominion-realm:reading-sample',
+  modified: '2024-01-01T00:00:00Z',
+};
+
+/**
+ * @typedef {{ text: string, bold: boolean, italic: boolean }} TextRun
+ * @typedef {{ type: 'paragraph', runs: TextRun[] } | { type: 'scene-break' }} Block
+ * @typedef {{ id: string, title: string, kind: string, order: number,
+ *             summary: string, body: string }} SampleSource
+ * @typedef {{ id: string, title: string, kind: string, order: number,
+ *             summary: string, blocks: Block[] }} SampleChapter
+ */
+
+/** Human label for a chapter kind, matching readingKicker() in src/lib/reading.ts. */
+export function kindLabel(kind) {
+  return kind === 'prologue' ? 'Prologue' : 'Chapter';
+}
+
+/**
+ * Parse a single paragraph's text into styled runs. Supports the Markdown
+ * subset the reading sample actually uses: `**bold**` and `*italic*` (no
+ * nesting). Unmatched `*` are emitted as literal text, so prose is never lost.
+ * @param {string} text
+ * @returns {TextRun[]}
+ */
+export function parseInline(text) {
+  /** @type {TextRun[]} */
+  const runs = [];
+  let i = 0;
+  while (i < text.length) {
+    if (text.startsWith('**', i)) {
+      const end = text.indexOf('**', i + 2);
+      if (end !== -1) {
+        runs.push({ text: text.slice(i + 2, end), bold: true, italic: false });
+        i = end + 2;
+        continue;
+      }
+    }
+    if (text[i] === '*') {
+      const end = text.indexOf('*', i + 1);
+      if (end !== -1) {
+        runs.push({ text: text.slice(i + 1, end), bold: false, italic: true });
+        i = end + 1;
+        continue;
+      }
+    }
+    // Plain text up to the next marker (or a stray `*`, emitted literally).
+    let j = i;
+    while (j < text.length && text[j] !== '*') j++;
+    if (j === i) j = i + 1;
+    runs.push({ text: text.slice(i, j), bold: false, italic: false });
+    i = j;
+  }
+  return runs.filter((r) => r.text.length > 0);
+}
+
+/**
+ * Split a Markdown body into blocks. Blank lines separate paragraphs; a line
+ * that is only `---` (or `***`) is a scene break. Soft line breaks inside a
+ * paragraph are collapsed to spaces.
+ * @param {string} markdown
+ * @returns {Block[]}
+ */
+export function parseBlocks(markdown) {
+  const normalized = markdown.replace(/\r\n/g, '\n').trim();
+  if (!normalized) return [];
+  /** @type {Block[]} */
+  const blocks = [];
+  for (const raw of normalized.split(/\n{2,}/)) {
+    const chunk = raw.trim();
+    if (!chunk) continue;
+    if (/^(-{3,}|\*{3,})$/.test(chunk)) {
+      blocks.push({ type: 'scene-break' });
+      continue;
+    }
+    const text = chunk.replace(/\s*\n\s*/g, ' ');
+    blocks.push({ type: 'paragraph', runs: parseInline(text) });
+  }
+  return blocks;
+}
+
+/** Escape a string for embedding in XML/XHTML text. */
+export function escapeXml(value) {
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+/** Render styled runs to an XHTML inline fragment (`<strong>`/`<em>`). */
+export function runsToXhtml(runs) {
+  return runs
+    .map((run) => {
+      let html = escapeXml(run.text);
+      if (run.bold) html = `<strong>${html}</strong>`;
+      if (run.italic) html = `<em>${html}</em>`;
+      return html;
+    })
+    .join('');
+}
+
+/** Render a block list to the XHTML body used inside an EPUB chapter document. */
+export function blocksToXhtml(blocks) {
+  return blocks
+    .map((block) =>
+      block.type === 'scene-break'
+        ? '<hr class="scene-break" />'
+        : `<p>${runsToXhtml(block.runs)}</p>`,
+    )
+    .join('\n');
+}
+
+/**
+ * Build the ordered chapter model from raw reading sources. Sorts by `order`
+ * (Prologue first) and parses each body into blocks — the single list both the
+ * EPUB and PDF generators iterate.
+ * @param {SampleSource[]} sources
+ * @returns {SampleChapter[]}
+ */
+export function buildChapters(sources) {
+  return [...sources]
+    .sort((a, b) => a.order - b.order)
+    .map((s) => ({
+      id: s.id,
+      title: s.title,
+      kind: s.kind,
+      order: s.order,
+      summary: s.summary,
+      blocks: parseBlocks(s.body),
+    }));
+}

@@ -446,3 +446,103 @@
     transform: none;
   }
 }
+
+/* =====================================================================
+   Reading downloads + buy CTA (Tier 3). The downloads (EPUB/PDF) are
+   generated from this site's reading text at build time; the buy block is a
+   configurable pre-order/buy CTA with a newsletter fallback.
+   ===================================================================== */
+.reading-downloads {
+  margin: clamp(56px, 9vw, 88px) auto 0;
+  max-width: 720px;
+  text-align: center;
+  padding-top: clamp(40px, 6vw, 60px);
+  border-top: 1px solid var(--line-soft);
+}
+.reading-downloads__title {
+  font-family: var(--serif-display);
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  font-weight: 400;
+  color: var(--ink);
+  margin: 0 0 0.5em;
+}
+.reading-downloads__intro {
+  font-family: var(--serif-body);
+  color: var(--ink-dim);
+  line-height: 1.7;
+  margin: 0 auto 1.8em;
+  max-width: 52ch;
+}
+.reading-downloads__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  justify-content: center;
+}
+.reading-download {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 200px;
+  padding: 22px 26px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--bg-panel);
+  text-decoration: none;
+  transition: border-color 0.35s var(--ease), transform 0.35s var(--ease);
+}
+.reading-download:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+.reading-download__format {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold-bright);
+}
+.reading-download__hint {
+  font-family: var(--serif-body);
+  font-size: 0.88rem;
+  color: var(--ink-dim);
+  text-align: center;
+}
+.reading-download__action {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.reading-buy {
+  margin: clamp(44px, 7vw, 64px) auto 0;
+  max-width: 720px;
+  text-align: center;
+}
+.reading-buy__title {
+  font-family: var(--serif-display);
+  font-size: clamp(1.3rem, 2.6vw, 1.7rem);
+  font-weight: 400;
+  color: var(--ink);
+  margin: 0 0 1em;
+}
+.reading-buy .buy-cta {
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+}
+.reading-buy .buy-note {
+  max-width: 44ch;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reading-download {
+    transition: none;
+  }
+  .reading-download:hover {
+    transform: none;
+  }
+}
