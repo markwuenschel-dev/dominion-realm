@@ -4,6 +4,7 @@ import '@/styles/codex.css';
 import '@/styles/relationships.css';
 import {
   getCodexEntries,
+  matchRelationship,
   codexUrl,
   COLLECTION_LABELS,
   COLLECTION_ORDER,
@@ -45,9 +46,8 @@ function build() {
   const edgeMap = new Map<string, Edge>();
   for (const e of all) {
     for (const rel of e.data.relationships) {
-      const target = byId.get(rel.entry);
+      const target = matchRelationship(rel, all);
       if (!target || target.id === e.id) continue;
-      if (rel.collection && target.collection !== rel.collection) continue;
       const [a, b] = [e.id, target.id].sort();
       const key = `${a}|${b}`;
       const existing = edgeMap.get(key);

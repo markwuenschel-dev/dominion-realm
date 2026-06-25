@@ -56,17 +56,33 @@ export interface ResolvedLink {
   label?: string;
 }
 
+/** A single declared relationship from an entry's frontmatter. */
+export type Relationship = CodexEntry['data']['relationships'][number];
+
 /**
- * Resolve an entry's `relationships` to live links. Targets are matched by id
- * (optionally constrained to a collection); dangling links are skipped so a
- * not-yet-written cross-reference never breaks the build.
+ * Find the codex entry a declared `relationship` points at. Targets are matched
+ * by id, optionally constrained to a collection; a dangling link (e.g. a
+ * not-yet-written cross-reference) resolves to `undefined` rather than throwing,
+ * so the build never breaks on an unresolved tie. Shared by the entry-page
+ * link list and the constellation edge graph so both honor the same rule.
+ */
+export function matchRelationship(
+  rel: Relationship,
+  candidates: CodexEntry[],
+): CodexEntry | undefined {
+  return candidates.find(
+    (e) => e.id === rel.entry && (!rel.collection || e.collection === rel.collection),
+  );
+}
+
+/**
+ * Resolve an entry's `relationships` to live links. Dangling links are skipped
+ * so a not-yet-written cross-reference never breaks the build.
  */
 export function resolveRelationships(entry: CodexEntry, all: CodexEntry[]): ResolvedLink[] {
   const links: ResolvedLink[] = [];
   for (const rel of entry.data.relationships) {
-    const target = all.find(
-      (e) => e.id === rel.entry && (!rel.collection || e.collection === rel.collection),
-    );
+    const target = matchRelationship(rel, all);
     if (!target) continue;
     links.push({
       url: codexUrl(target.collection, target.id),
