@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { REVEAL_TIERS, DEFAULT_TIER, rankOf, isRevealed, isRevealTier, parseTier } from './reveal';
+import {
+  REVEAL_TIERS,
+  DEFAULT_TIER,
+  rankOf,
+  isRevealed,
+  isUngated,
+  isRevealTier,
+  parseTier,
+} from './reveal';
 
 /**
  * The reveal model is the project's single source of spoiler-control logic
@@ -40,6 +48,23 @@ describe('isRevealed', () => {
   it('a Beyond reader sees every tier', () => {
     for (const tier of REVEAL_TIERS) {
       expect(isRevealed(tier, 'beyond')).toBe(true);
+    }
+  });
+});
+
+describe('isUngated', () => {
+  it('treats only the teaser baseline as ungated', () => {
+    expect(isUngated('teaser')).toBe(true);
+    expect(isUngated('reader')).toBe(false);
+    expect(isUngated('deep')).toBe(false);
+    expect(isUngated('beyond')).toBe(false);
+  });
+
+  it('agrees with the spoiler-safe default tier', () => {
+    expect(isUngated(DEFAULT_TIER)).toBe(true);
+    // Exactly the rank-0 tier is ungated.
+    for (const tier of REVEAL_TIERS) {
+      expect(isUngated(tier)).toBe(rankOf(tier) === 0);
     }
   });
 });

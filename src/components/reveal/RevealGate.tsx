@@ -1,6 +1,6 @@
 'use client';
 
-import { isRevealed, TIER_LABELS, type RevealTier } from '@/lib/reveal';
+import { isRevealed, isUngated, TIER_LABELS, type RevealTier } from '@/lib/reveal';
 import { useReveal } from './RevealContext';
 
 /**
@@ -24,7 +24,7 @@ export function RevealGate({
 }) {
   const { level } = useReveal();
 
-  if (tier === 'teaser') {
+  if (isUngated(tier)) {
     return (
       <div className="reveal-gate" data-reveal-tier={tier}>
         {children}

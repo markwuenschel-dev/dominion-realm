@@ -49,6 +49,16 @@ export function rankOf(tier: RevealTier): number {
 }
 
 /**
+ * Is content at this tier ungated — i.e. the spoiler-safe baseline shown to
+ * everyone, including no-JS readers, with no reveal gate? Only the default
+ * (teaser) tier qualifies. Centralizes the "teaser == always visible" rule the
+ * search index and <RevealGate> both rely on, instead of a bare `=== 'teaser'`.
+ */
+export function isUngated(tier: RevealTier): boolean {
+  return tier === DEFAULT_TIER;
+}
+
+/**
  * Is content gated at `required` visible to a reader whose current reveal
  * level is `level`? Higher levels are cumulative: a Deep reader sees Teaser,
  * Reader, and Deep content.

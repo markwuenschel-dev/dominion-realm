@@ -4,6 +4,7 @@ import '@/styles/codex.css';
 import '@/styles/relationships.css';
 import {
   getCodexEntries,
+  matchRelationship,
   codexUrl,
   COLLECTION_LABELS,
   COLLECTION_ORDER,
@@ -37,6 +38,12 @@ interface Point {
   y: number;
   onRing: boolean;
 }
+interface SvgLabel {
+  x: number;
+  y: number;
+  anchor: 'start' | 'middle' | 'end';
+  baseline: 'auto' | 'middle' | 'hanging';
+}
 
 function build() {
   const all = getCodexEntries();
@@ -45,9 +52,8 @@ function build() {
   const edgeMap = new Map<string, Edge>();
   for (const e of all) {
     for (const rel of e.data.relationships) {
-      const target = byId.get(rel.entry);
+      const target = matchRelationship(rel, all);
       if (!target || target.id === e.id) continue;
-      if (rel.collection && target.collection !== rel.collection) continue;
       const [a, b] = [e.id, target.id].sort();
       const key = `${a}|${b}`;
       const existing = edgeMap.get(key);
@@ -108,15 +114,15 @@ function build() {
 const nodeRadius = (degree: Map<string, number>, id: string) =>
   Math.min(30, 9 + (degree.get(id) ?? 1) * 1.8);
 
-function labelFor(p: Point, r: number) {
-  if (!p.onRing) return { x: p.x, y: p.y + r + 26, anchor: 'middle' as const, baseline: 'hanging' };
+function labelFor(p: Point, r: number): SvgLabel {
+  if (!p.onRing) return { x: p.x, y: p.y + r + 26, anchor: 'middle', baseline: 'hanging' };
   const dx = p.x - CENTER;
   if (Math.abs(dx) < 70) {
     const below = p.y >= CENTER;
     return {
       x: p.x,
       y: p.y + (below ? r + 22 : -(r + 14)),
-      anchor: 'middle' as const,
+      anchor: 'middle',
       baseline: below ? 'hanging' : 'auto',
     };
   }
@@ -124,7 +130,7 @@ function labelFor(p: Point, r: number) {
   return {
     x: p.x + (right ? r + 9 : -(r + 9)),
     y: p.y,
-    anchor: right ? ('start' as const) : ('end' as const),
+    anchor: right ? 'start' : 'end',
     baseline: 'middle',
   };
 }
@@ -228,7 +234,7 @@ export default function RelationshipsPage() {
                         x={lab.x}
                         y={lab.y}
                         textAnchor={lab.anchor}
-                        dominantBaseline={lab.baseline as 'auto' | 'middle' | 'hanging'}
+                        dominantBaseline={lab.baseline}
                       >
                         {n.data.name}
                       </text>
