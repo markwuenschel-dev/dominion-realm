@@ -73,10 +73,14 @@ const codexBaseFields = {
 const bodyField = fields.markdoc({ label: 'Body', extension: 'md' });
 
 export default config({
-  storage: {
-    kind: 'github',
-    repo: { owner: 'markwuenschel-dev', name: 'dominion-realm' },
-  },
+  // GitHub storage needs the Keystatic GitHub App secrets. They exist on the
+  // Railway deploy (so editors commit straight to the repo), but not at build /
+  // CI / local time — so fall back to `local` storage when the client id is
+  // absent. This keeps `next build` (which evaluates the /api/keystatic route)
+  // from failing without secrets, while production still uses github mode.
+  storage: process.env.KEYSTATIC_GITHUB_CLIENT_ID
+    ? { kind: 'github', repo: { owner: 'markwuenschel-dev', name: 'dominion-realm' } }
+    : { kind: 'local' },
   ui: {
     brand: { name: 'The Dominion Realm' },
   },

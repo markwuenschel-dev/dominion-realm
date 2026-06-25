@@ -1,5 +1,12 @@
 # Editing the Site — An Author's Guide
 
+> **Stack note (2026):** the site has migrated from Astro to **Next.js + React**,
+> hosted on **Railway** — see [ADR-0010](adr/0010-migrate-astro-to-nextjs.md). For
+> authors, almost nothing changes: content is still Markdown/MDX files under
+> `src/content/`, validated at build. The differences are where the hand-coded
+> pages live (`src/app/*` instead of `src/pages/*.astro`) and that the Keystatic
+> CMS now runs on the main site, not a separate Netlify URL.
+
 This is the practical guide to updating *The Dominion Realm* site: adding codex
 entries, writing journal posts, publishing reading chapters, and tweaking the
 homepage. No deep technical background needed — most edits are just writing
@@ -24,8 +31,8 @@ The site has two layers, and they're edited differently:
    commit. (See ADR-0002 for why content is modeled this way.)
 
 2. **The hand-coded homepage and fixed pages — the crafted stuff.** The homepage
-   (`src/pages/index.astro`) and the Eyes interactive (`src/pages/eyes.astro`)
-   are **not** collections. They're hand-written page markup — the logline, the
+   (`src/app/page.tsx`) and the Eyes interactive (`src/app/eyes/page.tsx`)
+   are **not** collections. They're hand-written React/JSX page markup — the logline, the
    buy buttons, the character/world/Eyes pitch blocks, the author bio. You edit
    these by finding the right line of markup and changing the text. It's a little
    more fiddly, but you rarely touch them. Section 4 has a map.
@@ -239,7 +246,7 @@ Marcus took the extra step anyway.
 The homepage and Eyes page aren't Markdown — they're hand-coded markup. To change
 their text, open the file and search for a marker, then edit the words.
 
-**`src/pages/index.astro`** — the homepage (hero, the read/explore CTAs, the
+**`src/app/page.tsx`** — the homepage (hero, the read/explore CTAs, the
 character/world/Eyes pitch blocks, the author bio/socials):
 
 | To change… | Search for |
@@ -256,7 +263,7 @@ from the full codex entries under `src/content/`. Updating a character's codex
 profile does not change the homepage block, and vice versa; edit both if you want
 them in sync.
 
-**`src/pages/eyes.astro`** — the Neurochromatic Eyes interactive. The six stages can
+**`src/app/eyes/page.tsx`** — the Neurochromatic Eyes interactive. The six stages can
 also be backed by codex `concepts` entries (with a `stage:` number), but the page's
 own copy and interaction live in this file.
 
@@ -270,7 +277,7 @@ The favicon is `public/favicon.svg`.
 ## 5. How to make an edit and publish — three paths
 
 All three end the same way: a change lands on `main`, and the site
-**auto-deploys** to GitHub Pages and Netlify. Pick whichever fits the edit.
+**auto-deploys** to Railway. Pick whichever fits the edit.
 
 ### Path A — edit on github.com (best for non-technical edits)
 
@@ -332,17 +339,17 @@ no git commands. It runs in **GitHub cloud mode**, which means it reads from and
 writes to this repo directly.
 
 > **One-time setup required.** Cloud editing only works after the site owner
-> creates a GitHub App and adds three secrets to Netlify — see the full checklist
-> in [ADR-0009 — Keystatic CMS](adr/0009-cms-keystatic.md). Until that's done, use
-> the Markdown/git paths above. The admin lives **only** on the Netlify URL.
+> creates a GitHub App and adds three secrets to the **Railway** service — see the
+> checklist in [ADR-0009](adr/0009-cms-keystatic.md) (the host is now Railway, per
+> [ADR-0010](adr/0010-migrate-astro-to-nextjs.md)). Until that's done, use the
+> Markdown/git paths above.
 
 ### How to use it
 
-1. **Open the admin** at **`/keystatic`** on the **Netlify** deployment — e.g.
-   `https://<your-site>.netlify.app/keystatic`. (It has to be the Netlify URL, not
-   GitHub Pages: the CMS admin needs a small server to talk to GitHub, and GitHub
-   Pages can only serve static files. The published site is identical on both
-   hosts — only the `/keystatic` editor is Netlify-only.)
+1. **Open the admin** at **`/keystatic`** on the live site — e.g.
+   `https://<your-railway-domain>/keystatic`. (The CMS admin needs a server to talk
+   to GitHub; Railway runs the whole site as a Node server, so the admin lives on
+   the main deploy — there's no separate host any more.)
 2. **Log in with GitHub.** Authorize the app the first time; after that it's one
    click.
 3. **Edit with forms.** Every collection — characters, concepts, factions, places,
@@ -375,10 +382,11 @@ today, hand-edit the Markdown tomorrow.
 
 Two things protect the published site, so you can edit without fear:
 
-1. **Schema validation.** Every collection has a schema (defined in
-   `src/content.config.ts`). When the site builds, it checks every entry against
-   it. If something's wrong — a missing required field, a misspelled `reveal` tier,
-   a malformed date — the **build fails** instead of shipping broken content. The
+1. **Schema validation.** Every collection has a Zod schema (defined in
+   `src/lib/content.ts`). When the site builds (`next build`), the content loader
+   checks every entry against it. If something's wrong — a missing required field, a
+   misspelled `reveal` tier, a malformed date — the **build fails** instead of
+   shipping broken content. The
    pull request's required **Build & validate** check turns red, which **blocks the
    merge**. A broken entry literally cannot deploy; you just fix it and push again.
 
@@ -398,4 +406,5 @@ request — never a broken live site. Edit boldly.
 - [ADR-0004 — The reveal-tier model](adr/0004-reveal-tier-model.md) — the spoiler vocabulary in depth.
 - [ADR-0007 — Visual identity & tokens](adr/0007-evolve-not-reinvent-identity.md) — the design-token system.
 - [ADR-0009 — Keystatic CMS](adr/0009-cms-keystatic.md) — the form-based editor (added alongside this guide).
-- `src/content.config.ts` — the authoritative schema for every field above.
+- `src/lib/content.ts` — the authoritative schema for every field above.
+- [ADR-0010 — Astro → Next.js migration](adr/0010-migrate-astro-to-nextjs.md) — the framework + host move (Railway).

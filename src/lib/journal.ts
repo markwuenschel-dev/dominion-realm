@@ -1,49 +1,42 @@
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getJournalEntries, getJournalEntry, type JournalEntry } from './content';
 
 /**
  * Helpers for the Author Journal (ADR-0003). One `journal` collection carries
  * two streams, distinguished by its `category` field: in-world "Field Notes"
- * and author-voice "From the Desk". This module centralizes the stream labels,
- * loading/sorting, and URL shape so the index, entry, and RSS pages stay thin.
+ * and author-voice "From the Desk". Centralizes stream labels, loading/sorting,
+ * and URL shape so the index, entry, and RSS pages stay thin.
  */
 
-export type JournalEntry = CollectionEntry<'journal'>;
+export { getJournalEntries, getJournalEntry };
+export type { JournalEntry };
 export type JournalCategory = JournalEntry['data']['category'];
 
 /** The two streams, in display order (used by the index filter). */
 export const JOURNAL_CATEGORIES = ['field-notes', 'from-the-desk'] as const;
 
-/** Canonical display names — use this exact casing in UI and prose. */
 export const CATEGORY_LABELS: Record<JournalCategory, string> = {
   'field-notes': 'Field Notes',
   'from-the-desk': 'From the Desk',
 };
 
-/** One-line description of what each stream is, for the index intro / filter. */
 export const CATEGORY_DESCRIPTIONS: Record<JournalCategory, string> = {
   'field-notes': 'In-world dispatches, written from inside the Realm.',
   'from-the-desk': 'Notes from the author on craft, process, and progress.',
 };
 
-/**
- * All journal posts, newest first. Drafts are filtered out in production builds
- * only, so they stay visible while drafting locally (mirrors the codex helper).
- */
-export async function getJournalPosts(): Promise<JournalEntry[]> {
-  const all = await getCollection('journal');
-  const visible = import.meta.env.PROD ? all.filter((p) => !p.data.draft) : all;
-  return visible.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+/** All journal posts, newest first (loader already draft-filters in prod). */
+export function getJournalPosts(): JournalEntry[] {
+  return getJournalEntries();
 }
 
-/** Canonical URL for a journal post, base-path aware. */
-export function journalUrl(base: string, id: string): string {
-  return `${base}journal/${id}`;
+/** Canonical URL for a journal post (root-served). */
+export function journalUrl(id: string): string {
+  return `/journal/${id}`;
 }
 
 /**
  * Stable date for kickers (e.g. "29 May 2026"). Formatted in UTC so the output
- * matches the authored ISO `pubDate` regardless of the build machine's timezone
- * (a bare `2026-05-29` parses as UTC midnight, which shifts a day west of GMT).
+ * matches the authored ISO `pubDate` regardless of the build machine's timezone.
  */
 export function formatJournalDate(date: Date): string {
   return date.toLocaleDateString('en-GB', {

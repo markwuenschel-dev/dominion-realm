@@ -24,17 +24,20 @@ jobs:
       - run: npm ci
       - run: npm run build
         env:
-          PUBLIC_KIT_FORM_ID: ${{ vars.PUBLIC_KIT_FORM_ID }}
-          PUBLIC_GA4_ID: ${{ vars.PUBLIC_GA4_ID }}
+          NEXT_PUBLIC_KIT_FORM_ID: ${{ vars.NEXT_PUBLIC_KIT_FORM_ID }}
+          NEXT_PUBLIC_GA4_ID: ${{ vars.NEXT_PUBLIC_GA4_ID }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+      - name: Start the site
+        run: |
+          npx next start &
+          npx --yes wait-on -t 60000 http://localhost:3000/
       - name: Check external links
         id: lychee
         uses: lycheeverse/lychee-action@v2
         with:
-          # Only http(s) links — internal base-path links are covered by the PR gate.
-          # --root-dir lets lychee resolve the site's root-relative links
-          # (/dominion-realm/...) to file:// paths, which the --scheme filter then
-          # skips; without it every internal link errors as an unresolvable URL.
-          args: --root-dir "${{ github.workspace }}/dist" --scheme https --scheme http --no-progress "dist/**/*.html"
+          # Crawl the running Next server and check only http(s) links — internal
+          # routes resolve against the live origin, so no base-path mapping needed.
+          args: --scheme https --scheme http --no-progress --include-fragments http://localhost:3000/
           fail: false
       - name: Open issue on broken links
         if: steps.lychee.outputs.exit_code != 0

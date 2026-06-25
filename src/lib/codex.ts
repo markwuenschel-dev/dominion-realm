@@ -1,15 +1,19 @@
-import { getCollection, type CollectionEntry } from 'astro:content';
+import {
+  CODEX_COLLECTIONS,
+  getCodexEntries,
+  getCodexEntry,
+  type CodexCollection,
+  type CodexEntry,
+} from './content';
 
 /**
- * Helpers for the World Codex (PRD Phase 2). The four codex collections share
- * a base schema (see content.config.ts); this module centralizes their labels,
- * loading, URL shape, and cross-link resolution so the index and entry pages
- * stay thin.
+ * Helpers for the World Codex (ADR-0002). The four codex collections share a
+ * base schema (see content.ts); this module centralizes their labels, loading,
+ * URL shape, and cross-link resolution so the index and entry pages stay thin.
  */
 
-export const CODEX_COLLECTIONS = ['characters', 'concepts', 'factions', 'places'] as const;
-export type CodexCollection = (typeof CODEX_COLLECTIONS)[number];
-export type CodexEntry = CollectionEntry<CodexCollection>;
+export { CODEX_COLLECTIONS, getCodexEntries, getCodexEntry };
+export type { CodexCollection, CodexEntry };
 
 export const COLLECTION_LABELS: Record<CodexCollection, string> = {
   characters: 'Characters',
@@ -31,17 +35,9 @@ const KIND_LABELS: Record<string, string> = {
   threat: 'Threat',
 };
 
-/** All codex entries across the four collections, draft-filtered in prod. */
-export async function getAllCodexEntries(): Promise<CodexEntry[]> {
-  const groups = await Promise.all(CODEX_COLLECTIONS.map((c) => getCollection(c)));
-  const all = groups.flat();
-  const visible = import.meta.env.PROD ? all.filter((e) => !e.data.draft) : all;
-  return visible.sort((a, b) => a.data.name.localeCompare(b.data.name));
-}
-
-/** Canonical URL for a codex entry, base-path aware. */
-export function codexUrl(base: string, collection: string, id: string): string {
-  return `${base}codex/${collection}/${id}`;
+/** Canonical URL for a codex entry (root-served — no base path on Railway). */
+export function codexUrl(collection: string, id: string): string {
+  return `/codex/${collection}/${id}`;
 }
 
 /** Short kicker line for a card / header (role, kind, or region). */
@@ -65,11 +61,7 @@ export interface ResolvedLink {
  * (optionally constrained to a collection); dangling links are skipped so a
  * not-yet-written cross-reference never breaks the build.
  */
-export function resolveRelationships(
-  base: string,
-  entry: CodexEntry,
-  all: CodexEntry[],
-): ResolvedLink[] {
+export function resolveRelationships(entry: CodexEntry, all: CodexEntry[]): ResolvedLink[] {
   const links: ResolvedLink[] = [];
   for (const rel of entry.data.relationships) {
     const target = all.find(
@@ -77,7 +69,7 @@ export function resolveRelationships(
     );
     if (!target) continue;
     links.push({
-      url: codexUrl(base, target.collection, target.id),
+      url: codexUrl(target.collection, target.id),
       name: target.data.name,
       label: rel.label,
     });

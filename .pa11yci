@@ -5,14 +5,14 @@
     "chromeLaunchConfig": { "args": ["--no-sandbox"] }
   },
   "urls": [
-    "http://localhost:4321/dominion-realm/",
-    "http://localhost:4321/dominion-realm/codex/",
-    "http://localhost:4321/dominion-realm/codex/characters/soren/",
-    "http://localhost:4321/dominion-realm/codex/concepts/neuroquantum-lattice/",
-    "http://localhost:4321/dominion-realm/eyes/",
-    "http://localhost:4321/dominion-realm/relationships/",
-    "http://localhost:4321/dominion-realm/about/",
-    "http://localhost:4321/dominion-realm/map/",
-    "http://localhost:4321/dominion-realm/interface/"
+    "http://localhost:3000/",
+    "http://localhost:3000/codex",
+    "http://localhost:3000/codex/characters/marcus",
+    "http://localhost:3000/codex/concepts/neuroquantum-lattice",
+    "http://localhost:3000/eyes",
+    "http://localhost:3000/relationships",
+    "http://localhost:3000/about",
+    "http://localhost:3000/map",
+    "http://localhost:3000/interface"
   ]
 }
