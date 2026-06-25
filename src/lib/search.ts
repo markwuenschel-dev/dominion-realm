@@ -5,6 +5,7 @@ import { getReadingEntries } from './reading';
 import { codexUrl } from './codex';
 import { journalUrl } from './journal';
 import { readingUrl } from './reading';
+import { isUngated } from './reveal';
 
 /**
  * Build-time search corpus (replaces Pagefind — ADR-0010). Each document is
@@ -34,7 +35,7 @@ export function getSearchDocuments(): SearchDoc[] {
       title: e.data.name,
       kind: e.collection,
       summary: e.data.summary,
-      body: e.data.reveal === 'teaser' ? e.body : undefined,
+      body: isUngated(e.data.reveal) ? e.body : undefined,
     });
   }
 
@@ -45,7 +46,7 @@ export function getSearchDocuments(): SearchDoc[] {
       title: p.data.title,
       kind: 'journal',
       summary: p.data.summary,
-      body: p.data.reveal === 'teaser' ? p.body : undefined,
+      body: isUngated(p.data.reveal) ? p.body : undefined,
     });
   }
 
