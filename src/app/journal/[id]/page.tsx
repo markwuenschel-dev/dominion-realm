@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getJournalPosts, getJournalEntry, journalKicker, formatJournalDate } from '@/lib/journal';
 import { MdxBody } from '@/components/MdxBody';
@@ -40,6 +41,7 @@ export default async function JournalPost({ params }: { params: Promise<{ id: st
 
         {post.data.image && (
           <figure className="journal-post__media">
+            {/* oxlint-disable-next-line next/no-img-element -- dynamic content image, dimensions unknown */}
             <img src={post.data.image} alt={post.data.imageAlt ?? post.data.title} />
           </figure>
         )}
@@ -50,9 +52,9 @@ export default async function JournalPost({ params }: { params: Promise<{ id: st
           </RevealGate>
         </div>
 
-        <a className="journal-back" href="/journal">
+        <Link className="journal-back" href="/journal">
           ← All entries
-        </a>
+        </Link>
       </article>
     </JournalChrome>
   );

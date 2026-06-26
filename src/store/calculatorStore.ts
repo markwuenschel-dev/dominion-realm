@@ -12,7 +12,6 @@ import type {
   CurrentResources,
   ResourceKey,
   RegenCurveParams,
-  HealingPulseInput,
   HealingChannel,
   ConditionInput,
   CalculatorState,
