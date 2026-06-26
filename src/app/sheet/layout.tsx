@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import { AppNav } from '@/components/layout/AppNav';
-import './calculator.css';
+import '../calculator/calculator.css';
 
-export default function CalculatorLayout({ children }: { children: ReactNode }) {
+export default function SheetLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <AppNav />
