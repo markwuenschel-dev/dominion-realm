@@ -1,44 +1,44 @@
-@import "tailwindcss/theme";
-@import "tailwindcss/utilities";
+@import 'tailwindcss/theme';
+@import 'tailwindcss/utilities';
 
 @theme {
   /* Resource colors */
-  --color-hp:      #ef4444;
-  --color-mana:    #3b82f6;
+  --color-hp: #ef4444;
+  --color-mana: #3b82f6;
   --color-stamina: #10b981;
   --color-reserve: #8b5cf6;
 
   /* Brand gold */
-  --color-realm-gold:     #c89b3c;
+  --color-realm-gold: #c89b3c;
   --color-realm-gold-dim: #8a6a25;
 
   /* Surface system */
-  --color-surface:      #09090b;
-  --color-panel:        #0f0f14;
+  --color-surface: #09090b;
+  --color-panel: #0f0f14;
   --color-panel-raised: #161620;
-  --color-rim:          #1e1e28;
-  --color-rim-bright:   #2e2e3e;
+  --color-rim: #1e1e28;
+  --color-rim-bright: #2e2e3e;
 
   /* shadcn-style semantic aliases */
-  --color-foreground:       hsl(0 0% 88%);
+  --color-foreground: hsl(0 0% 88%);
   --color-muted-foreground: hsl(240 4% 46%);
-  --color-background:       hsl(0 0% 3.9%);
+  --color-background: hsl(0 0% 3.9%);
 }
 
 @layer base {
   :root {
-    --background:         0 0% 3.9%;
-    --foreground:         0 0% 88%;
-    --card:               0 0% 5.5%;
-    --card-foreground:    0 0% 88%;
-    --primary:            38 65% 51%;
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 88%;
+    --card: 0 0% 5.5%;
+    --card-foreground: 0 0% 88%;
+    --primary: 38 65% 51%;
     --primary-foreground: 0 0% 5%;
-    --muted:              240 5% 12%;
-    --muted-foreground:   240 4% 46%;
-    --border:             240 5% 14%;
-    --input:              240 5% 14%;
-    --ring:               38 65% 51%;
-    --radius:             0.375rem;
+    --muted: 240 5% 12%;
+    --muted-foreground: 240 4% 46%;
+    --border: 240 5% 14%;
+    --input: 240 5% 14%;
+    --ring: 38 65% 51%;
+    --radius: 0.375rem;
   }
 
   /* Stat values: monospace for clean numeric alignment */
@@ -53,11 +53,22 @@
     color: #c89b3c;
   }
 
-  [data-severity="none"]         { color: #71717a; }
-  [data-severity="minor"]        { color: #eab308; }
-  [data-severity="moderate"]     { color: #f97316; }
-  [data-severity="severe"]       { color: #ef4444; }
-  [data-severity="catastrophic"] { color: #dc2626; font-weight: 700; }
+  [data-severity='none'] {
+    color: #71717a;
+  }
+  [data-severity='minor'] {
+    color: #eab308;
+  }
+  [data-severity='moderate'] {
+    color: #f97316;
+  }
+  [data-severity='severe'] {
+    color: #ef4444;
+  }
+  [data-severity='catastrophic'] {
+    color: #dc2626;
+    font-weight: 700;
+  }
 }
 
 @layer components {
@@ -83,7 +94,19 @@
     letter-spacing: 0.06em;
     text-transform: uppercase;
   }
-  .zone-chip[data-zone="safe"]    { background: #14532d33; color: #4ade80; border: 1px solid #14532d; }
-  .zone-chip[data-zone="failure"] { background: #7f1d1d33; color: #f87171; border: 1px solid #7f1d1d; }
-  .zone-chip[data-zone="zero"]    { background: #27272a;   color: #71717a; border: 1px solid #3f3f46; }
+  .zone-chip[data-zone='safe'] {
+    background: #14532d33;
+    color: #4ade80;
+    border: 1px solid #14532d;
+  }
+  .zone-chip[data-zone='failure'] {
+    background: #7f1d1d33;
+    color: #f87171;
+    border: 1px solid #7f1d1d;
+  }
+  .zone-chip[data-zone='zero'] {
+    background: #27272a;
+    color: #71717a;
+    border: 1px solid #3f3f46;
+  }
 }

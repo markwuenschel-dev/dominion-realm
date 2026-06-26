@@ -4,8 +4,8 @@
 // Derived/computed values live in hooks/useCalculator.ts, not here.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { create } from 'zustand'
-import { devtools } from 'zustand/middleware'
+import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
 import type {
   Attributes,
   AttributeKey,
@@ -16,15 +16,15 @@ import type {
   HealingChannel,
   ConditionInput,
   CalculatorState,
-} from '@/types'
+} from '@/types';
 import {
   DEFAULT_ATTRIBUTES,
   DEFAULT_REGEN_CURVE_PARAMS,
   SOUL_LEVEL_MOD_DEFAULT,
   RECOVERY_STATE_MOD_DEFAULT,
   SPEAR_WOUND_PULSE,
-} from '@/lib/constants'
-import { computeResourceMaxima } from '@/lib/formulas'
+} from '@/lib/constants';
+import { computeResourceMaxima } from '@/lib/formulas';
 
 // ────────────────────────────────────────────────
 // Store interface
@@ -32,55 +32,58 @@ import { computeResourceMaxima } from '@/lib/formulas'
 
 interface CalculatorActions {
   // Attribute mutations
-  setAttribute:        (key: AttributeKey, value: number) => void
-  setAllAttributes:    (attrs: Attributes) => void
-  resetAttributes:     () => void
+  setAttribute: (key: AttributeKey, value: number) => void;
+  setAllAttributes: (attrs: Attributes) => void;
+  resetAttributes: () => void;
 
   // Current resource mutations
-  setCurrentResource:  (key: ResourceKey, value: number) => void
-  resetCurrentResources: () => void
+  setCurrentResource: (key: ResourceKey, value: number) => void;
+  resetCurrentResources: () => void;
 
   // Modifier mutations
-  setSoulLevelMod:     (value: number) => void
-  setRecoveryStateMod: (value: number) => void
+  setSoulLevelMod: (value: number) => void;
+  setRecoveryStateMod: (value: number) => void;
 
   // Regen curve param mutations
-  setRegenCurveParam:  <K extends keyof RegenCurveParams>(key: K, value: RegenCurveParams[K]) => void
-  resetRegenCurveParams: () => void
+  setRegenCurveParam: <K extends keyof RegenCurveParams>(
+    key: K,
+    value: RegenCurveParams[K],
+  ) => void;
+  resetRegenCurveParams: () => void;
 
   // Healing pulse mutations
-  setHealingH0:           (value: number) => void
-  updateHealingChannel:   (index: number, updates: Partial<HealingChannel>) => void
-  addHealingChannel:      (channel: HealingChannel) => void
-  removeHealingChannel:   (index: number) => void
-  resetHealingPulse:      () => void
+  setHealingH0: (value: number) => void;
+  updateHealingChannel: (index: number, updates: Partial<HealingChannel>) => void;
+  addHealingChannel: (channel: HealingChannel) => void;
+  removeHealingChannel: (index: number) => void;
+  resetHealingPulse: () => void;
 
   // Condition input mutations
-  setConditionInput:    (index: number, input: ConditionInput) => void
-  addConditionInput:    () => void
-  removeConditionInput: (index: number) => void
+  setConditionInput: (index: number, input: ConditionInput) => void;
+  addConditionInput: () => void;
+  removeConditionInput: (index: number) => void;
 }
 
-export type CalculatorStore = CalculatorState & CalculatorActions
+export type CalculatorStore = CalculatorState & CalculatorActions;
 
 // ────────────────────────────────────────────────
 // Initial state
 // ────────────────────────────────────────────────
 
 function makeDefaultCurrentResources(attrs: Attributes): CurrentResources {
-  const maxima = computeResourceMaxima(attrs)
+  const maxima = computeResourceMaxima(attrs);
   // Start at 75% of max for a more interesting default calculator state
   return {
-    HP:      Math.floor(maxima.HP      * 0.75),
-    Mana:    Math.floor(maxima.Mana    * 0.75),
+    HP: Math.floor(maxima.HP * 0.75),
+    Mana: Math.floor(maxima.Mana * 0.75),
     Stamina: Math.floor(maxima.Stamina * 0.75),
     Reserve: Math.floor(maxima.Reserve * 0.75),
-  }
+  };
 }
 
 const DEFAULT_CONDITION_INPUTS: ConditionInput[] = [
-  { load: 12, resistance: 10, thresholdWidth: 5 },  // minor poison example
-]
+  { load: 12, resistance: 10, thresholdWidth: 5 }, // minor poison example
+];
 
 // ────────────────────────────────────────────────
 // Store
@@ -90,13 +93,13 @@ export const useCalculatorStore = create<CalculatorStore>()(
   devtools(
     (set) => ({
       // ── State ──
-      attributes:        { ...DEFAULT_ATTRIBUTES },
-      currentResources:  makeDefaultCurrentResources(DEFAULT_ATTRIBUTES),
-      soulLevelMod:      SOUL_LEVEL_MOD_DEFAULT,
-      recoveryStateMod:  RECOVERY_STATE_MOD_DEFAULT,
-      regenCurveParams:  { ...DEFAULT_REGEN_CURVE_PARAMS },
-      healingPulse:      structuredClone(SPEAR_WOUND_PULSE),
-      conditionInputs:   [...DEFAULT_CONDITION_INPUTS],
+      attributes: { ...DEFAULT_ATTRIBUTES },
+      currentResources: makeDefaultCurrentResources(DEFAULT_ATTRIBUTES),
+      soulLevelMod: SOUL_LEVEL_MOD_DEFAULT,
+      recoveryStateMod: RECOVERY_STATE_MOD_DEFAULT,
+      regenCurveParams: { ...DEFAULT_REGEN_CURVE_PARAMS },
+      healingPulse: structuredClone(SPEAR_WOUND_PULSE),
+      conditionInputs: [...DEFAULT_CONDITION_INPUTS],
 
       // ── Attribute actions ──
       setAttribute: (key, value) =>
@@ -106,8 +109,7 @@ export const useCalculatorStore = create<CalculatorStore>()(
           `setAttribute/${key}`,
         ),
 
-      setAllAttributes: (attrs) =>
-        set({ attributes: { ...attrs } }, false, 'setAllAttributes'),
+      setAllAttributes: (attrs) => set({ attributes: { ...attrs } }, false, 'setAllAttributes'),
 
       resetAttributes: () =>
         set({ attributes: { ...DEFAULT_ATTRIBUTES } }, false, 'resetAttributes'),
@@ -130,8 +132,7 @@ export const useCalculatorStore = create<CalculatorStore>()(
         ),
 
       // ── Modifier actions ──
-      setSoulLevelMod: (value) =>
-        set({ soulLevelMod: value }, false, 'setSoulLevelMod'),
+      setSoulLevelMod: (value) => set({ soulLevelMod: value }, false, 'setSoulLevelMod'),
 
       setRecoveryStateMod: (value) =>
         set({ recoveryStateMod: value }, false, 'setRecoveryStateMod'),
@@ -145,7 +146,11 @@ export const useCalculatorStore = create<CalculatorStore>()(
         ),
 
       resetRegenCurveParams: () =>
-        set({ regenCurveParams: { ...DEFAULT_REGEN_CURVE_PARAMS } }, false, 'resetRegenCurveParams'),
+        set(
+          { regenCurveParams: { ...DEFAULT_REGEN_CURVE_PARAMS } },
+          false,
+          'resetRegenCurveParams',
+        ),
 
       // ── Healing pulse actions ──
       setHealingH0: (value) =>
@@ -158,11 +163,11 @@ export const useCalculatorStore = create<CalculatorStore>()(
       updateHealingChannel: (index, updates) =>
         set(
           (state) => {
-            const channels = [...state.healingPulse.channels]
-            const existing = channels[index]
-            if (!existing) return state
-            channels[index] = { ...existing, ...updates }
-            return { healingPulse: { ...state.healingPulse, channels } }
+            const channels = [...state.healingPulse.channels];
+            const existing = channels[index];
+            if (!existing) return state;
+            channels[index] = { ...existing, ...updates };
+            return { healingPulse: { ...state.healingPulse, channels } };
           },
           false,
           `updateHealingChannel/${index}`,
@@ -199,9 +204,9 @@ export const useCalculatorStore = create<CalculatorStore>()(
       setConditionInput: (index, input) =>
         set(
           (state) => {
-            const conditionInputs = [...state.conditionInputs]
-            conditionInputs[index] = input
-            return { conditionInputs }
+            const conditionInputs = [...state.conditionInputs];
+            conditionInputs[index] = input;
+            return { conditionInputs };
           },
           false,
           `setConditionInput/${index}`,
@@ -230,4 +235,4 @@ export const useCalculatorStore = create<CalculatorStore>()(
     }),
     { name: 'DominionRealmCalculator' },
   ),
-)
+);
