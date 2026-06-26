@@ -6,8 +6,8 @@ import { Slider, Label } from '@/components/ui/index';
 import { useCalculatorStore } from '@/store/calculatorStore';
 import { useCalculator } from '@/hooks/useCalculator';
 import { computeRegenMultiplier } from '@/lib/formulas';
-import { round } from '@/lib/utils';
 import { DEFAULT_REGEN_CURVE_PARAMS } from '@/lib/constants';
+import type { RegenCurveParams } from '@/types';
 
 const W = 640;
 const H = 220;
@@ -22,9 +22,29 @@ function mToY(m: number) {
   return PAD.top + (1 - m) * PLOT_H;
 }
 
+function Dot({ q, color, params }: { q: number; color: string; params: RegenCurveParams }) {
+  const m = computeRegenMultiplier(q, params);
+  const cx = qToX(q);
+  const cy = mToY(m);
+  return (
+    <g>
+      <line
+        x1={cx}
+        y1={PAD.top}
+        x2={cx}
+        y2={PAD.top + PLOT_H}
+        stroke={color}
+        strokeWidth={1}
+        strokeDasharray="3 3"
+        opacity={0.4}
+      />
+      <circle cx={cx} cy={cy} r={5} fill={color} stroke="#09090b" strokeWidth={2} />
+    </g>
+  );
+}
+
 export function RegenCurveViz() {
   const regenCurveParams = useCalculatorStore((s) => s.regenCurveParams);
-  const currentResources = useCalculatorStore((s) => s.currentResources);
   const setRegenCurveParam = useCalculatorStore((s) => s.setRegenCurveParam);
   const resetRegenCurveParams = useCalculatorStore((s) => s.resetRegenCurveParams);
   const { curveSamples, ratios } = useCalculator();
@@ -56,28 +76,6 @@ export function RegenCurveViz() {
   // Grid lines
   const gridQ = [0.25, 0.5, 0.75];
   const gridM = [0.25, 0.5, 0.75, 1.0];
-
-  // Active dot for a given resource
-  function Dot({ q, color }: { q: number; color: string }) {
-    const m = computeRegenMultiplier(q, regenCurveParams);
-    const cx = qToX(q);
-    const cy = mToY(m);
-    return (
-      <g>
-        <line
-          x1={cx}
-          y1={PAD.top}
-          x2={cx}
-          y2={PAD.top + PLOT_H}
-          stroke={color}
-          strokeWidth={1}
-          strokeDasharray="3 3"
-          opacity={0.4}
-        />
-        <circle cx={cx} cy={cy} r={5} fill={color} stroke="#09090b" strokeWidth={2} />
-      </g>
-    );
-  }
 
   return (
     <SectionCard
@@ -194,10 +192,10 @@ export function RegenCurveViz() {
           <path d={safePath} fill="none" stroke="#10b981" strokeWidth={2.5} opacity={0.9} />
 
           {/* Resource dots */}
-          <Dot q={ratios.HP} color="#ef4444" />
-          <Dot q={ratios.Mana} color="#3b82f6" />
-          <Dot q={ratios.Stamina} color="#10b981" />
-          <Dot q={ratios.Reserve} color="#8b5cf6" />
+          <Dot q={ratios.HP} color="#ef4444" params={regenCurveParams} />
+          <Dot q={ratios.Mana} color="#3b82f6" params={regenCurveParams} />
+          <Dot q={ratios.Stamina} color="#10b981" params={regenCurveParams} />
+          <Dot q={ratios.Reserve} color="#8b5cf6" params={regenCurveParams} />
 
           {/* Legend */}
           {[
