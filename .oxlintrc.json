@@ -1,0 +1,7 @@
+{
+  "plugins": ["react"],
+  "rules": {
+    // React 17+ automatic JSX transform — no import needed
+    "react/react-in-jsx-scope": "off"
+  }
+}
