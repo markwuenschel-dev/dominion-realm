@@ -10,6 +10,9 @@ import { useEffect } from 'react';
  */
 export function HomeClient() {
   useEffect(() => {
+    // Prevent browser scroll-restoration from landing mid-page on the homepage.
+    window.scrollTo(0, 0);
+
     const hamburger = document.getElementById('hamburger');
     const mobileMenu = document.getElementById('mobileMenu');
     const onHamburger = () => document.body.classList.toggle('menu-open');
