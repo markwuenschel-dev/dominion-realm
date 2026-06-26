@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { DashboardShell } from '@/components/layout/DashboardShell';
-import { RegenCurveViz } from '@/components/calculator/RegenCurveViz';
 
 export const metadata: Metadata = {
   title: 'Formula Calculator',
@@ -8,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function CalculatorPage() {
-  return (
-    <DashboardShell>
-      <RegenCurveViz />
-    </DashboardShell>
-  );
+  return <DashboardShell />;
 }

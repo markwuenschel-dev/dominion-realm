@@ -19,5 +19,11 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "dist", ".astro", "Dominion Realm Formulas Scaffolding"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".astro",
+    "Dominion Realm Formulas Scaffolding",
+    "dominion-realm-formulas"
+  ]
 }
