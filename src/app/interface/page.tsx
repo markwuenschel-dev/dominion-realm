@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import '@/styles/interface.css';
 import { marcusSheet as sheet } from '@/data/marcus-sheet';
@@ -21,12 +22,12 @@ export default function InterfacePage() {
 
       <div className="iface">
         <header className="iface-top">
-          <a className="iface-top__home" href="/">
+          <Link className="iface-top__home" href="/">
             ← The Dominion <em>Realm</em>
-          </a>
+          </Link>
           <nav className="iface-top__nav">
-            <a href="/codex/characters/marcus">Marcus in the Codex</a>
-            <a href="/eyes">The Eyes</a>
+            <Link href="/codex/characters/marcus">Marcus in the Codex</Link>
+            <Link href="/eyes">The Eyes</Link>
           </nav>
         </header>
 
@@ -167,9 +168,9 @@ export default function InterfacePage() {
             </div>
           </section>
 
-          <a className="iface-back" href="/codex/characters/marcus">
+          <Link className="iface-back" href="/codex/characters/marcus">
             ← Read Marcus&apos;s full file
-          </a>
+          </Link>
         </main>
       </div>
 

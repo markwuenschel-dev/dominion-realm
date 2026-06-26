@@ -1,0 +1,24 @@
+{
+  "printWidth": 100,
+  "singleQuote": true,
+  "semi": true,
+  "trailingComma": "all",
+  "sortPackageJson": false,
+  "ignorePatterns": [
+    "node_modules",
+    "dist",
+    ".astro",
+    "public",
+    "package.json",
+    "package-lock.json",
+    ".env",
+    "skills-lock.json",
+    ".claude",
+    ".agents",
+    ".github",
+    "src/styles/*.css",
+    "src/content/**",
+    "docs/**",
+    "*.md"
+  ]
+}

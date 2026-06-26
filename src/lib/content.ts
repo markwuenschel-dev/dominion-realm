@@ -128,6 +128,7 @@ function loadCollection<C extends CollectionName>(collection: C): Entry<C>[] {
     } catch (err) {
       throw new Error(
         `Invalid frontmatter in src/content/${collection}/${file}: ${(err as Error).message}`,
+        { cause: err },
       );
     }
     if ('image' in parsed && parsed.image) {

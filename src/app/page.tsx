@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { Fragment } from 'react';
 import marcusPortrait from '@/assets/cast/marcus.png';
 import serraPortrait from '@/assets/cast/serra.png';
@@ -98,12 +99,12 @@ export default function Home() {
                 <em>It is only his way of surviving contact with it.</em>
               </p>
               <div className="buy-row reveal">
-                <a href="/read" className="btn btn-primary">
+                <Link href="/read" className="btn btn-primary">
                   Read the Opening <span className="arrow">→</span>
-                </a>
-                <a href="/codex" className="btn btn-ghost">
+                </Link>
+                <Link href="/codex" className="btn btn-ghost">
                   Explore the World <span className="arrow">→</span>
-                </a>
+                </Link>
                 <span className="buy-note">Prologue &amp; Chapter One · free, no sign-up</span>
                 <BuyCta className="buy-cta--hero" newsletterHref="#join" />
               </div>
@@ -169,7 +170,7 @@ export default function Home() {
                 <div className="spectral-rule" />
               </div>
               <div className="char-grid">
-                <a className="char-card reveal" href="/codex/characters/marcus">
+                <Link className="char-card reveal" href="/codex/characters/marcus">
                   <div className="char-portrait">
                     <Image
                       src={marcusPortrait}
@@ -186,8 +187,8 @@ export default function Home() {
                     He perceives everything accurately — then reaches, every time, for the wrong
                     conclusion.
                   </p>
-                </a>
-                <a className="char-card reveal" href="/codex/characters/serra-hawthorne">
+                </Link>
+                <Link className="char-card reveal" href="/codex/characters/serra-hawthorne">
                   <div className="char-portrait">
                     <Image
                       src={serraPortrait}
@@ -204,8 +205,8 @@ export default function Home() {
                     formation&apos;s weak point by feel and is through it before the enemy decides
                     how to respond.
                   </p>
-                </a>
-                <a className="char-card reveal" href="/codex/characters/seb-rainier">
+                </Link>
+                <Link className="char-card reveal" href="/codex/characters/seb-rainier">
                   <div className="char-portrait">
                     <Image
                       src={sebPortrait}
@@ -221,8 +222,8 @@ export default function Home() {
                     The one who turned a roster of strong individuals into a whole. Marcus&apos;s
                     mirror — the same fear of helplessness, the opposite answer: control.
                   </p>
-                </a>
-                <a className="char-card reveal" href="/codex/characters/brent-donovan">
+                </Link>
+                <Link className="char-card reveal" href="/codex/characters/brent-donovan">
                   <div className="char-portrait">
                     <Image
                       src={brentPortrait}
@@ -239,8 +240,8 @@ export default function Home() {
                     what holds this up, and what makes it fall. When Marcus spirals, Brent is the
                     ground.
                   </p>
-                </a>
-                <a className="char-card reveal" href="/codex/characters/mara-valeria">
+                </Link>
+                <Link className="char-card reveal" href="/codex/characters/mara-valeria">
                   <div className="char-portrait">
                     <Image
                       src={maraPortrait}
@@ -256,8 +257,8 @@ export default function Home() {
                     She notices everything and draws no notice to herself. The setup to Serra&apos;s
                     strike — she has already arranged the moment so the opening exists.
                   </p>
-                </a>
-                <a className="char-card reveal" href="/codex/characters/mathias-sterling">
+                </Link>
+                <Link className="char-card reveal" href="/codex/characters/mathias-sterling">
                   <div className="char-portrait">
                     <Image
                       src={mathiasPortrait}
@@ -274,7 +275,7 @@ export default function Home() {
                     curious balance-keeper, and the first to see a scattered threat as a single
                     organism.
                   </p>
-                </a>
+                </Link>
               </div>
             </div>
           </section>
@@ -332,10 +333,10 @@ export default function Home() {
               </div>
               {mapReady && (
                 <p className="world-map-teaser reveal">
-                  <a href="/map">
+                  <Link href="/map">
                     See the Realm drawn — the map of Eriadne and beyond{' '}
                     <span className="arrow">→</span>
-                  </a>
+                  </Link>
                 </p>
               )}
             </div>
@@ -435,9 +436,9 @@ export default function Home() {
                 </div>
               </div>
               <div className="reveal" style={{ marginTop: '2.4rem', textAlign: 'center' }}>
-                <a href="/eyes" className="btn btn-primary">
+                <Link href="/eyes" className="btn btn-primary">
                   Enter the Neurochromatic Eyes <span className="arrow">→</span>
-                </a>
+                </Link>
               </div>
             </div>
           </section>
@@ -532,9 +533,9 @@ export default function Home() {
                     <br />
                     <span>Realmwalkers</span> · Book One
                     <br />A novel by{' '}
-                    <a className="foot-author" href="/about">
+                    <Link className="foot-author" href="/about">
                       {SITE.author}
-                    </a>
+                    </Link>
                   </p>
                   {socials.length > 0 && (
                     <div className="socials">

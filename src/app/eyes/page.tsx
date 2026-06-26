@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import '@/styles/eyes.css';
 import { EyesClient } from '@/components/EyesClient';
 
@@ -180,9 +181,9 @@ export default function EyesPage() {
 
       <header className="sysbar">
         <div className="left">
-          <a className="back" href="/">
+          <Link className="back" href="/">
             ← The Dominion <em style={{ fontStyle: 'italic' }}>Realm</em>
-          </a>
+          </Link>
           <span className="brand" style={{ opacity: 0.5 }}>
             ·
           </span>
@@ -221,7 +222,7 @@ export default function EyesPage() {
 
       <section className="console">
         <div className="rail" id="rail" role="tablist" aria-label="Ocular stages">
-          <div className="rail-title">// Progression</div>
+          <div className="rail-title">{'// Progression'}</div>
         </div>
 
         <div className="viewport">
@@ -343,12 +344,12 @@ export default function EyesPage() {
             The interface is a mercy, not a truth. <em>Marcus is only at Stage I.</em>
           </h2>
           <div className="actions">
-            <a href="/read" className="btn btn-primary">
+            <Link href="/read" className="btn btn-primary">
               Read the Opening <span>→</span>
-            </a>
-            <a href="/codex" className="btn btn-ghost">
+            </Link>
+            <Link href="/codex" className="btn btn-ghost">
               Explore the World <span>→</span>
-            </a>
+            </Link>
           </div>
         </div>
       </section>

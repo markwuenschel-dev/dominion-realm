@@ -33,6 +33,8 @@ jobs:
       - run: npm ci
       - name: Formatting
         run: npm run format:check
+      - name: Lint
+        run: npm run lint
       - name: Types & content schema
         # `tsc --noEmit`; the Zod content loader (src/lib/content.ts) throws on a
         # malformed entry, so `next build` below is the real content-schema gate.

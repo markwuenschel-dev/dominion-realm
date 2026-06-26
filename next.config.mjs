@@ -24,6 +24,8 @@ const withMDX = createMDX({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Linting is handled by oxlint outside of the Next.js build pipeline.
+  eslint: { ignoreDuringBuilds: true },
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
   reactStrictMode: true,
   // Railway (Railpack builder) runs `next build` then `next start` (reads $PORT).

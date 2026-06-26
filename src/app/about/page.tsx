@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import '@/styles/reading.css';
 import { SITE } from '@/lib/site';
 
@@ -16,14 +17,14 @@ export default function AboutPage() {
       <div className="vignette" />
       <div className="reading">
         <header className="reading-top">
-          <a className="reading-top__home" href="/">
+          <Link className="reading-top__home" href="/">
             ← The Dominion <em>Realm</em>
-          </a>
+          </Link>
           <nav className="reading-top__nav">
-            <a href="/read">The Reading</a>
-            <a href="/codex">Codex</a>
-            <a href="/journal">Journal</a>
-            <a href="/eyes">The Eyes</a>
+            <Link href="/read">The Reading</Link>
+            <Link href="/codex">Codex</Link>
+            <Link href="/journal">Journal</Link>
+            <Link href="/eyes">The Eyes</Link>
           </nav>
         </header>
         <main className="reading-wrap">
@@ -68,14 +69,14 @@ export default function AboutPage() {
               </p>
               <p>
                 For early chapters, field notes, and new codex entries as the Realm fills in, join
-                the Realmwalkers from <a href="/">the home page</a> — or step straight into{' '}
-                <a href="/read">the opening pages</a>.
+                the Realmwalkers from <Link href="/">the home page</Link> — or step straight into{' '}
+                <Link href="/read">the opening pages</Link>.
               </p>
             </div>
 
-            <a className="reading-back" href="/">
+            <Link className="reading-back" href="/">
               ← Back to The Dominion Realm
-            </a>
+            </Link>
           </article>
         </main>
         <footer className="reading-footer">The Dominion Realm — Realmwalkers · Book One</footer>

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 /**
@@ -52,7 +53,7 @@ export function JournalListClient({
       <div className="journal-controls">
         <div className="journal-filter" role="group" aria-label="Filter by stream">
           {filters.map((f) => (
-            <a
+            <Link
               key={f.value}
               className="journal-filter__btn"
               href={f.value === 'all' ? '/journal' : `/journal#${f.value}`}
@@ -64,9 +65,10 @@ export function JournalListClient({
               }}
             >
               {f.label}
-            </a>
+            </Link>
           ))}
         </div>
+        {/* oxlint-disable-next-line next/no-html-link-for-pages -- /rss.xml is a static file, not a Next.js page */}
         <a className="journal-feed" href="/rss.xml">
           RSS Feed →
         </a>
@@ -79,7 +81,7 @@ export function JournalListClient({
           {items.map((p) => {
             const hidden = !(filter === 'all' || p.category === filter);
             return (
-              <a
+              <Link
                 key={p.id}
                 className={`journal-item${hidden ? ' is-hidden' : ''}`}
                 href={p.href}
@@ -87,13 +89,14 @@ export function JournalListClient({
               >
                 {p.image && (
                   <figure className="journal-item__media">
+                    {/* oxlint-disable-next-line next/no-img-element -- dynamic content image, dimensions unknown */}
                     <img src={p.image} alt={p.imageAlt ?? p.title} loading="lazy" />
                   </figure>
                 )}
                 <span className="journal-item__kicker">{p.kicker}</span>
                 <h2 className="journal-item__title">{p.title}</h2>
                 <p className="journal-item__summary">{p.summary}</p>
-              </a>
+              </Link>
             );
           })}
         </div>
