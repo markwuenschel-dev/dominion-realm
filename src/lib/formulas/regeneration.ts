@@ -5,14 +5,14 @@
 // §5  Resource-Specific Regeneration
 // ─────────────────────────────────────────────────────────────────────────────
 
-import type { Attributes, BaseRegen, RegenCurveParams, RegenResult, RegenZone } from '@/types'
+import type { Attributes, BaseRegen, RegenCurveParams, RegenResult, RegenZone } from '@/types';
 import {
   HP_REGEN_COEFFICIENTS,
   MANA_REGEN_COEFFICIENTS,
   STAMINA_REGEN_COEFFICIENTS,
   RESERVE_REGEN_COEFFICIENTS,
   DEFAULT_REGEN_CURVE_PARAMS,
-} from '@/lib/constants'
+} from '@/lib/constants';
 
 // ────────────────────────────────────────────────
 // §3  Base Regen
@@ -26,7 +26,7 @@ export function computeBaseHPRegen(attrs: Attributes): number {
     HP_REGEN_COEFFICIENTS.CON * attrs.CON +
     HP_REGEN_COEFFICIENTS.END * attrs.END +
     HP_REGEN_COEFFICIENTS.WIS * attrs.WIS
-  )
+  );
 }
 
 /**
@@ -37,7 +37,7 @@ export function computeBaseManaRegen(attrs: Attributes): number {
     MANA_REGEN_COEFFICIENTS.INT * attrs.INT +
     MANA_REGEN_COEFFICIENTS.WIS * attrs.WIS +
     MANA_REGEN_COEFFICIENTS.CHA * attrs.CHA
-  )
+  );
 }
 
 /**
@@ -49,7 +49,7 @@ export function computeBaseStaminaRegen(attrs: Attributes): number {
     STAMINA_REGEN_COEFFICIENTS.CON * attrs.CON +
     STAMINA_REGEN_COEFFICIENTS.AGI * attrs.AGI +
     STAMINA_REGEN_COEFFICIENTS.WIS * attrs.WIS
-  )
+  );
 }
 
 /**
@@ -57,12 +57,12 @@ export function computeBaseStaminaRegen(attrs: Attributes): number {
  */
 export function computeBaseReserveRegen(attrs: Attributes): number {
   return (
-    RESERVE_REGEN_COEFFICIENTS.CON    * attrs.CON +
-    RESERVE_REGEN_COEFFICIENTS.END    * attrs.END +
-    RESERVE_REGEN_COEFFICIENTS.WIS    * attrs.WIS +
-    RESERVE_REGEN_COEFFICIENTS.Faith  * attrs.Faith +
+    RESERVE_REGEN_COEFFICIENTS.CON * attrs.CON +
+    RESERVE_REGEN_COEFFICIENTS.END * attrs.END +
+    RESERVE_REGEN_COEFFICIENTS.WIS * attrs.WIS +
+    RESERVE_REGEN_COEFFICIENTS.Faith * attrs.Faith +
     RESERVE_REGEN_COEFFICIENTS.Occult * attrs.Occult
-  )
+  );
 }
 
 /**
@@ -70,11 +70,11 @@ export function computeBaseReserveRegen(attrs: Attributes): number {
  */
 export function computeBaseRegen(attrs: Attributes): BaseRegen {
   return {
-    HP:      computeBaseHPRegen(attrs),
-    Mana:    computeBaseManaRegen(attrs),
+    HP: computeBaseHPRegen(attrs),
+    Mana: computeBaseManaRegen(attrs),
     Stamina: computeBaseStaminaRegen(attrs),
     Reserve: computeBaseReserveRegen(attrs),
-  }
+  };
 }
 
 // ────────────────────────────────────────────────
@@ -85,9 +85,9 @@ export function computeBaseRegen(attrs: Attributes): BaseRegen {
  * Determine the regen zone for a given q.
  */
 export function getRegenZone(q: number, q_s: number): RegenZone {
-  if (q <= 0)   return 'zero'
-  if (q < q_s)  return 'failure'
-  return 'safe'
+  if (q <= 0) return 'zero';
+  if (q < q_s) return 'failure';
+  return 'safe';
 }
 
 /**
@@ -103,14 +103,18 @@ export function computeRegenMultiplier(
   q: number,
   params: RegenCurveParams = DEFAULT_REGEN_CURVE_PARAMS,
 ): number {
-  const { q_s, gamma, p } = params
-  const zone = getRegenZone(q, q_s)
+  const { q_s, gamma, p } = params;
+  const zone = getRegenZone(q, q_s);
 
   switch (zone) {
-    case 'zero':    return 0
-    case 'failure': return Math.pow(q / q_s, p)
-    case 'safe':    return Math.pow((1 - q) / (1 - q_s), gamma)
-    default:        return 0
+    case 'zero':
+      return 0;
+    case 'failure':
+      return Math.pow(q / q_s, p);
+    case 'safe':
+      return Math.pow((1 - q) / (1 - q_s), gamma);
+    default:
+      return 0;
   }
 }
 
@@ -127,8 +131,8 @@ export function computeActualRegen(
   recoveryStateMod = 1.0,
   params: RegenCurveParams = DEFAULT_REGEN_CURVE_PARAMS,
 ): number {
-  const multiplier = computeRegenMultiplier(q, params)
-  return baseRegen * recoveryStateMod * multiplier
+  const multiplier = computeRegenMultiplier(q, params);
+  return baseRegen * recoveryStateMod * multiplier;
 }
 
 // ────────────────────────────────────────────────
@@ -136,9 +140,9 @@ export function computeActualRegen(
 // ────────────────────────────────────────────────
 
 export interface CurveSample {
-  q: number
-  multiplier: number
-  zone: RegenZone
+  q: number;
+  multiplier: number;
+  zone: RegenZone;
 }
 
 /**
@@ -149,16 +153,16 @@ export function sampleRegenCurve(
   params: RegenCurveParams = DEFAULT_REGEN_CURVE_PARAMS,
   steps = 200,
 ): CurveSample[] {
-  const samples: CurveSample[] = []
+  const samples: CurveSample[] = [];
   for (let i = 0; i <= steps; i++) {
-    const q = i / steps
+    const q = i / steps;
     samples.push({
       q,
       multiplier: computeRegenMultiplier(q, params),
-      zone:       getRegenZone(q, params.q_s),
-    })
+      zone: getRegenZone(q, params.q_s),
+    });
   }
-  return samples
+  return samples;
 }
 
 // ────────────────────────────────────────────────
@@ -176,11 +180,9 @@ export function computeRegenResult(
   recoveryStateMod = 1.0,
   params: RegenCurveParams = DEFAULT_REGEN_CURVE_PARAMS,
 ): RegenResult {
-  const zone       = getRegenZone(q, params.q_s)
-  const multiplier = computeRegenMultiplier(q, params)
-  const actualRegen = zone === 'zero'
-    ? 0
-    : baseRegen * recoveryStateMod * multiplier
+  const zone = getRegenZone(q, params.q_s);
+  const multiplier = computeRegenMultiplier(q, params);
+  const actualRegen = zone === 'zero' ? 0 : baseRegen * recoveryStateMod * multiplier;
 
   return {
     resource,
@@ -188,7 +190,7 @@ export function computeRegenResult(
     multiplier,
     actualRegen,
     zone,
-  }
+  };
 }
 
 /**
@@ -200,11 +202,11 @@ export function computeAllRegenResults(
   recoveryStateMod = 1.0,
   params: RegenCurveParams = DEFAULT_REGEN_CURVE_PARAMS,
 ): RegenResult[] {
-  const base = computeBaseRegen(attrs)
+  const base = computeBaseRegen(attrs);
   return [
-    computeRegenResult('HP',      base.HP,      ratios.HP,      recoveryStateMod, params),
-    computeRegenResult('Mana',    base.Mana,    ratios.Mana,    recoveryStateMod, params),
+    computeRegenResult('HP', base.HP, ratios.HP, recoveryStateMod, params),
+    computeRegenResult('Mana', base.Mana, ratios.Mana, recoveryStateMod, params),
     computeRegenResult('Stamina', base.Stamina, ratios.Stamina, recoveryStateMod, params),
     computeRegenResult('Reserve', base.Reserve, ratios.Reserve, recoveryStateMod, params),
-  ]
+  ];
 }

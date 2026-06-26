@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import type { ReactNode } from 'react'
+import type { ReactNode } from 'react';
 
 export function DashboardShell({ children }: { children: ReactNode }) {
   return (
@@ -11,9 +11,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           <span className="stat-value text-xs text-muted-foreground">Formula Calculator</span>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-6 py-8 space-y-6">
-        {children}
-      </main>
+      <main className="mx-auto max-w-6xl px-6 py-8 space-y-6">{children}</main>
     </div>
-  )
+  );
 }
