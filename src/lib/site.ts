@@ -119,6 +119,7 @@ export const NAV_PAGES: NavPage[] = [
   { idx: '→', label: 'The Map', slug: 'map' },
   { idx: '→', label: 'Constellation', slug: 'relationships' },
   { idx: '→', label: 'About', slug: 'about' },
+  { idx: '→', label: 'Calculator', slug: 'calculator' },
   // Built but not yet linked — flip `ready: true` once Marcus's sheet carries
   // the manuscript's real numbers (src/data/marcus-sheet.ts, drop `provisional`).
   { idx: '→', label: 'The Sheet', slug: 'interface', ready: false },
