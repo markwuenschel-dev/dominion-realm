@@ -1,10 +1,10 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// lib/constants.ts  —  All locked formula coefficients and defaults
+// lib/constants.ts  —  Locked formula coefficients and defaults
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { Attributes, RegenCurveParams, HealingPulseInput } from '@/types';
 
-// ── Default attributes (level-1 baseline, all equal) ──
+// ── Default attributes — calculator starting state (not the sheet baseline) ──
 export const DEFAULT_ATTRIBUTES: Attributes = {
   CON: 10,
   END: 10,
@@ -18,38 +18,7 @@ export const DEFAULT_ATTRIBUTES: Attributes = {
   Occult: 10,
 };
 
-// ── Resource maxima coefficients (§1.1) ──
-export const HP_MAX_COEFFICIENTS = { CON: 2.0, STR: 1.0, END: 0.5 };
-export const MANA_MAX_COEFFICIENTS = { INT: 2.0, WIS: 1.5, CHA: 0.5 };
-export const STAMINA_MAX_COEFFICIENTS = { END: 1.5, STR: 1.0, AGI: 0.5, DEX: 0.5 };
-export const RESERVE_MAX_COEFFICIENTS = { Faith: 1.5, Occult: 1.5, WIS: 0.5 };
-export const RESOURCE_SCALE = 10;
-
-// ── Regen coefficients (§3) ──
-export const HP_REGEN_COEFFICIENTS = { CON: 0.5, END: 0.3, WIS: 0.2 };
-export const MANA_REGEN_COEFFICIENTS = { INT: 0.25, WIS: 0.55, CHA: 0.2 };
-export const STAMINA_REGEN_COEFFICIENTS = { END: 0.55, CON: 0.25, AGI: 0.1, WIS: 0.1 };
-export const RESERVE_REGEN_COEFFICIENTS = {
-  CON: 0.2,
-  END: 0.2,
-  WIS: 0.3,
-  Faith: 0.15,
-  Occult: 0.15,
-};
-export const REGEN_SCALE = 0.5;
-
-// ── Safe-low curve defaults (§4) ──
-export const DEFAULT_REGEN_CURVE_PARAMS: RegenCurveParams = {
-  q_s: 0.1,
-  gamma: 0.45,
-  p: 2,
-};
-
-// ── Global modifier defaults ──
-export const SOUL_LEVEL_MOD_DEFAULT = 1.0;
-export const RECOVERY_STATE_MOD_DEFAULT = 1.0;
-
-// ── Resource maxima coefficients — first-file lock (§1.1) ──
+// ── Resource maxima coefficients — formula lock §1.1 ──
 export const HP_COEFFICIENTS = { CON: 6, END: 2, STR: 2 } as const satisfies Partial<
   Record<string, number>
 >;
@@ -61,7 +30,30 @@ export const STAMINA_RESERVE_RATIO = 5 as const;
 export const MANA_FLOOR_FRACTION = 0.2;
 export const STAMINA_FLOOR_FRACTION = 0.2;
 
-// ── Resistance coefficients (§11.1) ──
+// ── Regen coefficients — formula lock §3 ──
+export const HP_REGEN_COEFFICIENTS = { CON: 0.5, END: 0.3, WIS: 0.2 };
+export const MANA_REGEN_COEFFICIENTS = { INT: 0.25, WIS: 0.55, CHA: 0.2 };
+export const STAMINA_REGEN_COEFFICIENTS = { END: 0.55, CON: 0.25, AGI: 0.1, WIS: 0.1 };
+export const RESERVE_REGEN_COEFFICIENTS = {
+  CON: 0.2,
+  END: 0.2,
+  WIS: 0.3,
+  Faith: 0.15,
+  Occult: 0.15,
+};
+
+// ── Safe-low curve defaults — formula lock §4 ──
+export const DEFAULT_REGEN_CURVE_PARAMS: RegenCurveParams = {
+  q_s: 0.1,
+  gamma: 0.45,
+  p: 2,
+};
+
+// ── Global modifier defaults ──
+export const SOUL_LEVEL_MOD_DEFAULT = 1.0;
+export const RECOVERY_STATE_MOD_DEFAULT = 1.0;
+
+// ── Resistance coefficients — formula lock §11.1 ──
 export const POISON_RESISTANCE_COEFFICIENTS = { CON: 1.0, WIS: 0.5 } as const;
 export const STAGGER_RESISTANCE_COEFFICIENTS = { STR: 0.5, END: 0.3, AGI: 0.2 } as const;
 export const MANA_CRASH_RESISTANCE_COEFFICIENTS = { WIS: 0.5, INT: 0.3, CON: 0.2 } as const;

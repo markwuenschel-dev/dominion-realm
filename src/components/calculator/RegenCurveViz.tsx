@@ -3,11 +3,11 @@
 import { useMemo } from 'react';
 import { SectionCard } from '@/components/layout/SectionCard';
 import { Slider, Label } from '@/components/ui/index';
+import { Button } from '@/components/ui/button';
 import { useCalculatorStore } from '@/store/calculatorStore';
 import { useCalculator } from '@/hooks/useCalculator';
 import { computeRegenMultiplier } from '@/lib/formulas';
 import { DEFAULT_REGEN_CURVE_PARAMS } from '@/lib/constants';
-import type { RegenCurveParams } from '@/types';
 
 const W = 640;
 const H = 220;
@@ -22,26 +22,9 @@ function mToY(m: number) {
   return PAD.top + (1 - m) * PLOT_H;
 }
 
-function Dot({ q, color, params }: { q: number; color: string; params: RegenCurveParams }) {
-  const m = computeRegenMultiplier(q, params);
-  const cx = qToX(q);
-  const cy = mToY(m);
-  return (
-    <g>
-      <line
-        x1={cx}
-        y1={PAD.top}
-        x2={cx}
-        y2={PAD.top + PLOT_H}
-        stroke={color}
-        strokeWidth={1}
-        strokeDasharray="3 3"
-        opacity={0.4}
-      />
-      <circle cx={cx} cy={cy} r={5} fill={color} stroke="#09090b" strokeWidth={2} />
-    </g>
-  );
-}
+// SVG text elements can read CSS custom properties in modern browsers,
+// so we pass var(--font-mono) directly as the fontFamily attribute.
+const SVG_MONO = 'var(--font-mono), monospace';
 
 export function RegenCurveViz() {
   const regenCurveParams = useCalculatorStore((s) => s.regenCurveParams);
@@ -51,7 +34,6 @@ export function RegenCurveViz() {
 
   const { q_s, gamma, p } = regenCurveParams;
 
-  // Build SVG path strings
   const { failurePath, safePath } = useMemo(() => {
     const failurePts = curveSamples.filter((s) => s.zone === 'failure' || s.q <= q_s + 0.002);
     const safePts = curveSamples.filter((s) => s.zone === 'safe' || s.q >= q_s - 0.002);
@@ -67,15 +49,32 @@ export function RegenCurveViz() {
       return `${start} ${lines}`;
     };
 
-    return {
-      failurePath: toPathData(failurePts),
-      safePath: toPathData(safePts),
-    };
+    return { failurePath: toPathData(failurePts), safePath: toPathData(safePts) };
   }, [curveSamples, q_s]);
 
-  // Grid lines
   const gridQ = [0.25, 0.5, 0.75];
   const gridM = [0.25, 0.5, 0.75, 1.0];
+
+  function Dot({ q, color }: { q: number; color: string }) {
+    const m = computeRegenMultiplier(q, regenCurveParams);
+    const cx = qToX(q);
+    const cy = mToY(m);
+    return (
+      <g>
+        <line
+          x1={cx}
+          y1={PAD.top}
+          x2={cx}
+          y2={PAD.top + PLOT_H}
+          stroke={color}
+          strokeWidth={1}
+          strokeDasharray="3 3"
+          opacity={0.4}
+        />
+        <circle cx={cx} cy={cy} r={5} fill={color} stroke="#09090b" strokeWidth={2} />
+      </g>
+    );
+  }
 
   return (
     <SectionCard
@@ -83,7 +82,6 @@ export function RegenCurveViz() {
       title="Regeneration Curve"
       subtitle="Safe-low asymptotic model — peak at q = q_s, suppressed below (failure zone)"
     >
-      {/* SVG curve */}
       <div className="overflow-x-auto">
         <svg
           viewBox={`0 0 ${W} ${H}`}
@@ -119,7 +117,7 @@ export function RegenCurveViz() {
                 textAnchor="end"
                 fontSize={9}
                 fill="#52525b"
-                fontFamily="JetBrains Mono, monospace"
+                fontFamily={SVG_MONO}
               >
                 {(m * 100).toFixed(0)}%
               </text>
@@ -135,7 +133,7 @@ export function RegenCurveViz() {
               textAnchor="middle"
               fontSize={9}
               fill="#52525b"
-              fontFamily="JetBrains Mono, monospace"
+              fontFamily={SVG_MONO}
             >
               {(q * 100).toFixed(0)}%
             </text>
@@ -172,7 +170,7 @@ export function RegenCurveViz() {
             y={PAD.top + 10}
             fontSize={9}
             fill="#c89b3c"
-            fontFamily="JetBrains Mono, monospace"
+            fontFamily={SVG_MONO}
           >
             q_s = {(q_s * 100).toFixed(0)}%
           </text>
@@ -192,10 +190,10 @@ export function RegenCurveViz() {
           <path d={safePath} fill="none" stroke="#10b981" strokeWidth={2.5} opacity={0.9} />
 
           {/* Resource dots */}
-          <Dot q={ratios.HP} color="#ef4444" params={regenCurveParams} />
-          <Dot q={ratios.Mana} color="#3b82f6" params={regenCurveParams} />
-          <Dot q={ratios.Stamina} color="#10b981" params={regenCurveParams} />
-          <Dot q={ratios.Reserve} color="#8b5cf6" params={regenCurveParams} />
+          <Dot q={ratios.HP} color="#ef4444" />
+          <Dot q={ratios.Mana} color="#3b82f6" />
+          <Dot q={ratios.Stamina} color="#10b981" />
+          <Dot q={ratios.Reserve} color="#8b5cf6" />
 
           {/* Legend */}
           {[
@@ -206,13 +204,7 @@ export function RegenCurveViz() {
           ].map((item, i) => (
             <g key={item.label} transform={`translate(${PAD.left + 8 + i * 78}, ${PAD.top + 10})`}>
               <circle cx={0} cy={0} r={4} fill={item.color} />
-              <text
-                x={7}
-                y={4}
-                fontSize={9}
-                fill={item.color}
-                fontFamily="JetBrains Mono, monospace"
-              >
+              <text x={7} y={4} fontSize={9} fill={item.color} fontFamily={SVG_MONO}>
                 {item.label}
               </text>
             </g>
@@ -257,12 +249,14 @@ export function RegenCurveViz() {
         />
       </div>
 
-      <button
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={resetRegenCurveParams}
-        className="mt-3 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        className="mt-3 h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
       >
         Reset to locked defaults
-      </button>
+      </Button>
     </SectionCard>
   );
 }

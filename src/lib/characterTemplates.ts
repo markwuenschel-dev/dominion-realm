@@ -489,3 +489,40 @@ export function getDepletionBand(
   }
   return bands[bands.length - 1]!;
 }
+
+// ────────────────────────────────────────────────
+// SCAFFOLD: Class attribute multipliers
+// Not derived from any canon doc. All 1.0 until locked.
+// Wire in canonical values when class attr mods are defined.
+// ────────────────────────────────────────────────
+
+export type AttrKey =
+  | 'CON'
+  | 'END'
+  | 'STR'
+  | 'AGI'
+  | 'DEX'
+  | 'INT'
+  | 'WIS'
+  | 'CHA'
+  | 'Faith'
+  | 'Occult'
+  | 'LUCK';
+
+/** SCAFFOLDED — all empty until canonical class attr mods are locked */
+export const CLASS_ATTR_MODS: Record<ClassKey, Partial<Record<AttrKey, number>>> = {
+  None: {},
+  Warrior: {}, // SCAFFOLD: expect STR / CON / END bonus
+  Mage: {}, // SCAFFOLD: expect INT / WIS bonus
+  Rogue: {}, // SCAFFOLD: expect DEX / AGI bonus
+  Scout: {}, // SCAFFOLD: expect AGI / DEX bonus
+  Healer: {}, // SCAFFOLD: expect WIS / CHA bonus
+  Warden: {}, // SCAFFOLD: expect CON / WIS bonus
+  Psion: {}, // SCAFFOLD: expect INT / WIS / Faith bonus
+  Adventurer: {}, // SCAFFOLD: varied
+};
+
+/** Returns the class attribute multiplier for a given key (1.0 if unset) */
+export function getClassAttrMod(classKey: ClassKey, attrKey: AttrKey): number {
+  return CLASS_ATTR_MODS[classKey]?.[attrKey] ?? 1.0;
+}
