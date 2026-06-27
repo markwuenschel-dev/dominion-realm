@@ -58,13 +58,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-function SectionHeaderRow({
-  title,
-  scaffolded = false,
-}: {
-  title: string;
-  scaffolded?: boolean;
-}) {
+function SectionHeaderRow({ title, scaffolded = false }: { title: string; scaffolded?: boolean }) {
   return (
     <tr>
       <td
@@ -93,13 +87,7 @@ function ScaffoldTD({ label, colSpan = 1 }: { label: string; colSpan?: number })
 // Attribute cell with ± controls
 // ─────────────────────────────────────────────────────────────────────────────
 
-function AttrCell({
-  attrKey,
-  dimmed = false,
-}: {
-  attrKey: SheetAttributeKey;
-  dimmed?: boolean;
-}) {
+function AttrCell({ attrKey, dimmed = false }: { attrKey: SheetAttributeKey; dimmed?: boolean }) {
   const rawValue = useCharacterSheetStore((s) => s.attributes[attrKey]);
   const classKey = useCharacterSheetStore((s) => s.className);
   const setAttribute = useCharacterSheetStore((s) => s.setAttribute);
@@ -114,9 +102,7 @@ function AttrCell({
           {attrKey}
           {dimmed && <span className="ml-1 text-amber-400/30">(no formula)</span>}
         </FieldLabel>
-        {mod !== 1.0 && (
-          <span className="text-[9px] text-amber-400">×{mod.toFixed(2)}</span>
-        )}
+        {mod !== 1.0 && <span className="text-[9px] text-amber-400">×{mod.toFixed(2)}</span>}
       </div>
       <div className={cn('flex items-center gap-2', dimmed && 'opacity-35')}>
         <button
@@ -353,8 +339,7 @@ export function StatSheetTable() {
                   {classBonusPoints > 0 && (
                     <span className="text-amber-400"> +{classBonusPoints} class</span>
                   )}{' '}
-                  ={' '}
-                  <span className="stat-value text-foreground/70">{totalPointsAvailable}</span>
+                  = <span className="stat-value text-foreground/70">{totalPointsAvailable}</span>
                 </span>
                 <span className="text-muted-foreground/50">
                   spent: <span className="stat-value text-foreground/70">{spentPoints}</span>
@@ -437,7 +422,8 @@ export function StatSheetTable() {
                     </p>
                   )}
                   <p className="mt-0.5 text-[9px] text-muted-foreground/30">
-                    Resource mods: HP×{classTemplate.classMod.HP} / Mana×{classTemplate.classMod.Mana}
+                    Resource mods: HP×{classTemplate.classMod.HP} / Mana×
+                    {classTemplate.classMod.Mana}
                   </p>
                 </>
               )}
@@ -507,10 +493,7 @@ export function StatSheetTable() {
 
           {/* ── FOOTER ── */}
           <tr>
-            <td
-              colSpan={3}
-              className="border-t border-amber-900/20 px-4 py-2 text-right"
-            >
+            <td colSpan={3} className="border-t border-amber-900/20 px-4 py-2 text-right">
               <button
                 onClick={reset}
                 className="text-[10px] text-muted-foreground/40 transition-colors hover:text-muted-foreground"
