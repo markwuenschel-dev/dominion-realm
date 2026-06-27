@@ -95,6 +95,7 @@ export const useCharacterSheetStore = create<CharacterSheetStore>()(
       }),
       {
         name: 'dominion-realm-character-sheet',
+        version: 2, // bumped to clear stale localStorage from old Marcus defaults
         // currentResources is transient — not persisted
         partialize: (state) => ({
           name: state.name,
