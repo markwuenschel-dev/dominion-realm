@@ -268,8 +268,7 @@ export function StatSheetTable() {
     e.target.value = '';
   }
 
-  const footerBtnBase =
-    'rounded border px-3 py-1.5 text-[11px] font-medium transition-all';
+  const footerBtnBase = 'rounded border px-3 py-1.5 text-[11px] font-medium transition-all';
 
   return (
     <div className="overflow-hidden rounded-lg border border-amber-900/40">
