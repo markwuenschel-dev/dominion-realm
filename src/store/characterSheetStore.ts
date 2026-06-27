@@ -19,6 +19,8 @@ interface CharacterSheetActions {
   setCurrentResource: (key: 'HP' | 'Mana' | 'Stamina' | 'Reserve', value: number) => void;
   setCurrentXP: (xp: number) => void;
   resetToDefaults: () => void;
+  /** Replace the full sheet state — used by profile loader and JSON import. */
+  loadState: (partial: Partial<CharacterSheetState>) => void;
 }
 
 type CharacterSheetStore = CharacterSheetState & CharacterSheetActions;
@@ -92,6 +94,17 @@ export const useCharacterSheetStore = create<CharacterSheetStore>()(
           set({ currentXP: Math.max(0, currentXP) }, false, 'setCurrentXP'),
 
         resetToDefaults: () => set({ ...DEFAULT_STATE }, false, 'resetToDefaults'),
+
+        loadState: (partial) =>
+          set(
+            {
+              ...DEFAULT_STATE,
+              ...partial,
+              conditionMods: partial.conditionMods ?? DEFAULT_STATE.conditionMods,
+            },
+            false,
+            'loadState',
+          ),
       }),
       {
         name: 'dominion-realm-character-sheet',

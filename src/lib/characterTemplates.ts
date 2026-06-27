@@ -280,6 +280,18 @@ export const RARITY_COLORS: Record<ClassRarity, string> = {
   Unique: 'text-red-400 border-red-700',
 };
 
+// Just the text color token per rarity (no border)
+export const RARITY_TEXT_COLORS: Record<ClassRarity, string> = {
+  Unclassed: 'text-zinc-500',
+  Common: 'text-zinc-300',
+  Uncommon: 'text-green-400',
+  Rare: 'text-blue-400',
+  Exceptional: 'text-violet-400',
+  Legendary: 'text-amber-400',
+  Mythic: 'text-orange-400',
+  Unique: 'text-red-400',
+};
+
 // ────────────────────────────────────────────────
 // §15  XP Curve and Class Rarity Multipliers
 // ────────────────────────────────────────────────
