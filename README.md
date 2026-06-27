@@ -11,7 +11,7 @@ back to them through a spoiler-aware lens that never reveals more than they've
 earned.
 
 [![CI](https://github.com/markwuenschel-dev/dominion-realm/actions/workflows/ci.yml/badge.svg)](https://github.com/markwuenschel-dev/dominion-realm/actions/workflows/ci.yml)
-[![Next.js 15](https://img.shields.io/badge/Next.js-15-000000?logo=next.js&logoColor=white)](https://nextjs.org)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16-000000?logo=next.js&logoColor=white)](https://nextjs.org)
 [![React 19](https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Node ≥22](https://img.shields.io/badge/Node-%E2%89%A522-339933?logo=node.js&logoColor=white)](https://nodejs.org)
@@ -50,7 +50,7 @@ change is an ordinary Git commit.
 
 ## Tech stack
 
-- **[Next.js 15](https://nextjs.org)** (App Router, React Server Components) · **[React 19](https://react.dev)** · **[TypeScript](https://www.typescriptlang.org)**
+- **[Next.js 16](https://nextjs.org)** (App Router, React Server Components) · **[React 19](https://react.dev)** · **[TypeScript](https://www.typescriptlang.org)**
 - **Content** — Markdown/MDX validated at build time with **[Zod](https://zod.dev)** schemas (`src/lib/content.ts`)
 - **CMS** — **[Keystatic](https://keystatic.com)** in GitHub storage mode
 - **Search** — **[MiniSearch](https://lucaong.github.io/minisearch/)** · **Downloads** — JSZip (EPUB) + PDFKit (PDF)
