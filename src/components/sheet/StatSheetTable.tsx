@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { useCharacterSheetStore } from '@/store/characterSheetStore';
 import { useCharacterSheet } from '@/hooks/useCharacterSheet';
 import {
@@ -8,6 +8,7 @@ import {
   CLASS_TEMPLATES,
   SOUL_LEVELS,
   RARITY_COLORS,
+  RARITY_TEXT_COLORS,
   CLASS_ATTR_MODS,
   getClassAttrMod,
   getSoulMultiplier,
@@ -26,6 +27,7 @@ import {
 import { RESOURCE_COLORS } from '@/types';
 import { cn } from '@/lib/utils';
 import type { SheetAttributeKey } from '@/types/characterSheet';
+import { CAST_PROFILES } from '@/lib/castProfiles';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Table primitives
@@ -128,30 +130,38 @@ function AttrCell({ attrKey, dimmed = false }: { attrKey: SheetAttributeKey; dim
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Stat display cell
+// Resource stat cell (div-based, lives inside the 4-cell grid)
 // ─────────────────────────────────────────────────────────────────────────────
 
-function StatCell({
+function ResourceStatDiv({
   label,
   value,
   formula,
   colorClass,
-  colSpan = 1,
+  borderRight = true,
+  mobileBorderBottom = false,
 }: {
   label: string;
   value: number;
   formula?: string;
   colorClass: string;
-  colSpan?: number;
+  borderRight?: boolean;
+  mobileBorderBottom?: boolean;
 }) {
   return (
-    <TD colSpan={colSpan} className="bg-panel/50 py-4">
+    <div
+      className={cn(
+        'bg-panel/50 px-3 py-4',
+        borderRight && 'border-r border-amber-900/25',
+        mobileBorderBottom && 'border-b border-amber-900/25 sm:border-b-0',
+      )}
+    >
       <FieldLabel>{label}</FieldLabel>
       <p className={cn('stat-value text-4xl font-bold leading-none', colorClass)}>{value}</p>
       {formula && (
-        <p className="mt-1.5 text-[9px] leading-snug text-muted-foreground/35">{formula}</p>
+        <p className="mt-1.5 text-[9px] leading-snug text-muted-foreground/60">{formula}</p>
       )}
-    </TD>
+    </div>
   );
 }
 
@@ -174,6 +184,10 @@ export function StatSheetTable() {
   const setSoulLevel = useCharacterSheetStore((s) => s.setSoulLevel);
   const setCurrentXP = useCharacterSheetStore((s) => s.setCurrentXP);
   const reset = useCharacterSheetStore((s) => s.resetToDefaults);
+  const loadState = useCharacterSheetStore((s) => s.loadState);
+
+  const [selectedProfileId, setSelectedProfileId] = useState('');
+  const importRef = useRef<HTMLInputElement>(null);
 
   const {
     finalResources,
@@ -207,6 +221,55 @@ export function StatSheetTable() {
       .filter(Boolean)
       .join(' ');
   }
+
+  function handleLoadProfile() {
+    const profile = CAST_PROFILES.find((p) => p.id === selectedProfileId);
+    if (profile) {
+      loadState(profile.state);
+      setSelectedProfileId('');
+    }
+  }
+
+  function handleExport() {
+    const state = useCharacterSheetStore.getState();
+    const data = {
+      name: state.name,
+      level: state.level,
+      species: state.species,
+      className: state.className,
+      classAcquisitionLevel: state.classAcquisitionLevel,
+      soulLevel: state.soulLevel,
+      attributes: state.attributes,
+      conditionMods: state.conditionMods,
+      currentXP: state.currentXP,
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${state.name || 'character'}-sheet.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target?.result as string);
+        if (typeof data === 'object' && data !== null) loadState(data);
+      } catch {
+        // ignore malformed JSON
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  }
+
+  const footerBtnBase =
+    'rounded border px-3 py-1.5 text-[11px] font-medium transition-all';
 
   return (
     <div className="overflow-hidden rounded-lg border border-amber-900/40">
@@ -294,13 +357,21 @@ export function StatSheetTable() {
             <TD>
               <FieldLabel>Class</FieldLabel>
               <Select value={className} onValueChange={(v) => setClassName(v as ClassKey)}>
-                <SelectTrigger className="h-7 w-full border-0 bg-transparent p-0 text-sm text-foreground/90 shadow-none focus:ring-0 [&>svg]:ml-1">
+                <SelectTrigger
+                  className={cn(
+                    'h-7 w-full border-0 bg-transparent p-0 text-sm shadow-none focus:ring-0 [&>svg]:ml-1',
+                    RARITY_TEXT_COLORS[classTemplate.rarity],
+                  )}
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.values(CLASS_TEMPLATES).map((c) => (
                     <SelectItem key={c.key} value={c.key} className="text-xs">
-                      {c.label}
+                      <span className={RARITY_TEXT_COLORS[c.rarity]}>{c.label}</span>
+                      <span className="ml-1.5 text-[9px] text-muted-foreground/50">
+                        ({c.rarity})
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -361,33 +432,41 @@ export function StatSheetTable() {
           {/* ── STATS ── */}
           <SectionHeaderRow title="Stats" />
           <tr>
-            <StatCell
-              label="Health"
-              value={finalResources.HP}
-              formula={`6·CON+2·END+2·STR = ${bd.HP.attributeValue} ${mods(bd.HP)}`}
-              colorClass={RESOURCE_COLORS.HP.text}
-            />
-            <StatCell
-              label="Mana"
-              value={finalResources.Mana}
-              formula={`6·INT+3·WIS+CHA = ${bd.Mana.attributeValue} ${mods(bd.Mana)}`}
-              colorClass={RESOURCE_COLORS.Mana.text}
-            />
-            <StatCell
-              label="Stamina"
-              value={finalResources.Stamina}
-              formula={`5·END+2·CON+STR+AGI+DEX = ${bd.Stamina.attributeValue} ${mods(bd.Stamina)}`}
-              colorClass={RESOURCE_COLORS.Stamina.text}
-            />
-          </tr>
-          <tr>
-            <StatCell
-              label="Reserve"
-              value={finalResources.Reserve}
-              formula={`2·CON+2·END+2·WIS+FAI+OCC = ${bd.Reserve.attributeValue} ×${soulMult} soul${mods(bd.Reserve) ? ` ${mods(bd.Reserve)}` : ''}`}
-              colorClass={RESOURCE_COLORS.Reserve.text}
-              colSpan={3}
-            />
+            {/* All 4 resources in one responsive row: 2-col on mobile, 4-col on sm+ */}
+            <td colSpan={3} className="border border-amber-900/25 p-0">
+              <div className="grid grid-cols-2 sm:grid-cols-4">
+                <ResourceStatDiv
+                  label="Health"
+                  value={finalResources.HP}
+                  formula={`6·CON+2·END+2·STR = ${bd.HP.attributeValue}${mods(bd.HP) ? ` ${mods(bd.HP)}` : ''}`}
+                  colorClass={RESOURCE_COLORS.HP.text}
+                  borderRight
+                  mobileBorderBottom
+                />
+                <ResourceStatDiv
+                  label="Mana"
+                  value={finalResources.Mana}
+                  formula={`6·INT+3·WIS+CHA = ${bd.Mana.attributeValue}${mods(bd.Mana) ? ` ${mods(bd.Mana)}` : ''}`}
+                  colorClass={RESOURCE_COLORS.Mana.text}
+                  borderRight
+                  mobileBorderBottom
+                />
+                <ResourceStatDiv
+                  label="Stamina"
+                  value={finalResources.Stamina}
+                  formula={`5·END+2·CON+STR+AGI+DEX = ${bd.Stamina.attributeValue}${mods(bd.Stamina) ? ` ${mods(bd.Stamina)}` : ''}`}
+                  colorClass={RESOURCE_COLORS.Stamina.text}
+                  borderRight
+                />
+                <ResourceStatDiv
+                  label="Reserve"
+                  value={finalResources.Reserve}
+                  formula={`2·CON+2·END+2·WIS+FAI+OCC = ${bd.Reserve.attributeValue} ×${soulMult} soul${mods(bd.Reserve) ? ` ${mods(bd.Reserve)}` : ''}`}
+                  colorClass={RESOURCE_COLORS.Reserve.text}
+                  borderRight={false}
+                />
+              </div>
+            </td>
           </tr>
 
           {/* ── ATTRIBUTES ── */}
@@ -493,13 +572,82 @@ export function StatSheetTable() {
 
           {/* ── FOOTER ── */}
           <tr>
-            <td colSpan={3} className="border-t border-amber-900/20 px-4 py-2 text-right">
-              <button
-                onClick={reset}
-                className="text-[10px] text-muted-foreground/40 transition-colors hover:text-muted-foreground"
-              >
-                Reset to Level 1 defaults
-              </button>
+            <td colSpan={3} className="border-t border-amber-900/20 px-4 py-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                {/* Cast profile loader */}
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-muted-foreground/50">Cast profile:</span>
+                  <Select value={selectedProfileId} onValueChange={setSelectedProfileId}>
+                    <SelectTrigger className="h-7 w-40 border-amber-900/30 bg-amber-950/20 text-xs text-amber-300/70 focus:ring-0">
+                      <SelectValue placeholder="Select character…" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CAST_PROFILES.map((p) => (
+                        <SelectItem key={p.id} value={p.id} className="text-xs">
+                          <span>{p.displayName}</span>
+                          <span className="ml-1.5 text-[9px] text-muted-foreground/50">
+                            {p.role}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <button
+                    onClick={handleLoadProfile}
+                    disabled={!selectedProfileId}
+                    className={cn(
+                      footerBtnBase,
+                      'border-amber-800/40 bg-amber-950/30 text-amber-400/70',
+                      'hover:border-amber-700/60 hover:bg-amber-950/50 hover:text-amber-300',
+                      'disabled:cursor-not-allowed disabled:opacity-30',
+                    )}
+                  >
+                    Load ↗
+                  </button>
+                  <span className="text-[9px] text-amber-400/25">[scaffold]</span>
+                </div>
+
+                {/* Right: import / export / reset */}
+                <div className="flex items-center gap-2">
+                  <input
+                    ref={importRef}
+                    type="file"
+                    accept=".json"
+                    className="hidden"
+                    onChange={handleImport}
+                  />
+                  <button
+                    onClick={() => importRef.current?.click()}
+                    className={cn(
+                      footerBtnBase,
+                      'border-rim/30 text-muted-foreground/50',
+                      'hover:border-rim/60 hover:text-muted-foreground',
+                    )}
+                  >
+                    ↑ Import
+                  </button>
+                  <button
+                    onClick={handleExport}
+                    className={cn(
+                      footerBtnBase,
+                      'border-rim/30 text-muted-foreground/50',
+                      'hover:border-rim/60 hover:text-muted-foreground',
+                    )}
+                  >
+                    ↓ Export
+                  </button>
+                  <button
+                    onClick={reset}
+                    className={cn(
+                      footerBtnBase,
+                      'border-amber-900/40 bg-amber-950/30 text-amber-400/70',
+                      'hover:border-amber-700/60 hover:bg-amber-950/50 hover:text-amber-300',
+                    )}
+                  >
+                    ↺ Reset to Level 1
+                  </button>
+                </div>
+              </div>
             </td>
           </tr>
         </tbody>
