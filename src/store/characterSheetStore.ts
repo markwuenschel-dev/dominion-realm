@@ -23,29 +23,30 @@ interface CharacterSheetActions {
 
 type CharacterSheetStore = CharacterSheetState & CharacterSheetActions;
 
+// Level 1 baseline — all attributes at species minimum (5)
 const DEFAULT_STATE: CharacterSheetState = {
-  name: 'Marcus',
-  level: 3,
+  name: '',
+  level: 1,
   species: 'Human',
   className: 'None',
   classAcquisitionLevel: 1,
   soulLevel: 'Common',
   attributes: {
-    CON: 8,
-    END: 7,
-    STR: 6,
-    AGI: 7,
-    DEX: 8,
-    INT: 12,
-    WIS: 9,
-    CHA: 6,
+    CON: 5,
+    END: 5,
+    STR: 5,
+    AGI: 5,
+    DEX: 5,
+    INT: 5,
+    WIS: 5,
+    CHA: 5,
     Faith: 5,
     Occult: 5,
-    LUCK: 7,
+    LUCK: 5,
   },
   conditionMods: { HP: 1.0, Mana: 1.0, Stamina: 1.0, Reserve: 1.0 },
-  currentResources: { HP: 75, Mana: 55, Stamina: 60, Reserve: 35 },
-  currentXP: 120,
+  currentResources: { HP: 50, Mana: 50, Stamina: 50, Reserve: 40 },
+  currentXP: 0,
 };
 
 export const useCharacterSheetStore = create<CharacterSheetStore>()(
@@ -94,7 +95,7 @@ export const useCharacterSheetStore = create<CharacterSheetStore>()(
       }),
       {
         name: 'dominion-realm-character-sheet',
-        // Don't persist currentResources — they're transient session state
+        // currentResources is transient — not persisted
         partialize: (state) => ({
           name: state.name,
           level: state.level,
