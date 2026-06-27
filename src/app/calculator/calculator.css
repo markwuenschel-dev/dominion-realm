@@ -19,10 +19,26 @@
   --color-rim: #1e1e28;
   --color-rim-bright: #2e2e3e;
 
-  /* shadcn-style semantic aliases */
-  --color-foreground: hsl(0 0% 88%);
-  --color-muted-foreground: hsl(240 4% 46%);
+  /* shadcn semantic tokens — all required for component utilities to resolve */
   --color-background: hsl(0 0% 3.9%);
+  --color-foreground: hsl(0 0% 88%);
+  --color-card: hsl(0 0% 5.5%);
+  --color-card-foreground: hsl(0 0% 88%);
+  --color-popover: hsl(0 0% 7%);
+  --color-popover-foreground: hsl(0 0% 88%);
+  --color-primary: hsl(38 65% 51%);
+  --color-primary-foreground: hsl(0 0% 5%);
+  --color-secondary: hsl(240 5% 12%);
+  --color-secondary-foreground: hsl(0 0% 88%);
+  --color-muted: hsl(240 5% 12%);
+  --color-muted-foreground: hsl(240 4% 60%);
+  --color-accent: hsl(240 5% 16%);
+  --color-accent-foreground: hsl(0 0% 88%);
+  --color-destructive: hsl(0 62.8% 30.6%);
+  --color-destructive-foreground: hsl(0 0% 88%);
+  --color-border: hsl(240 5% 14%);
+  --color-input: hsl(240 5% 14%);
+  --color-ring: hsl(38 65% 51%);
 }
 
 @layer base {
@@ -31,21 +47,28 @@
     --foreground: 0 0% 88%;
     --card: 0 0% 5.5%;
     --card-foreground: 0 0% 88%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 88%;
     --primary: 38 65% 51%;
     --primary-foreground: 0 0% 5%;
+    --secondary: 240 5% 12%;
+    --secondary-foreground: 0 0% 88%;
     --muted: 240 5% 12%;
-    --muted-foreground: 240 4% 46%;
+    --muted-foreground: 240 4% 60%;
+    --accent: 240 5% 16%;
+    --accent-foreground: 0 0% 88%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 88%;
     --border: 240 5% 14%;
     --input: 240 5% 14%;
     --ring: 38 65% 51%;
     --radius: 0.375rem;
   }
 
-  /*
-   * Font classes reference the CSS variables set by the root layout
-   * (Cormorant Garamond → --font-display, Spectral → --font-body,
-   *  Space Mono → --font-mono). Do NOT import fonts here.
-   */
+  /* Override Spectral (novel body font) for calculator/sheet pages */
+  body {
+    font-family: var(--font-mono), ui-monospace, monospace;
+  }
 
   .stat-value {
     font-family: var(--font-mono), monospace;
