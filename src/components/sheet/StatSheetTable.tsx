@@ -55,7 +55,7 @@ function TD({
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="mb-1 text-[9px] font-bold uppercase tracking-[0.14em] text-amber-400/60">
+    <p className="mb-1 text-[9px] font-bold uppercase tracking-[0.14em] text-primary/60">
       {children}
     </p>
   );
@@ -66,11 +66,11 @@ function SectionHeaderRow({ title, scaffolded = false }: { title: string; scaffo
     <tr>
       <td
         colSpan={3}
-        className="border border-amber-900/25 bg-amber-950/20 px-4 py-1.5 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-amber-400"
+        className="border border-amber-900/25 bg-amber-950/20 px-4 py-1.5 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-primary"
       >
         {title}
         {scaffolded && (
-          <span className="ml-2 text-[9px] font-normal text-amber-400/35">[scaffold]</span>
+          <span className="ml-2 text-[9px] font-normal text-primary/35">[scaffold]</span>
         )}
       </td>
     </tr>
@@ -103,14 +103,14 @@ function AttrCell({ attrKey, dimmed = false }: { attrKey: SheetAttributeKey; dim
       <div className="flex items-baseline justify-between">
         <FieldLabel>
           {attrKey}
-          {dimmed && <span className="ml-1 text-amber-400/30">(no formula)</span>}
+          {dimmed && <span className="ml-1 text-primary/30">(no formula)</span>}
         </FieldLabel>
-        {mod !== 1.0 && <span className="text-[9px] text-amber-400">×{mod.toFixed(2)}</span>}
+        {mod !== 1.0 && <span className="text-[9px] text-primary">×{mod.toFixed(2)}</span>}
       </div>
       <div className={cn('flex items-center gap-2', dimmed && 'opacity-35')}>
         <button
           onClick={() => setAttribute(attrKey, rawValue - 1)}
-          className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-rim/30 text-xs text-muted-foreground/50 transition-colors hover:border-amber-700/50 hover:text-amber-400"
+          className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-rim/30 text-xs text-muted-foreground/50 transition-colors hover:border-primary/50 hover:text-primary"
           aria-label={`Decrease ${attrKey}`}
         >
           −
@@ -120,7 +120,7 @@ function AttrCell({ attrKey, dimmed = false }: { attrKey: SheetAttributeKey; dim
         </span>
         <button
           onClick={() => setAttribute(attrKey, rawValue + 1)}
-          className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-rim/30 text-xs text-muted-foreground/50 transition-colors hover:border-amber-700/50 hover:text-amber-400"
+          className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-rim/30 text-xs text-muted-foreground/50 transition-colors hover:border-primary/50 hover:text-primary"
           aria-label={`Increase ${attrKey}`}
         >
           +
@@ -283,7 +283,7 @@ export function StatSheetTable() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Character name"
-                className="heading-realm w-full bg-transparent text-lg font-semibold text-amber-300 placeholder:text-amber-400/25 focus:outline-none"
+                className="heading-realm w-full bg-transparent text-lg font-semibold text-primary placeholder:text-primary/25 focus:outline-none"
               />
             </TD>
             <TD className="border-t-0">
@@ -314,7 +314,7 @@ export function StatSheetTable() {
               <div className="mt-1 flex items-center gap-1.5">
                 <div className="h-1 flex-1 overflow-hidden rounded-full bg-muted">
                   <div
-                    className="h-full rounded-full bg-amber-500 transition-all"
+                    className="h-full rounded-full bg-primary transition-all"
                     style={{ width: `${xpProgressPercent}%` }}
                   />
                 </div>
@@ -418,7 +418,7 @@ export function StatSheetTable() {
                   Points · free:{' '}
                   <span className="stat-value text-foreground/70">{totalFreePoints}</span>
                   {classBonusPoints > 0 && (
-                    <span className="text-amber-400"> +{classBonusPoints} class</span>
+                    <span className="text-primary"> +{classBonusPoints} class</span>
                   )}{' '}
                   = <span className="stat-value text-foreground/70">{totalPointsAvailable}</span>
                 </span>
@@ -504,9 +504,9 @@ export function StatSheetTable() {
                 <>
                   <FieldLabel>Class attr mods ({classTemplate.rarity})</FieldLabel>
                   {hasClassMods ? (
-                    <p className="text-xs text-amber-400">Active</p>
+                    <p className="text-xs text-primary">Active</p>
                   ) : (
-                    <p className="text-[9px] italic text-amber-400/35">
+                    <p className="text-[9px] italic text-primary/35">
                       Scaffolded — no canon values yet
                     </p>
                   )}
@@ -563,10 +563,10 @@ export function StatSheetTable() {
                 {(['Skills', 'Marks', 'Abilities'] as const).map((label) => (
                   <div
                     key={label}
-                    className="px-4 py-1.5 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-amber-400"
+                    className="px-4 py-1.5 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-primary"
                   >
                     {label}
-                    <span className="ml-1.5 text-[9px] font-normal text-amber-400/35">
+                    <span className="ml-1.5 text-[9px] font-normal text-primary/35">
                       [scaffold]
                     </span>
                   </div>
@@ -588,7 +588,7 @@ export function StatSheetTable() {
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] text-muted-foreground/50">Cast profile:</span>
                   <Select value={selectedProfileId} onValueChange={setSelectedProfileId}>
-                    <SelectTrigger className="h-7 w-40 border-amber-900/30 bg-amber-950/20 text-xs text-amber-300/70 focus:ring-0">
+                    <SelectTrigger className="h-7 w-40 border-amber-900/30 bg-amber-950/20 text-xs text-primary/70 focus:ring-0">
                       <SelectValue placeholder="Select character…" />
                     </SelectTrigger>
                     <SelectContent>
@@ -607,14 +607,14 @@ export function StatSheetTable() {
                     disabled={!selectedProfileId}
                     className={cn(
                       footerBtnBase,
-                      'border-amber-800/40 bg-amber-950/30 text-amber-400/70',
-                      'hover:border-amber-700/60 hover:bg-amber-950/50 hover:text-amber-300',
+                      'border-amber-800/40 bg-amber-950/30 text-primary/70',
+                      'hover:border-primary/60 hover:bg-amber-950/50 hover:text-primary',
                       'disabled:cursor-not-allowed disabled:opacity-30',
                     )}
                   >
                     Load ↗
                   </button>
-                  <span className="text-[9px] text-amber-400/25">[scaffold]</span>
+                  <span className="text-[9px] text-primary/25">[scaffold]</span>
                 </div>
 
                 {/* Right: import / export / reset */}
@@ -650,8 +650,8 @@ export function StatSheetTable() {
                     onClick={reset}
                     className={cn(
                       footerBtnBase,
-                      'border-amber-900/40 bg-amber-950/30 text-amber-400/70',
-                      'hover:border-amber-700/60 hover:bg-amber-950/50 hover:text-amber-300',
+                      'border-amber-900/40 bg-amber-950/30 text-primary/70',
+                      'hover:border-primary/60 hover:bg-amber-950/50 hover:text-primary',
                     )}
                   >
                     ↺ Reset to Level 1
