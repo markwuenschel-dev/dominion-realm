@@ -217,6 +217,81 @@
   border-color: rgba(71, 85, 105, 0.4);
 }
 
+/* ── Tailwind color class overrides for light themes ────────────────────────
+   Resource value numbers, rarity badges, and soul level labels all use
+   Tailwind 400-level classes tuned for dark backgrounds. Override them to
+   their 600–700 equivalents for parchment and slate.                        */
+
+/* Resource value colors and budget indicators */
+:root[data-theme='parchment'] .text-red-400,
+:root[data-theme='slate'] .text-red-400 {
+  color: #b91c1c;
+}
+:root[data-theme='parchment'] .text-blue-400,
+:root[data-theme='slate'] .text-blue-400 {
+  color: #1d4ed8;
+}
+:root[data-theme='parchment'] .text-emerald-400,
+:root[data-theme='slate'] .text-emerald-400 {
+  color: #047857;
+}
+:root[data-theme='parchment'] .text-violet-400,
+:root[data-theme='slate'] .text-violet-400 {
+  color: #6d28d9;
+}
+
+/* Rarity badge colors */
+:root[data-theme='parchment'] .text-green-400,
+:root[data-theme='slate'] .text-green-400 {
+  color: #15803d;
+}
+:root[data-theme='parchment'] .text-orange-400,
+:root[data-theme='slate'] .text-orange-400 {
+  color: #c2410c;
+}
+:root[data-theme='parchment'] .text-amber-400,
+:root[data-theme='slate'] .text-amber-400 {
+  color: hsl(35 65% 36%);
+}
+
+/* Soul level spectrum */
+:root[data-theme='parchment'] .text-zinc-300,
+:root[data-theme='slate'] .text-zinc-300 {
+  color: #52525b;
+}
+:root[data-theme='parchment'] .text-zinc-400,
+:root[data-theme='slate'] .text-zinc-400 {
+  color: #52525b;
+}
+:root[data-theme='parchment'] .text-slate-400,
+:root[data-theme='slate'] .text-slate-400 {
+  color: #475569;
+}
+:root[data-theme='parchment'] .text-cyan-400,
+:root[data-theme='slate'] .text-cyan-400 {
+  color: #0e7490;
+}
+:root[data-theme='parchment'] .text-sky-400,
+:root[data-theme='slate'] .text-sky-400 {
+  color: #0369a1;
+}
+:root[data-theme='parchment'] .text-indigo-400,
+:root[data-theme='slate'] .text-indigo-400 {
+  color: #4338ca;
+}
+:root[data-theme='parchment'] .text-fuchsia-400,
+:root[data-theme='slate'] .text-fuchsia-400 {
+  color: #a21caf;
+}
+:root[data-theme='parchment'] .text-pink-400,
+:root[data-theme='slate'] .text-pink-400 {
+  color: #be185d;
+}
+:root[data-theme='parchment'] .text-rose-400,
+:root[data-theme='slate'] .text-rose-400 {
+  color: #be123c;
+}
+
 @layer base {
   :root {
     --background: 0 0% 3.9%;
