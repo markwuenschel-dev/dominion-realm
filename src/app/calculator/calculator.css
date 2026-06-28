@@ -169,7 +169,7 @@
   border-color: rgba(21, 128, 61, 0.4);
 }
 :root[data-theme='parchment'] .zone-chip[data-zone='failure'] {
-  background: rgba(185, 28, 28, 0.10);
+  background: rgba(185, 28, 28, 0.1);
   color: #991b1b;
   border-color: rgba(185, 28, 28, 0.35);
 }

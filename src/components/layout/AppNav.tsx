@@ -5,10 +5,7 @@ export function AppNav() {
     <nav className="border-b border-rim bg-panel/90 backdrop-blur-sm">
       <div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-3">
         <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="heading-realm text-base transition-opacity hover:opacity-70"
-          >
+          <Link href="/" className="heading-realm text-base transition-opacity hover:opacity-70">
             Dominion Realm
           </Link>
           <span className="text-rim-bright text-xs">·</span>
