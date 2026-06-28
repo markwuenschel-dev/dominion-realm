@@ -18,6 +18,9 @@
   [data-theme="parchment"] .grain { mix-blend-mode: multiply; }
   [data-theme="parchment"] .vignette { background: radial-gradient(120% 90% at 50% 0%, transparent 60%, rgba(120,98,40,0.08) 100%); }
   [data-theme="parchment"] .sysbar { background: rgba(237,233,213,0.90); }
+  [data-theme="slate"] .grain { mix-blend-mode: multiply; }
+  [data-theme="slate"] .vignette { background: radial-gradient(120% 90% at 50% 0%, transparent 60%, rgba(40,60,120,0.08) 100%); }
+  [data-theme="slate"] .sysbar { background: rgba(205,212,228,0.90); }
 
   /* ---- system bar ---- */
   .sysbar { position: sticky; top: 0; z-index: 200; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 14px clamp(18px,4vw,44px); background: rgba(8,9,16,0.78); backdrop-filter: blur(16px); border-bottom: 1px solid var(--line-soft); }

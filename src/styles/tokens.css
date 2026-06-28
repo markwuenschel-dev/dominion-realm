@@ -84,3 +84,29 @@
   --grain-op:   0.025;
   --glow-op:    0;
 }
+
+/* Slate — cool periwinkle-navy light mode
+   Core (Mark's spec): text #284D89 · bg #D9DEEB · hover #8C8DCB
+                       accent #DB8640 · button/CTA #6689CD
+   Derived:            ink-dim #3D5E8F · ink-faint #7A8BAD
+                       bg-raise #CDD4E4 · bg-panel #C3CCDE
+                       line rgba(40,77,137,0.16)                         */
+:root[data-theme="slate"] {
+  --bg:         #D9DEEB;
+  --bg-raise:   #CDD4E4;
+  --bg-panel:   #C3CCDE;
+
+  --ink:        #284D89;
+  --ink-dim:    #3D5E8F;
+  --ink-faint:  #7A8BAD;
+
+  --gold:       #DB8640;
+  --gold-bright: #8C8DCB;
+  --btn-ink:    #D9DEEB;
+
+  --line:       rgba(40, 77, 137, 0.16);
+  --line-soft:  rgba(40, 77, 137, 0.08);
+
+  --grain-op:   0.025;
+  --glow-op:    0;
+}

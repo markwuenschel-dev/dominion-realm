@@ -91,6 +91,56 @@
   --ring: 213 33% 25%;
 }
 
+/* ── Slate theme overrides ──────────────────────────────────────────────────
+   Mirrors tokens.css slate block but covers the Tailwind v4 @theme vars
+   and the shadcn HSL vars that calculator/sheet pages use.                */
+:root[data-theme='slate'] {
+  /* Surface system */
+  --color-surface: #d9deeb;
+  --color-panel: #c3ccde;
+  --color-panel-raised: #cdd4e4;
+  --color-rim: #8c8dcb;
+  --color-rim-bright: #a0a1d8;
+
+  /* shadcn color tokens (with hsl()) */
+  --color-background: hsl(223 31% 89%);
+  --color-foreground: hsl(217 55% 35%);
+  --color-card: hsl(222 30% 85%);
+  --color-card-foreground: hsl(217 55% 35%);
+  --color-popover: hsl(223 31% 88%);
+  --color-popover-foreground: hsl(217 55% 35%);
+  --color-primary: hsl(220 51% 60%);
+  --color-primary-foreground: hsl(223 31% 89%);
+  --color-secondary: hsl(222 30% 81%);
+  --color-secondary-foreground: hsl(217 55% 35%);
+  --color-muted: hsl(222 30% 83%);
+  --color-muted-foreground: hsl(220 24% 58%);
+  --color-accent: hsl(27 68% 56%);
+  --color-accent-foreground: hsl(223 31% 89%);
+  --color-border: hsl(222 28% 76%);
+  --color-input: hsl(222 28% 76%);
+  --color-ring: hsl(220 51% 60%);
+
+  /* shadcn bare HSL vars (used as hsl(var(--muted)) etc.) */
+  --background: 223 31% 89%;
+  --foreground: 217 55% 35%;
+  --card: 222 30% 85%;
+  --card-foreground: 217 55% 35%;
+  --popover: 223 31% 88%;
+  --popover-foreground: 217 55% 35%;
+  --primary: 220 51% 60%;
+  --primary-foreground: 223 31% 89%;
+  --secondary: 222 30% 81%;
+  --secondary-foreground: 217 55% 35%;
+  --muted: 222 30% 83%;
+  --muted-foreground: 220 24% 58%;
+  --accent: 27 68% 56%;
+  --accent-foreground: 223 31% 89%;
+  --border: 222 28% 76%;
+  --input: 222 28% 76%;
+  --ring: 220 51% 60%;
+}
+
 @layer base {
   :root {
     --background: 0 0% 3.9%;

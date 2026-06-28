@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from 'react';
 
-export type SiteTheme = 'dark' | 'parchment';
+export type SiteTheme = 'dark' | 'parchment' | 'slate';
 
 const THEMES: { key: SiteTheme; label: string }[] = [
   { key: 'dark', label: 'Dark' },
   { key: 'parchment', label: 'Parchment' },
+  { key: 'slate', label: 'Slate' },
 ];
 
 const STORAGE_KEY = 'dr-theme';
