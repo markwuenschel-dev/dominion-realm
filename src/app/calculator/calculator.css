@@ -141,6 +141,82 @@
   --ring: 220 51% 60%;
 }
 
+/* ── Parchment component overrides ─────────────────────────────────────────
+   Fix hardcoded dark-theme colors for calculator-specific classes.         */
+:root[data-theme='parchment'] .heading-realm {
+  color: hsl(213 33% 25%);
+}
+
+:root[data-theme='parchment'] [data-severity='none'] {
+  color: hsl(24 13% 48%);
+}
+:root[data-theme='parchment'] [data-severity='minor'] {
+  color: hsl(35 65% 36%);
+}
+:root[data-theme='parchment'] [data-severity='moderate'] {
+  color: hsl(20 68% 38%);
+}
+:root[data-theme='parchment'] [data-severity='severe'] {
+  color: hsl(0 60% 40%);
+}
+:root[data-theme='parchment'] [data-severity='catastrophic'] {
+  color: hsl(0 72% 33%);
+}
+
+:root[data-theme='parchment'] .zone-chip[data-zone='safe'] {
+  background: rgba(21, 128, 61, 0.12);
+  color: #166534;
+  border-color: rgba(21, 128, 61, 0.4);
+}
+:root[data-theme='parchment'] .zone-chip[data-zone='failure'] {
+  background: rgba(185, 28, 28, 0.1);
+  color: #991b1b;
+  border-color: rgba(185, 28, 28, 0.35);
+}
+:root[data-theme='parchment'] .zone-chip[data-zone='zero'] {
+  background: rgba(87, 70, 50, 0.12);
+  color: #7c6242;
+  border-color: rgba(87, 70, 50, 0.3);
+}
+
+/* ── Slate component overrides ──────────────────────────────────────────────
+   Fix hardcoded dark-theme colors for calculator-specific classes.         */
+:root[data-theme='slate'] .heading-realm {
+  color: hsl(220 51% 38%);
+}
+
+:root[data-theme='slate'] [data-severity='none'] {
+  color: hsl(220 20% 52%);
+}
+:root[data-theme='slate'] [data-severity='minor'] {
+  color: hsl(35 65% 38%);
+}
+:root[data-theme='slate'] [data-severity='moderate'] {
+  color: hsl(20 68% 38%);
+}
+:root[data-theme='slate'] [data-severity='severe'] {
+  color: hsl(0 60% 42%);
+}
+:root[data-theme='slate'] [data-severity='catastrophic'] {
+  color: hsl(0 72% 35%);
+}
+
+:root[data-theme='slate'] .zone-chip[data-zone='safe'] {
+  background: rgba(21, 128, 61, 0.15);
+  color: #166534;
+  border-color: rgba(21, 128, 61, 0.45);
+}
+:root[data-theme='slate'] .zone-chip[data-zone='failure'] {
+  background: rgba(185, 28, 28, 0.12);
+  color: #991b1b;
+  border-color: rgba(185, 28, 28, 0.4);
+}
+:root[data-theme='slate'] .zone-chip[data-zone='zero'] {
+  background: rgba(71, 85, 105, 0.18);
+  color: #475569;
+  border-color: rgba(71, 85, 105, 0.4);
+}
+
 @layer base {
   :root {
     --background: 0 0% 3.9%;

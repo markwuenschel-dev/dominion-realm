@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation';
+import { DashboardShell } from '@/components/layout/DashboardShell';
 
 export default function CalculatorPage() {
-  redirect('/sheet');
+  return <DashboardShell />;
 }
