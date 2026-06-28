@@ -41,6 +41,56 @@
   --color-ring: hsl(38 65% 51%);
 }
 
+/* ── Parchment theme overrides ──────────────────────────────────────────────
+   Mirrors tokens.css parchment block but covers the Tailwind v4 @theme vars
+   and the shadcn HSL vars that calculator/sheet pages use.               */
+:root[data-theme='parchment'] {
+  /* Surface system */
+  --color-surface: #f8f6e8;
+  --color-panel: #ede9d5;
+  --color-panel-raised: #e8e2ce;
+  --color-rim: #cdb7a9;
+  --color-rim-bright: #b9a090;
+
+  /* shadcn color tokens (with hsl()) */
+  --color-background: hsl(50 47% 94%);
+  --color-foreground: hsl(350 13% 28%);
+  --color-card: hsl(48 35% 88%);
+  --color-card-foreground: hsl(350 13% 28%);
+  --color-popover: hsl(50 47% 93%);
+  --color-popover-foreground: hsl(350 13% 28%);
+  --color-primary: hsl(213 33% 25%);
+  --color-primary-foreground: hsl(50 47% 94%);
+  --color-secondary: hsl(46 35% 82%);
+  --color-secondary-foreground: hsl(350 13% 28%);
+  --color-muted: hsl(46 35% 86%);
+  --color-muted-foreground: hsl(24 13% 54%);
+  --color-accent: hsl(46 35% 82%);
+  --color-accent-foreground: hsl(350 13% 28%);
+  --color-border: hsl(23 20% 73%);
+  --color-input: hsl(23 20% 73%);
+  --color-ring: hsl(213 33% 25%);
+
+  /* shadcn bare HSL vars (used as hsl(var(--muted)) etc.) */
+  --background: 50 47% 94%;
+  --foreground: 350 13% 28%;
+  --card: 48 35% 88%;
+  --card-foreground: 350 13% 28%;
+  --popover: 50 47% 93%;
+  --popover-foreground: 350 13% 28%;
+  --primary: 213 33% 25%;
+  --primary-foreground: 50 47% 94%;
+  --secondary: 46 35% 82%;
+  --secondary-foreground: 350 13% 28%;
+  --muted: 46 35% 86%;
+  --muted-foreground: 24 13% 54%;
+  --accent: 46 35% 82%;
+  --accent-foreground: 350 13% 28%;
+  --border: 23 20% 73%;
+  --input: 23 20% 73%;
+  --ring: 213 33% 25%;
+}
+
 @layer base {
   :root {
     --background: 0 0% 3.9%;

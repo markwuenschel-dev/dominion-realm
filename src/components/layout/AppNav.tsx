@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 
 export function AppNav() {
   return (
@@ -13,13 +12,9 @@ export function AppNav() {
           </span>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1">
-            <NavLink href="/calculator" label="Formula Calculator" />
-            <NavLink href="/sheet" label="Stat Sheet" />
-          </div>
-          <div className="h-4 w-px bg-rim/40" />
-          <ThemeSwitcher />
+        <div className="flex items-center gap-1">
+          <NavLink href="/calculator" label="Formula Calculator" />
+          <NavLink href="/sheet" label="Stat Sheet" />
         </div>
       </div>
     </nav>
