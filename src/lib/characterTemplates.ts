@@ -292,6 +292,26 @@ export const RARITY_TEXT_COLORS: Record<ClassRarity, string> = {
   Unique: 'text-red-400',
 };
 
+// Spectra-mapped text color per soul level.
+// Sub-Common (Fractured→Lesser) are muted grey; above Common they follow the
+// site's spectral gradient (cyan→blue→purple→pink→gold).
+export const SOUL_LEVEL_TEXT_COLORS: Record<SoulLevelKey, string> = {
+  Fractured: 'text-zinc-600',
+  Faint: 'text-zinc-500',
+  Weak: 'text-zinc-400',
+  Lesser: 'text-slate-400',
+  Common: 'text-zinc-300',
+  Strong: 'text-cyan-400',
+  Luminous: 'text-sky-400',
+  Radiant: 'text-blue-400',
+  Brilliant: 'text-indigo-400',
+  Resplendent: 'text-violet-400',
+  Exalted: 'text-fuchsia-400',
+  Transcendent: 'text-pink-400',
+  Divine: 'text-rose-400',
+  Absolute: 'text-amber-400',
+};
+
 // ────────────────────────────────────────────────
 // §15  XP Curve and Class Rarity Multipliers
 // ────────────────────────────────────────────────

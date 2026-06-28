@@ -893,12 +893,25 @@
     .scroll-cue { display: none; }
   }
 
-  /* ---------- Light palette overlay adjustments (Bone Manuscript) ---------- */
-  body[data-theme="light"] .grain { mix-blend-mode: multiply; }
-  body[data-theme="light"] .vignette { background: radial-gradient(120% 90% at 50% 0%, transparent 60%, rgba(120,98,40,0.10) 100%); }
-  body[data-theme="light"] .sidebar { background: linear-gradient(180deg, rgba(231,224,207,0.92), rgba(239,233,218,0.92)); }
-  body[data-theme="light"] .topbar { background: rgba(239,233,218,0.85); }
-  body[data-theme="light"] .mobile-menu { background: rgba(239,233,218,0.97); }
+  /* ---------- Theme overlay adjustments ----------
+     data-theme lives on <html>; descendant combinator covers all child elements. */
+
+  /* legacy "light" stubs kept for backward compat */
+  [data-theme="light"] .grain { mix-blend-mode: multiply; }
+  [data-theme="light"] .vignette { background: radial-gradient(120% 90% at 50% 0%, transparent 60%, rgba(120,98,40,0.10) 100%); }
+  [data-theme="light"] .sidebar { background: linear-gradient(180deg, rgba(231,224,207,0.92), rgba(239,233,218,0.92)); }
+  [data-theme="light"] .topbar { background: rgba(239,233,218,0.85); }
+  [data-theme="light"] .mobile-menu { background: rgba(239,233,218,0.97); }
+
+  /* Parchment theme — structural / element overrides not covered by tokens */
+  [data-theme="parchment"] .grain { mix-blend-mode: multiply; }
+  [data-theme="parchment"] .vignette { background: radial-gradient(120% 90% at 50% 0%, transparent 60%, rgba(120,98,40,0.08) 100%); }
+  [data-theme="parchment"] .sidebar { background: linear-gradient(180deg, rgba(237,233,213,0.94), rgba(232,226,206,0.94)); }
+  [data-theme="parchment"] .topbar { background: rgba(237,233,213,0.90); }
+  [data-theme="parchment"] .mobile-menu { background: rgba(237,233,213,0.98); }
+  /* CTA button uses navy (#2A3D54) rather than the accent token */
+  [data-theme="parchment"] .btn-primary { background: #2A3D54; border-color: #2A3D54; color: #F8F6E8; }
+  [data-theme="parchment"] .btn-primary:hover { background: #3A5270; border-color: #3A5270; transform: translateY(-2px); }
 
   /* ---------- Tweaks mount (panel paints itself; this is just the React root) ---------- */
   #tweaks-root { position: relative; z-index: 9500; }
