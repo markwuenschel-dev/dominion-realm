@@ -9,6 +9,7 @@ import {
   SOUL_LEVELS,
   RARITY_COLORS,
   RARITY_TEXT_COLORS,
+  SOUL_LEVEL_TEXT_COLORS,
   CLASS_ATTR_MODS,
   getClassAttrMod,
   getSoulMultiplier,
@@ -384,18 +385,28 @@ export function StatSheetTable() {
             <TD>
               <FieldLabel>Soul Level</FieldLabel>
               <Select value={soulLevel} onValueChange={(v) => setSoulLevel(v as SoulLevelKey)}>
-                <SelectTrigger className="h-7 w-full border-0 bg-transparent p-0 text-sm text-foreground/90 shadow-none focus:ring-0 [&>svg]:ml-1">
+                <SelectTrigger
+                  className={cn(
+                    'h-7 w-full border-0 bg-transparent p-0 text-sm shadow-none focus:ring-0 [&>svg]:ml-1',
+                    SOUL_LEVEL_TEXT_COLORS[soulLevel],
+                  )}
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {SOUL_LEVELS.map((sl) => (
                     <SelectItem key={sl.key} value={sl.key} className="text-xs">
-                      {sl.label} ({sl.multiplier}×)
+                      <span className={SOUL_LEVEL_TEXT_COLORS[sl.key]}>{sl.label}</span>
+                      <span className="ml-1 text-[9px] text-muted-foreground/50">
+                        ({sl.multiplier}×)
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p className="mt-0.5 text-[9px] text-muted-foreground/40">Reserve ×{soulMult}</p>
+              <p className={cn('mt-0.5 text-[9px]', SOUL_LEVEL_TEXT_COLORS[soulLevel])}>
+                Reserve ×{soulMult}
+              </p>
             </TD>
           </tr>
 

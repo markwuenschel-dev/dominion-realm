@@ -54,3 +54,30 @@
   --z-grain: 9000;
   --z-consent: 9700;
 }
+
+/* =====================================================================
+   Named themes — override :root tokens per data-theme on <html>.
+   ===================================================================== */
+
+/* Parchment — warm manuscript light mode
+   Palette (Mark's spec): text #513F42 · bg #F8F6E8 · hover #CDB7A9
+                          accent #9b8678 · button/CTA #2A3D54           */
+:root[data-theme="parchment"] {
+  --bg:         #F8F6E8;
+  --bg-raise:   #EDE9D5;
+  --bg-panel:   #E8E2CE;
+
+  --ink:        #513F42;
+  --ink-dim:    #7A6A5C;
+  --ink-faint:  #9b8678;
+
+  --gold:       #9b8678;
+  --gold-bright: #CDB7A9;
+  --btn-ink:    #F8F6E8;
+
+  --line:       rgba(155, 134, 120, 0.28);
+  --line-soft:  rgba(81, 63, 64, 0.09);
+
+  --grain-op:   0.025;
+  --glow-op:    0;
+}
