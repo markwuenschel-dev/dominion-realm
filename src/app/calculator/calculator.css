@@ -47,8 +47,8 @@
 :root[data-theme='parchment'] {
   /* Surface system */
   --color-surface: #f8f6e8;
-  --color-panel: #ede9d5;
-  --color-panel-raised: #e8e2ce;
+  --color-panel: #eae4cc;
+  --color-panel-raised: #f2edd6;
   --color-rim: #cdb7a9;
   --color-rim-bright: #b9a090;
 
