@@ -913,6 +913,16 @@
   [data-theme="parchment"] .btn-primary { background: #2A3D54; border-color: #2A3D54; color: #F8F6E8; }
   [data-theme="parchment"] .btn-primary:hover { background: #3A5270; border-color: #3A5270; transform: translateY(-2px); }
 
+  /* Slate theme — structural / element overrides */
+  [data-theme="slate"] .grain { mix-blend-mode: multiply; }
+  [data-theme="slate"] .vignette { background: radial-gradient(120% 90% at 50% 0%, transparent 60%, rgba(40,60,120,0.08) 100%); }
+  [data-theme="slate"] .sidebar { background: linear-gradient(180deg, rgba(205,212,228,0.94), rgba(195,204,222,0.94)); }
+  [data-theme="slate"] .topbar { background: rgba(205,212,228,0.90); }
+  [data-theme="slate"] .mobile-menu { background: rgba(205,212,228,0.98); }
+  /* CTA uses periwinkle (#6689CD) rather than the burnt-orange accent token */
+  [data-theme="slate"] .btn-primary { background: #6689CD; border-color: #6689CD; color: #D9DEEB; }
+  [data-theme="slate"] .btn-primary:hover { background: #7899D8; border-color: #7899D8; transform: translateY(-2px); }
+
   /* ---------- Theme switcher (fixed bottom-right, all pages) ---------- */
   .theme-switcher-wrap {
     position: fixed;
