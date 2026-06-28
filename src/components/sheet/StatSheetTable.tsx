@@ -160,7 +160,7 @@ function ResourceStatDiv({
       <FieldLabel>{label}</FieldLabel>
       <p className={cn('stat-value text-4xl font-bold leading-none', colorClass)}>{value}</p>
       {formula && (
-        <p className="mt-1.5 text-[9px] leading-snug text-muted-foreground/60">{formula}</p>
+        <p className="mt-1.5 text-[10px] leading-snug text-muted-foreground/60">{formula}</p>
       )}
     </div>
   );
@@ -326,10 +326,10 @@ export function StatSheetTable() {
                     const n = parseInt(e.target.value, 10);
                     if (!isNaN(n)) setCurrentXP(n);
                   }}
-                  className="stat-value w-16 bg-transparent text-right text-[10px] text-muted-foreground/50 focus:outline-none"
+                  className="stat-value w-16 bg-transparent text-right text-xs text-muted-foreground/60 focus:outline-none"
                   title={`XP to next: ${xpToNextLevel}`}
                 />
-                <span className="text-[9px] text-muted-foreground/30">/ {xpToNextLevel}</span>
+                <span className="text-[10px] text-muted-foreground/50">/ {xpToNextLevel}</span>
               </div>
             </TD>
           </tr>
