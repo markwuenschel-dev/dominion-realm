@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Spectral, Space_Mono } from 'next/font/google';
 import '@/styles/global.css';
 import { RevealProvider } from '@/components/reveal/RevealContext';
 import { Analytics } from '@/components/Analytics';
+import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 
 /**
  * Root layout (migrated from Base.astro, ADR-0010). Self-hosts the three Realm
@@ -66,6 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <RevealProvider>{children}</RevealProvider>
+        <ThemeSwitcher />
         <Analytics />
       </body>
     </html>

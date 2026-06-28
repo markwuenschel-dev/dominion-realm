@@ -913,6 +913,46 @@
   [data-theme="parchment"] .btn-primary { background: #2A3D54; border-color: #2A3D54; color: #F8F6E8; }
   [data-theme="parchment"] .btn-primary:hover { background: #3A5270; border-color: #3A5270; transform: translateY(-2px); }
 
+  /* ---------- Theme switcher (fixed bottom-right, all pages) ---------- */
+  .theme-switcher-wrap {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9550;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(8px);
+  }
+  .theme-switcher-label {
+    font-family: var(--mono);
+    font-size: 0.56rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    user-select: none;
+  }
+  .theme-switcher-select {
+    background: transparent;
+    color: var(--ink-dim);
+    border: none;
+    outline: none;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .theme-switcher-select option {
+    background: var(--bg-panel);
+    color: var(--ink);
+    text-transform: uppercase;
+  }
+
   /* ---------- Tweaks mount (panel paints itself; this is just the React root) ---------- */
   #tweaks-root { position: relative; z-index: 9500; }
 

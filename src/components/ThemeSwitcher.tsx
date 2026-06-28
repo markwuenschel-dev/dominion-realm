@@ -21,13 +21,14 @@ function applyTheme(theme: SiteTheme) {
 
 export function ThemeSwitcher() {
   const [theme, setTheme] = useState<SiteTheme>('dark');
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY) as SiteTheme | null;
-    if (stored && THEMES.some((t) => t.key === stored)) {
-      setTheme(stored);
-      applyTheme(stored);
-    }
+    const initial = stored && THEMES.some((t) => t.key === stored) ? stored : 'dark';
+    setTheme(initial);
+    applyTheme(initial);
+    setMounted(true);
   }, []);
 
   function select(next: SiteTheme) {
@@ -36,23 +37,23 @@ export function ThemeSwitcher() {
     applyTheme(next);
   }
 
+  if (!mounted) return null;
+
   return (
-    <div className="flex items-center gap-0.5" aria-label="Site theme">
-      {THEMES.map((t) => (
-        <button
-          key={t.key}
-          onClick={() => select(t.key)}
-          aria-pressed={theme === t.key}
-          className={[
-            'rounded px-2 py-1 text-[10px] uppercase tracking-widest transition-colors',
-            theme === t.key
-              ? 'bg-accent text-foreground'
-              : 'text-muted-foreground hover:text-foreground',
-          ].join(' ')}
-        >
-          {t.label}
-        </button>
-      ))}
+    <div className="theme-switcher-wrap">
+      <span className="theme-switcher-label">Theme</span>
+      <select
+        value={theme}
+        onChange={(e) => select(e.target.value as SiteTheme)}
+        className="theme-switcher-select"
+        aria-label="Site theme"
+      >
+        {THEMES.map((t) => (
+          <option key={t.key} value={t.key}>
+            {t.label}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }
