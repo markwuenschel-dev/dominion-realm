@@ -60,23 +60,26 @@
    ===================================================================== */
 
 /* Parchment — warm manuscript light mode
-   Palette (Mark's spec): text #513F42 · bg #F8F6E8 · hover #CDB7A9
-                          accent #9b8678 · button/CTA #2A3D54           */
+   Core (Mark's spec): text #513F42 · bg #F8F6E8 · hover #CDB7A9
+                       accent #9b8678 · button/CTA #2A3D54
+   Derived:            ink-dim #6B5558 · ink-faint #9E8C8F
+                       bg-raise #F2EDD6 · bg-panel #EAE4CC
+                       line rgba(81,63,66,0.18)                          */
 :root[data-theme="parchment"] {
   --bg:         #F8F6E8;
-  --bg-raise:   #EDE9D5;
-  --bg-panel:   #E8E2CE;
+  --bg-raise:   #F2EDD6;
+  --bg-panel:   #EAE4CC;
 
   --ink:        #513F42;
-  --ink-dim:    #7A6A5C;
-  --ink-faint:  #9b8678;
+  --ink-dim:    #6B5558;
+  --ink-faint:  #9E8C8F;
 
   --gold:       #9b8678;
   --gold-bright: #CDB7A9;
   --btn-ink:    #F8F6E8;
 
-  --line:       rgba(155, 134, 120, 0.28);
-  --line-soft:  rgba(81, 63, 64, 0.09);
+  --line:       rgba(81, 63, 66, 0.18);
+  --line-soft:  rgba(81, 63, 66, 0.09);
 
   --grain-op:   0.025;
   --glow-op:    0;
