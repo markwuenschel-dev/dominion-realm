@@ -1,6 +1,4 @@
-@import "./tokens.css";
-
-  /* Shared design tokens live in tokens.css; only the /eyes-specific one here. */
+  /* Shared design tokens arrive via global.css (tokens → contract → themes). */
   :root {
     /* current stage hue, driven by JS */
     --stage-hue: #4fd6e0;

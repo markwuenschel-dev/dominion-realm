@@ -37,7 +37,7 @@
 }
 
 .edge {
-  stroke: rgba(200, 168, 106, 0.16);
+  stroke: var(--line-soft);
   stroke-width: 1.4;
   transition:
     stroke 0.4s var(--ease),

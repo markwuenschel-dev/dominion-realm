@@ -43,37 +43,37 @@
   transition: color 0.35s var(--ease);
 }
 .iface-top__nav a:hover {
-  color: #4fd6e0;
+  color: var(--spectral-ui);
 }
 
 .iface-provisional {
   margin-bottom: 26px;
   padding: 12px 18px;
-  border: 1px solid rgba(79, 214, 224, 0.3);
+  border: 1px solid rgba(var(--theme-line-rgb), 0.30);
   border-radius: var(--radius-md);
-  background: rgba(79, 214, 224, 0.05);
+  background: rgba(var(--theme-line-rgb), 0.05);
   font-family: var(--mono);
   font-size: 0.62rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #8fdfe6;
+  color: var(--spectral-ui-dim);
 }
 
 /* ---- The sheet (HUD) ---- */
 .sheet {
   position: relative;
-  border: 1px solid rgba(79, 214, 224, 0.22);
+  border: 1px solid rgba(var(--theme-line-rgb), 0.22);
   border-radius: var(--radius-lg);
   padding: clamp(26px, 5vw, 48px);
   background:
-    radial-gradient(120% 90% at 50% 0%, rgba(79, 214, 224, 0.07), transparent 60%),
+    radial-gradient(120% 90% at 50% 0%, rgba(var(--theme-line-rgb), 0.07), transparent 60%),
     var(--bg-panel);
   overflow: hidden;
 }
 .sheet-frame {
   position: absolute;
   inset: 10px;
-  border: 1px solid rgba(79, 214, 224, 0.1);
+  border: 1px solid rgba(var(--theme-line-rgb), 0.10);
   border-radius: var(--radius-md);
   pointer-events: none;
 }
@@ -90,7 +90,7 @@
   font-size: 0.6rem;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: #4fd6e0;
+  color: var(--spectral-ui);
   display: block;
   margin-bottom: 12px;
 }
@@ -116,7 +116,7 @@
 .sheet-level {
   text-align: center;
   flex-shrink: 0;
-  border: 1px solid rgba(79, 214, 224, 0.25);
+  border: 1px solid rgba(var(--theme-line-rgb), 0.25);
   border-radius: var(--radius-md);
   padding: 10px 18px;
 }
@@ -131,7 +131,7 @@
 .sheet-level__num {
   font-family: var(--serif-display);
   font-size: 2.2rem;
-  color: #4fd6e0;
+  color: var(--spectral-ui);
   line-height: 1.1;
 }
 
@@ -143,7 +143,7 @@
   font-family: var(--mono);
   font-size: 0.66rem;
   letter-spacing: 0.12em;
-  color: #8fdfe6;
+  color: var(--spectral-ui-dim);
 }
 
 /* ---- Tabs ---- */
@@ -174,9 +174,9 @@
   border-color: var(--line);
 }
 .sheet-tab.is-active {
-  color: #061015;
-  background: #4fd6e0;
-  border-color: #4fd6e0;
+  color: var(--bg);
+  background: var(--spectral-ui);
+  border-color: var(--spectral-ui);
 }
 
 /* ---- Panels: all visible without JS; JS narrows to the active one. ---- */
@@ -211,7 +211,7 @@
 }
 .stat-val {
   font-family: var(--serif-display);
-  color: #4fd6e0;
+  color: var(--spectral-ui);
   font-size: 1.1rem;
 }
 .stat-val span {
@@ -221,7 +221,7 @@
 .stat-bar {
   height: 6px;
   border-radius: 999px;
-  background: rgba(236, 231, 218, 0.08);
+  background: var(--line-soft);
   overflow: hidden;
 }
 .stat-bar__fill {
@@ -229,8 +229,8 @@
   height: 100%;
   width: var(--pct);
   border-radius: 999px;
-  background: linear-gradient(90deg, #4fd6e0, #5b8def);
-  box-shadow: 0 0 12px -2px #4fd6e0;
+  background: linear-gradient(90deg, var(--spectral-ui), hsl(var(--theme-primary-hsl)));
+  box-shadow: 0 0 12px -2px var(--spectral-ui);
 }
 .sheet.armed .stat-bar__fill {
   width: 0;
@@ -260,7 +260,7 @@
   padding: 18px 20px;
   border: 1px solid var(--line-soft);
   border-radius: var(--radius-md);
-  background: rgba(8, 9, 16, 0.4);
+  background: var(--scrim-soft);
 }
 .skill-head {
   display: flex;
@@ -279,7 +279,7 @@
   font-size: 0.56rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #4fd6e0;
+  color: var(--spectral-ui);
   white-space: nowrap;
 }
 .skill-desc {
@@ -301,7 +301,7 @@
   padding: 16px 18px;
   border: 1px solid var(--line-soft);
   border-radius: var(--radius-md);
-  background: rgba(8, 9, 16, 0.4);
+  background: var(--scrim-soft);
 }
 .inv-kind {
   font-family: var(--mono);
@@ -336,7 +336,7 @@
   transition: color 0.35s var(--ease);
 }
 .iface-back:hover {
-  color: #4fd6e0;
+  color: var(--spectral-ui);
 }
 
 @media (prefers-reduced-motion: reduce) {
