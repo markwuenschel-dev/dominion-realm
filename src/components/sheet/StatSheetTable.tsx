@@ -46,7 +46,7 @@ function TD({
   return (
     <td
       colSpan={colSpan}
-      className={cn('border border-amber-900/25 px-3 py-2.5 align-top', className)}
+      className={cn('border border-border-rim/25 px-3 py-2.5 align-top', className)}
     >
       {children}
     </td>
@@ -66,7 +66,7 @@ function SectionHeaderRow({ title, scaffolded = false }: { title: string; scaffo
     <tr>
       <td
         colSpan={3}
-        className="border border-amber-900/25 bg-amber-950/20 px-4 py-1.5 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-primary"
+        className="border border-border-rim/25 bg-panel/20 px-4 py-1.5 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-primary"
       >
         {title}
         {scaffolded && (
@@ -153,8 +153,8 @@ function ResourceStatDiv({
     <div
       className={cn(
         'bg-panel/50 px-3 py-4',
-        borderRight && 'border-r border-amber-900/25',
-        mobileBorderBottom && 'border-b border-amber-900/25 sm:border-b-0',
+        borderRight && 'border-r border-border-rim/25',
+        mobileBorderBottom && 'border-b border-border-rim/25 sm:border-b-0',
       )}
     >
       <FieldLabel>{label}</FieldLabel>
@@ -272,11 +272,11 @@ export function StatSheetTable() {
   const footerBtnBase = 'rounded border px-3 py-1.5 text-[11px] font-medium transition-all';
 
   return (
-    <div className="overflow-hidden rounded-lg border border-amber-900/40">
+    <div className="overflow-hidden rounded-lg border border-border-rim/40">
       <table className="w-full border-collapse text-sm">
         <tbody>
           {/* ── IDENTITY ── */}
-          <tr className="bg-amber-950/40">
+          <tr className="bg-panel/40">
             <TD className="border-t-0 border-l-0">
               <FieldLabel>Name</FieldLabel>
               <input
@@ -443,7 +443,7 @@ export function StatSheetTable() {
           <SectionHeaderRow title="Stats" />
           <tr>
             {/* All 4 resources in one responsive row: 2-col on mobile, 4-col on sm+ */}
-            <td colSpan={3} className="border border-amber-900/25 p-0">
+            <td colSpan={3} className="border border-border-rim/25 p-0">
               <div className="grid grid-cols-2 sm:grid-cols-4">
                 <ResourceStatDiv
                   label="Health"
@@ -558,8 +558,8 @@ export function StatSheetTable() {
 
           {/* ── SKILLS / MARKS / ABILITIES [SCAFFOLD] ── */}
           <tr>
-            <td colSpan={3} className="border border-amber-900/25 p-0">
-              <div className="grid grid-cols-3 divide-x divide-amber-900/25">
+            <td colSpan={3} className="border border-border-rim/25 p-0">
+              <div className="grid grid-cols-3 divide-x divide-border-rim/25">
                 {(['Skills', 'Marks', 'Abilities'] as const).map((label) => (
                   <div
                     key={label}
@@ -582,13 +582,13 @@ export function StatSheetTable() {
 
           {/* ── FOOTER ── */}
           <tr>
-            <td colSpan={3} className="border-t border-amber-900/20 px-4 py-3">
+            <td colSpan={3} className="border-t border-border-rim/20 px-4 py-3">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 {/* Cast profile loader */}
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] text-muted-foreground/50">Cast profile:</span>
                   <Select value={selectedProfileId} onValueChange={setSelectedProfileId}>
-                    <SelectTrigger className="h-7 w-40 border-amber-900/30 bg-amber-950/20 text-xs text-primary/70 focus:ring-0">
+                    <SelectTrigger className="h-7 w-40 border-border-rim/30 bg-panel/20 text-xs text-primary/70 focus:ring-0">
                       <SelectValue placeholder="Select character…" />
                     </SelectTrigger>
                     <SelectContent>
@@ -607,8 +607,8 @@ export function StatSheetTable() {
                     disabled={!selectedProfileId}
                     className={cn(
                       footerBtnBase,
-                      'border-amber-800/40 bg-amber-950/30 text-primary/70',
-                      'hover:border-primary/60 hover:bg-amber-950/50 hover:text-primary',
+                      'border-border-rim/40 bg-panel/30 text-primary/70',
+                      'hover:border-primary/60 hover:bg-panel/50 hover:text-primary',
                       'disabled:cursor-not-allowed disabled:opacity-30',
                     )}
                   >
@@ -650,8 +650,8 @@ export function StatSheetTable() {
                     onClick={reset}
                     className={cn(
                       footerBtnBase,
-                      'border-amber-900/40 bg-amber-950/30 text-primary/70',
-                      'hover:border-primary/60 hover:bg-amber-950/50 hover:text-primary',
+                      'border-border-rim/40 bg-panel/30 text-primary/70',
+                      'hover:border-primary/60 hover:bg-panel/50 hover:text-primary',
                     )}
                   >
                     ↺ Reset to Level 1
