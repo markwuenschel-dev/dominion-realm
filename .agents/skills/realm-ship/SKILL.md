@@ -1,19 +1,19 @@
 ---
 name: realm-ship
-description: Ship Dominion Realm changes end to end through branch hygiene, scoped commits, Astro build/check verification, token-over-HTTPS push, detailed GitHub PR creation, merge, branch deletion, and stale-branch cleanup. Use when the user asks to ship, publish, PR, merge, yeet, or run the full lifecycle for the current Dominion Realm working tree.
+description: Realm-ship Dominion Realm — Astro verify, token-safe push, PR, merge when green, scoped cleanup. Use when the user says ship, publish, PR, merge, yeet, or /realm-ship for this repo.
 ---
 
-# Realm Ship
+# realm-ship
 
-Run the full GitHub ship flow for the Dominion Realm Astro static site at
-`/mnt/c/Users/Nalakram/Documents/GitHub/dominion-realm`
-(Windows path: `C:\Users\Nalakram\Documents\GitHub\dominion-realm`).
+Dominion Realm Astro static site at `C:\Users\Nalakram\Documents\GitHub\dominion-realm`.
 
-Default merge method is `merge` for a real merge commit. If the user explicitly says `squash` or `rebase`, use that merge method instead.
+Default merge method is `merge`. If the user explicitly says `squash` or `rebase`, use that instead.
 
-Commands are PowerShell-first (PowerShell 7+, per the project README). The bash/WSL equivalents follow the same shapes.
+Commands are PowerShell-first (PowerShell 7+, per the project README). Bash/WSL equivalents follow the same shapes.
 
-## Hard Stops
+---
+
+## Guardrails (read first — these override "just do it")
 
 Stop and report before pushing or merging when:
 - Verification is red or incomplete (`npm run build` fails, `astro check` errors, or content-collection schema validation fails).
@@ -24,7 +24,14 @@ Stop and report before pushing or merging when:
 
 Do not ask before ordinary PowerShell or bash commands. Do ask only for destructive operations outside this workflow or when tool policy requires escalation.
 
-## Survey
+- **Green gate:** never merge or clean up until verification and required checks (`deploy.yml` / Pages build) are **green**. If CI is red, fix the cause, push, and re-watch until **green** before merging.
+- **Scoped** cleanup only — merged branches you own. When unsure, list and ask — don't delete.
+
+---
+
+## Phase 0 — Survey
+
+**Done when:** diff read, remote state checked via REST (local remote-tracking refs may be stale).
 
 Run:
 - `git status --short`
@@ -38,9 +45,9 @@ Read the diff before committing. Use explicit path scopes and protect user work:
 - `package-lock.json` IS tracked — commit lockfile changes whenever dependencies change.
 - Keep unrelated existing modifications out of the commit.
 
-Check real remote state through GitHub REST, because local remote-tracking refs may be stale.
+## Phase 1 — Branch
 
-## Branch
+**Done when:** on a feature branch, not `main`.
 
 Never commit to `main`.
 
@@ -52,7 +59,9 @@ If on `main`, create a branch:
 
 If already on a feature branch, stay on it.
 
-## Verify
+## Phase 2 — Verify
+
+**Done when:** build/check oracle is **green** (or doc-only change with reason stated for PR).
 
 This is a static Astro site; the build IS the gate. For any code, content, or asset change:
 
@@ -79,7 +88,9 @@ Notes:
 - Doc/config-only changes with no build impact (e.g. files under `docs/`, README) do not require a build; state why in the PR body.
 - Optional smoke: `npm run preview` and spot-check the affected route.
 
-## Commit
+## Phase 3 — Commit
+
+**Done when:** commit exists with Co-Authored-By trailer.
 
 Stage only intended paths with explicit `git add <paths>`.
 
@@ -98,7 +109,9 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
 
 If a different acting agent/model is running this skill, use that agent/model in the trailer.
 
-## Token-Safe Network Ops
+## Phase 4 — Token-safe push
+
+**Done when:** branch is on origin (verified via REST or `git ls-remote`).
 
 Remote: `https://github.com/markwuenschel-dev/dominion-realm.git`
 
@@ -134,7 +147,9 @@ Bash/WSL equivalent: load via `grep` on `.env`, base64 with `printf ... | base64
 
 `gh` CLI (`gh pr create`, `gh pr merge`) is an acceptable substitute only if it is already authenticated; otherwise use the token-over-HTTPS + REST path above.
 
-## PR
+## Phase 5 — PR
+
+**Done when:** PR exists and branch ref verified on remote.
 
 Open the PR with REST:
 - `POST https://api.github.com/repos/markwuenschel-dev/dominion-realm/pulls`
@@ -156,32 +171,37 @@ If a different acting agent/model is running this skill, use that agent/model in
 
 After creating the PR, verify the branch ref exists via REST or `git ls-remote` using the token-safe auth path.
 
-## Merge And Cleanup
+## Phase 6 — Green gate, then merge
 
-Only merge when verification is green and required checks (the `deploy.yml` workflow) have passed.
+**Done when:** PR merged AND `deploy.yml` / Pages deploy workflow is **green**.
+
+Do not start Phase 7 until Phase 6 is done.
+
+CI policy: see **Green gate** in Guardrails.
 
 Merge via REST:
 - `PUT https://api.github.com/repos/markwuenschel-dev/dominion-realm/pulls/<number>/merge`
 - Payload includes `merge_method`: `merge`, `squash`, or `rebase`.
 
-Delete the remote branch:
-- `DELETE https://api.github.com/repos/markwuenschel-dev/dominion-realm/git/refs/heads/<branch>`
+Only merge when verification is **green** and required checks have passed. If red, fix in scope, push, re-watch until **green** (same loop as **babysit**).
 
-Update local main:
-- `git switch main`
-- fetch/fast-forward from origin using token-over-HTTPS, not SSH
-- delete the local feature branch with `git branch -d <branch>`
+## Phase 7 — Scoped cleanup
 
-Sweep stale branches after every merge:
-- List branches merged into `main`.
-- Delete merged local branches with `git branch -d`.
-- For remote branches, use REST and delete only branches you own; never delete `main` or `HEAD`.
+**Done when:** cleanup report lists every removal or skip-with-reason.
 
-## Deploy
+**Precondition:** Phase 6 merge complete AND deploy workflow **green**.
 
-Merging to `main` triggers deployment automatically (GitHub Pages + Netlify, via `deploy.yml`; the build picks the right base path per environment). After merge, note where to confirm the live deploy (the Actions run / Pages URL) — do not assume success until the deploy workflow is green.
+Run the steps in [`CLEANUP.md`](CLEANUP.md) and report what was removed.
 
-## Final Report
+## Phase 8 — Deploy confirmation
+
+**Done when:** deploy workflow status noted (Actions run / Pages URL).
+
+Merging to `main` triggers deployment automatically (GitHub Pages + Netlify, via `deploy.yml`; the build picks the right base path per environment). After merge, note where to confirm the live deploy — do not assume success until the deploy workflow is **green**.
+
+## Phase 9 — Report
+
+**Done when:** user sees PR URL, merge SHA, verification results, deploy status, and cleanup list.
 
 Report:
 - PR number and URL
