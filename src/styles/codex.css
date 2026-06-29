@@ -217,7 +217,7 @@
   transform-origin: left;
   transition: transform 0.6s var(--ease);
 }
-.codex-card:hover { transform: translateY(-6px); border-color: var(--line); background: #13151f; }
+.codex-card:hover { transform: translateY(-6px); border-color: var(--line); background: var(--bg-raise); }
 .codex-card:hover::before { transform: scaleX(1); }
 /* Full-bleed banner crop at the top of the card; the negative margins pull it
    out past the card padding to the rounded edges (clipped by overflow:hidden). */

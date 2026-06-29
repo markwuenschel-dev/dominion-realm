@@ -1,4 +1,6 @@
 @import "./tokens.css";
+@import "./theme-contract.css";
+@import "./themes.css";
 
   /* Shared design tokens live in tokens.css; only homepage-specific ones here. */
   :root {
@@ -427,7 +429,7 @@
   .char-card:hover {
     transform: translateY(-8px);
     border-color: var(--line);
-    background: #13151f;
+    background: var(--bg-raise);
   }
   .char-card:hover::before { transform: scaleX(1); }
   .char-portrait {
@@ -435,7 +437,7 @@
     aspect-ratio: 3 / 4;
     border-radius: 3px;
     margin-bottom: 24px;
-    background-color: #0a0b13;
+    background-color: var(--bg);
     background-image: repeating-linear-gradient(135deg, rgba(236,231,218,0.04) 0 2px, transparent 2px 9px);
     border: 1px solid var(--line-soft);
     display: flex;

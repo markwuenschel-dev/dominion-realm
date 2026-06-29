@@ -61,7 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('dr-theme');if(t&&t!=='dark')document.documentElement.dataset.theme=t}catch(e){}})()`,
+            __html: `(function(){try{var t=localStorage.getItem('dr-theme');if(t&&t!=='dark'){document.documentElement.dataset.theme=t;document.documentElement.dataset.themeMode='light'}else{document.documentElement.dataset.themeMode='dark'}}catch(e){}})()`,
           }}
         />
       </head>

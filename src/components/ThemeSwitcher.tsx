@@ -15,8 +15,10 @@ const STORAGE_KEY = 'dr-theme';
 function applyTheme(theme: SiteTheme) {
   if (theme === 'dark') {
     delete document.documentElement.dataset.theme;
+    document.documentElement.dataset.themeMode = 'dark';
   } else {
     document.documentElement.dataset.theme = theme;
+    document.documentElement.dataset.themeMode = 'light';
   }
 }
 

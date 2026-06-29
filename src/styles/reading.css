@@ -160,7 +160,7 @@
 .reading-item:hover {
   transform: translateY(-4px);
   border-color: var(--line);
-  background: #13151f;
+  background: var(--bg-raise);
 }
 .reading-item:hover::before {
   transform: scaleY(1);

@@ -1,112 +1,101 @@
 /* =====================================================================
-   Design tokens — the single source of truth for the Dominion Realm's
-   visual identity (ADR-0007: evolve & systematize, don't reinvent).
-
-   Imported by both global.css (homepage + Base-layout pages) and eyes.css
-   (the standalone /eyes page). Page-specific tokens (e.g. --sidebar-w,
-   --stage-hue) stay in those files.
+   tokens.css — Design system baseline
+   
+   Grimoire (dark) is defined here as :root via --theme-* variables.
+   theme-contract.css reads these and maps them to all component tokens.
+   Named themes live in themes.css and override only --theme-* vars.
+   
+   IMPORT ORDER (must be preserved):
+     1. tokens.css          ← Grimoire defaults
+     2. theme-contract.css  ← maps --theme-* → all tokens
+     3. themes.css          ← named theme overrides
+     4. everything else
    ===================================================================== */
+
 :root {
+
+  /* ================================================================
+     GRIMOIRE — volcanic manuscript dark mode (the default)
+     All colors expressed as bare HSL tuples so theme-contract.css
+     can produce both hsl()-wrapped and bare-tuple shadcn forms
+     from the same source without duplication.
+     ================================================================ */
+
   /* ---- Surfaces ---- */
-  --bg: #080910;
-  --bg-raise: #0d0f1a;
-  --bg-panel: #11131f;
+  --theme-bg-hsl:              233 33% 5%;     /* #080910 */
+  --theme-bg-raise-hsl:        231 34% 8%;     /* #0d0f1a */
+  --theme-bg-panel-hsl:        231 29% 9%;     /* #11131f */
 
-  /* ---- Ink (text) ---- */
-  --ink: #ece7da;
-  --ink-dim: #a8a496;
-  --ink-faint: #6d6a60;
+  /* ---- Ink (text hierarchy) ---- */
+  --theme-text-hsl:            43 32% 89%;     /* #ece7da */
+  --theme-ink-dim-hsl:         47 9%  62%;     /* #a8a496 */
+  --theme-ink-faint-hsl:       47 6%  40%;     /* #6d6a60 */
 
-  /* ---- Gold (primary accent) ---- */
-  --gold: #c8a86a;
-  --gold-bright: #e3c486;
-  --btn-ink: #15110a;
+  /* ---- Accent (gold on dark) ---- */
+  --theme-accent-hsl:          40 46% 60%;     /* #c8a86a */
+  --theme-accent-bright-hsl:   40 63% 71%;     /* #e3c486 */
 
-  /* ---- Lines / hairlines ---- */
-  --line: rgba(200, 168, 106, 0.18);
-  --line-soft: rgba(236, 231, 218, 0.08);
+  /* ---- CTA / Primary button ---- */
+  --theme-primary-hsl:         38 65% 51%;     /* gold CTA on dark */
+  --theme-primary-fg-hsl:      39 35% 6%;      /* dark ink on gold — #15110a */
 
-  /* ---- Spectral gradient (the six-Eyes signature) ---- */
-  --spectral: linear-gradient(90deg, #4fd6e0 0%, #5b8def 26%, #9b6cf0 52%, #ef6f9e 76%, #e0a850 100%);
-  --spectral-v: linear-gradient(180deg, #4fd6e0 0%, #5b8def 26%, #9b6cf0 52%, #ef6f9e 76%, #e0a850 100%);
+  /* ---- shadcn supporting tokens ---- */
+  --theme-muted-hsl:           240 5%  12%;
+  --theme-muted-fg-hsl:        240 4%  60%;
+  --theme-border-hsl:          240 5%  14%;
+  --theme-ring-hsl:            38  65% 51%;
+
+  /* ---- Spectral UI accent ----
+     The HUD/interface color (used in interface.css for stat values,
+     active tabs, level numbers). On Grimoire this is the Eye cyan.
+     Light themes set this to their CTA color per the derivation rule. */
+  --theme-spectral-ui-hsl:     184 70% 59%;    /* #4fd6e0 cyan */
+  --theme-spectral-ui-dim-hsl: 185 63% 73%;    /* #8fdfe6 */
+
+  /* ---- Line / border construction ----
+     RGB tuple of the color used to tint borders.
+     Dark themes: use accent/gold RGB.
+     Light themes: use text color RGB. */
+  --theme-line-rgb:            200, 168, 106;  /* gold on dark */
+  --theme-line-op:             0.18;
+  --theme-line-soft-op:        0.08;
+
+  /* ---- Scrim (rgba overlay) construction ----
+     Dark themes:  darkest bg color, op 0.60-0.70
+     Light themes: bg color, op 0.80-0.90              */
+  --theme-scrim-rgb:           8, 9, 16;
+  --theme-scrim-op:            0.65;
 
   /* ---- Atmosphere ---- */
-  --grain-op: 0.05;
-  --glow-op: 1;
+  --theme-glow-op:             1;
+  --theme-grain-op:            0.05;
 
-  /* ---- Typography (families resolve via Astro's generated font vars) ---- */
+
+  /* ================================================================
+     NON-THEME TOKENS — constant across all themes, never overridden
+     ================================================================ */
+
+  /* Spectral gradient (six-Eyes signature) */
+  --spectral:   linear-gradient(90deg,  #4fd6e0 0%, #5b8def 26%, #9b6cf0 52%, #ef6f9e 76%, #e0a850 100%);
+  --spectral-v: linear-gradient(180deg, #4fd6e0 0%, #5b8def 26%, #9b6cf0 52%, #ef6f9e 76%, #e0a850 100%);
+
+  /* Typography (families resolve via Astro's generated font vars) */
   --serif-display: var(--font-display), Georgia, serif;
-  --serif-body: var(--font-body), Georgia, serif;
-  --mono: var(--font-mono), ui-monospace, monospace;
+  --serif-body:    var(--font-body),    Georgia, serif;
+  --mono:          var(--font-mono),    ui-monospace, monospace;
 
-  /* ---- Motion ---- */
+  /* Motion */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* ---- Radii (named from existing usage) ---- */
+  /* Radii */
   --radius-sm: 2px;
   --radius-md: 3px;
   --radius-lg: 4px;
 
-  /* ---- Z-index layers (named for the stacking already in play) ---- */
-  --z-content: 100;
-  --z-nav: 200;
+  /* Z-index layers */
+  --z-content:  100;
+  --z-nav:      200;
   --z-vignette: 8000;
-  --z-grain: 9000;
-  --z-consent: 9700;
-}
-
-/* =====================================================================
-   Named themes — override :root tokens per data-theme on <html>.
-   ===================================================================== */
-
-/* Parchment — warm manuscript light mode
-   Core (Mark's spec): text #513F42 · bg #F8F6E8 · hover #CDB7A9
-                       accent #9b8678 · button/CTA #2A3D54
-   Derived:            ink-dim #6B5558 · ink-faint #9E8C8F
-                       bg-raise #F2EDD6 · bg-panel #EAE4CC
-                       line rgba(81,63,66,0.18)                          */
-:root[data-theme="parchment"] {
-  --bg:         #F8F6E8;
-  --bg-raise:   #F2EDD6;
-  --bg-panel:   #EAE4CC;
-
-  --ink:        #513F42;
-  --ink-dim:    #6B5558;
-  --ink-faint:  #9E8C8F;
-
-  --gold:       #9b8678;
-  --gold-bright: #CDB7A9;
-  --btn-ink:    #F8F6E8;
-
-  --line:       rgba(81, 63, 66, 0.18);
-  --line-soft:  rgba(81, 63, 66, 0.09);
-
-  --grain-op:   0.025;
-  --glow-op:    0;
-}
-
-/* Slate — cool periwinkle-navy light mode
-   Core (Mark's spec): text #284D89 · bg #D9DEEB · hover #8C8DCB
-                       accent #DB8640 · button/CTA #6689CD
-   Derived:            ink-dim #3D5E8F · ink-faint #7A8BAD
-                       bg-raise #CDD4E4 · bg-panel #C3CCDE
-                       line rgba(40,77,137,0.16)                         */
-:root[data-theme="slate"] {
-  --bg:         #D9DEEB;
-  --bg-raise:   #CDD4E4;
-  --bg-panel:   #C3CCDE;
-
-  --ink:        #284D89;
-  --ink-dim:    #3D5E8F;
-  --ink-faint:  #7A8BAD;
-
-  --gold:       #DB8640;
-  --gold-bright: #8C8DCB;
-  --btn-ink:    #D9DEEB;
-
-  --line:       rgba(40, 77, 137, 0.16);
-  --line-soft:  rgba(40, 77, 137, 0.08);
-
-  --grain-op:   0.025;
-  --glow-op:    0;
+  --z-grain:    9000;
+  --z-consent:  9700;
 }
