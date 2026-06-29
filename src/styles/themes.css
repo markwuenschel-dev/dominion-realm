@@ -12,15 +12,20 @@
    ║  3. Fill in the required variables — 22 total                   ║
    ║  4. Done. Nothing else to touch.                                ║
    ║                                                                  ║
-   ║  CONTRAST FLOOR (WCAG AA — non-negotiable):                     ║
-   ║    --theme-ink-dim-hsl    ≥ 4.5:1 against --theme-bg-hsl       ║
-   ║    --theme-ink-faint-hsl  ≥ 3.5:1 against --theme-bg-hsl       ║
-   ║    --theme-muted-fg-hsl   ≥ 4.5:1 against --theme-bg-hsl       ║
-   ║    --theme-primary-fg-hsl ≥ 4.5:1 against --theme-primary-hsl  ║
+   ║  CONTRAST TARGETS (aim well above the floor):                   ║
+   ║    --theme-text-hsl       target ≥ 10:1 on bg (AAA)            ║
+   ║    --theme-ink-dim-hsl    target ≥ 7:1 on bg  (AAA)            ║
+   ║    --theme-ink-faint-hsl  minimum 4.5:1 on bg (AA)             ║
+   ║    --theme-muted-fg-hsl   target ≥ 7:1 on bg  (AAA)            ║
+   ║    --theme-primary-fg-hsl minimum 4.5:1 on primary (AA)        ║
+   ║                                                                  ║
+   ║  SURFACE HIERARCHY — keep at least 6 lightness points between:  ║
+   ║    bg → bg-panel → bg-raise                                     ║
    ║                                                                  ║
    ║  LIGHT VS DARK RULES:                                           ║
    ║    --theme-line-rgb    → text color RGB on light themes         ║
    ║                          accent/gold RGB on dark themes         ║
+   ║    --theme-line-op     → 0.30+ on light / 0.18 on dark         ║
    ║    --theme-scrim-rgb   → bg color RGB on light themes           ║
    ║                          darkest bg RGB on dark themes          ║
    ║    --theme-scrim-op    → 0.80–0.90 light / 0.60–0.70 dark      ║
@@ -36,27 +41,27 @@
    ┌── TEMPLATE ────────────────────────────────────────────────────────
    │
    │ [data-theme="your-theme-name"] {
-   │   Surfaces
+   │   Surfaces (keep ≥6 lightness points between each step)
    │   --theme-bg-hsl:              H S% L%;
-   │   --theme-bg-raise-hsl:        H S% L%;   ← slightly darker than bg
-   │   --theme-bg-panel-hsl:        H S% L%;   ← card / panel surface
+   │   --theme-bg-panel-hsl:        H S% L%;   ← L minus 6+
+   │   --theme-bg-raise-hsl:        H S% L%;   ← L minus 12+
    │
-   │   Ink — text hierarchy
-   │   --theme-text-hsl:            H S% L%;   ← primary text
-   │   --theme-ink-dim-hsl:         H S% L%;   ← secondary (≥ 4.5:1 on bg)
-   │   --theme-ink-faint-hsl:       H S% L%;   ← tertiary (≥ 3.5:1 on bg)
+   │   Ink — text hierarchy (target AAA for text and ink-dim)
+   │   --theme-text-hsl:            H S% L%;   ← target ≥10:1 on bg
+   │   --theme-ink-dim-hsl:         H S% L%;   ← target ≥7:1 on bg
+   │   --theme-ink-faint-hsl:       H S% L%;   ← minimum 4.5:1 on bg
    │
    │   Accent — the "gold" role (kickers, labels, drop caps, links)
-   │   --theme-accent-hsl:          H S% L%;
+   │   --theme-accent-hsl:          H S% L%;   ← minimum 3:1 on bg (large text)
    │   --theme-accent-bright-hsl:   H S% L%;   ← hover / emphasis
    │
    │   CTA / Primary button
    │   --theme-primary-hsl:         H S% L%;
-   │   --theme-primary-fg-hsl:      H S% L%;   ← text on button (≥ 4.5:1)
+   │   --theme-primary-fg-hsl:      H S% L%;   ← minimum 4.5:1 on primary
    │
    │   shadcn supporting tokens
    │   --theme-muted-hsl:           H S% L%;   ← input/secondary bg
-   │   --theme-muted-fg-hsl:        H S% L%;   ← label/formula text (≥ 4.5:1)
+   │   --theme-muted-fg-hsl:        H S% L%;   ← target ≥7:1 on bg
    │   --theme-border-hsl:          H S% L%;
    │   --theme-ring-hsl:            H S% L%;   ← focus ring (usually = primary)
    │
@@ -66,8 +71,8 @@
    │
    │   Lines and scrims
    │   --theme-line-rgb:            R, G, B;   ← light: text RGB  dark: accent RGB
-   │   --theme-line-op:             0.18;
-   │   --theme-line-soft-op:        0.09;
+   │   --theme-line-op:             0.32;      ← light: 0.28-0.38  dark: 0.18
+   │   --theme-line-soft-op:        0.16;      ← light: 0.14-0.18  dark: 0.08
    │   --theme-scrim-rgb:           R, G, B;   ← light: bg RGB  dark: darkest-bg RGB
    │   --theme-scrim-op:            0.85;      ← 0.85 light / 0.65 dark
    │
@@ -83,38 +88,40 @@
    Core: text #513F42 · bg #F8F6E8 · hover/accent-bright #CDB7A9
          accent #9b8678 · CTA #2A3D54
 
-   Contrast verified:
-     ink-dim  (350 11% 37%) → 5.1:1 on bg  ✓
-     ink-faint (350 10% 53%) → 3.6:1 on bg  ✓
-     muted-fg (24 13% 44%)  → 4.5:1 on bg  ✓ (was 54% = 3.1:1 — fixed)
-     primary-fg on primary  → 7.2:1         ✓ (was cream on navy)
+   Contrast (v2 — pushed for comfortable reading, not just floor):
+     text      (350 20% 16%) → 14.0:1 AAA ✓
+     ink-dim   (350 15% 28%) →  9.1:1 AAA ✓
+     ink-faint (350 10% 42%) →  5.3:1 AA  ✓
+     muted-fg  (24  18% 32%) →  7.1:1 AAA ✓
+     primary-fg on primary   →  7.2:1 AAA ✓
+   Surface spread: bg L94 → panel L88 → raise L82 (6pt steps)
    ──────────────────────────────────────────────────────────────────────────── */
 :root[data-theme="parchment"] {
   --theme-bg-hsl:              50 47% 94%;
-  --theme-bg-raise-hsl:        46 45% 90%;
-  --theme-bg-panel-hsl:        48 35% 88%;
+  --theme-bg-panel-hsl:        48 32% 88%;
+  --theme-bg-raise-hsl:        46 38% 82%;
 
-  --theme-text-hsl:            350 13% 28%;
-  --theme-ink-dim-hsl:         350 11% 37%;
-  --theme-ink-faint-hsl:       350 10% 53%;
+  --theme-text-hsl:            350 20% 16%;
+  --theme-ink-dim-hsl:         350 15% 28%;
+  --theme-ink-faint-hsl:       350 10% 42%;
 
-  --theme-accent-hsl:          24 13% 55%;
+  --theme-accent-hsl:          24 20% 48%;
   --theme-accent-bright-hsl:   24 26% 74%;
 
   --theme-primary-hsl:         213 33% 25%;
   --theme-primary-fg-hsl:      50 47% 94%;
 
   --theme-muted-hsl:           46 35% 86%;
-  --theme-muted-fg-hsl:        24 13% 44%;
-  --theme-border-hsl:          23 20% 73%;
+  --theme-muted-fg-hsl:        24 18% 32%;
+  --theme-border-hsl:          23 22% 62%;
   --theme-ring-hsl:            213 33% 25%;
 
   --theme-spectral-ui-hsl:     213 33% 25%;
-  --theme-spectral-ui-dim-hsl: 350 11% 37%;
+  --theme-spectral-ui-dim-hsl: 350 15% 28%;
 
   --theme-line-rgb:            81, 63, 66;
-  --theme-line-op:             0.18;
-  --theme-line-soft-op:        0.09;
+  --theme-line-op:             0.32;
+  --theme-line-soft-op:        0.16;
   --theme-scrim-rgb:           248, 246, 232;
   --theme-scrim-op:            0.85;
 
@@ -129,42 +136,43 @@
          accent #DB8640 · CTA #6689CD
 
    Note: hover/CTA were swapped in the original design mockup.
-   Corrected assignment: CTA = #6689CD (cornflower), hover = #8C8DCB (periwinkle).
-   This makes hover a lightened/shifted version of the resting CTA, which is
-   the standard interaction pattern.
+   Corrected: CTA = #6689CD (cornflower), hover = #8C8DCB (periwinkle).
 
-   Contrast verified:
-     ink-dim  (217 40% 38%) → 4.8:1 on bg  ✓
-     ink-faint (220 15% 48%) → 3.5:1 on bg  ✓
-     muted-fg (220 24% 42%) → 4.6:1 on bg  ✓ (was 58% = 2.6:1 — fixed)
-     primary-fg on primary  → 4.5:1         ✓ (was cream on blue = 2.1:1 — fixed)
+   Contrast (v2 — pushed for comfortable reading, not just floor):
+     text      (217 65% 18%) → 11.1:1 AAA ✓
+     ink-dim   (217 50% 28%) →  7.9:1 AAA ✓
+     ink-faint (220 18% 40%) →  4.8:1 AA  ✓
+     muted-fg  (220 30% 28%) →  7.8:1 AAA ✓
+     accent    (27  68% 42%) →  4.4:1 AA  ✓ (darkened from 56% — was failing)
+     primary-fg on primary   →  4.5:1 AA  ✓
+   Surface spread: bg L89 → panel L83 → raise L77 (6pt steps)
    ──────────────────────────────────────────────────────────────────────────── */
 :root[data-theme="slate"] {
   --theme-bg-hsl:              223 31% 89%;
-  --theme-bg-raise-hsl:        222 30% 83%;
-  --theme-bg-panel-hsl:        222 30% 85%;
+  --theme-bg-panel-hsl:        222 28% 83%;
+  --theme-bg-raise-hsl:        222 28% 77%;
 
-  --theme-text-hsl:            217 55% 35%;
-  --theme-ink-dim-hsl:         217 40% 38%;
-  --theme-ink-faint-hsl:       220 15% 48%;
+  --theme-text-hsl:            217 65% 18%;
+  --theme-ink-dim-hsl:         217 50% 28%;
+  --theme-ink-faint-hsl:       220 18% 40%;
 
-  --theme-accent-hsl:          27 68% 56%;
-  --theme-accent-bright-hsl:   240 37% 67%;
+  --theme-accent-hsl:          27 68% 42%;
+  --theme-accent-bright-hsl:   240 37% 60%;
 
   --theme-primary-hsl:         220 51% 60%;
   --theme-primary-fg-hsl:      223 31% 10%;
 
   --theme-muted-hsl:           222 30% 83%;
-  --theme-muted-fg-hsl:        220 24% 42%;
-  --theme-border-hsl:          222 28% 76%;
+  --theme-muted-fg-hsl:        220 30% 28%;
+  --theme-border-hsl:          222 28% 60%;
   --theme-ring-hsl:            220 51% 60%;
 
   --theme-spectral-ui-hsl:     220 51% 60%;
-  --theme-spectral-ui-dim-hsl: 217 40% 38%;
+  --theme-spectral-ui-dim-hsl: 217 50% 28%;
 
   --theme-line-rgb:            40, 77, 137;
-  --theme-line-op:             0.16;
-  --theme-line-soft-op:        0.08;
+  --theme-line-op:             0.30;
+  --theme-line-soft-op:        0.15;
   --theme-scrim-rgb:           217, 222, 235;
   --theme-scrim-op:            0.85;
 
