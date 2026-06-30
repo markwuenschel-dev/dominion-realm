@@ -8,9 +8,10 @@
    ║  HOW TO ADD A THEME                                              ║
    ║                                                                  ║
    ║  1. Copy the TEMPLATE block below (remove the /* comment wrap) ║
-   ║  2. Set data-theme="yourtheme" on <html>                        ║
-   ║  3. Fill in the required variables — 22 total                   ║
-   ║  4. Done. Nothing else to touch.                                ║
+   ║  2. Fill in the required variables — 22 total                   ║
+   ║  3. Add an entry to src/data/site-themes.ts (switcher menu)      ║
+   ║  4. Light themes with custom CTA chrome → global.css block       ║
+   ║  5. Verify on /, /map, /calculator, /sheet                      ║
    ║                                                                  ║
    ║  CONTRAST TARGETS (aim well above the floor):                   ║
    ║    --theme-text-hsl       target ≥ 10:1 on bg (AAA)            ║
@@ -184,3 +185,64 @@
 /* ─── NEXT THEME GOES HERE ──────────────────────────────────────────────────
    Copy the TEMPLATE from the top of this file.
    ──────────────────────────────────────────────────────────────────────────── */
+
+/* ─── SOLSTICE ───────────────────────────────────────────────────────────────
+   Bold warm light mode — confident, energetic, vivid
+   Core: text #073B79 · bg #FAF8ED · hover #2DA9EF
+         accent #FDE35C · CTA #F682D6
+
+   Design notes:
+   — Yellow (#FDE35C) and pink (#F682D6) are too light to use as text on cream.
+     Yellow is mapped to accent-bright (decorative use: drop caps, hr ornaments,
+     large decorative labels only). The accent text role uses a darkened olive-gold
+     derived from the same hue at L=28%, giving 4.6:1 AA on bg.
+   — Pink CTA works as a button background with deep navy text on it (4.8:1 AA).
+     As a text color on cream it fails, so it is not used for text.
+   — Sky blue hover (#2DA9EF) is 2.4:1 on cream — fails as text. Darkened to
+     L=35% for the accent-bright text role (links, hover states): 5.3:1 AA.
+   — All text hierarchy uses the navy hue family (213°) for cohesion.
+
+   Contrast verified:
+     text      (213 89% 25%) → 10.4:1 AAA ✓
+     ink-dim   (213 70% 33%) →  7.7:1 AAA ✓
+     ink-faint (213 40% 46%) →  4.7:1 AA  ✓
+     muted-fg  (213 60% 32%) →  8.0:1 AAA ✓
+     accent    (50  85% 28%) →  4.6:1 AA  ✓  (olive-gold, text use)
+     primary-fg on pink CTA  →  4.8:1 AA  ✓
+   Surface spread: bg L95 → panel L89 → raise L83 (6pt steps)
+   ──────────────────────────────────────────────────────────────────────────── */
+:root[data-theme="solstice"] {
+  --theme-bg-hsl:              51 57% 95%;
+  --theme-bg-panel-hsl:        50 45% 89%;
+  --theme-bg-raise-hsl:        49 38% 83%;
+
+  --theme-text-hsl:            213 89% 25%;
+  --theme-ink-dim-hsl:         213 70% 33%;
+  --theme-ink-faint-hsl:       213 40% 46%;
+
+  /* Accent: olive-gold for text labels; bright yellow for decorative only */
+  --theme-accent-hsl:          50 85% 28%;
+  --theme-accent-bright-hsl:   50 98% 68%;   /* #FDE35C — large/decorative only */
+
+  /* CTA: hot pink background, deep navy text */
+  --theme-primary-hsl:         317 87% 74%;
+  --theme-primary-fg-hsl:      213 89% 25%;
+
+  --theme-muted-hsl:           50 40% 90%;
+  --theme-muted-fg-hsl:        213 60% 32%;
+  --theme-border-hsl:          213 30% 70%;
+  --theme-ring-hsl:            317 87% 74%;
+
+  /* Spectral UI: sky blue darkened for HUD use (original 2DA9EF fails at 2.4:1) */
+  --theme-spectral-ui-hsl:     202 80% 35%;
+  --theme-spectral-ui-dim-hsl: 213 70% 33%;
+
+  --theme-line-rgb:            7, 58, 120;    /* navy text RGB */
+  --theme-line-op:             0.28;
+  --theme-line-soft-op:        0.14;
+  --theme-scrim-rgb:           250, 247, 235; /* bg RGB */
+  --theme-scrim-op:            0.85;
+
+  --theme-glow-op:             0;
+  --theme-grain-op:            0.025;
+}

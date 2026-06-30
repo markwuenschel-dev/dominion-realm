@@ -23,6 +23,39 @@
   border-radius: var(--radius-lg);
   background: var(--bg);
   overflow: hidden;
+
+  /* Theme-aware map canvas (Grimoire / dark default) */
+  --map-bg-center: #161a2b;
+  --map-bg-mid: #0d0f1a;
+  --map-bg-edge: #080910;
+  --map-hub-glow: #c8a86a;
+  --map-portal: #9b6cf0;
+  --map-portal-mid: #5b8def;
+  --map-nhal-core: #04050a;
+  --map-nhal-mid: #090a16;
+  --map-nhal-edge: #3a3a5e;
+  --map-xyl-core: #5a7233;
+  --map-xyl-mid: #3f4f26;
+  --map-region-fill: rgba(200, 168, 106, 0.04);
+  --map-region-stroke: rgba(200, 168, 106, 0.12);
+  --map-route-stroke: rgba(200, 168, 106, 0.2);
+}
+
+[data-theme-mode='light'] .realm-map__svg {
+  --map-bg-center: #e8e4d4;
+  --map-bg-mid: #ddd8c6;
+  --map-bg-edge: #cfc9b4;
+  --map-hub-glow: #b8943a;
+  --map-portal: #7a5cc8;
+  --map-portal-mid: #4a72c8;
+  --map-nhal-core: #2a2838;
+  --map-nhal-mid: #3a3850;
+  --map-nhal-edge: #6a6888;
+  --map-xyl-core: #6a8448;
+  --map-xyl-mid: #4a6030;
+  --map-region-fill: rgba(80, 60, 30, 0.06);
+  --map-region-stroke: rgba(80, 60, 30, 0.14);
+  --map-route-stroke: rgba(80, 60, 30, 0.22);
 }
 .realm-map__cap {
   margin-top: 14px;
@@ -180,6 +213,23 @@
   .map-marker__tip {
     max-width: 168px;
   }
+  .map-marker__hit {
+    padding: 10px;
+  }
+}
+
+/* ---- Regions & routes ---- */
+.rm-region {
+  fill: var(--map-region-fill);
+  stroke: var(--map-region-stroke);
+  stroke-width: 1;
+}
+.rm-route {
+  fill: none;
+  stroke: var(--map-route-stroke);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 6;
+  stroke-linecap: round;
 }
 
 /* ---- Threat frontiers ---- */
@@ -272,7 +322,36 @@
   r: 4px;
 }
 .ley:hover .ley-label,
-.ley.lit .ley-label {
+.ley.lit .ley-label,
+.ley.focused .ley-label {
+  opacity: 1;
+}
+
+/* Focus mode: one thread selected, others dimmed */
+.map--has-focus .ley.dimmed .ley-base {
+  opacity: 0.12;
+}
+.map--has-focus .ley.dimmed .ley-flow {
+  opacity: 0.15;
+}
+.map--has-focus .ley.dimmed .ley-node-ring,
+.map--has-focus .ley.dimmed .ley-node-dot,
+.map--has-focus .ley.dimmed .ley-label {
+  opacity: 0.25;
+}
+.ley.focused .ley-base {
+  opacity: 0.95;
+  stroke-width: 2;
+}
+.ley.focused .ley-flow {
+  opacity: 1;
+  stroke-width: 2.6;
+}
+.ley:focus-visible {
+  outline: none;
+}
+.ley:focus-visible .ley-node-ring {
+  stroke-width: 2;
   opacity: 1;
 }
 
@@ -439,12 +518,64 @@
   letter-spacing: 0.22em;
   fill: var(--ink-faint);
 }
+.rm-scale__bar {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.rm-scale__lbl {
+  font-family: var(--mono);
+  font-size: 7px;
+  letter-spacing: 0.12em;
+  fill: var(--ink-faint);
+}
 
 /* =====================================================================
    Legend (also the no-JS / screen-reader fallback + real key)
    ===================================================================== */
 .map-key {
   margin-top: clamp(36px, 6vw, 56px);
+}
+.map-key__toggle {
+  display: none;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: var(--bg-panel);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+}
+.map-key__toggle::after {
+  content: ' ▾';
+  float: right;
+}
+.map-key.is-collapsed .map-key__toggle::after {
+  content: ' ▸';
+}
+.map-key__body {
+  display: block;
+}
+.map-key.is-collapsed .map-key__body {
+  display: none;
+}
+.map-key__provisional {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 6px;
+  font-family: var(--mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  border: 1px dashed var(--line-soft);
+  border-radius: var(--radius-sm);
+  vertical-align: middle;
 }
 .map-key__title {
   font-family: var(--mono);
@@ -458,11 +589,26 @@
   margin-top: 0;
 }
 .ley-legend,
-.land-legend {
+.land-legend,
+.region-legend,
+.route-legend {
   list-style: none;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 16px 24px;
+}
+.region-legend .land-legend__swatch {
+  border-radius: 2px;
+  background: var(--map-region-stroke);
+  box-shadow: none;
+}
+.route-legend .rm-route-swatch {
+  border-radius: 0;
+  width: 16px;
+  height: 2px;
+  margin-top: 8px;
+  background: var(--map-route-stroke);
+  box-shadow: none;
 }
 .ley-legend__item,
 .land-legend__item {
@@ -474,6 +620,14 @@
 }
 .ley-legend__item.lit {
   background: var(--line-soft);
+}
+.ley-legend__item.focused {
+  background: var(--line-soft);
+  outline: 1px solid var(--gold);
+  outline-offset: 2px;
+}
+.ley-legend__item {
+  cursor: pointer;
 }
 .ley-legend__swatch,
 .land-legend__swatch {
@@ -547,5 +701,20 @@
   .map-marker__hit:hover .map-marker__dot,
   .map-marker__hit:focus-visible .map-marker__dot {
     transform: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .map-key__toggle {
+    display: block;
+  }
+  .map-key.is-collapsed .map-key__body {
+    display: none;
+  }
+  .ley-legend,
+  .land-legend,
+  .region-legend,
+  .route-legend {
+    grid-template-columns: 1fr;
   }
 }
