@@ -59,14 +59,14 @@ change is an ordinary Git commit.
 
 ## Quick start
 
-> Requires **Node 22+** (`.nvmrc` pins 22).
+> Requires **Node 22+** (`.nvmrc` pins 22) and **pnpm 9** (`corepack enable`).
 
 ```bash
 git clone https://github.com/markwuenschel-dev/dominion-realm.git
 cd dominion-realm
-npm install
+pnpm install
 cp .env.example .env   # optional locally; needed for the /keystatic admin
-npm run dev            # → http://localhost:3000
+pnpm run dev           # → http://localhost:3000
 ```
 
 The public site runs without any environment variables. The Keystatic admin and
@@ -77,14 +77,14 @@ matching variables are set — see [Environment variables](#environment-variable
 
 | Command | Description |
 | --- | --- |
-| `npm run dev` | Start the dev server at `http://localhost:3000` |
-| `npm run build` | Production build (`next build`) |
-| `npm run start` | Serve the production build (reads `$PORT`) |
-| `npm run check` | Type-check + content-schema validation (`tsc --noEmit`) |
-| `npm test` | Run the Vitest suite once |
-| `npm run test:watch` | Vitest in watch mode |
-| `npm run lint` | ESLint (`next lint`) |
-| `npm run format` / `format:check` | Write / verify Prettier formatting |
+| `pnpm run dev` | Start the dev server at `http://localhost:3000` |
+| `pnpm run build` | Production build (`next build`) |
+| `pnpm run start` | Serve the production build (reads `$PORT`) |
+| `pnpm run check` | Type-check + content-schema validation (`tsc --noEmit`) |
+| `pnpm test` | Run the Vitest suite once |
+| `pnpm run test:watch` | Vitest in watch mode |
+| `pnpm run lint` | ESLint (`next lint`) |
+| `pnpm run format` / `format:check` | Write / verify Prettier formatting |
 
 `predev` and `prebuild` automatically copy content media into `public/` and
 generate the EPUB/PDF reading-sample downloads.
@@ -164,8 +164,8 @@ site.
 
 ## Deployment
 
-Hosted as a Node service on **Railway**. Railpack auto-detects the Next.js build;
-`railway.json` pins `npm run start` as the start command. Pushing to `main`
+Hosted as a Node service on **Railway**. Nixpacks uses **pnpm** (`nixpacks.toml`)
+for faster installs; `railway.json` pins `pnpm run start`. Pushing to `main`
 deploys automatically.
 
 1. **New Project → Deploy from GitHub repo → `dominion-realm`**.
@@ -180,9 +180,9 @@ the migration from the original Astro stack.
 ## Testing & CI
 
 ```bash
-npm run check   # types + content schema
-npm test        # Vitest (lib + component coverage)
-npm run build   # the real content-schema gate
+pnpm run check   # types + content schema
+pnpm test        # Vitest (lib + component coverage)
+pnpm run build   # the real content-schema gate
 ```
 
 Every pull request runs the **CI** workflow — `format:check → tsc → next build →

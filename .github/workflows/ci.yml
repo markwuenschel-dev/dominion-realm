@@ -26,23 +26,26 @@ jobs:
       NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-      - run: npm ci
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
       - name: Formatting
-        run: npm run format:check
+        run: pnpm run format:check
       - name: Lint
-        run: npm run lint
+        run: pnpm run lint
       - name: Types & content schema
         # `tsc --noEmit`; the Zod content loader (src/lib/content.ts) throws on a
         # malformed entry, so `next build` below is the real content-schema gate.
-        run: npm run check
+        run: pnpm run check
       - name: Build (Next.js)
-        run: npm run build
+        run: pnpm run build
       - name: Unit tests (Vitest)
-        run: npm test
+        run: pnpm test
 
   a11y:
     name: Accessibility (advisory)
@@ -54,18 +57,21 @@ jobs:
       NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npm run build
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
       - name: Serve and audit
         # Advisory: report WCAG findings in the log without failing the check.
         # Remove `continue-on-error` to promote accessibility to a required gate
         # once the existing contrast issues are addressed.
         continue-on-error: true
         run: |
-          npx next start &
-          npx --yes wait-on -t 60000 http://localhost:3000/
-          npx --yes pa11y-ci
+          pnpm exec next start &
+          pnpm dlx wait-on -t 60000 http://localhost:3000/
+          pnpm dlx pa11y-ci

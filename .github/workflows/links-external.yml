@@ -17,20 +17,23 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npm run build
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
         env:
           NEXT_PUBLIC_KIT_FORM_ID: ${{ vars.NEXT_PUBLIC_KIT_FORM_ID }}
           NEXT_PUBLIC_GA4_ID: ${{ vars.NEXT_PUBLIC_GA4_ID }}
           NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
       - name: Start the site
         run: |
-          npx next start &
-          npx --yes wait-on -t 60000 http://localhost:3000/
+          pnpm exec next start &
+          pnpm dlx wait-on -t 60000 http://localhost:3000/
       - name: Check external links
         id: lychee
         uses: lycheeverse/lychee-action@v2
