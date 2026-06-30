@@ -268,3 +268,280 @@
   --theme-glow-op:             0;
   --theme-grain-op:            0.025;
 }
+
+
+/* ─── TWILIGHT ───────────────────────────────────────────────────────────────
+   Starlit dark theme — navy, plum, magenta
+   Source palette: #213885, #081849, #ECDFD2, #CCCACC, #5F3475, #893172
+
+   AUDITED via theme_audit.py — all 13 text-bearing checks pass:
+     text          14.2:1 / 12.9:1  AAA
+     ink-dim        8.1:1 /  7.4:1  AAA
+     ink-faint      4.9:1           AA
+     accent         4.5:1           AA
+     accent-bright  5.8:1 /  4.8:1  AA
+     muted-fg       6.3:1 /  5.7:1  AA
+     spectral-ui    5.3:1 /  4.8:1  AA
+     primary-fg     5.7:1           AA
+   Surface spread: bg L10 → panel L14 → raise L17 (dark-theme tight steps, ≥3pt)
+   ──────────────────────────────────────────────────────────────────────────── */
+:root[data-theme="twilight"] {
+  --theme-bg-hsl:              225 50% 10%;
+  --theme-bg-panel-hsl:        225 40% 14%;
+  --theme-bg-raise-hsl:        225 35% 17%;
+
+  --theme-text-hsl:            30 30% 88%;
+  --theme-ink-dim-hsl:         300 5% 68%;
+  --theme-ink-faint-hsl:       300 8% 53%;
+
+  --theme-accent-hsl:          226 60% 60%;
+  --theme-accent-bright-hsl:   316 47% 62%;
+
+  --theme-primary-hsl:         280 38% 45%;
+  --theme-primary-fg-hsl:      30 30% 95%;
+
+  --theme-muted-hsl:           225 30% 18%;
+  --theme-muted-fg-hsl:        300 5% 60%;
+  --theme-border-hsl:          225 30% 24%;
+  --theme-ring-hsl:            280 38% 45%;
+
+  --theme-spectral-ui-hsl:     226 60% 64%;
+  --theme-spectral-ui-dim-hsl: 300 5% 68%;
+
+  --theme-line-rgb:            95, 122, 219;   /* accent blue RGB, dark theme rule */
+  --theme-line-op:             0.20;
+  --theme-line-soft-op:        0.10;
+  --theme-scrim-rgb:           8, 11, 18;      /* darkest bg RGB */
+  --theme-scrim-op:            0.65;
+
+  --theme-glow-op:             1;
+  --theme-grain-op:            0.05;
+}
+
+
+/* ─── EMBER ──────────────────────────────────────────────────────────────────
+   Warm hearth light theme — orange, red, brown
+   Source palette: #E76814, #DC8236, #D8D4BC, #B8210F, #891A10, #714236
+
+   AUDITED via theme_audit.py — all 13 text-bearing checks pass:
+     text          12.3:1 / 10.9:1  AAA
+     ink-dim        8.6:1 /  7.6:1  AAA
+     ink-faint      4.7:1           AA
+     accent         5.1:1           AA
+     accent-bright  6.3:1 /  4.9:1  AA
+     muted-fg       7.4:1 /  6.5:1  AAA/AA
+     spectral-ui    8.2:1 /  7.3:1  AAA
+     primary-fg     5.2:1           AA  (dark ink on orange button, not cream)
+   Surface spread: bg L92 → panel L86 → raise L80 (6pt steps)
+   ──────────────────────────────────────────────────────────────────────────── */
+:root[data-theme="ember"] {
+  --theme-bg-hsl:              51 30% 92%;
+  --theme-bg-panel-hsl:        51 26% 86%;
+  --theme-bg-raise-hsl:        45 28% 80%;
+
+  --theme-text-hsl:            12 35% 18%;
+  --theme-ink-dim-hsl:         12 35% 28%;
+  --theme-ink-faint-hsl:       12 25% 44%;
+
+  --theme-accent-hsl:          24 84% 35%;
+  --theme-accent-bright-hsl:   6 85% 36%;
+
+  --theme-primary-hsl:         24 84% 49%;
+  --theme-primary-fg-hsl:      24 84% 10%;
+
+  --theme-muted-hsl:           45 28% 84%;
+  --theme-muted-fg-hsl:        12 30% 32%;
+  --theme-border-hsl:          24 30% 64%;
+  --theme-ring-hsl:            24 84% 49%;
+
+  --theme-spectral-ui-hsl:     5 79% 30%;
+  --theme-spectral-ui-dim-hsl: 12 35% 28%;
+
+  --theme-line-rgb:            113, 66, 54;    /* text-adjacent brown RGB */
+  --theme-line-op:             0.30;
+  --theme-line-soft-op:        0.15;
+  --theme-scrim-rgb:           250, 247, 233;  /* bg RGB */
+  --theme-scrim-op:            0.85;
+
+  --theme-glow-op:             0;
+  --theme-grain-op:            0.025;
+}
+
+
+/* ─── HONEYCOMB ──────────────────────────────────────────────────────────────
+   Golden manuscript light theme — gold, tan, dark brown
+   Source palette: #ECB914, #9D8108, #F6D579, #CBB8A0, #4F3D35
+
+   Design notes:
+   — No blue/cool hue exists anywhere in this palette, unlike every other
+     theme so far. spectral-ui (the interface.css HUD accent) is mapped to
+     the brown ink-dim value instead of a derived primary — there is no
+     natural "cyan equivalent" here, and forcing one would fight the
+     all-gold identity of the palette.
+
+   AUDITED via theme_audit.py — all 13 text-bearing checks pass:
+     text          14.2:1 / 12.6:1  AAA
+     ink-dim        9.2:1 /  8.2:1  AAA
+     ink-faint      4.9:1           AA
+     accent         5.5:1           AA
+     accent-bright  6.4:1 /  5.0:1  AA
+     muted-fg       7.2:1 /  6.4:1  AAA/AA
+     spectral-ui    9.2:1 /  8.2:1  AAA
+     primary-fg     7.3:1           AAA
+   Surface spread: bg L94 → panel L88 → raise L82 (6pt steps)
+   ──────────────────────────────────────────────────────────────────────────── */
+:root[data-theme="honeycomb"] {
+  --theme-bg-hsl:              44 50% 94%;
+  --theme-bg-panel-hsl:        44 40% 88%;
+  --theme-bg-raise-hsl:        40 35% 82%;
+
+  --theme-text-hsl:            18 20% 14%;
+  --theme-ink-dim-hsl:         18 20% 26%;
+  --theme-ink-faint-hsl:       18 16% 42%;
+
+  --theme-accent-hsl:          49 90% 24%;
+  --theme-accent-bright-hsl:   46 85% 23%;
+
+  --theme-primary-hsl:         46 85% 47%;
+  --theme-primary-fg-hsl:      46 85% 10%;
+
+  --theme-muted-hsl:           40 30% 86%;
+  --theme-muted-fg-hsl:        33 25% 30%;
+  --theme-border-hsl:          33 25% 62%;
+  --theme-ring-hsl:            46 85% 47%;
+
+  --theme-spectral-ui-hsl:     18 20% 26%;
+  --theme-spectral-ui-dim-hsl: 18 20% 26%;
+
+  --theme-line-rgb:            79, 61, 53;     /* text brown RGB */
+  --theme-line-op:             0.30;
+  --theme-line-soft-op:        0.15;
+  --theme-scrim-rgb:           250, 245, 230;  /* bg RGB */
+  --theme-scrim-op:            0.85;
+
+  --theme-glow-op:             0;
+  --theme-grain-op:            0.025;
+}
+
+
+/* ─── MIST ───────────────────────────────────────────────────────────────────
+   Clean cool-neutral light theme — gray, teal, white
+   Source palette: #BBBFBF, #878787, #05AD98, #FFFFFF
+
+   Design notes:
+   — This palette has no hue contributing warmth or a second accent — it's
+     gray + one teal. text/ink-dim/ink-faint/muted-fg are therefore neutral
+     (h=0 s=0) rather than tinted, which is correct for this palette but a
+     departure from every other theme so far (all of which tint ink toward
+     their dominant hue). This is intentional, not an oversight.
+   — Teal #05AD98 at its native lightness (L=35%) fails against the near-white
+     background (L=97%) used throughout: 2.7:1 on primary-fg, ~3:1 elsewhere.
+     Darkened to L=22-24% across accent/accent-bright/primary/spectral-ui to
+     clear AA. This is the most heavily corrected theme of the five — teal
+     is simply too light a hue family to carry text-weight contrast against
+     a near-white surface without significant darkening.
+
+   AUDITED via theme_audit.py — all 13 text-bearing checks pass:
+     text          12.8:1 / 11.2:1  AAA
+     ink-dim        8.0:1 /  7.0:1  AAA
+     ink-faint      4.8:1           AA
+     accent         5.9:1           AA
+     accent-bright  6.2:1 /  4.8:1  AA
+     muted-fg       6.8:1 /  6.0:1  AA
+     spectral-ui    5.5:1 /  4.8:1  AA
+     primary-fg     5.3:1           AA
+   Surface spread: bg L97 → panel L91 → raise L85 (6pt steps)
+   ──────────────────────────────────────────────────────────────────────────── */
+:root[data-theme="mist"] {
+  --theme-bg-hsl:              180 10% 97%;
+  --theme-bg-panel-hsl:        180 8% 91%;
+  --theme-bg-raise-hsl:        180 6% 85%;
+
+  --theme-text-hsl:            0 0% 18%;
+  --theme-ink-dim-hsl:         0 0% 30%;
+  --theme-ink-faint-hsl:       0 0% 43%;
+
+  --theme-accent-hsl:          172 94% 22%;
+  --theme-accent-bright-hsl:   172 70% 24%;
+
+  --theme-primary-hsl:         172 94% 24%;
+  --theme-primary-fg-hsl:      172 94% 97%;
+
+  --theme-muted-hsl:           180 8% 88%;
+  --theme-muted-fg-hsl:        0 0% 34%;
+  --theme-border-hsl:          180 6% 66%;
+  --theme-ring-hsl:            172 94% 24%;
+
+  --theme-spectral-ui-hsl:     172 94% 23%;
+  --theme-spectral-ui-dim-hsl: 0 0% 30%;
+
+  --theme-line-rgb:            41, 41, 41;     /* text RGB */
+  --theme-line-op:             0.28;
+  --theme-line-soft-op:        0.14;
+  --theme-scrim-rgb:           247, 249, 249;  /* bg RGB */
+  --theme-scrim-op:            0.85;
+
+  --theme-glow-op:             0;
+  --theme-grain-op:            0.025;
+}
+
+
+/* ─── AURORA ─────────────────────────────────────────────────────────────────
+   Vivid blue/gold light theme — electric blue, olive, gold, yellow
+   Source palette: #2323FF, #807D52, #FFBD24, #FFF224
+
+   Design notes:
+   — Same problem class as Solstice: raw #FFF224 (pure yellow) and #FFBD24
+     (gold) cannot pass AA as text at any lightness that still reads as
+     "yellow/gold" — same as the original gold-bright bug. accent-bright is
+     mapped to a darkened gold (L=24%, not the raw L=57% input) for exactly
+     the reason documented in the Solstice notes above: it IS consumed as
+     inline emphasis text per TOKEN_USAGE_REGISTRY.md, never decorative-only.
+   — #2323FF (pure electric blue) is vivid enough to survive as primary
+     button background at full saturation/lightness, but text/ink-dim/
+     ink-faint derived from it are darkened heavily (L=18-45%) since the
+     raw blue at L=57% fails against this theme's light backgrounds.
+
+   AUDITED via theme_audit.py — all 13 text-bearing checks pass:
+     text          16.9:1 / 14.9:1  AAA
+     ink-dim       13.1:1 / 11.6:1  AAA
+     ink-faint      6.6:1           AAA
+     accent         7.7:1           AAA
+     accent-bright  6.2:1 /  4.8:1  AA
+     muted-fg      10.0:1 /  8.9:1  AAA
+     spectral-ui    9.1:1 /  8.0:1  AAA
+     primary-fg     7.3:1           AAA
+   Surface spread: bg L95 → panel L89 → raise L83 (6pt steps)
+   ──────────────────────────────────────────────────────────────────────────── */
+:root[data-theme="aurora"] {
+  --theme-bg-hsl:              56 40% 95%;
+  --theme-bg-panel-hsl:        50 30% 89%;
+  --theme-bg-raise-hsl:        50 25% 83%;
+
+  --theme-text-hsl:            240 100% 18%;
+  --theme-ink-dim-hsl:         240 70% 30%;
+  --theme-ink-faint-hsl:       240 30% 45%;
+
+  --theme-accent-hsl:          56 22% 26%;
+  --theme-accent-bright-hsl:   42 100% 24%;
+
+  --theme-primary-hsl:         240 100% 57%;
+  --theme-primary-fg-hsl:      56 40% 97%;
+
+  --theme-muted-hsl:           50 28% 86%;
+  --theme-muted-fg-hsl:        240 25% 30%;
+  --theme-border-hsl:          240 20% 68%;
+  --theme-ring-hsl:            240 100% 57%;
+
+  --theme-spectral-ui-hsl:     240 100% 45%;
+  --theme-spectral-ui-dim-hsl: 240 70% 30%;
+
+  --theme-line-rgb:            7, 7, 90;       /* text navy RGB */
+  --theme-line-op:             0.28;
+  --theme-line-soft-op:        0.14;
+  --theme-scrim-rgb:           250, 247, 235;  /* bg RGB */
+  --theme-scrim-op:            0.85;
+
+  --theme-glow-op:             0;
+  --theme-grain-op:            0.025;
+}
