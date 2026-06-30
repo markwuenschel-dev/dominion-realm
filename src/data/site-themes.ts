@@ -14,6 +14,11 @@ export const SITE_THEMES: SiteThemeDef[] = [
   { id: 'parchment', label: 'Parchment', mode: 'light' },
   { id: 'slate', label: 'Slate', mode: 'light' },
   { id: 'solstice', label: 'Solstice', mode: 'light' },
+  { id: 'twilight', label: 'Twilight', mode: 'dark' },
+  { id: 'ember', label: 'Ember', mode: 'light' },
+  { id: 'honeycomb', label: 'Honeycomb', mode: 'light' },
+  { id: 'mist', label: 'Mist', mode: 'light' },
+  { id: 'aurora', label: 'Aurora', mode: 'light' },
 ];
 
 /** Legacy localStorage values → canonical id */
