@@ -5,7 +5,8 @@
   "private": true,
   "packageManager": "pnpm@9.15.9",
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=22.0.0",
+    "pnpm": "9.15.9"
   },
   "scripts": {
     "predev": "node scripts/copy-content-media.mjs && node scripts/generate-downloads.mjs",
@@ -63,9 +64,11 @@
     "jszip": "^3.10.1",
     "oxfmt": "^0.56.0",
     "oxlint": "^1.71.0",
+    "pa11y-ci": "^4.0.0",
     "pdfkit": "^0.15.2",
     "tailwindcss": "^4.1.8",
     "typescript": "^5.7.3",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.9",
+    "wait-on": "^8.0.3"
   }
 }
