@@ -34,21 +34,38 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Formatting
-        run: pnpm run format:check
-      - name: Lint
-        run: pnpm run lint
-      - name: Types & content schema
-        # `tsc --noEmit`; the Zod content loader (src/lib/content.ts) throws on a
-        # malformed entry, so `next build` below is the real content-schema gate.
-        run: pnpm run check
+      - name: Lint, types, format, tests
+        run: |
+          pnpm run format:check &
+          pnpm run lint &
+          pnpm run check &
+          pnpm test &
+          wait
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('**/*.{ts,tsx,js,jsx,md,mdx}') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
+            ${{ runner.os }}-nextjs-
       - name: Build (Next.js)
+        # `tsc --noEmit` runs above; the Zod content loader (src/lib/content.ts)
+        # throws on a malformed entry, so this build is the content-schema gate.
         run: pnpm run build
-      - name: Unit tests (Vitest)
-        run: pnpm test
+      - name: Upload build for a11y
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          retention-days: 1
+          path: |
+            .next/
+            public/content-media/
+            public/downloads/
 
   a11y:
     name: Accessibility (advisory)
+    needs: verify
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -65,7 +82,10 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm run build
+      - name: Download build from verify
+        uses: actions/download-artifact@v4
+        with:
+          name: next-build
       - name: Serve and audit
         # Advisory: report WCAG findings in the log without failing the check.
         # Remove `continue-on-error` to promote accessibility to a required gate
@@ -73,5 +93,5 @@ jobs:
         continue-on-error: true
         run: |
           pnpm exec next start &
-          pnpm dlx wait-on -t 60000 http://localhost:3000/
-          pnpm dlx pa11y-ci
+          pnpm exec wait-on -t 60000 http://localhost:3000/
+          pnpm exec pa11y-ci

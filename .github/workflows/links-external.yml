@@ -25,6 +25,14 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('**/*.{ts,tsx,js,jsx,md,mdx}') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
+            ${{ runner.os }}-nextjs-
       - run: pnpm run build
         env:
           NEXT_PUBLIC_KIT_FORM_ID: ${{ vars.NEXT_PUBLIC_KIT_FORM_ID }}
@@ -33,7 +41,7 @@ jobs:
       - name: Start the site
         run: |
           pnpm exec next start &
-          pnpm dlx wait-on -t 60000 http://localhost:3000/
+          pnpm exec wait-on -t 60000 http://localhost:3000/
       - name: Check external links
         id: lychee
         uses: lycheeverse/lychee-action@v2

@@ -164,9 +164,9 @@ site.
 
 ## Deployment
 
-Hosted as a Node service on **Railway**. Nixpacks uses **pnpm** (`nixpacks.toml`)
-for faster installs; `railway.json` pins `pnpm run start`. Pushing to `main`
-deploys automatically.
+Hosted as a Node service on **Railway**. **Railpack** auto-detects **pnpm** from
+`pnpm-lock.yaml` and `packageManager` in `package.json`; `railway.json` pins
+`pnpm run start`. Pushing to `main` deploys automatically.
 
 1. **New Project → Deploy from GitHub repo → `dominion-realm`**.
 2. Add the environment variables above under the service's **Variables** tab.
