@@ -1,10 +1,5 @@
 import type { CSSProperties } from 'react';
-import {
-  realmMap,
-  MAP_VIEWBOX,
-  MAP_CENTER,
-  MAP_RING,
-} from '@/data/realm-map';
+import { realmMap, MAP_VIEWBOX, MAP_CENTER, MAP_RING } from '@/data/realm-map';
 import { computeLeyNodes, codexHref } from '@/lib/map-geometry';
 
 const { hub, ruins, threats, regions = [], routes = [], leyLines, provisional } = realmMap;
@@ -151,14 +146,7 @@ export function RealmMapSvg() {
         href={codexHref(hub.href)}
         aria-label={`${hub.name} — ${hub.kind} (open in codex)`}
       >
-        <rect
-          className="rm-mark__bg"
-          x={C.x - 52}
-          y={C.y + 18}
-          width="104"
-          height="34"
-          rx="4"
-        />
+        <rect className="rm-mark__bg" x={C.x - 52} y={C.y + 18} width="104" height="34" rx="4" />
         <text className="hub-name" x={C.x} y={C.y + 34} textAnchor="middle">
           {hub.name}
         </text>
@@ -172,13 +160,7 @@ export function RealmMapSvg() {
         href={codexHref(ruins.href)}
         aria-label={`${ruins.name} — ${ruins.kind} (open in codex)`}
       >
-        <line
-          className="ruin-tether"
-          x1={ruins.x}
-          y1={ruins.y}
-          x2={C.x}
-          y2={C.y}
-        />
+        <line className="ruin-tether" x1={ruins.x} y1={ruins.y} x2={C.x} y2={C.y} />
         <circle className="ruin-portal" cx={ruins.x} cy={ruins.y} r="9" />
         <circle className="ruin-ring" cx={ruins.x} cy={ruins.y} r="14" />
         <text className="ruin-name" x={ruins.x} y={ruins.y + 32} textAnchor="middle">

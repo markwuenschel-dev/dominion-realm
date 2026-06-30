@@ -33,7 +33,9 @@ export function getThemeById(id: string | null | undefined): SiteThemeDef {
 export function normalizeStoredTheme(raw: string | null): SiteThemeId {
   if (!raw) return DEFAULT_THEME.id as SiteThemeId;
   const id = THEME_ALIASES[raw] ?? raw;
-  return SITE_THEMES.some((t) => t.id === id) ? (id as SiteThemeId) : (DEFAULT_THEME.id as SiteThemeId);
+  return SITE_THEMES.some((t) => t.id === id)
+    ? (id as SiteThemeId)
+    : (DEFAULT_THEME.id as SiteThemeId);
 }
 
 export function applyThemeToDocument(id: SiteThemeId) {

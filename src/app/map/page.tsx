@@ -46,8 +46,8 @@ export default function MapPage() {
 
           <figcaption className="realm-map__cap">
             A cartographer&apos;s rendering — the eight threads as Eriadne&apos;s scholars name
-            them. Hover or select a thread to trace it home; select a marked place to open its
-            codex entry.
+            them. Hover or select a thread to trace it home; select a marked place to open its codex
+            entry.
           </figcaption>
         </figure>
 
