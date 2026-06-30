@@ -934,6 +934,42 @@
   [data-theme="solstice"] .btn-primary { background: #F682D6; border-color: #F682D6; color: #073A78; }
   [data-theme="solstice"] .btn-primary:hover { background: #F88FE0; border-color: #F88FE0; transform: translateY(-2px); }
 
+  /* Ember theme — structural / element overrides */
+  [data-theme="ember"] .grain { mix-blend-mode: multiply; }
+  [data-theme="ember"] .vignette { background: radial-gradient(120% 90% at 50% 0%, transparent 60%, rgba(62,36,30,0.08) 100%); }
+  [data-theme="ember"] .sidebar { background: linear-gradient(180deg, rgba(241,239,228,0.94), rgba(229,226,210,0.94)); }
+  [data-theme="ember"] .topbar { background: rgba(241,239,228,0.90); }
+  [data-theme="ember"] .mobile-menu { background: rgba(241,239,228,0.98); }
+  [data-theme="ember"] .btn-primary { background: #E66814; border-color: #E66814; color: #2F1504; }
+  [data-theme="ember"] .btn-primary:hover { background: #ED7C31; border-color: #ED7C31; transform: translateY(-2px); }
+
+  /* Honeycomb theme — structural / element overrides */
+  [data-theme="honeycomb"] .grain { mix-blend-mode: multiply; }
+  [data-theme="honeycomb"] .vignette { background: radial-gradient(120% 90% at 50% 0%, transparent 60%, rgba(43,33,29,0.08) 100%); }
+  [data-theme="honeycomb"] .sidebar { background: linear-gradient(180deg, rgba(247,243,232,0.94), rgba(237,230,212,0.94)); }
+  [data-theme="honeycomb"] .topbar { background: rgba(247,243,232,0.90); }
+  [data-theme="honeycomb"] .mobile-menu { background: rgba(247,243,232,0.98); }
+  [data-theme="honeycomb"] .btn-primary { background: #DEAE12; border-color: #DEAE12; color: #2F2504; }
+  [data-theme="honeycomb"] .btn-primary:hover { background: #EDBF26; border-color: #EDBF26; transform: translateY(-2px); }
+
+  /* Mist theme — structural / element overrides */
+  [data-theme="mist"] .grain { mix-blend-mode: multiply; }
+  [data-theme="mist"] .vignette { background: radial-gradient(120% 90% at 50% 0%, transparent 60%, rgba(46,46,46,0.08) 100%); }
+  [data-theme="mist"] .sidebar { background: linear-gradient(180deg, rgba(247,248,248,0.94), rgba(230,234,234,0.94)); }
+  [data-theme="mist"] .topbar { background: rgba(247,248,248,0.90); }
+  [data-theme="mist"] .mobile-menu { background: rgba(247,248,248,0.98); }
+  [data-theme="mist"] .btn-primary { background: #047767; border-color: #047767; color: #F0FFFD; }
+  [data-theme="mist"] .btn-primary:hover { background: #059986; border-color: #059986; transform: translateY(-2px); }
+
+  /* Aurora theme — structural / element overrides */
+  [data-theme="aurora"] .grain { mix-blend-mode: multiply; }
+  [data-theme="aurora"] .vignette { background: radial-gradient(120% 90% at 50% 0%, transparent 60%, rgba(0,0,92,0.08) 100%); }
+  [data-theme="aurora"] .sidebar { background: linear-gradient(180deg, rgba(247,247,237,0.94), rgba(235,233,219,0.94)); }
+  [data-theme="aurora"] .topbar { background: rgba(247,247,237,0.90); }
+  [data-theme="aurora"] .mobile-menu { background: rgba(247,247,237,0.98); }
+  [data-theme="aurora"] .btn-primary { background: #2424FF; border-color: #2424FF; color: #FAFAF4; }
+  [data-theme="aurora"] .btn-primary:hover { background: #4747FF; border-color: #4747FF; transform: translateY(-2px); }
+
   /* ---------- Theme switcher (fixed bottom-right, all pages) ---------- */
   .theme-switcher-wrap {
     position: fixed;
