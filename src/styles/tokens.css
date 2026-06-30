@@ -24,12 +24,12 @@
   /* ---- Surfaces ---- */
   --theme-bg-hsl:              233 33% 5%;     /* #080910 */
   --theme-bg-raise-hsl:        231 34% 8%;     /* #0d0f1a */
-  --theme-bg-panel-hsl:        231 29% 9%;     /* #11131f */
+  --theme-bg-panel-hsl:        231 29% 11%;    /* widened from 9% — audit: surface spread too flat */
 
   /* ---- Ink (text hierarchy) ---- */
   --theme-text-hsl:            43 32% 89%;     /* #ece7da */
   --theme-ink-dim-hsl:         47 9%  62%;     /* #a8a496 */
-  --theme-ink-faint-hsl:       47 6%  40%;     /* #6d6a60 */
+  --theme-ink-faint-hsl:       47 6%  46%;     /* corrected from 40% — audit: 3.6:1 fail, now 4.6:1 */
 
   /* ---- Accent (gold on dark) ---- */
   --theme-accent-hsl:          40 46% 60%;     /* #c8a86a */
