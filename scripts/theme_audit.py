@@ -223,12 +223,92 @@ GRIMOIRE = {
     "spectral-ui":    (184, 70, 59),
 }
 
+TWILIGHT = {
+    "bg":             (225, 50, 10),
+    "bg-panel":       (225, 40, 14),
+    "bg-raise":       (225, 35, 17),
+    "text":           (30, 30, 88),
+    "ink-dim":        (300, 5, 68),
+    "ink-faint":      (300, 8, 53),
+    "accent":         (226, 60, 60),
+    "accent-bright":  (316, 47, 62),
+    "primary":        (280, 38, 45),
+    "primary-fg":     (30, 30, 95),
+    "muted-fg":       (300, 5, 60),
+    "spectral-ui":    (226, 60, 64),
+}
+
+EMBER = {
+    "bg":             (51, 30, 92),
+    "bg-panel":       (51, 26, 86),
+    "bg-raise":       (45, 28, 80),
+    "text":           (12, 35, 18),
+    "ink-dim":        (12, 35, 28),
+    "ink-faint":      (12, 25, 44),
+    "accent":         (24, 84, 35),
+    "accent-bright":  (6, 85, 36),
+    "primary":        (24, 84, 49),
+    "primary-fg":     (24, 84, 10),
+    "muted-fg":       (12, 30, 32),
+    "spectral-ui":    (5, 79, 30),
+}
+
+HONEYCOMB = {
+    "bg":             (44, 50, 94),
+    "bg-panel":       (44, 40, 88),
+    "bg-raise":       (40, 35, 82),
+    "text":           (18, 20, 14),
+    "ink-dim":        (18, 20, 26),
+    "ink-faint":      (18, 16, 42),
+    "accent":         (49, 90, 24),
+    "accent-bright":  (46, 85, 23),
+    "primary":        (46, 85, 47),
+    "primary-fg":     (46, 85, 10),
+    "muted-fg":       (33, 25, 30),
+    "spectral-ui":    (18, 20, 26),
+}
+
+MIST = {
+    "bg":             (180, 10, 97),
+    "bg-panel":       (180, 8, 91),
+    "bg-raise":       (180, 6, 85),
+    "text":           (0, 0, 18),
+    "ink-dim":        (0, 0, 30),
+    "ink-faint":      (0, 0, 43),
+    "accent":         (172, 94, 22),
+    "accent-bright":  (172, 70, 24),
+    "primary":        (172, 94, 24),
+    "primary-fg":     (172, 94, 97),
+    "muted-fg":       (0, 0, 34),
+    "spectral-ui":    (172, 94, 23),
+}
+
+AURORA = {
+    "bg":             (56, 40, 95),
+    "bg-panel":       (50, 30, 89),
+    "bg-raise":       (50, 25, 83),
+    "text":           (240, 100, 18),
+    "ink-dim":        (240, 70, 30),
+    "ink-faint":      (240, 30, 45),
+    "accent":         (56, 22, 26),
+    "accent-bright":  (42, 100, 24),
+    "primary":        (240, 100, 57),
+    "primary-fg":     (56, 40, 97),
+    "muted-fg":       (240, 25, 30),
+    "spectral-ui":    (240, 100, 45),
+}
+
 THEMES = {
     "parchment": PARCHMENT,
     "slate": SLATE,
     "solstice": SOLSTICE,
     "solstice-broken": SOLSTICE_BROKEN,
     "grimoire": GRIMOIRE,
+    "twilight": TWILIGHT,
+    "ember": EMBER,
+    "honeycomb": HONEYCOMB,
+    "mist": MIST,
+    "aurora": AURORA,
 }
 
 
