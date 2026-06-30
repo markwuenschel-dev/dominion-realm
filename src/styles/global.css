@@ -925,6 +925,15 @@
   [data-theme="slate"] .btn-primary { background: #6689CD; border-color: #6689CD; color: #D9DEEB; }
   [data-theme="slate"] .btn-primary:hover { background: #7899D8; border-color: #7899D8; transform: translateY(-2px); }
 
+  /* Solstice theme — structural / element overrides */
+  [data-theme="solstice"] .grain { mix-blend-mode: multiply; }
+  [data-theme="solstice"] .vignette { background: radial-gradient(120% 90% at 50% 0%, transparent 60%, rgba(7,58,120,0.06) 100%); }
+  [data-theme="solstice"] .sidebar { background: linear-gradient(180deg, rgba(250,247,235,0.94), rgba(245,240,225,0.94)); }
+  [data-theme="solstice"] .topbar { background: rgba(250,247,235,0.90); }
+  [data-theme="solstice"] .mobile-menu { background: rgba(250,247,235,0.98); }
+  [data-theme="solstice"] .btn-primary { background: #F682D6; border-color: #F682D6; color: #073A78; }
+  [data-theme="solstice"] .btn-primary:hover { background: #F88FE0; border-color: #F88FE0; transform: translateY(-2px); }
+
   /* ---------- Theme switcher (fixed bottom-right, all pages) ---------- */
   .theme-switcher-wrap {
     position: fixed;

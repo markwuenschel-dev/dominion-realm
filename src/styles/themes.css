@@ -8,9 +8,10 @@
    ║  HOW TO ADD A THEME                                              ║
    ║                                                                  ║
    ║  1. Copy the TEMPLATE block below (remove the /* comment wrap) ║
-   ║  2. Set data-theme="yourtheme" on <html>                        ║
-   ║  3. Fill in the required variables — 22 total                   ║
-   ║  4. Done. Nothing else to touch.                                ║
+   ║  2. Fill in the required variables — 22 total                   ║
+   ║  3. Add an entry to src/data/site-themes.ts (switcher menu)      ║
+   ║  4. Light themes with custom CTA chrome → global.css block       ║
+   ║  5. Verify on /, /map, /calculator, /sheet                      ║
    ║                                                                  ║
    ║  CONTRAST TARGETS (aim well above the floor):                   ║
    ║    --theme-text-hsl       target ≥ 10:1 on bg (AAA)            ║
