@@ -94,10 +94,6 @@ export const SOUL_LEVELS: SoulLevelEntry[] = [
 
 export const DEFAULT_SOUL_LEVEL: SoulLevelKey = 'Common';
 
-export function getSoulMultiplier(key: SoulLevelKey): number {
-  return SOUL_LEVELS.find((s) => s.key === key)?.multiplier ?? 1.0;
-}
-
 // ────────────────────────────────────────────────
 // §18  Species Templates
 // RaceMod derived: SpeciesValue / HumanBaseline
@@ -316,12 +312,6 @@ export const SOUL_LEVEL_TEXT_COLORS: Record<SoulLevelKey, string> = {
 // §15  XP Curve and Class Rarity Multipliers
 // ────────────────────────────────────────────────
 
-/** BaseXP(L) = 75L + 25L·log₂(L+1) + 4L·(L−1) */
-export function computeBaseXP(level: number): number {
-  if (level < 1) return 0;
-  return Math.round(75 * level + 25 * level * Math.log2(level + 1) + 4 * level * (level - 1));
-}
-
 export const CLASS_RARITY_XP_MULTIPLIERS: Record<ClassRarity, number> = {
   Unclassed: 1.0,
   Common: 1.0,
@@ -332,21 +322,6 @@ export const CLASS_RARITY_XP_MULTIPLIERS: Record<ClassRarity, number> = {
   Mythic: 1.5,
   Unique: 1.65,
 };
-
-// ────────────────────────────────────────────────
-// §14  Class Bonus Points
-// ────────────────────────────────────────────────
-
-/** ClassBonusPoints = ⌊max(0, CharLevel − AcqLevel) / ClassCadence⌋ */
-export function computeClassBonusPoints(
-  characterLevel: number,
-  classAcquisitionLevel: number,
-  bonusPointCadence: number,
-): number {
-  if (bonusPointCadence <= 0) return 0;
-  const effective = Math.max(0, characterLevel - classAcquisitionLevel);
-  return Math.floor(effective / bonusPointCadence);
-}
 
 // ────────────────────────────────────────────────
 // §8  Depletion State Bands

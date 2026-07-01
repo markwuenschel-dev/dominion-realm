@@ -8,11 +8,13 @@ import { useCharacterSheetStore } from '@/store/characterSheetStore';
 import {
   SPECIES_TEMPLATES,
   CLASS_TEMPLATES,
+  CLASS_RARITY_XP_MULTIPLIERS,
+} from '@/lib/characterTemplates';
+import {
   getSoulMultiplier,
   computeBaseXP,
   computeClassBonusPoints,
-  CLASS_RARITY_XP_MULTIPLIERS,
-} from '@/lib/characterTemplates';
+} from '@/lib/formulas/progression';
 import type {
   CharacterSheetDerived,
   ResourceBreakdown,
