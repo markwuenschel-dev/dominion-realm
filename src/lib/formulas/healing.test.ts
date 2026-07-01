@@ -83,9 +83,7 @@ describe('computeCompatibilityFromKappa', () => {
   });
 
   it('defaults k_kappa to 1.0 when omitted', () => {
-    expect(computeCompatibilityFromKappa(0.5)).toBeCloseTo(
-      computeCompatibilityFromKappa(0.5, 1.0),
-    );
+    expect(computeCompatibilityFromKappa(0.5)).toBeCloseTo(computeCompatibilityFromKappa(0.5, 1.0));
   });
 
   it('returns 1.0 when kappa is 0 (neutral compatibility)', () => {

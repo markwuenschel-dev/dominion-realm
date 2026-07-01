@@ -23,13 +23,29 @@ import type { Attributes } from '@/types';
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 
 const NOMINAL: Attributes = {
-  CON: 10, END: 10, STR: 10, AGI: 10, DEX: 10,
-  INT: 10, WIS: 10, CHA: 10, Faith: 10, Occult: 10,
+  CON: 10,
+  END: 10,
+  STR: 10,
+  AGI: 10,
+  DEX: 10,
+  INT: 10,
+  WIS: 10,
+  CHA: 10,
+  Faith: 10,
+  Occult: 10,
 };
 
 const ZEROS: Attributes = {
-  CON: 0, END: 0, STR: 0, AGI: 0, DEX: 0,
-  INT: 0, WIS: 0, CHA: 0, Faith: 0, Occult: 0,
+  CON: 0,
+  END: 0,
+  STR: 0,
+  AGI: 0,
+  DEX: 0,
+  INT: 0,
+  WIS: 0,
+  CHA: 0,
+  Faith: 0,
+  Occult: 0,
 };
 
 // ── §10  computePenetration ───────────────────────────────────────────────────
@@ -247,11 +263,11 @@ describe('computeSeverity', () => {
 
   it('description is a non-empty string for every band', () => {
     const inputs = [
-      { load: 5, resistance: 10, thresholdWidth: 5 },   // none
-      { load: 14, resistance: 10, thresholdWidth: 5 },  // minor
-      { load: 17, resistance: 10, thresholdWidth: 5 },  // moderate
-      { load: 22, resistance: 10, thresholdWidth: 5 },  // severe
-      { load: 25, resistance: 10, thresholdWidth: 5 },  // catastrophic
+      { load: 5, resistance: 10, thresholdWidth: 5 }, // none
+      { load: 14, resistance: 10, thresholdWidth: 5 }, // minor
+      { load: 17, resistance: 10, thresholdWidth: 5 }, // moderate
+      { load: 22, resistance: 10, thresholdWidth: 5 }, // severe
+      { load: 25, resistance: 10, thresholdWidth: 5 }, // catastrophic
     ];
     for (const input of inputs) {
       expect(computeSeverity(input).description.length).toBeGreaterThan(0);
