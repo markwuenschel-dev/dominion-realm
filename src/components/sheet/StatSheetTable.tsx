@@ -12,12 +12,12 @@ import {
   SOUL_LEVEL_TEXT_COLORS,
   CLASS_ATTR_MODS,
   getClassAttrMod,
-  getSoulMultiplier,
   type SpeciesKey,
   type ClassKey,
   type SoulLevelKey,
   type AttrKey,
 } from '@/lib/characterTemplates';
+import { getSoulMultiplier } from '@/lib/formulas/progression';
 import {
   Select,
   SelectContent,
