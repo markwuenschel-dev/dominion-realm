@@ -26,18 +26,42 @@ import type { Attributes, CurrentResources, ResourceMaxima } from '@/types';
 // ── Fixtures ────────────────────────────────────────────────────────────────
 
 const NOMINAL: Attributes = {
-  CON: 10, END: 10, STR: 10, AGI: 10, DEX: 10,
-  INT: 10, WIS: 10, CHA: 10, Faith: 10, Occult: 10,
+  CON: 10,
+  END: 10,
+  STR: 10,
+  AGI: 10,
+  DEX: 10,
+  INT: 10,
+  WIS: 10,
+  CHA: 10,
+  Faith: 10,
+  Occult: 10,
 };
 
 const ZEROS: Attributes = {
-  CON: 0, END: 0, STR: 0, AGI: 0, DEX: 0,
-  INT: 0, WIS: 0, CHA: 0, Faith: 0, Occult: 0,
+  CON: 0,
+  END: 0,
+  STR: 0,
+  AGI: 0,
+  DEX: 0,
+  INT: 0,
+  WIS: 0,
+  CHA: 0,
+  Faith: 0,
+  Occult: 0,
 };
 
 const MAXED: Attributes = {
-  CON: 30, END: 30, STR: 30, AGI: 30, DEX: 30,
-  INT: 30, WIS: 30, CHA: 30, Faith: 30, Occult: 30,
+  CON: 30,
+  END: 30,
+  STR: 30,
+  AGI: 30,
+  DEX: 30,
+  INT: 30,
+  WIS: 30,
+  CHA: 30,
+  Faith: 30,
+  Occult: 30,
 };
 
 // ── §1  computeHPMax ─────────────────────────────────────────────────────────
@@ -56,10 +80,7 @@ describe('computeHPMax', () => {
   });
 
   it('scales correctly at attribute maximum (30)', () => {
-    const expected =
-      HP_COEFFICIENTS.CON * 30 +
-      HP_COEFFICIENTS.END * 30 +
-      HP_COEFFICIENTS.STR * 30;
+    const expected = HP_COEFFICIENTS.CON * 30 + HP_COEFFICIENTS.END * 30 + HP_COEFFICIENTS.STR * 30;
     expect(computeHPMax(MAXED)).toBe(expected);
   });
 
@@ -87,9 +108,7 @@ describe('computeManaMax', () => {
 
   it('scales correctly at attribute maximum (30)', () => {
     const expected =
-      MANA_COEFFICIENTS.INT * 30 +
-      MANA_COEFFICIENTS.WIS * 30 +
-      MANA_COEFFICIENTS.CHA * 30;
+      MANA_COEFFICIENTS.INT * 30 + MANA_COEFFICIENTS.WIS * 30 + MANA_COEFFICIENTS.CHA * 30;
     expect(computeManaMax(MAXED)).toBe(expected);
   });
 

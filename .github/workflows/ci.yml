@@ -35,12 +35,20 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Lint, types, format, tests
+        # Run the four checks in parallel but fail the job if ANY of them fails.
+        # A bare `wait` returns 0 and would swallow the checks' exit codes, so
+        # collect each PID and wait on it individually, tracking the worst status.
         run: |
-          pnpm run format:check &
-          pnpm run lint &
-          pnpm run check &
-          pnpm test &
-          wait
+          pids=()
+          pnpm run format:check & pids+=($!)
+          pnpm run lint & pids+=($!)
+          pnpm run check & pids+=($!)
+          pnpm test & pids+=($!)
+          status=0
+          for pid in "${pids[@]}"; do
+            wait "$pid" || status=1
+          done
+          exit $status
       - name: Cache Next.js build
         uses: actions/cache@v4
         with:

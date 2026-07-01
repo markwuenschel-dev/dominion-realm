@@ -19,18 +19,34 @@ import {
   RESERVE_REGEN_COEFFICIENTS,
   DEFAULT_REGEN_CURVE_PARAMS,
 } from '@/lib/constants';
-import type { Attributes, RegenCurveParams } from '@/types';
+import type { Attributes } from '@/types';
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 
 const NOMINAL: Attributes = {
-  CON: 10, END: 10, STR: 10, AGI: 10, DEX: 10,
-  INT: 10, WIS: 10, CHA: 10, Faith: 10, Occult: 10,
+  CON: 10,
+  END: 10,
+  STR: 10,
+  AGI: 10,
+  DEX: 10,
+  INT: 10,
+  WIS: 10,
+  CHA: 10,
+  Faith: 10,
+  Occult: 10,
 };
 
 const ZEROS: Attributes = {
-  CON: 0, END: 0, STR: 0, AGI: 0, DEX: 0,
-  INT: 0, WIS: 0, CHA: 0, Faith: 0, Occult: 0,
+  CON: 0,
+  END: 0,
+  STR: 0,
+  AGI: 0,
+  DEX: 0,
+  INT: 0,
+  WIS: 0,
+  CHA: 0,
+  Faith: 0,
+  Occult: 0,
 };
 
 const PARAMS = DEFAULT_REGEN_CURVE_PARAMS; // { q_s: 0.1, gamma: 0.45, p: 2 }
