@@ -5,6 +5,7 @@
 
 import { useMemo } from 'react';
 import { useCharacterSheetStore } from '@/store/characterSheetStore';
+import { computeResourceMaxima } from '@/lib/formulas/resources';
 import {
   SPECIES_TEMPLATES,
   CLASS_TEMPLATES,
@@ -83,16 +84,11 @@ export function useCharacterSheet(): CharacterSheetDerived {
   const classTemplate = CLASS_TEMPLATES[className];
   const soulMult = getSoulMultiplier(soulLevel);
 
-  // Attribute resource values (first-file formulas, no LUCK)
-  const attributeResources = useMemo(() => {
-    const a = attributes;
-    return {
-      HP: 6 * a.CON + 2 * a.END + 2 * a.STR,
-      Mana: 6 * a.INT + 3 * a.WIS + a.CHA,
-      Stamina: 5 * a.END + 2 * a.CON + a.STR + a.AGI + a.DEX,
-      Reserve: 2 * a.CON + 2 * a.END + 2 * a.WIS + a.Faith + a.Occult,
-    };
-  }, [attributes]);
+  // §1 attribute-resource maxima — same tested seam the calculator uses.
+  // LUCK carries no formula weight, so CharacterSheetAttributes flows straight in.
+  // soulLevelMod stays 1.0 here; the soul multiplier is applied to Reserve in
+  // finalResources below, alongside race/class/condition mods.
+  const attributeResources = useMemo(() => computeResourceMaxima(attributes, 1.0), [attributes]);
 
   // Final resources: AttributeResource × RaceMod × ClassMod × ConditionMod
   // Reserve additionally × SoulMultiplier
