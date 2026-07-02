@@ -53,15 +53,15 @@ export function computeBaseStaminaRegen(attrs: Attributes): number {
 }
 
 /**
- * BaseReserveRegen = 0.20·CON + 0.20·END + 0.30·WIS + 0.15·Faith + 0.15·Occult
+ * BaseReserveRegen = 0.20·CON + 0.20·END + 0.30·WIS + 0.15·CVN + 0.15·MYS
  */
 export function computeBaseReserveRegen(attrs: Attributes): number {
   return (
     RESERVE_REGEN_COEFFICIENTS.CON * attrs.CON +
     RESERVE_REGEN_COEFFICIENTS.END * attrs.END +
     RESERVE_REGEN_COEFFICIENTS.WIS * attrs.WIS +
-    RESERVE_REGEN_COEFFICIENTS.Faith * attrs.Faith +
-    RESERVE_REGEN_COEFFICIENTS.Occult * attrs.Occult
+    RESERVE_REGEN_COEFFICIENTS.CVN * attrs.CVN +
+    RESERVE_REGEN_COEFFICIENTS.MYS * attrs.MYS
   );
 }
 

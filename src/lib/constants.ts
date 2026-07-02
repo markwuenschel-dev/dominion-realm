@@ -14,8 +14,8 @@ export const DEFAULT_ATTRIBUTES: Attributes = {
   INT: 10,
   WIS: 10,
   CHA: 10,
-  Faith: 10,
-  Occult: 10,
+  CVN: 10,
+  MYS: 10,
 };
 
 // ── Resource maxima coefficients — formula lock §1.1 ──
@@ -24,7 +24,7 @@ export const HP_COEFFICIENTS = { CON: 6, END: 2, STR: 2 } as const satisfies Par
 >;
 export const MANA_COEFFICIENTS = { INT: 6, WIS: 3, CHA: 1 } as const;
 export const STAMINA_COEFFICIENTS = { END: 5, CON: 2, STR: 1, AGI: 1, DEX: 1 } as const;
-export const RESERVE_COEFFICIENTS = { CON: 2, END: 2, WIS: 2, Faith: 1, Occult: 1 } as const;
+export const RESERVE_COEFFICIENTS = { CON: 2, END: 2, WIS: 2, CVN: 1, MYS: 1 } as const;
 export const MANA_RESERVE_RATIO = 5 as const;
 export const STAMINA_RESERVE_RATIO = 5 as const;
 export const MANA_FLOOR_FRACTION = 0.2;
@@ -38,8 +38,8 @@ export const RESERVE_REGEN_COEFFICIENTS = {
   CON: 0.2,
   END: 0.2,
   WIS: 0.3,
-  Faith: 0.15,
-  Occult: 0.15,
+  CVN: 0.15,
+  MYS: 0.15,
 };
 
 // ── Safe-low curve defaults — formula lock §4 ──

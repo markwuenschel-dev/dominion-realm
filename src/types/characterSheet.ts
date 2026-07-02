@@ -1,18 +1,22 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // types/characterSheet.ts
 // Types specific to the stat sheet — extends core Attributes with LUCK.
-// LUCK has no formula effect in the current lock; it's tracked but not computed.
+// LUCK has no resource-formula effect; it's tracked but not converted to a number.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { Attributes } from '@/types';
-import type { SpeciesKey, ClassKey, SoulLevelKey } from '@/lib/characterTemplates';
+import type { SpeciesKey, SoulLevelKey } from '@/lib/characterTemplates';
+import type { ClassKey } from '@/lib/classTaxonomy';
 
 // ────────────────────────────────────────────────
 // Extended attribute set (adds LUCK)
 // ────────────────────────────────────────────────
 
 export interface CharacterSheetAttributes extends Attributes {
-  /** No resource formula effect in current lock. Tracked for completeness. */
+  /**
+   * Per luck_fortune.md: Luck is a cross-system probability-flow mechanic, not a
+   * resource weight. Never converted to a numeric resource/combat bonus here.
+   */
   LUCK: number;
 }
 
@@ -25,8 +29,8 @@ export const SHEET_ATTRIBUTE_KEYS = [
   'INT',
   'WIS',
   'CHA',
-  'Faith',
-  'Occult',
+  'CVN',
+  'MYS',
   'LUCK',
 ] as const satisfies (keyof CharacterSheetAttributes)[];
 
@@ -40,8 +44,8 @@ export const SHEET_ATTRIBUTE_GROUPS: {
 }[] = [
   { label: 'Physical', keys: ['CON', 'END', 'STR', 'AGI', 'DEX'] },
   { label: 'Mental', keys: ['INT', 'WIS', 'CHA'] },
-  { label: 'Soul', keys: ['Faith', 'Occult'] },
-  { label: 'Fortune', keys: ['LUCK'], note: 'No formula effect in current lock' },
+  { label: 'Soul', keys: ['CVN', 'MYS'] },
+  { label: 'Fortune', keys: ['LUCK'], note: 'No resource-formula effect' },
 ];
 
 /** Attributes that feed into resource formulas (excludes LUCK) */
@@ -54,8 +58,8 @@ export const FORMULA_ATTRIBUTE_KEYS = [
   'INT',
   'WIS',
   'CHA',
-  'Faith',
-  'Occult',
+  'CVN',
+  'MYS',
 ] as const satisfies (keyof Attributes)[];
 
 // ────────────────────────────────────────────────
@@ -67,7 +71,6 @@ export interface CharacterSheetState {
   level: number;
   species: SpeciesKey;
   className: ClassKey;
-  classAcquisitionLevel: number;
   soulLevel: SoulLevelKey;
   attributes: CharacterSheetAttributes;
   conditionMods: { HP: number; Mana: number; Stamina: number; Reserve: number };
@@ -88,9 +91,9 @@ export interface FinalResources {
 
 export interface ResourceBreakdown {
   resource: 'HP' | 'Mana' | 'Stamina' | 'Reserve';
+  /** Attribute-derived maximum with per-attribute class multipliers already baked in. */
   attributeValue: number;
   raceMod: number;
-  classMod: number;
   soulMultiplier: number;
   conditionMod: number;
   final: number;
@@ -128,11 +131,12 @@ export interface CharacterSheetDerived {
   breakdowns: ResourceBreakdown[];
   finalResources: FinalResources;
   totalFreePoints: number;
-  classBonusPoints: number;
   totalPointsAvailable: number;
   spentPoints: number;
   remainingPoints: number;
-  xpToNextLevel: number;
-  xpProgressPercent: number;
+  /** null for Unique-tier classes — progression scale is undefined (N_cycle). */
+  xpToNextLevel: number | null;
+  /** null when xpToNextLevel is null. */
+  xpProgressPercent: number | null;
   regenRates: RegenRates;
 }

@@ -5,14 +5,14 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import type { CharacterSheetState, SheetAttributeKey } from '@/types/characterSheet';
-import type { SpeciesKey, ClassKey, SoulLevelKey } from '@/lib/characterTemplates';
+import type { SpeciesKey, SoulLevelKey } from '@/lib/characterTemplates';
+import type { ClassKey } from '@/lib/classTaxonomy';
 
 interface CharacterSheetActions {
   setName: (name: string) => void;
   setLevel: (level: number) => void;
   setSpecies: (species: SpeciesKey) => void;
   setClassName: (className: ClassKey) => void;
-  setClassAcquisitionLevel: (level: number) => void;
   setSoulLevel: (level: SoulLevelKey) => void;
   setAttribute: (key: SheetAttributeKey, value: number) => void;
   setConditionMod: (key: 'HP' | 'Mana' | 'Stamina' | 'Reserve', value: number) => void;
@@ -31,7 +31,6 @@ const DEFAULT_STATE: CharacterSheetState = {
   level: 1,
   species: 'Human',
   className: 'None',
-  classAcquisitionLevel: 1,
   soulLevel: 'Common',
   attributes: {
     CON: 5,
@@ -42,8 +41,8 @@ const DEFAULT_STATE: CharacterSheetState = {
     INT: 5,
     WIS: 5,
     CHA: 5,
-    Faith: 5,
-    Occult: 5,
+    CVN: 5,
+    MYS: 5,
     LUCK: 5,
   },
   conditionMods: { HP: 1.0, Mana: 1.0, Stamina: 1.0, Reserve: 1.0 },
@@ -61,8 +60,6 @@ export const useCharacterSheetStore = create<CharacterSheetStore>()(
         setLevel: (level) => set({ level: Math.max(1, Math.min(50, level)) }, false, 'setLevel'),
         setSpecies: (species) => set({ species }, false, 'setSpecies'),
         setClassName: (className) => set({ className }, false, 'setClassName'),
-        setClassAcquisitionLevel: (level) =>
-          set({ classAcquisitionLevel: Math.max(1, level) }, false, 'setClassAcquisitionLevel'),
         setSoulLevel: (soulLevel) => set({ soulLevel }, false, 'setSoulLevel'),
 
         setAttribute: (key, value) =>
@@ -108,14 +105,13 @@ export const useCharacterSheetStore = create<CharacterSheetStore>()(
       }),
       {
         name: 'dominion-realm-character-sheet',
-        version: 2, // bumped to clear stale localStorage from old Marcus defaults
+        version: 3, // bumped for Faith→CVN/Occult→MYS rename + classAcquisitionLevel removal
         // currentResources is transient — not persisted
         partialize: (state) => ({
           name: state.name,
           level: state.level,
           species: state.species,
           className: state.className,
-          classAcquisitionLevel: state.classAcquisitionLevel,
           soulLevel: state.soulLevel,
           attributes: state.attributes,
           conditionMods: state.conditionMods,

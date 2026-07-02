@@ -31,8 +31,8 @@ const NOMINAL: Attributes = {
   INT: 10,
   WIS: 10,
   CHA: 10,
-  Faith: 10,
-  Occult: 10,
+  CVN: 10,
+  MYS: 10,
 };
 
 const ZEROS: Attributes = {
@@ -44,8 +44,8 @@ const ZEROS: Attributes = {
   INT: 0,
   WIS: 0,
   CHA: 0,
-  Faith: 0,
-  Occult: 0,
+  CVN: 0,
+  MYS: 0,
 };
 
 // ── §10  computePenetration ───────────────────────────────────────────────────

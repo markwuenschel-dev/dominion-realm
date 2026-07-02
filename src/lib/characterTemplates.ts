@@ -21,26 +21,8 @@ export type SpeciesKey =
   | 'DemonPlaceholder'
   | 'XylorynDrone';
 
-export type ClassKey =
-  | 'None'
-  | 'Warrior'
-  | 'Mage'
-  | 'Rogue'
-  | 'Scout'
-  | 'Healer'
-  | 'Warden'
-  | 'Psion'
-  | 'Adventurer';
-
-export type ClassRarity =
-  | 'Unclassed'
-  | 'Common'
-  | 'Uncommon'
-  | 'Rare'
-  | 'Exceptional'
-  | 'Legendary'
-  | 'Mythic'
-  | 'Unique';
+// Class taxonomy (keys, rarity, profiles, attribute multipliers) lives in
+// lib/classTaxonomy.ts. Species, soul level, and depletion bands stay here.
 
 export type SoulLevelKey =
   | 'Fractured'
@@ -175,119 +157,6 @@ export const SPECIES_TEMPLATES: Record<SpeciesKey, SpeciesTemplate> = {
   },
 };
 
-// ────────────────────────────────────────────────
-// §19  Class Templates
-// ClassMod derived: ClassValue / HumanBaseline (same all-5s baseline)
-// ────────────────────────────────────────────────
-
-export interface ClassTemplate {
-  key: ClassKey;
-  label: string;
-  rarity: ClassRarity;
-  classMod: ResourceMods;
-  bonusPointCadence: number; // levels per bonus point (0 = none)
-  primaryShape: string;
-}
-
-export const CLASS_TEMPLATES: Record<ClassKey, ClassTemplate> = {
-  None: {
-    key: 'None',
-    label: 'Unclassed',
-    rarity: 'Unclassed',
-    classMod: { HP: 1.0, Mana: 1.0, Stamina: 1.0, Reserve: 1.0 },
-    bonusPointCadence: 0,
-    primaryShape: 'No class modifier',
-  },
-  Warrior: {
-    key: 'Warrior',
-    label: 'Warrior',
-    rarity: 'Common',
-    classMod: { HP: 1.1, Mana: 0.96, Stamina: 1.1, Reserve: 1.05 },
-    bonusPointCadence: 5,
-    primaryShape: 'Direct combat durability',
-  },
-  Mage: {
-    key: 'Mage',
-    label: 'Mage',
-    rarity: 'Common',
-    classMod: { HP: 0.96, Mana: 1.16, Stamina: 0.96, Reserve: 1.05 },
-    bonusPointCadence: 5,
-    primaryShape: 'Spellcasting and mana',
-  },
-  Rogue: {
-    key: 'Rogue',
-    label: 'Rogue',
-    rarity: 'Common',
-    classMod: { HP: 0.9, Mana: 0.9, Stamina: 1.1, Reserve: 1.15 },
-    bonusPointCadence: 5,
-    primaryShape: 'Burst exploitation, weak-point pressure',
-  },
-  Scout: {
-    key: 'Scout',
-    label: 'Scout',
-    rarity: 'Common',
-    classMod: { HP: 0.96, Mana: 0.9, Stamina: 1.26, Reserve: 1.0 },
-    bonusPointCadence: 5,
-    primaryShape: 'Sustained movement, routes, threat-reading',
-  },
-  Healer: {
-    key: 'Healer',
-    label: 'Healer',
-    rarity: 'Common',
-    classMod: { HP: 1.0, Mana: 1.1, Stamina: 1.0, Reserve: 1.1 },
-    bonusPointCadence: 5,
-    primaryShape: 'Restoration and stabilization',
-  },
-  Warden: {
-    key: 'Warden',
-    label: 'Warden',
-    rarity: 'Uncommon',
-    classMod: { HP: 1.1, Mana: 1.06, Stamina: 1.06, Reserve: 1.15 },
-    bonusPointCadence: 4,
-    primaryShape: 'Boundaries and protection',
-  },
-  Psion: {
-    key: 'Psion',
-    label: 'Psion',
-    rarity: 'Rare',
-    classMod: { HP: 0.96, Mana: 1.1, Stamina: 0.96, Reserve: 1.2 },
-    bonusPointCadence: 3,
-    primaryShape: 'Will, mind, and Reserve pressure',
-  },
-  Adventurer: {
-    key: 'Adventurer',
-    label: 'Adventurer',
-    rarity: 'Common',
-    classMod: { HP: 1.04, Mana: 1.0, Stamina: 1.06, Reserve: 1.025 },
-    bonusPointCadence: 5,
-    primaryShape: 'Flexible survival',
-  },
-};
-
-// Rarity badge colors
-export const RARITY_COLORS: Record<ClassRarity, string> = {
-  Unclassed: 'text-zinc-500 border-zinc-700',
-  Common: 'text-zinc-300 border-zinc-600',
-  Uncommon: 'text-green-400 border-green-700',
-  Rare: 'text-blue-400 border-blue-700',
-  Exceptional: 'text-violet-400 border-violet-700',
-  Legendary: 'text-amber-400 border-amber-700',
-  Mythic: 'text-orange-400 border-orange-700',
-  Unique: 'text-red-400 border-red-700',
-};
-
-// Just the text color token per rarity (no border)
-export const RARITY_TEXT_COLORS: Record<ClassRarity, string> = {
-  Unclassed: 'text-zinc-500',
-  Common: 'text-zinc-300',
-  Uncommon: 'text-green-400',
-  Rare: 'text-blue-400',
-  Exceptional: 'text-violet-400',
-  Legendary: 'text-amber-400',
-  Mythic: 'text-orange-400',
-  Unique: 'text-red-400',
-};
-
 // Spectra-mapped text color per soul level.
 // Sub-Common (Fractured→Lesser) are muted grey; above Common they follow the
 // site's spectral gradient (cyan→blue→purple→pink→gold).
@@ -306,21 +175,6 @@ export const SOUL_LEVEL_TEXT_COLORS: Record<SoulLevelKey, string> = {
   Transcendent: 'text-pink-400',
   Divine: 'text-rose-400',
   Absolute: 'text-amber-400',
-};
-
-// ────────────────────────────────────────────────
-// §15  XP Curve and Class Rarity Multipliers
-// ────────────────────────────────────────────────
-
-export const CLASS_RARITY_XP_MULTIPLIERS: Record<ClassRarity, number> = {
-  Unclassed: 1.0,
-  Common: 1.0,
-  Uncommon: 1.08,
-  Rare: 1.16,
-  Exceptional: 1.25,
-  Legendary: 1.38,
-  Mythic: 1.5,
-  Unique: 1.65,
 };
 
 // ────────────────────────────────────────────────
@@ -495,41 +349,4 @@ export function getDepletionBand(
     if (pct >= band.minPct) return band;
   }
   return bands[bands.length - 1]!;
-}
-
-// ────────────────────────────────────────────────
-// SCAFFOLD: Class attribute multipliers
-// Not derived from any canon doc. All 1.0 until locked.
-// Wire in canonical values when class attr mods are defined.
-// ────────────────────────────────────────────────
-
-export type AttrKey =
-  | 'CON'
-  | 'END'
-  | 'STR'
-  | 'AGI'
-  | 'DEX'
-  | 'INT'
-  | 'WIS'
-  | 'CHA'
-  | 'Faith'
-  | 'Occult'
-  | 'LUCK';
-
-/** SCAFFOLDED — all empty until canonical class attr mods are locked */
-export const CLASS_ATTR_MODS: Record<ClassKey, Partial<Record<AttrKey, number>>> = {
-  None: {},
-  Warrior: {}, // SCAFFOLD: expect STR / CON / END bonus
-  Mage: {}, // SCAFFOLD: expect INT / WIS bonus
-  Rogue: {}, // SCAFFOLD: expect DEX / AGI bonus
-  Scout: {}, // SCAFFOLD: expect AGI / DEX bonus
-  Healer: {}, // SCAFFOLD: expect WIS / CHA bonus
-  Warden: {}, // SCAFFOLD: expect CON / WIS bonus
-  Psion: {}, // SCAFFOLD: expect INT / WIS / Faith bonus
-  Adventurer: {}, // SCAFFOLD: varied
-};
-
-/** Returns the class attribute multiplier for a given key (1.0 if unset) */
-export function getClassAttrMod(classKey: ClassKey, attrKey: AttrKey): number {
-  return CLASS_ATTR_MODS[classKey]?.[attrKey] ?? 1.0;
 }
