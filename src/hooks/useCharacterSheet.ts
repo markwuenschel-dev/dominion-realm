@@ -7,16 +7,12 @@ import { useMemo } from 'react';
 import { useCharacterSheetStore } from '@/store/characterSheetStore';
 import { computeResourceMaxima } from '@/lib/formulas/resources';
 import { computeActivityRegenRates } from '@/lib/formulas/activityRegen';
-import {
-  SPECIES_TEMPLATES,
-  CLASS_TEMPLATES,
-  CLASS_RARITY_XP_MULTIPLIERS,
-} from '@/lib/characterTemplates';
-import {
-  getSoulMultiplier,
-  computeBaseXP,
-  computeClassBonusPoints,
-} from '@/lib/formulas/progression';
+import { SPECIES_TEMPLATES } from '@/lib/characterTemplates';
+import { getClassProfile, getClassAttrMultiplier } from '@/lib/classTaxonomy';
+import { getSoulMultiplier } from '@/lib/formulas/progression';
+import { xpToNextLevel as computeXpToNextLevel } from '@/lib/xpFormulas';
+import { ATTRIBUTE_KEYS } from '@/types';
+import type { Attributes } from '@/types';
 import type {
   CharacterSheetDerived,
   ResourceBreakdown,
@@ -28,65 +24,65 @@ import type {
 // ────────────────────────────────────────────────
 
 export function useCharacterSheet(): CharacterSheetDerived {
-  const {
-    level,
-    species,
-    className,
-    classAcquisitionLevel,
-    soulLevel,
-    attributes,
-    conditionMods,
-    currentXP,
-  } = useCharacterSheetStore();
+  const { level, species, className, soulLevel, attributes, conditionMods, currentXP } =
+    useCharacterSheetStore();
 
   const speciesTemplate = SPECIES_TEMPLATES[species];
-  const classTemplate = CLASS_TEMPLATES[className];
+  const classProfile = getClassProfile(className);
   const soulMult = getSoulMultiplier(soulLevel);
 
-  // §1 attribute-resource maxima — same tested seam the calculator uses.
-  // LUCK carries no formula weight, so CharacterSheetAttributes flows straight in.
-  // soulLevelMod stays 1.0 here; the soul multiplier is applied to Reserve in
-  // finalResources below, alongside race/class/condition mods.
-  const attributeResources = useMemo(() => computeResourceMaxima(attributes, 1.0), [attributes]);
+  // §5 Class influence enters at the attribute layer: each formula-relevant
+  // attribute is scaled by its Prime/Core/Secondary/Neutral class multiplier
+  // before the resource formulas run. Unclassed → every multiplier is 1.0.
+  // (LUCK is intentionally excluded — it is not a resource-formula input.)
+  const effectiveAttributes = useMemo<Attributes>(() => {
+    const result = {} as Attributes;
+    for (const key of ATTRIBUTE_KEYS) {
+      result[key] = attributes[key] * getClassAttrMultiplier(classProfile, key);
+    }
+    return result;
+  }, [attributes, classProfile]);
 
-  // Final resources: AttributeResource × RaceMod × ClassMod × ConditionMod
-  // Reserve additionally × SoulMultiplier
+  // §1 attribute-resource maxima from the effective (class-scaled) attributes.
+  // soulLevelMod stays 1.0 here; the soul multiplier is applied to Reserve in
+  // finalResources below, alongside race/condition mods.
+  const attributeResources = useMemo(
+    () => computeResourceMaxima(effectiveAttributes, 1.0),
+    [effectiveAttributes],
+  );
+
+  // Final resources: AttributeResource × RaceMod × ConditionMod.
+  // Reserve additionally × SoulMultiplier. Class effect is already baked into
+  // attributeResources via effectiveAttributes — there is no resource-level
+  // class multiplier anymore.
   const finalResources = useMemo((): FinalResources => {
     const { HP, Mana, Stamina, Reserve } = attributeResources;
     const rm = speciesTemplate.raceMod;
-    const cm = classTemplate.classMod;
     const cd = conditionMods;
     return {
-      HP: Math.round(HP * rm.HP * cm.HP * cd.HP),
-      Mana: Math.round(Mana * rm.Mana * cm.Mana * cd.Mana),
-      Stamina: Math.round(Stamina * rm.Stamina * cm.Stamina * cd.Stamina),
-      Reserve: Math.round(Reserve * soulMult * rm.Reserve * cm.Reserve * cd.Reserve),
+      HP: Math.round(HP * rm.HP * cd.HP),
+      Mana: Math.round(Mana * rm.Mana * cd.Mana),
+      Stamina: Math.round(Stamina * rm.Stamina * cd.Stamina),
+      Reserve: Math.round(Reserve * soulMult * rm.Reserve * cd.Reserve),
     };
-  }, [attributeResources, speciesTemplate, classTemplate, conditionMods, soulMult]);
+  }, [attributeResources, speciesTemplate, conditionMods, soulMult]);
 
   const breakdowns = useMemo((): ResourceBreakdown[] => {
     const rm = speciesTemplate.raceMod;
-    const cm = classTemplate.classMod;
     const cd = conditionMods;
     return (['HP', 'Mana', 'Stamina', 'Reserve'] as const).map((r) => ({
       resource: r,
-      attributeValue: attributeResources[r],
+      attributeValue: Math.round(attributeResources[r]),
       raceMod: rm[r],
-      classMod: cm[r],
       soulMultiplier: r === 'Reserve' ? soulMult : 1,
       conditionMod: cd[r],
       final: finalResources[r],
     }));
-  }, [attributeResources, speciesTemplate, classTemplate, conditionMods, soulMult, finalResources]);
+  }, [attributeResources, speciesTemplate, conditionMods, soulMult, finalResources]);
 
   const totalFreePoints = useMemo(
     () => level * speciesTemplate.pointsPerLevel,
     [level, speciesTemplate.pointsPerLevel],
-  );
-
-  const classBonusPoints = useMemo(
-    () => computeClassBonusPoints(level, classAcquisitionLevel, classTemplate.bonusPointCadence),
-    [level, classAcquisitionLevel, classTemplate.bonusPointCadence],
   );
 
   const spentPoints = useMemo(() => {
@@ -95,19 +91,22 @@ export function useCharacterSheet(): CharacterSheetDerived {
     return keys.reduce((sum, k) => sum + (attributes[k] - BASE_EACH), 0);
   }, [attributes]);
 
-  const totalPointsAvailable = totalFreePoints + classBonusPoints;
+  // Class rarity no longer grants recurring bonus attribute points (canon firewall).
+  const totalPointsAvailable = totalFreePoints;
   const remainingPoints = totalPointsAvailable - spentPoints;
 
-  const xpToNextLevel = useMemo(() => {
-    const base = computeBaseXP(level);
-    const mult = CLASS_RARITY_XP_MULTIPLIERS[classTemplate.rarity];
-    return Math.round(base * mult);
-  }, [level, classTemplate.rarity]);
-
-  const xpProgressPercent = useMemo(
-    () => (xpToNextLevel > 0 ? Math.min(100, Math.round((currentXP / xpToNextLevel) * 100)) : 0),
-    [currentXP, xpToNextLevel],
+  // Prevalence-derived XP model. Unique-tier returns null (N_cycle undefined) —
+  // never coerce to 0/NaN; carry the null through to the UI.
+  const xpToNextLevel = useMemo(
+    () => computeXpToNextLevel(level, classProfile.rarity),
+    [level, classProfile.rarity],
   );
+
+  const xpProgressPercent = useMemo((): number | null => {
+    if (xpToNextLevel === null) return null;
+    if (xpToNextLevel <= 0) return 0;
+    return Math.min(100, Math.round((currentXP / xpToNextLevel) * 100));
+  }, [currentXP, xpToNextLevel]);
 
   // §7 activity-based regen — delegated to the tested formulas seam.
   const regenRates = useMemo(
@@ -124,7 +123,6 @@ export function useCharacterSheet(): CharacterSheetDerived {
     breakdowns,
     finalResources,
     totalFreePoints,
-    classBonusPoints,
     totalPointsAvailable,
     spentPoints,
     remainingPoints,

@@ -60,8 +60,8 @@ describe('useCharacterSheet — §1 resource formula lock', () => {
       INT: 14,
       WIS: 11,
       CHA: 4,
-      Faith: 3,
-      Occult: 5,
+      CVN: 3,
+      MYS: 5,
       LUCK: 10,
     };
 
@@ -100,7 +100,6 @@ describe('useCharacterSheet — derived values (default state golden master)', (
       [
         {
           "attributeValue": 50,
-          "classMod": 1,
           "conditionMod": 1,
           "final": 50,
           "raceMod": 1,
@@ -109,7 +108,6 @@ describe('useCharacterSheet — derived values (default state golden master)', (
         },
         {
           "attributeValue": 50,
-          "classMod": 1,
           "conditionMod": 1,
           "final": 50,
           "raceMod": 1,
@@ -118,7 +116,6 @@ describe('useCharacterSheet — derived values (default state golden master)', (
         },
         {
           "attributeValue": 50,
-          "classMod": 1,
           "conditionMod": 1,
           "final": 50,
           "raceMod": 1,
@@ -127,7 +124,6 @@ describe('useCharacterSheet — derived values (default state golden master)', (
         },
         {
           "attributeValue": 40,
-          "classMod": 1,
           "conditionMod": 1,
           "final": 40,
           "raceMod": 1,

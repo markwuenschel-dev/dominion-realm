@@ -50,14 +50,14 @@ export function computeStaminaMax(attrs: Attributes): number {
   );
 }
 
-/** Reserve_max = (2·CON + 2·END + 2·WIS + Faith + Occult) × SoulLevelMod */
+/** Reserve_max = (2·CON + 2·END + 2·WIS + CVN + MYS) × SoulLevelMod */
 export function computeReserveMax(attrs: Attributes, soulLevelMod = 1.0): number {
   const base =
     RESERVE_COEFFICIENTS.CON * attrs.CON +
     RESERVE_COEFFICIENTS.END * attrs.END +
     RESERVE_COEFFICIENTS.WIS * attrs.WIS +
-    RESERVE_COEFFICIENTS.Faith * attrs.Faith +
-    RESERVE_COEFFICIENTS.Occult * attrs.Occult;
+    RESERVE_COEFFICIENTS.CVN * attrs.CVN +
+    RESERVE_COEFFICIENTS.MYS * attrs.MYS;
   return base * soulLevelMod;
 }
 
@@ -75,8 +75,9 @@ export function computeResourceMaxima(attrs: Attributes, soulLevelMod = 1.0): Re
 // §1.2  Formula labels — derived from the coefficient source of truth
 // ────────────────────────────────────────────────
 
-/** Display abbreviations for attribute keys whose label differs from the key. */
-const ATTR_LABEL: Record<string, string> = { Faith: 'FAI', Occult: 'OCC' };
+/** Display abbreviations for attribute keys whose label differs from the key.
+ *  CVN/MYS are already display-ready three-letter abbreviations, so this is empty. */
+const ATTR_LABEL: Record<string, string> = {};
 
 const RESOURCE_COEFFICIENTS = {
   HP: HP_COEFFICIENTS,
@@ -88,7 +89,7 @@ const RESOURCE_COEFFICIENTS = {
 /**
  * Render a resource's §1 coefficient formula as a display string
  * (e.g. "6·CON+2·END+2·STR"), derived from the same coefficients the maxima use.
- * A coefficient of 1 is omitted; Faith/Occult abbreviate to FAI/OCC.
+ * A coefficient of 1 is omitted.
  */
 export function formatResourceFormula(resource: keyof ResourceMaxima): string {
   const coeffs = RESOURCE_COEFFICIENTS[resource];

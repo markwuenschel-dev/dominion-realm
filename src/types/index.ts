@@ -21,8 +21,8 @@ export interface Attributes {
   CHA: number; // Charisma      — Mana max (social/aura conductor)
 
   // Soul-tier
-  Faith: number; // Reserve max, Reserve regen
-  Occult: number; // Reserve max, Reserve regen
+  CVN: number; // Reserve max, Reserve regen
+  MYS: number; // Reserve max, Reserve regen
 }
 
 export const ATTRIBUTE_KEYS = [
@@ -34,8 +34,8 @@ export const ATTRIBUTE_KEYS = [
   'INT',
   'WIS',
   'CHA',
-  'Faith',
-  'Occult',
+  'CVN',
+  'MYS',
 ] as const satisfies (keyof Attributes)[];
 
 export type AttributeKey = keyof Attributes;
@@ -44,7 +44,7 @@ export type AttributeKey = keyof Attributes;
 export const ATTRIBUTE_GROUPS: { label: string; keys: AttributeKey[] }[] = [
   { label: 'Physical', keys: ['CON', 'END', 'STR', 'AGI', 'DEX'] },
   { label: 'Mental', keys: ['INT', 'WIS', 'CHA'] },
-  { label: 'Soul', keys: ['Faith', 'Occult'] },
+  { label: 'Soul', keys: ['CVN', 'MYS'] },
 ];
 
 // ────────────────────────────────────────────────

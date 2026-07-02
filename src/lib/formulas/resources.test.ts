@@ -35,8 +35,8 @@ const NOMINAL: Attributes = {
   INT: 10,
   WIS: 10,
   CHA: 10,
-  Faith: 10,
-  Occult: 10,
+  CVN: 10,
+  MYS: 10,
 };
 
 const ZEROS: Attributes = {
@@ -48,8 +48,8 @@ const ZEROS: Attributes = {
   INT: 0,
   WIS: 0,
   CHA: 0,
-  Faith: 0,
-  Occult: 0,
+  CVN: 0,
+  MYS: 0,
 };
 
 const MAXED: Attributes = {
@@ -61,8 +61,8 @@ const MAXED: Attributes = {
   INT: 30,
   WIS: 30,
   CHA: 30,
-  Faith: 30,
-  Occult: 30,
+  CVN: 30,
+  MYS: 30,
 };
 
 // ── §1  computeHPMax ─────────────────────────────────────────────────────────
@@ -87,7 +87,7 @@ describe('computeHPMax', () => {
 
   it('ignores attributes that have no HP coefficient (INT, WIS, etc.)', () => {
     const base = { ...ZEROS, CON: 10 };
-    const withExtras = { ...ZEROS, CON: 10, INT: 99, Faith: 99 };
+    const withExtras = { ...ZEROS, CON: 10, INT: 99, CVN: 99 };
     expect(computeHPMax(base)).toBe(computeHPMax(withExtras));
   });
 });
@@ -162,8 +162,8 @@ describe('computeReserveMax', () => {
       RESERVE_COEFFICIENTS.CON * NOMINAL.CON +
       RESERVE_COEFFICIENTS.END * NOMINAL.END +
       RESERVE_COEFFICIENTS.WIS * NOMINAL.WIS +
-      RESERVE_COEFFICIENTS.Faith * NOMINAL.Faith +
-      RESERVE_COEFFICIENTS.Occult * NOMINAL.Occult;
+      RESERVE_COEFFICIENTS.CVN * NOMINAL.CVN +
+      RESERVE_COEFFICIENTS.MYS * NOMINAL.MYS;
     expect(computeReserveMax(NOMINAL)).toBe(base * 1.0);
   });
 
@@ -320,18 +320,16 @@ describe('formatResourceFormula', () => {
     expect(formatResourceFormula('HP')).toBe('6·CON+2·END+2·STR');
     expect(formatResourceFormula('Mana')).toBe('6·INT+3·WIS+CHA');
     expect(formatResourceFormula('Stamina')).toBe('5·END+2·CON+STR+AGI+DEX');
-    expect(formatResourceFormula('Reserve')).toBe('2·CON+2·END+2·WIS+FAI+OCC');
+    expect(formatResourceFormula('Reserve')).toBe('2·CON+2·END+2·WIS+CVN+MYS');
   });
 
-  it('omits the coefficient when it is 1 (CHA, STR, AGI, DEX, Faith, Occult)', () => {
+  it('omits the coefficient when it is 1 (CHA, STR, AGI, DEX, CVN, MYS)', () => {
     expect(formatResourceFormula('Mana')).not.toContain('1·CHA');
     expect(formatResourceFormula('Stamina')).toContain('+STR+AGI+DEX');
   });
 
-  it('abbreviates Faith→FAI and Occult→OCC in the Reserve label', () => {
+  it('renders CVN/MYS directly (already display-ready abbreviations)', () => {
     const reserve = formatResourceFormula('Reserve');
-    expect(reserve).toContain('+FAI+OCC');
-    expect(reserve).not.toContain('Faith');
-    expect(reserve).not.toContain('Occult');
+    expect(reserve).toContain('+CVN+MYS');
   });
 });

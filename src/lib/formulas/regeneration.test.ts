@@ -32,8 +32,8 @@ const NOMINAL: Attributes = {
   INT: 10,
   WIS: 10,
   CHA: 10,
-  Faith: 10,
-  Occult: 10,
+  CVN: 10,
+  MYS: 10,
 };
 
 const ZEROS: Attributes = {
@@ -45,8 +45,8 @@ const ZEROS: Attributes = {
   INT: 0,
   WIS: 0,
   CHA: 0,
-  Faith: 0,
-  Occult: 0,
+  CVN: 0,
+  MYS: 0,
 };
 
 const PARAMS = DEFAULT_REGEN_CURVE_PARAMS; // { q_s: 0.1, gamma: 0.45, p: 2 }
@@ -66,9 +66,9 @@ describe('computeBaseHPRegen', () => {
     expect(computeBaseHPRegen(ZEROS)).toBe(0);
   });
 
-  it('ignores attributes with no HP regen coefficient (INT, Faith, etc.)', () => {
+  it('ignores attributes with no HP regen coefficient (INT, CVN, etc.)', () => {
     const base = { ...ZEROS, CON: 10 };
-    const withExtras = { ...ZEROS, CON: 10, INT: 99, Faith: 99 };
+    const withExtras = { ...ZEROS, CON: 10, INT: 99, CVN: 99 };
     expect(computeBaseHPRegen(base)).toBeCloseTo(computeBaseHPRegen(withExtras));
   });
 });
@@ -110,13 +110,13 @@ describe('computeBaseStaminaRegen', () => {
 });
 
 describe('computeBaseReserveRegen', () => {
-  it('applies Reserve regen coefficients to CON, END, WIS, Faith, Occult', () => {
+  it('applies Reserve regen coefficients to CON, END, WIS, CVN, MYS', () => {
     const expected =
       RESERVE_REGEN_COEFFICIENTS.CON * NOMINAL.CON +
       RESERVE_REGEN_COEFFICIENTS.END * NOMINAL.END +
       RESERVE_REGEN_COEFFICIENTS.WIS * NOMINAL.WIS +
-      RESERVE_REGEN_COEFFICIENTS.Faith * NOMINAL.Faith +
-      RESERVE_REGEN_COEFFICIENTS.Occult * NOMINAL.Occult;
+      RESERVE_REGEN_COEFFICIENTS.CVN * NOMINAL.CVN +
+      RESERVE_REGEN_COEFFICIENTS.MYS * NOMINAL.MYS;
     expect(computeBaseReserveRegen(NOMINAL)).toBeCloseTo(expected);
   });
 

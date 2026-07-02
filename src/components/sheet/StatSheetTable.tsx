@@ -5,24 +5,29 @@ import { useCharacterSheetStore } from '@/store/characterSheetStore';
 import { useCharacterSheet } from '@/hooks/useCharacterSheet';
 import {
   SPECIES_TEMPLATES,
-  CLASS_TEMPLATES,
   SOUL_LEVELS,
+  SOUL_LEVEL_TEXT_COLORS,
+  type SpeciesKey,
+  type SoulLevelKey,
+} from '@/lib/characterTemplates';
+import {
+  getClassProfile,
+  getClassAttrMultiplier,
+  classesByRarity,
+  PICKER_RARITIES,
   RARITY_COLORS,
   RARITY_TEXT_COLORS,
-  SOUL_LEVEL_TEXT_COLORS,
-  CLASS_ATTR_MODS,
-  getClassAttrMod,
-  type SpeciesKey,
   type ClassKey,
-  type SoulLevelKey,
   type AttrKey,
-} from '@/lib/characterTemplates';
+} from '@/lib/classTaxonomy';
 import { getSoulMultiplier } from '@/lib/formulas/progression';
 import { formatResourceFormula } from '@/lib/formulas/resources';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
@@ -96,7 +101,7 @@ function AttrCell({ attrKey, dimmed = false }: { attrKey: SheetAttributeKey; dim
   const classKey = useCharacterSheetStore((s) => s.className);
   const setAttribute = useCharacterSheetStore((s) => s.setAttribute);
 
-  const mod = getClassAttrMod(classKey, attrKey as AttrKey);
+  const mod = getClassAttrMultiplier(getClassProfile(classKey), attrKey as AttrKey);
   const effective = mod !== 1.0 ? Math.round(rawValue * mod) : rawValue;
 
   return (
@@ -195,7 +200,6 @@ export function StatSheetTable() {
     finalResources,
     breakdowns,
     totalFreePoints,
-    classBonusPoints,
     totalPointsAvailable,
     spentPoints,
     remainingPoints,
@@ -203,10 +207,14 @@ export function StatSheetTable() {
     xpProgressPercent,
   } = useCharacterSheet();
 
-  const classTemplate = CLASS_TEMPLATES[className];
+  const classProfile = getClassProfile(className);
   const soulMult = getSoulMultiplier(soulLevel);
   const isOverBudget = remainingPoints < 0;
-  const hasClassMods = Object.keys(CLASS_ATTR_MODS[className] ?? {}).length > 0;
+
+  // Unique-tier classes have no defined progression scale (N_cycle undefined).
+  const xpUndefined = xpToNextLevel === null;
+  const xpNextLabel = xpUndefined ? '—' : Math.round(xpToNextLevel);
+  const xpProgressWidth = xpProgressPercent ?? 0;
 
   const bd = {
     HP: breakdowns.find((b) => b.resource === 'HP')!,
@@ -215,13 +223,10 @@ export function StatSheetTable() {
     Reserve: breakdowns.find((b) => b.resource === 'Reserve')!,
   };
 
+  // Class influence now shows on each AttrCell as a per-attribute ×multiplier
+  // badge, so the resource formula string only carries the race modifier.
   function mods(b: (typeof bd)['HP']) {
-    return [
-      b.raceMod !== 1 ? `×${b.raceMod} race` : null,
-      b.classMod !== 1 ? `×${b.classMod} class` : null,
-    ]
-      .filter(Boolean)
-      .join(' ');
+    return b.raceMod !== 1 ? `×${b.raceMod} race` : '';
   }
 
   function handleLoadProfile() {
@@ -239,7 +244,6 @@ export function StatSheetTable() {
       level: state.level,
       species: state.species,
       className: state.className,
-      classAcquisitionLevel: state.classAcquisitionLevel,
       soulLevel: state.soulLevel,
       attributes: state.attributes,
       conditionMods: state.conditionMods,
@@ -309,14 +313,20 @@ export function StatSheetTable() {
                   className="stat-value w-10 bg-transparent text-lg font-bold text-foreground focus:outline-none"
                 />
                 <span className="stat-value text-sm text-muted-foreground">
-                  {xpProgressPercent}%
+                  {xpUndefined ? '—' : `${xpProgressPercent}%`}
                 </span>
               </div>
               <div className="mt-1 flex items-center gap-1.5">
-                <div className="h-1 flex-1 overflow-hidden rounded-full bg-muted">
+                <div
+                  className={cn(
+                    'h-1 flex-1 overflow-hidden rounded-full bg-muted',
+                    xpUndefined && 'opacity-40',
+                  )}
+                  title={xpUndefined ? 'Unique — progression scale undefined' : undefined}
+                >
                   <div
                     className="h-full rounded-full bg-primary transition-all"
-                    style={{ width: `${xpProgressPercent}%` }}
+                    style={{ width: `${xpProgressWidth}%` }}
                   />
                 </div>
                 <input
@@ -328,9 +338,13 @@ export function StatSheetTable() {
                     if (!isNaN(n)) setCurrentXP(n);
                   }}
                   className="stat-value w-16 bg-transparent text-right text-xs text-muted-foreground/60 focus:outline-none"
-                  title={`XP to next: ${xpToNextLevel}`}
+                  title={
+                    xpUndefined
+                      ? 'Unique — progression scale undefined'
+                      : `XP to next: ${xpNextLabel}`
+                  }
                 />
-                <span className="text-[10px] text-muted-foreground/50">/ {xpToNextLevel}</span>
+                <span className="text-[10px] text-muted-foreground/50">/ {xpNextLabel}</span>
               </div>
             </TD>
           </tr>
@@ -361,25 +375,32 @@ export function StatSheetTable() {
                 <SelectTrigger
                   className={cn(
                     'h-7 w-full border-0 bg-transparent p-0 text-sm shadow-none focus:ring-0 [&>svg]:ml-1',
-                    RARITY_TEXT_COLORS[classTemplate.rarity],
+                    RARITY_TEXT_COLORS[classProfile.rarity],
                   )}
                 >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.values(CLASS_TEMPLATES).map((c) => (
-                    <SelectItem key={c.key} value={c.key} className="text-xs">
-                      <span className={RARITY_TEXT_COLORS[c.rarity]}>{c.label}</span>
-                      <span className="ml-1.5 text-[9px] text-muted-foreground/50">
-                        ({c.rarity})
-                      </span>
-                    </SelectItem>
+                  <SelectItem value="None" className="text-xs">
+                    <span className={RARITY_TEXT_COLORS.Unclassed}>Unclassed</span>
+                  </SelectItem>
+                  {PICKER_RARITIES.map((tier) => (
+                    <SelectGroup key={tier}>
+                      <SelectLabel className="text-[10px] uppercase tracking-wider text-amber-400/60">
+                        {tier}
+                      </SelectLabel>
+                      {classesByRarity[tier].map((c) => (
+                        <SelectItem key={c.key} value={c.key} className="text-xs">
+                          <span className={RARITY_TEXT_COLORS[c.rarity]}>{c.label}</span>
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
                   ))}
                 </SelectContent>
               </Select>
               {className !== 'None' && (
-                <p className={cn('mt-0.5 text-[9px]', RARITY_COLORS[classTemplate.rarity])}>
-                  {classTemplate.rarity} · {classTemplate.primaryShape}
+                <p className={cn('mt-0.5 text-[9px]', RARITY_COLORS[classProfile.rarity])}>
+                  {classProfile.rarity} · {classProfile.resourceShape}
                 </p>
               )}
             </TD>
@@ -417,11 +438,8 @@ export function StatSheetTable() {
               <div className="flex flex-wrap items-center gap-x-4 gap-y-0.5 text-[10px]">
                 <span className="text-muted-foreground/50">
                   Points · free:{' '}
-                  <span className="stat-value text-foreground/70">{totalFreePoints}</span>
-                  {classBonusPoints > 0 && (
-                    <span className="text-primary"> +{classBonusPoints} class</span>
-                  )}{' '}
-                  = <span className="stat-value text-foreground/70">{totalPointsAvailable}</span>
+                  <span className="stat-value text-foreground/70">{totalFreePoints}</span> ={' '}
+                  <span className="stat-value text-foreground/70">{totalPointsAvailable}</span>
                 </span>
                 <span className="text-muted-foreground/50">
                   spent: <span className="stat-value text-foreground/70">{spentPoints}</span>
@@ -498,22 +516,23 @@ export function StatSheetTable() {
             <AttrCell attrKey="LUCK" dimmed />
           </tr>
           <tr>
-            <AttrCell attrKey="Faith" />
-            <AttrCell attrKey="Occult" />
+            <AttrCell attrKey="CVN" />
+            <AttrCell attrKey="MYS" />
             <TD className="bg-panel/30">
               {className !== 'None' && (
                 <>
-                  <FieldLabel>Class attr mods ({classTemplate.rarity})</FieldLabel>
-                  {hasClassMods ? (
-                    <p className="text-xs text-primary">Active</p>
-                  ) : (
-                    <p className="text-[9px] italic text-primary/35">
-                      Scaffolded — no canon values yet
-                    </p>
-                  )}
-                  <p className="mt-0.5 text-[9px] text-muted-foreground/30">
-                    Resource mods: HP×{classTemplate.classMod.HP} / Mana×
-                    {classTemplate.classMod.Mana}
+                  <FieldLabel>Class attr mods ({classProfile.rarity})</FieldLabel>
+                  <p className="text-[9px] text-muted-foreground/40">
+                    Prime{' '}
+                    <span className="text-primary/80">
+                      {classProfile.primeAttrs.join(', ')} ×1.15
+                    </span>
+                  </p>
+                  <p className="mt-0.5 text-[9px] text-muted-foreground/40">
+                    Core{' '}
+                    <span className="text-primary/60">
+                      {classProfile.coreAttrs.join(', ')} ×1.08
+                    </span>
                   </p>
                 </>
               )}

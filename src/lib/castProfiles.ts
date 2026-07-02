@@ -25,8 +25,8 @@ const BASE_ATTRS = {
   INT: 5,
   WIS: 5,
   CHA: 5,
-  Faith: 5,
-  Occult: 5,
+  CVN: 5,
+  MYS: 5,
   LUCK: 5,
 } as const;
 
@@ -41,9 +41,8 @@ export const CAST_PROFILES: CastProfile[] = [
       level: 1,
       species: 'Human',
       className: 'Psion',
-      classAcquisitionLevel: 1,
       soulLevel: 'Common',
-      attributes: { ...BASE_ATTRS, INT: 7, WIS: 6, Faith: 6 }, // 4 pts: +2 INT +1 WIS +1 Faith
+      attributes: { ...BASE_ATTRS, INT: 7, WIS: 6, CVN: 6 }, // 4 pts: +2 INT +1 WIS +1 CVN
       currentXP: 0,
     },
   },
@@ -57,7 +56,6 @@ export const CAST_PROFILES: CastProfile[] = [
       level: 1,
       species: 'Human',
       className: 'Rogue',
-      classAcquisitionLevel: 1,
       soulLevel: 'Common',
       attributes: { ...BASE_ATTRS, AGI: 7, DEX: 6, CHA: 6 }, // 4 pts: +2 AGI +1 DEX +1 CHA
       currentXP: 0,
@@ -73,7 +71,6 @@ export const CAST_PROFILES: CastProfile[] = [
       level: 1,
       species: 'Human',
       className: 'Warden',
-      classAcquisitionLevel: 1,
       soulLevel: 'Common',
       attributes: { ...BASE_ATTRS, CHA: 7, STR: 6, CON: 6 }, // 4 pts: +2 CHA +1 STR +1 CON
       currentXP: 0,
@@ -89,7 +86,6 @@ export const CAST_PROFILES: CastProfile[] = [
       level: 1,
       species: 'Human',
       className: 'Warrior',
-      classAcquisitionLevel: 1,
       soulLevel: 'Common',
       attributes: { ...BASE_ATTRS, CON: 7, STR: 6, END: 6 }, // 4 pts: +2 CON +1 STR +1 END
       currentXP: 0,
@@ -105,7 +101,6 @@ export const CAST_PROFILES: CastProfile[] = [
       level: 1,
       species: 'Human',
       className: 'Scout',
-      classAcquisitionLevel: 1,
       soulLevel: 'Common',
       attributes: { ...BASE_ATTRS, DEX: 7, AGI: 6, WIS: 6 }, // 4 pts: +2 DEX +1 AGI +1 WIS
       currentXP: 0,
@@ -121,7 +116,6 @@ export const CAST_PROFILES: CastProfile[] = [
       level: 1,
       species: 'Human',
       className: 'Scout',
-      classAcquisitionLevel: 1,
       soulLevel: 'Common',
       attributes: { ...BASE_ATTRS, INT: 6, AGI: 6, DEX: 6, WIS: 6 }, // 4 pts: +1 each
       currentXP: 0,
