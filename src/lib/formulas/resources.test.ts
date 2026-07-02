@@ -10,6 +10,7 @@ import {
   computeManaFloor,
   computeStaminaFloor,
   computeReserveDebit,
+  formatResourceFormula,
 } from './resources';
 import {
   HP_COEFFICIENTS,
@@ -309,5 +310,28 @@ describe('computeReserveDebit', () => {
 
   it('returns 0 when there are no deficits', () => {
     expect(computeReserveDebit(0, 0)).toBe(0);
+  });
+});
+
+// ── §1  formatResourceFormula (label derived from coefficients) ───────────────
+
+describe('formatResourceFormula', () => {
+  it('renders each resource label exactly, from the coefficient source of truth', () => {
+    expect(formatResourceFormula('HP')).toBe('6·CON+2·END+2·STR');
+    expect(formatResourceFormula('Mana')).toBe('6·INT+3·WIS+CHA');
+    expect(formatResourceFormula('Stamina')).toBe('5·END+2·CON+STR+AGI+DEX');
+    expect(formatResourceFormula('Reserve')).toBe('2·CON+2·END+2·WIS+FAI+OCC');
+  });
+
+  it('omits the coefficient when it is 1 (CHA, STR, AGI, DEX, Faith, Occult)', () => {
+    expect(formatResourceFormula('Mana')).not.toContain('1·CHA');
+    expect(formatResourceFormula('Stamina')).toContain('+STR+AGI+DEX');
+  });
+
+  it('abbreviates Faith→FAI and Occult→OCC in the Reserve label', () => {
+    const reserve = formatResourceFormula('Reserve');
+    expect(reserve).toContain('+FAI+OCC');
+    expect(reserve).not.toContain('Faith');
+    expect(reserve).not.toContain('Occult');
   });
 });

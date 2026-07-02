@@ -72,6 +72,35 @@ export function computeResourceMaxima(attrs: Attributes, soulLevelMod = 1.0): Re
 }
 
 // ────────────────────────────────────────────────
+// §1.2  Formula labels — derived from the coefficient source of truth
+// ────────────────────────────────────────────────
+
+/** Display abbreviations for attribute keys whose label differs from the key. */
+const ATTR_LABEL: Record<string, string> = { Faith: 'FAI', Occult: 'OCC' };
+
+const RESOURCE_COEFFICIENTS = {
+  HP: HP_COEFFICIENTS,
+  Mana: MANA_COEFFICIENTS,
+  Stamina: STAMINA_COEFFICIENTS,
+  Reserve: RESERVE_COEFFICIENTS,
+} as const satisfies Record<keyof ResourceMaxima, Record<string, number>>;
+
+/**
+ * Render a resource's §1 coefficient formula as a display string
+ * (e.g. "6·CON+2·END+2·STR"), derived from the same coefficients the maxima use.
+ * A coefficient of 1 is omitted; Faith/Occult abbreviate to FAI/OCC.
+ */
+export function formatResourceFormula(resource: keyof ResourceMaxima): string {
+  const coeffs = RESOURCE_COEFFICIENTS[resource];
+  return Object.entries(coeffs)
+    .map(([attr, c]) => {
+      const label = ATTR_LABEL[attr] ?? attr;
+      return c === 1 ? label : `${c}·${label}`;
+    })
+    .join('+');
+}
+
+// ────────────────────────────────────────────────
 // §2  Current Resource Ratios  q = R(t) / R_max
 // ────────────────────────────────────────────────
 
