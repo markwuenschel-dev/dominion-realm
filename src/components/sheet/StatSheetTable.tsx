@@ -18,6 +18,7 @@ import {
   type AttrKey,
 } from '@/lib/characterTemplates';
 import { getSoulMultiplier } from '@/lib/formulas/progression';
+import { formatResourceFormula } from '@/lib/formulas/resources';
 import {
   Select,
   SelectContent,
@@ -448,7 +449,7 @@ export function StatSheetTable() {
                 <ResourceStatDiv
                   label="Health"
                   value={finalResources.HP}
-                  formula={`6·CON+2·END+2·STR = ${bd.HP.attributeValue}${mods(bd.HP) ? ` ${mods(bd.HP)}` : ''}`}
+                  formula={`${formatResourceFormula('HP')} = ${bd.HP.attributeValue}${mods(bd.HP) ? ` ${mods(bd.HP)}` : ''}`}
                   colorClass={RESOURCE_COLORS.HP.text}
                   borderRight
                   mobileBorderBottom
@@ -456,7 +457,7 @@ export function StatSheetTable() {
                 <ResourceStatDiv
                   label="Mana"
                   value={finalResources.Mana}
-                  formula={`6·INT+3·WIS+CHA = ${bd.Mana.attributeValue}${mods(bd.Mana) ? ` ${mods(bd.Mana)}` : ''}`}
+                  formula={`${formatResourceFormula('Mana')} = ${bd.Mana.attributeValue}${mods(bd.Mana) ? ` ${mods(bd.Mana)}` : ''}`}
                   colorClass={RESOURCE_COLORS.Mana.text}
                   borderRight
                   mobileBorderBottom
@@ -464,14 +465,14 @@ export function StatSheetTable() {
                 <ResourceStatDiv
                   label="Stamina"
                   value={finalResources.Stamina}
-                  formula={`5·END+2·CON+STR+AGI+DEX = ${bd.Stamina.attributeValue}${mods(bd.Stamina) ? ` ${mods(bd.Stamina)}` : ''}`}
+                  formula={`${formatResourceFormula('Stamina')} = ${bd.Stamina.attributeValue}${mods(bd.Stamina) ? ` ${mods(bd.Stamina)}` : ''}`}
                   colorClass={RESOURCE_COLORS.Stamina.text}
                   borderRight
                 />
                 <ResourceStatDiv
                   label="Reserve"
                   value={finalResources.Reserve}
-                  formula={`2·CON+2·END+2·WIS+FAI+OCC = ${bd.Reserve.attributeValue} ×${soulMult} soul${mods(bd.Reserve) ? ` ${mods(bd.Reserve)}` : ''}`}
+                  formula={`${formatResourceFormula('Reserve')} = ${bd.Reserve.attributeValue} ×${soulMult} soul${mods(bd.Reserve) ? ` ${mods(bd.Reserve)}` : ''}`}
                   colorClass={RESOURCE_COLORS.Reserve.text}
                   borderRight={false}
                 />

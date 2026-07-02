@@ -6,6 +6,7 @@
 import { useMemo } from 'react';
 import { useCharacterSheetStore } from '@/store/characterSheetStore';
 import { computeResourceMaxima } from '@/lib/formulas/resources';
+import { computeActivityRegenRates } from '@/lib/formulas/activityRegen';
 import {
   SPECIES_TEMPLATES,
   CLASS_TEMPLATES,
@@ -19,52 +20,8 @@ import {
 import type {
   CharacterSheetDerived,
   ResourceBreakdown,
-  RegenRates,
   FinalResources,
 } from '@/types/characterSheet';
-
-// ────────────────────────────────────────────────
-// Regen rates  resource_system.md §7
-// Activity-based model — separate from the safe-low curve used in the calculator
-// ────────────────────────────────────────────────
-
-function computeRegenRates(
-  finalHP: number,
-  finalMana: number,
-  finalStamina: number,
-  finalReserve: number,
-  CON: number,
-  END: number,
-  WIS: number,
-): RegenRates {
-  return {
-    HP: {
-      safeRest: Math.round((finalHP * 0.03 + CON / 2) * 100) / 100,
-      lightRest: Math.round((finalHP * 0.015 + CON / 4) * 100) / 100,
-      activeTravel: Math.round(finalHP * 0.005 * 100) / 100,
-      combat: 0,
-    },
-    Mana: {
-      meditation: Math.round((finalMana * 0.05 + WIS / 5) * 100) / 100,
-      calmNoncombat: Math.round((finalMana * 0.02 + WIS / 10) * 100) / 100,
-      activeTravel: Math.round(finalMana * 0.01 * 100) / 100,
-      combat: Math.round(finalMana * 0.005 * 100) / 100,
-    },
-    Stamina: {
-      fullRest: Math.round((finalStamina * 0.12 + END / 2) * 100) / 100,
-      catchingBreath: Math.round((finalStamina * 0.08 + END / 3) * 100) / 100,
-      lightMovement: Math.round(finalStamina * 0.03 * 100) / 100,
-      combat: Math.round(finalStamina * 0.01 * 100) / 100,
-    },
-    Reserve: {
-      deepSleep: Math.round((finalReserve * 0.08 + WIS / 4) * 100) / 100,
-      meditation: Math.round((finalReserve * 0.05 + WIS / 5) * 100) / 100,
-      ordinaryRest: Math.round(finalReserve * 0.03 * 100) / 100,
-      activeTravel: Math.round(finalReserve * 0.01 * 100) / 100,
-      combat: 0,
-    },
-  };
-}
 
 // ────────────────────────────────────────────────
 // Main hook
@@ -152,17 +109,14 @@ export function useCharacterSheet(): CharacterSheetDerived {
     [currentXP, xpToNextLevel],
   );
 
+  // §7 activity-based regen — delegated to the tested formulas seam.
   const regenRates = useMemo(
     () =>
-      computeRegenRates(
-        finalResources.HP,
-        finalResources.Mana,
-        finalResources.Stamina,
-        finalResources.Reserve,
-        attributes.CON,
-        attributes.END,
-        attributes.WIS,
-      ),
+      computeActivityRegenRates(finalResources, {
+        CON: attributes.CON,
+        END: attributes.END,
+        WIS: attributes.WIS,
+      }),
     [finalResources, attributes.CON, attributes.END, attributes.WIS],
   );
 
