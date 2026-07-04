@@ -2,7 +2,8 @@
 
 import { SectionCard } from '@/components/layout/SectionCard';
 import { useResourceRatios } from '@/hooks/useCalculator';
-import { RESOURCE_KEYS, RESOURCE_COLORS } from '@/types';
+import { RESOURCE_KEYS } from '@/types';
+import { RESOURCE_COLORS } from '@/lib/palette';
 import { round } from '@/lib/utils';
 
 const ZONE_THRESHOLDS = [
