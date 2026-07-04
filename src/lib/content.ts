@@ -99,7 +99,14 @@ export interface Entry<C extends CollectionName> {
   body: string;
 }
 
-export type CodexEntry = Entry<CodexCollection>;
+/**
+ * A codex entry as a discriminated union over `collection`: each member pairs a
+ * collection literal with its own parsed schema, so `entry.collection === 'places'`
+ * narrows `entry.data` to the places shape. `Entry<CodexCollection>` would instead
+ * fuse them into one type whose `collection` and `data` vary independently — no
+ * narrowing, which is what forced the casts and `'in'` probes at every call site.
+ */
+export type CodexEntry = { [C in CodexCollection]: Entry<C> }[CodexCollection];
 export type JournalEntry = Entry<'journal'>;
 export type ReadingEntry = Entry<'reading'>;
 
@@ -152,13 +159,16 @@ function loadCollection<C extends CollectionName>(collection: C): Entry<C>[] {
 /* ---- Raw loaders (consumed by the lib/codex|journal|reading helpers) ---- */
 
 export function getCodexEntries(): CodexEntry[] {
-  return CODEX_COLLECTIONS.flatMap((c) => loadCollection(c)).sort((a, b) =>
+  // Each loadCollection(c) yields entries correlated to its own collection; the
+  // flatMap's union-typed `c` erases that pairing (Entry<CodexCollection>), so we
+  // restore the discriminated union at this one seam. Runtime is already correct.
+  return CODEX_COLLECTIONS.flatMap((c) => loadCollection(c) as CodexEntry[]).sort((a, b) =>
     a.data.name.localeCompare(b.data.name),
   );
 }
 
 export function getCodexEntry(collection: CodexCollection, id: string): CodexEntry | undefined {
-  return loadCollection(collection).find((e) => e.id === id);
+  return (loadCollection(collection) as CodexEntry[]).find((e) => e.id === id);
 }
 
 export function getJournalEntries(): JournalEntry[] {
