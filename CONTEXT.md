@@ -54,3 +54,11 @@ at call sites.
   INT, WIS, CHA, Faith, Occult). Type `Attributes` in `src/types`.
 - **CharacterSheetAttributes** — `Attributes` plus **LUCK**, which is tracked on
   the sheet but has no resource-formula effect in the current lock.
+
+- **Class attribute-multiplier firewall.** Class influence enters the resource
+  formulas only through per-attribute multipliers keyed by **role**: Prime ×1.15,
+  Core ×1.08, Secondary ×1.03, Neutral ×1.0. `getAttrRole(profile, attr)` is the
+  primitive that reports the role; `getClassAttrMultiplier` is just
+  `ATTR_ROLE_MULTIPLIERS[role]`, so the ladder value lives once in
+  `ATTR_ROLE_MULTIPLIERS`. `describeClassAttrRoles(profile)` is the labelled
+  ladder the sheet's class-mods badge renders. All in `lib/classTaxonomy.ts`.

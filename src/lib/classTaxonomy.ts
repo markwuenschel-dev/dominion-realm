@@ -922,12 +922,49 @@ export const classesByRarity: Record<ClassRarity, ClassProfile[]> = {
 // ────────────────────────────────────────────────
 
 /**
- * Prime → ×1.15, Core → ×1.08, Secondary → ×1.03, everything else → ×1.00.
- * 'Unclassed' resolves every attribute to Neutral (×1.00).
+ * The role an attribute plays for a class. This is the primitive the firewall is
+ * built on: the multiplier is always `ATTR_ROLE_MULTIPLIERS[role]`, so the ladder
+ * value lives in exactly one place. 'Unclassed' resolves every attribute to
+ * Neutral. (Dissonant is only ever returned when a profile explicitly locks it —
+ * none currently do — so it never appears here today.)
+ */
+export function getAttrRole(profile: ClassProfile, attr: AttrKey): AttrRole {
+  if (profile.primeAttrs.includes(attr)) return 'Prime';
+  if (profile.coreAttrs.includes(attr)) return 'Core';
+  if (profile.secondaryAttrs.includes(attr)) return 'Secondary';
+  return 'Neutral';
+}
+
+/**
+ * The class multiplier for an attribute: its role's entry in the one locked
+ * ladder (`ATTR_ROLE_MULTIPLIERS`). Never hand-codes the coefficients.
  */
 export function getClassAttrMultiplier(profile: ClassProfile, attr: AttrKey): number {
-  if (profile.primeAttrs.includes(attr)) return ATTR_ROLE_MULTIPLIERS.Prime;
-  if (profile.coreAttrs.includes(attr)) return ATTR_ROLE_MULTIPLIERS.Core;
-  if (profile.secondaryAttrs.includes(attr)) return ATTR_ROLE_MULTIPLIERS.Secondary;
-  return ATTR_ROLE_MULTIPLIERS.Neutral;
+  return ATTR_ROLE_MULTIPLIERS[getAttrRole(profile, attr)];
+}
+
+/** One labelled rung of a class's attribute-multiplier ladder. */
+export interface ClassAttrRoleGroup {
+  role: AttrRole;
+  attrs: AttrKey[];
+  multiplier: number;
+}
+
+/**
+ * The class's Prime/Core/Secondary attribute groups, each with the multiplier its
+ * role carries — the single source the sheet's class-mods badge renders from, so
+ * the display can never drift from the firewall. Empty groups (e.g. every group
+ * for Unclassed) are omitted.
+ */
+export function describeClassAttrRoles(profile: ClassProfile): ClassAttrRoleGroup[] {
+  const groups: ClassAttrRoleGroup[] = [
+    { role: 'Prime', attrs: profile.primeAttrs, multiplier: ATTR_ROLE_MULTIPLIERS.Prime },
+    { role: 'Core', attrs: profile.coreAttrs, multiplier: ATTR_ROLE_MULTIPLIERS.Core },
+    {
+      role: 'Secondary',
+      attrs: profile.secondaryAttrs,
+      multiplier: ATTR_ROLE_MULTIPLIERS.Secondary,
+    },
+  ];
+  return groups.filter((g) => g.attrs.length > 0);
 }
