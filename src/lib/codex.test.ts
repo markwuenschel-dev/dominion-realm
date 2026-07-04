@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { matchRelationship, resolveRelationships, type Relationship } from './codex';
+import { matchRelationship, resolveRelationships, entryKicker, type Relationship } from './codex';
 import type { CodexEntry } from './content';
 
 /**
@@ -57,6 +57,35 @@ describe('matchRelationship', () => {
     expect(matchRelationship({ entry: 'marcus', collection: 'characters' }, candidates)).toBe(
       marcus,
     );
+  });
+});
+
+describe('entryKicker', () => {
+  // Discriminated union → each collection reads its own kicker field with no cast.
+  const kickerFor = (collection: CodexEntry['collection'], extra: Record<string, unknown>) =>
+    entryKicker({
+      collection,
+      id: 'x',
+      body: '',
+      data: { name: 'N', summary: '', reveal: 'teaser', relationships: [], draft: false, ...extra },
+    } as CodexEntry);
+
+  it('uses a character role verbatim', () => {
+    expect(kickerFor('characters', { role: 'Protagonist' })).toBe('Protagonist');
+  });
+
+  it('falls back to the collection label when a character has no role', () => {
+    expect(kickerFor('characters', { role: '' })).toBe('Characters');
+  });
+
+  it('maps a concept/faction kind through KIND_LABELS', () => {
+    expect(kickerFor('concepts', { kind: 'magic-system' })).toBe('Magic System');
+    expect(kickerFor('factions', { kind: 'threat' })).toBe('Threat');
+  });
+
+  it('uses a place region, or the collection label when absent', () => {
+    expect(kickerFor('places', { region: 'The Northern Reach' })).toBe('The Northern Reach');
+    expect(kickerFor('places', {})).toBe('Places');
   });
 });
 

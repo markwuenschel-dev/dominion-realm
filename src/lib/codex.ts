@@ -43,12 +43,17 @@ export function codexUrl(collection: string, id: string): string {
 
 /** Short kicker line for a card / header (role, kind, or region). */
 export function entryKicker(entry: CodexEntry): string {
-  const data = entry.data;
-  if ('role' in data && data.role) return data.role;
-  if ('kind' in data && data.kind)
-    return KIND_LABELS[data.kind] ?? COLLECTION_LABELS[entry.collection];
-  if ('region' in data && data.region) return data.region;
-  return COLLECTION_LABELS[entry.collection];
+  // Discriminates on `collection`, so each branch sees its own data shape. A new
+  // codex collection makes this stop compiling until it's handled here.
+  switch (entry.collection) {
+    case 'characters':
+      return entry.data.role || COLLECTION_LABELS.characters;
+    case 'concepts':
+    case 'factions':
+      return KIND_LABELS[entry.data.kind] ?? COLLECTION_LABELS[entry.collection];
+    case 'places':
+      return entry.data.region || COLLECTION_LABELS.places;
+  }
 }
 
 /**
@@ -58,24 +63,24 @@ export function entryKicker(entry: CodexEntry): string {
  * `selectVisibleMarkers` (lib/map.ts) so it can respond to the reveal toggle.
  */
 export function getPlaceMarkers(): PlaceMarker[] {
-  return getCodexEntries()
-    .filter((e) => e.collection === 'places')
-    .flatMap((e) => {
-      const data = e.data as { region?: string; mapX?: number; mapY?: number };
-      if (!hasCoords({ x: data.mapX, y: data.mapY })) return [];
-      return [
-        {
-          id: e.id,
-          name: e.data.name,
-          kind: data.region ?? COLLECTION_LABELS.places,
-          summary: e.data.summary,
-          href: codexUrl('places', e.id),
-          reveal: e.data.reveal,
-          x: data.mapX as number,
-          y: data.mapY as number,
-        },
-      ];
-    });
+  return getCodexEntries().flatMap((e) => {
+    if (e.collection !== 'places') return [];
+    // e.data is now narrowed to the places schema — no cast needed.
+    const { mapX, mapY, region } = e.data;
+    if (mapX == null || mapY == null || !hasCoords({ x: mapX, y: mapY })) return [];
+    return [
+      {
+        id: e.id,
+        name: e.data.name,
+        kind: region ?? COLLECTION_LABELS.places,
+        summary: e.data.summary,
+        href: codexUrl('places', e.id),
+        reveal: e.data.reveal,
+        x: mapX,
+        y: mapY,
+      },
+    ];
+  });
 }
 
 export interface ResolvedLink {
