@@ -133,6 +133,9 @@ export const NAV_PAGES: NavPage[] = [
   { idx: '→', label: 'Journal', slug: 'journal' },
   { idx: '→', label: 'The Map', slug: 'map' },
   { idx: '→', label: 'Constellation', slug: 'relationships' },
+  // Built but kept dark until the real beats are authored (seed entries only).
+  // Flip `ready: true` once src/content/timeline/ carries the manuscript's beats.
+  { idx: '→', label: 'The Timeline', slug: 'timeline', ready: false },
   { idx: '→', label: 'About', slug: 'about' },
   { idx: '→', label: 'Calculator', slug: 'calculator' },
   // Built but not yet linked — flip `ready: true` once Marcus's sheet carries
