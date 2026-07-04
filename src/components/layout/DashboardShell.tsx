@@ -7,6 +7,7 @@ import { RegenCurveViz } from '@/components/calculator/RegenCurveViz';
 import { FailureStatePanel } from '@/components/calculator/FailureStatePanel';
 import { HealingPulsePanel } from '@/components/calculator/HealingPulsePanel';
 import { ConditionSeverityPanel } from '@/components/calculator/ConditionSeverityPanel';
+import { SceneXpPanel } from '@/components/calculator/SceneXpPanel';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/index';
 
 export function DashboardShell() {
@@ -31,6 +32,7 @@ export function DashboardShell() {
                 <TabsTrigger value="failure">Failure States</TabsTrigger>
                 <TabsTrigger value="conditions">Conditions</TabsTrigger>
                 <TabsTrigger value="healing">Healing Pulse</TabsTrigger>
+                <TabsTrigger value="scene">Scene XP</TabsTrigger>
               </TabsList>
 
               <TabsContent value="failure">
@@ -43,6 +45,10 @@ export function DashboardShell() {
 
               <TabsContent value="healing">
                 <HealingPulsePanel />
+              </TabsContent>
+
+              <TabsContent value="scene">
+                <SceneXpPanel />
               </TabsContent>
             </Tabs>
           </div>
