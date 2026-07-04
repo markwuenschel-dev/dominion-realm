@@ -84,18 +84,6 @@ const schemas = {
     imageAlt: z.string().optional(),
     draft: z.boolean().default(false),
   }),
-  timeline: z.object({
-    title: z.string(),
-    /** In-world era label, e.g. "Before the Waking" — free text, not a date. */
-    when: z.string(),
-    /** Sort key along the spine (ascending). */
-    order: z.number(),
-    summary: z.string(),
-    reveal: revealEnum,
-    /** Optional cross-link to the codex entry this beat centers on. */
-    relatedEntry: relationship.optional(),
-    draft: z.boolean().default(false),
-  }),
 } as const;
 
 export type CollectionName = keyof typeof schemas;
@@ -121,7 +109,6 @@ export interface Entry<C extends CollectionName> {
 export type CodexEntry = { [C in CodexCollection]: Entry<C> }[CodexCollection];
 export type JournalEntry = Entry<'journal'>;
 export type ReadingEntry = Entry<'reading'>;
-export type TimelineEntry = Entry<'timeline'>;
 
 /** Rewrite a frontmatter image path to its public /content-media URL. */
 export function resolveImage(collection: string, image: string | undefined): string | undefined {
@@ -200,8 +187,4 @@ export function getReadingEntries(): ReadingEntry[] {
 
 export function getReadingEntry(id: string): ReadingEntry | undefined {
   return loadCollection('reading').find((e) => e.id === id);
-}
-
-export function getTimelineEntries(): TimelineEntry[] {
-  return loadCollection('timeline').sort((a, b) => a.data.order - b.data.order);
 }
