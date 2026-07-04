@@ -56,6 +56,118 @@
 }
 
 /* =====================================================================
+   Reader controls — a fixed scroll-progress bar + a prose-preferences
+   toolbar (Reader.tsx). Progress is driven by a scaleX transform so the
+   scroll handler never triggers layout.
+   ===================================================================== */
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 300;
+  background: transparent;
+  pointer-events: none;
+}
+.reading-progress__bar {
+  height: 100%;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: var(--spectral);
+  will-change: transform;
+}
+
+.reading-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  max-width: 720px;
+  margin: 0 auto clamp(20px, 4vw, 34px);
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.reading-controls__time {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-right: auto;
+}
+.reading-controls__group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.reading-controls__label {
+  font-family: var(--mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.reading-controls__btn {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  min-width: 34px;
+  padding: 5px 9px;
+  color: var(--ink-dim);
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color 0.3s var(--ease), color 0.3s var(--ease);
+}
+.reading-controls__btn:hover:not(:disabled) {
+  border-color: var(--gold);
+  color: var(--gold-bright);
+}
+.reading-controls__btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* "Continue where you left off" — the resume affordance on the index. */
+.reading-continue {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  max-width: 760px;
+  margin: 0 0 26px;
+  padding: 16px 22px;
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--gold);
+  border-radius: var(--radius-md);
+  background: var(--bg-panel);
+  text-decoration: none;
+  transition: border-color 0.35s var(--ease), background 0.35s var(--ease);
+}
+.reading-continue:hover {
+  border-color: var(--gold);
+  background: var(--bg-raise);
+}
+.reading-continue__label {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.reading-continue__title {
+  font-family: var(--serif-display);
+  font-size: 1.15rem;
+  color: var(--ink);
+}
+.reading-continue__arrow {
+  margin-left: auto;
+  color: var(--gold-bright);
+}
+
+/* =====================================================================
    Reading index — the "begin reading" landing.
    ===================================================================== */
 .reading-head {
@@ -262,9 +374,12 @@
   font-family: var(--serif-body);
 }
 .reading-prose p {
-  font-size: clamp(1.06rem, 0.5vw + 1rem, 1.18rem);
+  /* Base measure scaled by the reader's Text control (--reading-font-scale),
+     leading driven by the Spacing control (--reading-line-height). Both fall
+     back to the typeset defaults when the Reader island hasn't set them. */
+  font-size: calc(clamp(1.06rem, 0.5vw + 1rem, 1.18rem) * var(--reading-font-scale, 1));
   font-weight: 400;
-  line-height: 1.8;
+  line-height: var(--reading-line-height, 1.8);
   color: var(--ink);
   margin-bottom: 1.4em;
   text-wrap: pretty;
