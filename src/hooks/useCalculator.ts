@@ -1,7 +1,11 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // hooks/useCalculator.ts
-// Derived calculator state — reads from the store, runs formula functions.
-// Components should import computed values from here, not recompute them.
+// Derived calculator state as NARROW per-slice selector hooks. Each hook reads
+// only the store fields its slice depends on, so a component re-renders only when
+// its own inputs change. The maxima → ratios → regenResults dependency chain is
+// hidden inside composition (hooks calling hooks), never re-exposed as one bundle.
+//
+// Components import the single slice they need — not a wide "everything" object.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useMemo } from 'react';
@@ -28,81 +32,40 @@ import type {
 } from '@/types';
 import type { CurveSample } from '@/lib/formulas/regeneration';
 
-// ────────────────────────────────────────────────
-// Return type
-// ────────────────────────────────────────────────
-
-export interface CalculatorDerived {
-  // §1  Resource maxima
-  maxima: ResourceMaxima;
-
-  // §2  q ratios
-  ratios: ResourceRatios;
-
-  // §3  Base regen
-  baseRegen: BaseRegen;
-
-  // §4/5  Full regen results (with curve multiplier applied)
-  regenResults: RegenResult[];
-
-  // §4  Regen curve samples (for SVG visualization)
-  curveSamples: CurveSample[];
-
-  // §11  Derived resistance values from current attributes
-  derivedResistances: {
-    Poison: number;
-    Stagger: number;
-    ManaCrash: number;
-  };
-
-  // §12–18  Healing pulse result
-  healingResult: HealingPulseResult;
-
-  // §9–11  Condition severity results
-  conditionResults: ConditionResult[];
+/** Derived resistances slice shape. */
+export interface DerivedResistances {
+  Poison: number;
+  Stagger: number;
+  ManaCrash: number;
 }
 
 // ────────────────────────────────────────────────
-// Hook
+// Leaf hooks — subscribe directly to store fields, no derived dependencies
 // ────────────────────────────────────────────────
 
-export function useCalculator(): CalculatorDerived {
-  const {
-    attributes,
-    currentResources,
-    soulLevelMod,
-    recoveryStateMod,
-    regenCurveParams,
-    healingPulse,
-    conditionInputs,
-  } = useCalculatorStore();
+/** §1 resource maxima. Subscribes: attributes, soulLevelMod. */
+export function useResourceMaxima(): ResourceMaxima {
+  const attributes = useCalculatorStore((s) => s.attributes);
+  const soulLevelMod = useCalculatorStore((s) => s.soulLevelMod);
+  return useMemo(() => computeResourceMaxima(attributes, soulLevelMod), [attributes, soulLevelMod]);
+}
 
-  // §1  Resource maxima
-  const maxima = useMemo(
-    () => computeResourceMaxima(attributes, soulLevelMod),
-    [attributes, soulLevelMod],
-  );
+/** §3 base regen. Subscribes: attributes. */
+export function useBaseRegen(): BaseRegen {
+  const attributes = useCalculatorStore((s) => s.attributes);
+  return useMemo(() => computeBaseRegen(attributes), [attributes]);
+}
 
-  // §2  q ratios
-  const ratios = useMemo(
-    () => computeAllRatios(currentResources, maxima),
-    [currentResources, maxima],
-  );
+/** §4 regen-curve samples for the SVG viz (200 points). Subscribes: regenCurveParams. */
+export function useRegenCurveSamples(): CurveSample[] {
+  const regenCurveParams = useCalculatorStore((s) => s.regenCurveParams);
+  return useMemo(() => sampleRegenCurve(regenCurveParams, 200), [regenCurveParams]);
+}
 
-  // §3  Base regen
-  const baseRegen = useMemo(() => computeBaseRegen(attributes), [attributes]);
-
-  // §4/5  Full regen results
-  const regenResults = useMemo(
-    () => computeAllRegenResults(attributes, ratios, recoveryStateMod, regenCurveParams),
-    [attributes, ratios, recoveryStateMod, regenCurveParams],
-  );
-
-  // §4  Regen curve samples (200 points for smooth SVG path)
-  const curveSamples = useMemo(() => sampleRegenCurve(regenCurveParams, 200), [regenCurveParams]);
-
-  // §11  Derived resistances
-  const derivedResistances = useMemo(
+/** §11 derived resistances. Subscribes: attributes. */
+export function useDerivedResistances(): DerivedResistances {
+  const attributes = useCalculatorStore((s) => s.attributes);
+  return useMemo(
     () => ({
       Poison: computePoisonResistance(attributes),
       Stagger: computeStaggerResistance(attributes),
@@ -110,44 +73,40 @@ export function useCalculator(): CalculatorDerived {
     }),
     [attributes],
   );
+}
 
-  // §12–18  Healing pulse
-  const healingResult = useMemo(() => computeHealingPulse(healingPulse), [healingPulse]);
+/** §12–22 healing pulse. Subscribes: healingPulse. */
+export function useHealingResult(): HealingPulseResult {
+  const healingPulse = useCalculatorStore((s) => s.healingPulse);
+  return useMemo(() => computeHealingPulse(healingPulse), [healingPulse]);
+}
 
-  // §9–11  Condition severities
-  const conditionResults = useMemo(
-    () => conditionInputs.map((input) => computeSeverity(input)),
-    [conditionInputs],
-  );
-
-  return {
-    maxima,
-    ratios,
-    baseRegen,
-    regenResults,
-    curveSamples,
-    derivedResistances,
-    healingResult,
-    conditionResults,
-  };
+/** §9–11 condition severities. Subscribes: conditionInputs. */
+export function useConditionResults(): ConditionResult[] {
+  const conditionInputs = useCalculatorStore((s) => s.conditionInputs);
+  return useMemo(() => conditionInputs.map((input) => computeSeverity(input)), [conditionInputs]);
 }
 
 // ────────────────────────────────────────────────
-// Convenience selector hooks (avoid re-renders for components
-// that only care about one slice of derived state)
+// Composed hooks — call a narrower hook + subscribe to the extra fields the
+// dependency chain needs. The chain stays hidden behind the interface.
 // ────────────────────────────────────────────────
 
-export function useResourceMaxima(): ResourceMaxima {
-  const { attributes, soulLevelMod } = useCalculatorStore();
-  return useMemo(() => computeResourceMaxima(attributes, soulLevelMod), [attributes, soulLevelMod]);
+/** §2 q ratios. Depends on maxima; additionally subscribes: currentResources. */
+export function useResourceRatios(): ResourceRatios {
+  const maxima = useResourceMaxima();
+  const currentResources = useCalculatorStore((s) => s.currentResources);
+  return useMemo(() => computeAllRatios(currentResources, maxima), [currentResources, maxima]);
 }
 
-export function useBaseRegen(): BaseRegen {
+/** §4/5 full regen results. Depends on ratios; adds: attributes, recoveryStateMod, regenCurveParams. */
+export function useRegenResults(): RegenResult[] {
+  const ratios = useResourceRatios();
   const attributes = useCalculatorStore((s) => s.attributes);
-  return useMemo(() => computeBaseRegen(attributes), [attributes]);
-}
-
-export function useRegenCurveSamples(): CurveSample[] {
+  const recoveryStateMod = useCalculatorStore((s) => s.recoveryStateMod);
   const regenCurveParams = useCalculatorStore((s) => s.regenCurveParams);
-  return useMemo(() => sampleRegenCurve(regenCurveParams, 200), [regenCurveParams]);
+  return useMemo(
+    () => computeAllRegenResults(attributes, ratios, recoveryStateMod, regenCurveParams),
+    [attributes, ratios, recoveryStateMod, regenCurveParams],
+  );
 }

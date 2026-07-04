@@ -4,11 +4,11 @@ import { useState } from 'react';
 import { SectionCard } from '@/components/layout/SectionCard';
 import { Input, Label, Badge, Separator } from '@/components/ui/index';
 import { Button } from '@/components/ui/button';
-import { useCalculator } from '@/hooks/useCalculator';
+import { useConditionResults, useDerivedResistances } from '@/hooks/useCalculator';
 import { useCalculatorStore } from '@/store/calculatorStore';
 import { computePenetration } from '@/lib/formulas';
 import { round, severityColor } from '@/lib/utils';
-import type { SeverityBand } from '@/types';
+import type { SeverityBand, ConditionResult } from '@/types';
 import { Plus, Trash2 } from 'lucide-react';
 
 const SEVERITY_LABELS: Record<SeverityBand, string> = {
@@ -28,14 +28,12 @@ const SEVERITY_VARIANTS: Record<SeverityBand, 'outline' | 'secondary' | 'default
     catastrophic: 'destructive',
   };
 
-function ConditionRow({ index }: { index: number }) {
+function ConditionRow({ index, result }: { index: number; result?: ConditionResult }) {
   const input = useCalculatorStore((s) => s.conditionInputs[index]);
   const setConditionInput = useCalculatorStore((s) => s.setConditionInput);
   const removeCondition = useCalculatorStore((s) => s.removeConditionInput);
-  const { conditionResults } = useCalculator();
 
   if (!input) return null;
-  const result = conditionResults[index];
   if (!result) return null;
 
   const { severity, band, description } = result;
@@ -192,7 +190,7 @@ function PenetrationCalc() {
 }
 
 function DerivedResistances() {
-  const { derivedResistances } = useCalculator();
+  const derivedResistances = useDerivedResistances();
 
   return (
     <div className="rounded-md border border-rim bg-panel p-3">
@@ -213,7 +211,7 @@ function DerivedResistances() {
 
 export function ConditionSeverityPanel() {
   const addCondition = useCalculatorStore((s) => s.addConditionInput);
-  const conditionCount = useCalculatorStore((s) => s.conditionInputs.length);
+  const conditionResults = useConditionResults();
 
   return (
     <SectionCard
@@ -226,8 +224,8 @@ export function ConditionSeverityPanel() {
         <Separator />
 
         <div className="flex flex-col gap-2">
-          {Array.from({ length: conditionCount }, (_, i) => (
-            <ConditionRow key={i} index={i} />
+          {conditionResults.map((result, i) => (
+            <ConditionRow key={i} index={i} result={result} />
           ))}
         </div>
 

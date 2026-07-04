@@ -5,7 +5,7 @@ import { SectionCard } from '@/components/layout/SectionCard';
 import { Slider, Label } from '@/components/ui/index';
 import { Button } from '@/components/ui/button';
 import { useCalculatorStore } from '@/store/calculatorStore';
-import { useCalculator } from '@/hooks/useCalculator';
+import { useRegenCurveSamples, useResourceRatios } from '@/hooks/useCalculator';
 import { computeRegenMultiplier } from '@/lib/formulas';
 import { DEFAULT_REGEN_CURVE_PARAMS } from '@/lib/constants';
 import type { RegenCurveParams } from '@/types';
@@ -50,7 +50,8 @@ export function RegenCurveViz() {
   const regenCurveParams = useCalculatorStore((s) => s.regenCurveParams);
   const setRegenCurveParam = useCalculatorStore((s) => s.setRegenCurveParam);
   const resetRegenCurveParams = useCalculatorStore((s) => s.resetRegenCurveParams);
-  const { curveSamples, ratios } = useCalculator();
+  const curveSamples = useRegenCurveSamples();
+  const ratios = useResourceRatios();
 
   const { q_s, gamma, p } = regenCurveParams;
 

@@ -2,20 +2,26 @@
 
 import { SectionCard } from '@/components/layout/SectionCard';
 import { Slider } from '@/components/ui/index';
-import { useCalculator } from '@/hooks/useCalculator';
+import { useResourceMaxima, useResourceRatios } from '@/hooks/useCalculator';
 import { useCalculatorStore } from '@/store/calculatorStore';
 import { RESOURCE_KEYS, RESOURCE_COLORS } from '@/types';
 import { fmtResource, round } from '@/lib/utils';
 
-function ResourceRow({ resource }: { resource: (typeof RESOURCE_KEYS)[number] }) {
-  const { maxima, ratios } = useCalculator();
-  const currentResources = useCalculatorStore((s) => s.currentResources);
+// Derived max/q come from the panel as props; the row keeps only its own
+// interactive store touch (the slider's current value + setter).
+function ResourceRow({
+  resource,
+  max,
+  q,
+}: {
+  resource: (typeof RESOURCE_KEYS)[number];
+  max: number;
+  q: number;
+}) {
+  const current = useCalculatorStore((s) => s.currentResources[resource]);
   const setCurrentResource = useCalculatorStore((s) => s.setCurrentResource);
   const colors = RESOURCE_COLORS[resource];
 
-  const max = maxima[resource];
-  const current = currentResources[resource];
-  const q = ratios[resource];
   const qPct = round(q * 100, 0);
 
   const isFloor = resource === 'Mana' || resource === 'Stamina';
@@ -62,6 +68,8 @@ function ResourceRow({ resource }: { resource: (typeof RESOURCE_KEYS)[number] })
 }
 
 export function ResourceMaxPanel() {
+  const maxima = useResourceMaxima();
+  const ratios = useResourceRatios();
   return (
     <SectionCard
       section="§1"
@@ -70,7 +78,7 @@ export function ResourceMaxPanel() {
     >
       <div className="flex flex-col gap-3">
         {RESOURCE_KEYS.map((r) => (
-          <ResourceRow key={r} resource={r} />
+          <ResourceRow key={r} resource={r} max={maxima[r]} q={ratios[r]} />
         ))}
       </div>
     </SectionCard>
