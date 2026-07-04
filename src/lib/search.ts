@@ -6,6 +6,11 @@ import { codexUrl } from './codex';
 import { journalUrl } from './journal';
 import { readingUrl } from './reading';
 import { isUngated } from './reveal';
+import type { SearchDoc } from './searchSchema';
+
+// The document shape + index config live in the client-safe schema module so the
+// browser <SearchBox> can share them; re-exported here for existing importers.
+export type { SearchDoc } from './searchSchema';
 
 /**
  * Build-time search corpus (replaces Pagefind — ADR-0010). Each document is
@@ -14,16 +19,6 @@ import { isUngated } from './reveal';
  * piece). Above-teaser bodies never enter the index, preserving the Pagefind-era
  * `data-pagefind-ignore` guarantee that spoilers stay out of search.
  */
-
-export interface SearchDoc {
-  id: string;
-  url: string;
-  title: string;
-  kind: string;
-  summary: string;
-  /** Present only for ungated entries. */
-  body?: string;
-}
 
 export function getSearchDocuments(): SearchDoc[] {
   const docs: SearchDoc[] = [];

@@ -3,7 +3,13 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import MiniSearch from 'minisearch';
-import type { SearchDoc } from '@/lib/search';
+import {
+  SEARCH_FIELDS,
+  STORE_FIELDS,
+  SEARCH_BOOST,
+  type SearchDoc,
+  type SearchResult,
+} from '@/lib/searchSchema';
 
 /**
  * Client-side codex search over the build-time corpus (ADR-0010). The server
@@ -15,15 +21,17 @@ export function SearchBox({ docs }: { docs: SearchDoc[] }) {
 
   const mini = useMemo(() => {
     const ms = new MiniSearch<SearchDoc>({
-      fields: ['title', 'summary', 'body'],
-      storeFields: ['title', 'summary', 'url', 'kind'],
-      searchOptions: { boost: { title: 3, summary: 2 }, prefix: true, fuzzy: 0.2 },
+      fields: [...SEARCH_FIELDS],
+      storeFields: [...STORE_FIELDS],
+      searchOptions: { boost: { ...SEARCH_BOOST }, prefix: true, fuzzy: 0.2 },
     });
     ms.addAll(docs);
     return ms;
   }, [docs]);
 
-  const results = query.trim() ? mini.search(query) : [];
+  // MiniSearch types hits with an `any` index signature; our SearchResult pins
+  // the stored fields to STORE_FIELDS so the render below needs no per-field casts.
+  const results: SearchResult[] = query.trim() ? (mini.search(query) as SearchResult[]) : [];
 
   return (
     <div className="dr-search">
@@ -40,10 +48,10 @@ export function SearchBox({ docs }: { docs: SearchDoc[] }) {
           {results.length === 0 && <li className="dr-search__empty">No matches.</li>}
           {results.slice(0, 12).map((r) => (
             <li key={r.id} className="dr-search__result">
-              <Link href={r.url as string}>
-                <span className="dr-search__kind">{r.kind as string}</span>
-                <span className="dr-search__title">{r.title as string}</span>
-                <span className="dr-search__summary">{r.summary as string}</span>
+              <Link href={r.url}>
+                <span className="dr-search__kind">{r.kind}</span>
+                <span className="dr-search__title">{r.title}</span>
+                <span className="dr-search__summary">{r.summary}</span>
               </Link>
             </li>
           ))}
