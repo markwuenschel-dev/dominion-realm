@@ -4,7 +4,8 @@ import { SectionCard } from '@/components/layout/SectionCard';
 import { Slider } from '@/components/ui/index';
 import { useResourceMaxima, useResourceRatios } from '@/hooks/useCalculator';
 import { useCalculatorStore } from '@/store/calculatorStore';
-import { RESOURCE_KEYS, RESOURCE_COLORS } from '@/types';
+import { RESOURCE_KEYS } from '@/types';
+import { RESOURCE_COLORS } from '@/lib/palette';
 import { fmtResource, round } from '@/lib/utils';
 
 // Derived max/q come from the panel as props; the row keeps only its own

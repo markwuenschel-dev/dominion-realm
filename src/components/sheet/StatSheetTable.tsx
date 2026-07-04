@@ -6,7 +6,6 @@ import { useCharacterSheet } from '@/hooks/useCharacterSheet';
 import {
   SPECIES_TEMPLATES,
   SOUL_LEVELS,
-  SOUL_LEVEL_TEXT_COLORS,
   type SpeciesKey,
   type SoulLevelKey,
 } from '@/lib/characterTemplates';
@@ -16,8 +15,6 @@ import {
   describeClassAttrRoles,
   classesByRarity,
   PICKER_RARITIES,
-  RARITY_COLORS,
-  RARITY_TEXT_COLORS,
   type ClassKey,
   type AttrKey,
 } from '@/lib/classTaxonomy';
@@ -33,7 +30,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { RESOURCE_COLORS } from '@/types';
+import {
+  RESOURCE_COLORS,
+  RARITY_COLORS,
+  RARITY_TEXT_COLORS,
+  SOUL_LEVEL_TEXT_COLORS,
+} from '@/lib/palette';
 import { cn } from '@/lib/utils';
 import type { SheetAttributeKey } from '@/types/characterSheet';
 import { CAST_PROFILES } from '@/lib/castProfiles';

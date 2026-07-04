@@ -2,7 +2,8 @@
 
 import { SectionCard } from '@/components/layout/SectionCard';
 import { useBaseRegen, useRegenResults } from '@/hooks/useCalculator';
-import { RESOURCE_KEYS, RESOURCE_COLORS, type RegenResult } from '@/types';
+import { RESOURCE_KEYS, type RegenResult } from '@/types';
+import { RESOURCE_COLORS } from '@/lib/palette';
 import { round } from '@/lib/utils';
 
 // Pure presentational row — takes its two derived values as props so the panel

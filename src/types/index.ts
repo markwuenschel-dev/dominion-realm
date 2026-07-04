@@ -62,29 +62,7 @@ export type ResourceKey = keyof ResourceMaxima;
 
 export const RESOURCE_KEYS = ['HP', 'Mana', 'Stamina', 'Reserve'] as const satisfies ResourceKey[];
 
-export interface ResourceColor {
-  bg: string; // Tailwind bg class
-  text: string; // Tailwind text class
-  border: string; // Tailwind border class
-  hex: string; // Raw hex for SVG
-}
-
-export const RESOURCE_COLORS: Record<ResourceKey, ResourceColor> = {
-  HP: { bg: 'bg-red-500', text: 'text-red-400', border: 'border-red-500/40', hex: '#ef4444' },
-  Mana: { bg: 'bg-blue-500', text: 'text-blue-400', border: 'border-blue-500/40', hex: '#3b82f6' },
-  Stamina: {
-    bg: 'bg-emerald-500',
-    text: 'text-emerald-400',
-    border: 'border-emerald-500/40',
-    hex: '#10b981',
-  },
-  Reserve: {
-    bg: 'bg-violet-500',
-    text: 'text-violet-400',
-    border: 'border-violet-500/40',
-    hex: '#8b5cf6',
-  },
-};
+// Resource presentation colours (Tailwind classes + SVG hex) live in lib/palette.ts.
 
 // ────────────────────────────────────────────────
 // §3  CURRENT RESOURCE STATE

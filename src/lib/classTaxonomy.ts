@@ -73,35 +73,7 @@ export interface ClassProfile {
   resourceShape: string;
 }
 
-// ────────────────────────────────────────────────
-// Rarity badge colors
-// Epic reuses the old Exceptional violet slot; Fabled sits between Epic and
-// Legendary with a distinct amber-leaning tone.
-// ────────────────────────────────────────────────
-
-export const RARITY_COLORS: Record<ClassRarity, string> = {
-  Unclassed: 'text-zinc-500 border-zinc-700',
-  Common: 'text-zinc-300 border-zinc-600',
-  Uncommon: 'text-green-400 border-green-700',
-  Rare: 'text-blue-400 border-blue-700',
-  Epic: 'text-violet-400 border-violet-700',
-  Fabled: 'text-amber-300 border-amber-800',
-  Legendary: 'text-amber-400 border-amber-700',
-  Mythic: 'text-orange-400 border-orange-700',
-  Unique: 'text-red-400 border-red-700',
-};
-
-export const RARITY_TEXT_COLORS: Record<ClassRarity, string> = {
-  Unclassed: 'text-zinc-500',
-  Common: 'text-zinc-300',
-  Uncommon: 'text-green-400',
-  Rare: 'text-blue-400',
-  Epic: 'text-violet-400',
-  Fabled: 'text-amber-300',
-  Legendary: 'text-amber-400',
-  Mythic: 'text-orange-400',
-  Unique: 'text-red-400',
-};
+// Rarity badge colours (RARITY_COLORS / RARITY_TEXT_COLORS) live in lib/palette.ts.
 
 // ────────────────────────────────────────────────
 // Class profiles, grouped by rarity tier
