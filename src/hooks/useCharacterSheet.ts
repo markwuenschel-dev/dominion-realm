@@ -5,19 +5,13 @@
 
 import { useMemo } from 'react';
 import { useCharacterSheetStore } from '@/store/characterSheetStore';
-import { computeResourceMaxima } from '@/lib/formulas/resources';
+import { computeResourceChain } from '@/lib/formulas/resourceChain';
 import { computeActivityRegenRates } from '@/lib/formulas/activityRegen';
 import { SPECIES_TEMPLATES } from '@/lib/characterTemplates';
-import { getClassProfile, getClassAttrMultiplier } from '@/lib/classTaxonomy';
+import { getClassProfile } from '@/lib/classTaxonomy';
 import { getSoulMultiplier } from '@/lib/formulas/progression';
 import { xpToNextLevel as computeXpToNextLevel } from '@/lib/xpFormulas';
-import { ATTRIBUTE_KEYS } from '@/types';
-import type { Attributes } from '@/types';
-import type {
-  CharacterSheetDerived,
-  ResourceBreakdown,
-  FinalResources,
-} from '@/types/characterSheet';
+import type { CharacterSheetDerived } from '@/types/characterSheet';
 
 // ────────────────────────────────────────────────
 // Main hook
@@ -31,54 +25,21 @@ export function useCharacterSheet(): CharacterSheetDerived {
   const classProfile = getClassProfile(className);
   const soulMult = getSoulMultiplier(soulLevel);
 
-  // §5 Class influence enters at the attribute layer: each formula-relevant
-  // attribute is scaled by its Prime/Core/Secondary/Neutral class multiplier
-  // before the resource formulas run. Unclassed → every multiplier is 1.0.
-  // (LUCK is intentionally excluded — it is not a resource-formula input.)
-  const effectiveAttributes = useMemo<Attributes>(() => {
-    const result = {} as Attributes;
-    for (const key of ATTRIBUTE_KEYS) {
-      result[key] = attributes[key] * getClassAttrMultiplier(classProfile, key);
-    }
-    return result;
-  }, [attributes, classProfile]);
-
-  // §1 attribute-resource maxima from the effective (class-scaled) attributes.
-  // soulLevelMod stays 1.0 here; the soul multiplier is applied to Reserve in
-  // finalResources below, alongside race/condition mods.
-  const attributeResources = useMemo(
-    () => computeResourceMaxima(effectiveAttributes, 1.0),
-    [effectiveAttributes],
+  // §1 + §5 resource chain. Class influence enters once, at the attribute layer,
+  // via the effective-attribute seam — the same rounded values the sheet's
+  // attribute cells display — so display and formula can never disagree. The seam
+  // owns the round-once rule and the LUCK firewall; Reserve alone × soul multiplier.
+  const { finalResources, breakdowns } = useMemo(
+    () =>
+      computeResourceChain({
+        attributes,
+        profile: classProfile,
+        raceMod: speciesTemplate.raceMod,
+        conditionMods,
+        soulMult,
+      }),
+    [attributes, classProfile, speciesTemplate, conditionMods, soulMult],
   );
-
-  // Final resources: AttributeResource × RaceMod × ConditionMod.
-  // Reserve additionally × SoulMultiplier. Class effect is already baked into
-  // attributeResources via effectiveAttributes — there is no resource-level
-  // class multiplier anymore.
-  const finalResources = useMemo((): FinalResources => {
-    const { HP, Mana, Stamina, Reserve } = attributeResources;
-    const rm = speciesTemplate.raceMod;
-    const cd = conditionMods;
-    return {
-      HP: Math.round(HP * rm.HP * cd.HP),
-      Mana: Math.round(Mana * rm.Mana * cd.Mana),
-      Stamina: Math.round(Stamina * rm.Stamina * cd.Stamina),
-      Reserve: Math.round(Reserve * soulMult * rm.Reserve * cd.Reserve),
-    };
-  }, [attributeResources, speciesTemplate, conditionMods, soulMult]);
-
-  const breakdowns = useMemo((): ResourceBreakdown[] => {
-    const rm = speciesTemplate.raceMod;
-    const cd = conditionMods;
-    return (['HP', 'Mana', 'Stamina', 'Reserve'] as const).map((r) => ({
-      resource: r,
-      attributeValue: Math.round(attributeResources[r]),
-      raceMod: rm[r],
-      soulMultiplier: r === 'Reserve' ? soulMult : 1,
-      conditionMod: cd[r],
-      final: finalResources[r],
-    }));
-  }, [attributeResources, speciesTemplate, conditionMods, soulMult, finalResources]);
 
   const totalFreePoints = useMemo(
     () => level * speciesTemplate.pointsPerLevel,
