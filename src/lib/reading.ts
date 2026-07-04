@@ -24,6 +24,16 @@ export function readingKicker(entry: ReadingEntry): string {
   return KIND_LABELS[entry.data.kind];
 }
 
+/**
+ * Estimated reading time in whole minutes for a piece of prose, at ~230 wpm
+ * (a common adult reading pace). Counts whitespace-separated tokens on the raw
+ * MDX body — close enough for a "~N min" cue — and never returns less than 1.
+ */
+export function readingMinutes(body: string, wpm = 230): number {
+  const words = body.trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.ceil(words / wpm));
+}
+
 export interface ReadingNeighbors {
   prev?: ReadingEntry;
   next?: ReadingEntry;
