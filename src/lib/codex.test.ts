@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { matchRelationship, resolveRelationships, entryKicker, type Relationship } from './codex';
+import {
+  matchRelationship,
+  resolveRelationships,
+  entryKicker,
+  dossierFields,
+  type Relationship,
+} from './codex';
 import type { CodexEntry } from './content';
 
 /**
@@ -86,6 +92,71 @@ describe('entryKicker', () => {
   it('uses a place region, or the collection label when absent', () => {
     expect(kickerFor('places', { region: 'The Northern Reach' })).toBe('The Northern Reach');
     expect(kickerFor('places', {})).toBe('Places');
+  });
+});
+
+describe('dossierFields', () => {
+  // Discriminated union → each collection reads its own dossier fields with no cast.
+  // `aliases`/`status` carry Zod defaults ([] / 'unknown') the loader always
+  // applies, so the fixture seeds them; `extra` overrides per case.
+  const fieldsFor = (collection: CodexEntry['collection'], extra: Record<string, unknown>) =>
+    dossierFields({
+      collection,
+      id: 'x',
+      body: '',
+      data: {
+        name: 'N',
+        summary: '',
+        reveal: 'teaser',
+        relationships: [],
+        draft: false,
+        aliases: [],
+        status: 'unknown',
+        ...extra,
+      },
+    } as CodexEntry);
+
+  it('surfaces a character status as a badge, but hides "unknown"', () => {
+    expect(fieldsFor('characters', { status: 'dead' })).toContainEqual({
+      term: 'Status',
+      value: 'Deceased',
+      badge: 'dead',
+    });
+    expect(fieldsFor('characters', { status: 'unknown' })).toHaveLength(0);
+  });
+
+  it('lists aliases only when present', () => {
+    expect(fieldsFor('characters', { aliases: ['Marc', 'Marcus Vye'] })).toContainEqual({
+      term: 'Also known as',
+      value: 'Marc · Marcus Vye',
+    });
+    expect(fieldsFor('characters', { aliases: [] })).toHaveLength(0);
+  });
+
+  it('renders eyeStage as a chip linking to /eyes', () => {
+    expect(fieldsFor('characters', { eyeStage: 1 })).toContainEqual({
+      term: 'Eye stage',
+      value: 'Stage I · Limbal Shift',
+      chip: true,
+      href: '/eyes',
+    });
+  });
+
+  it('renders a concept stage as a chip (no link)', () => {
+    expect(fieldsFor('concepts', { stage: 3 })).toEqual([
+      { term: 'Stage', value: 'Stage III · Neuro-Optical Overdrive', chip: true },
+    ]);
+  });
+
+  it('renders a place timeline as plain text, or nothing when absent', () => {
+    expect(fieldsFor('places', { timeline: 'Present day of Book One' })).toEqual([
+      { term: 'Timeline', value: 'Present day of Book One' },
+    ]);
+    expect(fieldsFor('places', {})).toHaveLength(0);
+  });
+
+  it('produces no dossier for a faction', () => {
+    expect(fieldsFor('factions', { kind: 'threat' })).toHaveLength(0);
   });
 });
 

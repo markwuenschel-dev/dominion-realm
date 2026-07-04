@@ -300,6 +300,77 @@
   max-width: 620px;
   text-wrap: pretty;
 }
+/* ---- Dossier (frontmatter facts under the summary) ---- */
+.codex-dossier {
+  margin-top: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 620px;
+}
+.codex-dossier__row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 14px;
+  align-items: baseline;
+}
+.codex-dossier__term {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  padding-top: 2px;
+}
+.codex-dossier__value {
+  font-family: var(--serif-body);
+  font-size: 0.98rem;
+  color: var(--ink-dim);
+  text-wrap: pretty;
+}
+@media (max-width: 560px) {
+  .codex-dossier__row { grid-template-columns: 1fr; gap: 5px; }
+}
+
+/* A metadata pill — reused by the eye-stage chip (a link) and concept stage. */
+.codex-chip {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--serif-body);
+  font-size: 0.9rem;
+  color: var(--ink);
+  text-decoration: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 13px;
+  transition: border-color 0.35s var(--ease), color 0.35s var(--ease);
+}
+a.codex-chip:hover { border-color: var(--gold); color: var(--gold-bright); }
+
+/* Status badge — a soft dot + label; colour keyed to alive/dead. */
+.codex-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.codex-badge::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--ink-faint);
+  box-shadow: 0 0 8px currentColor;
+}
+.codex-badge--alive { color: var(--gold-bright); }
+.codex-badge--dead { color: var(--ink-faint); }
+.codex-badge--alive::before { background: var(--gold-bright); }
+.codex-badge--dead::before { background: var(--ink-faint); box-shadow: none; }
+
 .codex-entry__media { margin: 30px 0 0; }
 .codex-entry__media a {
   display: block;
