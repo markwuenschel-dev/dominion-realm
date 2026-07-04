@@ -59,6 +59,19 @@ export function xpToNextLevel(level: number, rarity: ClassRarity): number | null
   return LEVEL_ONE_XP * (numerator / denominator);
 }
 
+/**
+ * Progress toward the next level as an integer 0–100 percent.
+ * - null  → xpToNextLevel is null (Unique tier, N_cycle undefined) — carried through.
+ * - 0     → xpToNextLevel ≤ 0 (guard against divide-by-zero / bad data).
+ * - else  → round(currentXP / xpToNextLevel × 100), clamped to [0, 100].
+ */
+export function xpProgress(currentXP: number, xpToNext: number | null): number | null {
+  if (xpToNext === null) return null;
+  if (xpToNext <= 0) return 0;
+  const pct = Math.round((currentXP / xpToNext) * 100);
+  return Math.min(100, Math.max(0, pct));
+}
+
 // ────────────────────────────────────────────────
 // Scene XP (§§6/20) — optional saturation mini-tool. Not yet wired into any UI.
 // ────────────────────────────────────────────────

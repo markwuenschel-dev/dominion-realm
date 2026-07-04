@@ -5,6 +5,7 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import type { CharacterSheetState, SheetAttributeKey } from '@/types/characterSheet';
+import { ATTRIBUTE_BASELINE } from '@/lib/formulas/pointBudget';
 import type { SpeciesKey, SoulLevelKey } from '@/lib/characterTemplates';
 import type { ClassKey } from '@/lib/classTaxonomy';
 
@@ -25,7 +26,7 @@ interface CharacterSheetActions {
 
 type CharacterSheetStore = CharacterSheetState & CharacterSheetActions;
 
-// Level 1 baseline — all attributes at species minimum (5)
+// Level 1 baseline — every attribute starts at the all-5s point-buy baseline.
 const DEFAULT_STATE: CharacterSheetState = {
   name: '',
   level: 1,
@@ -33,17 +34,17 @@ const DEFAULT_STATE: CharacterSheetState = {
   className: 'None',
   soulLevel: 'Common',
   attributes: {
-    CON: 5,
-    END: 5,
-    STR: 5,
-    AGI: 5,
-    DEX: 5,
-    INT: 5,
-    WIS: 5,
-    CHA: 5,
-    CVN: 5,
-    MYS: 5,
-    LUCK: 5,
+    CON: ATTRIBUTE_BASELINE,
+    END: ATTRIBUTE_BASELINE,
+    STR: ATTRIBUTE_BASELINE,
+    AGI: ATTRIBUTE_BASELINE,
+    DEX: ATTRIBUTE_BASELINE,
+    INT: ATTRIBUTE_BASELINE,
+    WIS: ATTRIBUTE_BASELINE,
+    CHA: ATTRIBUTE_BASELINE,
+    CVN: ATTRIBUTE_BASELINE,
+    MYS: ATTRIBUTE_BASELINE,
+    LUCK: ATTRIBUTE_BASELINE,
   },
   conditionMods: { HP: 1.0, Mana: 1.0, Stamina: 1.0, Reserve: 1.0 },
   currentResources: { HP: 50, Mana: 50, Stamina: 50, Reserve: 40 },

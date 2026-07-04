@@ -10,7 +10,8 @@ import { computeActivityRegenRates } from '@/lib/formulas/activityRegen';
 import { SPECIES_TEMPLATES } from '@/lib/characterTemplates';
 import { getClassProfile } from '@/lib/classTaxonomy';
 import { getSoulMultiplier } from '@/lib/formulas/progression';
-import { xpToNextLevel as computeXpToNextLevel } from '@/lib/xpFormulas';
+import { computePointBudget } from '@/lib/formulas/pointBudget';
+import { xpToNextLevel as computeXpToNextLevel, xpProgress } from '@/lib/xpFormulas';
 import type { CharacterSheetDerived } from '@/types/characterSheet';
 
 // ────────────────────────────────────────────────
@@ -41,20 +42,24 @@ export function useCharacterSheet(): CharacterSheetDerived {
     [attributes, classProfile, speciesTemplate, conditionMods, soulMult],
   );
 
-  const totalFreePoints = useMemo(
-    () => level * speciesTemplate.pointsPerLevel,
-    [level, speciesTemplate.pointsPerLevel],
+  // Point budget — LUCK IS counted (the full attributes map is passed, so raising
+  // LUCK spends from the pool). Class rarity grants no recurring bonus points
+  // (canon firewall), so available === free.
+  const {
+    total: totalFreePoints,
+    spent: spentPoints,
+    remaining: remainingPoints,
+  } = useMemo(
+    () =>
+      computePointBudget({
+        level,
+        pointsPerLevel: speciesTemplate.pointsPerLevel,
+        // every sheet attribute's value, LUCK included.
+        attributeValues: Object.values(attributes),
+      }),
+    [level, speciesTemplate.pointsPerLevel, attributes],
   );
-
-  const spentPoints = useMemo(() => {
-    const BASE_EACH = 5;
-    const keys = Object.keys(attributes) as (keyof typeof attributes)[];
-    return keys.reduce((sum, k) => sum + (attributes[k] - BASE_EACH), 0);
-  }, [attributes]);
-
-  // Class rarity no longer grants recurring bonus attribute points (canon firewall).
   const totalPointsAvailable = totalFreePoints;
-  const remainingPoints = totalPointsAvailable - spentPoints;
 
   // Prevalence-derived XP model. Unique-tier returns null (N_cycle undefined) —
   // never coerce to 0/NaN; carry the null through to the UI.
@@ -63,11 +68,10 @@ export function useCharacterSheet(): CharacterSheetDerived {
     [level, classProfile.rarity],
   );
 
-  const xpProgressPercent = useMemo((): number | null => {
-    if (xpToNextLevel === null) return null;
-    if (xpToNextLevel <= 0) return 0;
-    return Math.min(100, Math.round((currentXP / xpToNextLevel) * 100));
-  }, [currentXP, xpToNextLevel]);
+  const xpProgressPercent = useMemo(
+    () => xpProgress(currentXP, xpToNextLevel),
+    [currentXP, xpToNextLevel],
+  );
 
   // §7 activity-based regen — delegated to the tested formulas seam.
   const regenRates = useMemo(
