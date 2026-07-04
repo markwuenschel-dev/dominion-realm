@@ -13,6 +13,7 @@ import {
 import {
   getClassProfile,
   getClassAttrMultiplier,
+  describeClassAttrRoles,
   classesByRarity,
   PICKER_RARITIES,
   RARITY_COLORS,
@@ -522,18 +523,17 @@ export function StatSheetTable() {
               {className !== 'None' && (
                 <>
                   <FieldLabel>Class attr mods ({classProfile.rarity})</FieldLabel>
-                  <p className="text-[9px] text-muted-foreground/40">
-                    Prime{' '}
-                    <span className="text-primary/80">
-                      {classProfile.primeAttrs.join(', ')} ×1.15
-                    </span>
-                  </p>
-                  <p className="mt-0.5 text-[9px] text-muted-foreground/40">
-                    Core{' '}
-                    <span className="text-primary/60">
-                      {classProfile.coreAttrs.join(', ')} ×1.08
-                    </span>
-                  </p>
+                  {describeClassAttrRoles(classProfile).map((group, i) => (
+                    <p
+                      key={group.role}
+                      className={cn('text-[9px] text-muted-foreground/40', i > 0 && 'mt-0.5')}
+                    >
+                      {group.role}{' '}
+                      <span className="text-primary/70">
+                        {group.attrs.join(', ')} ×{group.multiplier.toFixed(2)}
+                      </span>
+                    </p>
+                  ))}
                 </>
               )}
             </TD>
