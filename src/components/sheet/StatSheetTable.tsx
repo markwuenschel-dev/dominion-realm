@@ -22,6 +22,7 @@ import {
 } from '@/lib/classTaxonomy';
 import { getSoulMultiplier } from '@/lib/formulas/progression';
 import { formatResourceFormula } from '@/lib/formulas/resources';
+import { effectiveAttribute } from '@/lib/formulas/resourceChain';
 import {
   Select,
   SelectContent,
@@ -101,8 +102,12 @@ function AttrCell({ attrKey, dimmed = false }: { attrKey: SheetAttributeKey; dim
   const classKey = useCharacterSheetStore((s) => s.className);
   const setAttribute = useCharacterSheetStore((s) => s.setAttribute);
 
-  const mod = getClassAttrMultiplier(getClassProfile(classKey), attrKey as AttrKey);
-  const effective = mod !== 1.0 ? Math.round(rawValue * mod) : rawValue;
+  const profile = getClassProfile(classKey);
+  // LUCK is never scaled, so it never carries a multiplier badge (guards the
+  // Gambler/Fatewright LUCK-Prime case). The displayed number comes from the same
+  // seam the resource formulas consume, so cell and formula can't disagree.
+  const mod = attrKey === 'LUCK' ? 1 : getClassAttrMultiplier(profile, attrKey as AttrKey);
+  const effective = effectiveAttribute(rawValue, profile, attrKey as AttrKey);
 
   return (
     <TD>

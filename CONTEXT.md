@@ -16,9 +16,24 @@ at call sites.
   `formulas/resources.ts`. Reserve alone scales by the soul-level modifier; the
   other three do not. Base maxima use `soulLevelMod = 1.0`.
 
-- **Final resources.** The sheet's rendered maxima: base maxima × race mod ×
-  class mod × condition mod (Reserve additionally × soul multiplier). Computed in
-  `useCharacterSheet`; the base comes from the §1 seam.
+- **Effective attribute (§5 seam).** A raw attribute scaled by its class
+  multiplier and **rounded once** to an integer: `effectiveAttribute(raw, profile,
+  attr)` in `formulas/resourceChain.ts`. That one integer drives **both** the
+  sheet's attribute cell *and* the resource formula, so display and formula cannot
+  disagree. Rounding happens per-attribute *before* the §1 formulas run (the sheet
+  is integer-facing; the ± buttons step by 1). **LUCK is never scaled** — the seam
+  returns it unchanged even for classes that list LUCK as Prime/Core/Secondary
+  (Gambler, Fatewright, …).
+
+- **Resource chain.** `computeResourceChain(input)` in `formulas/resourceChain.ts`
+  runs the whole §1 → final pipeline: effective attributes → §1 maxima → base
+  maxima × race mod × condition mod (Reserve additionally × soul multiplier),
+  rounded. `useCharacterSheet` calls it once; class influence enters only through
+  the effective-attribute seam, never as a resource-level multiplier.
+
+- **Final resources.** The sheet's rendered maxima, produced by the resource chain
+  above: base maxima × race mod × condition mod (Reserve additionally × soul
+  multiplier). The base comes from the §1 seam.
 
 - **Regen curve (§4/5).** The *safe-low* recovery curve used by the **calculator**
   — regeneration as a function of the q-ratio (current / max). Lives in

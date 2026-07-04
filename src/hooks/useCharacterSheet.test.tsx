@@ -81,6 +81,35 @@ describe('useCharacterSheet — §1 resource formula lock', () => {
   });
 });
 
+describe('useCharacterSheet — class influence rounds once at the attribute layer', () => {
+  it('derives a classed character from rounded effective attributes (display == formula)', () => {
+    const { result } = renderHook(() => useCharacterSheet());
+    act(() => {
+      useCharacterSheetStore.getState().loadState({
+        className: 'Warrior', // STR/END Prime ×1.15, CON/AGI/DEX Core ×1.08, WIS/CVN Secondary
+        attributes: {
+          CON: 10,
+          END: 10,
+          STR: 10,
+          AGI: 10,
+          DEX: 10,
+          INT: 10,
+          WIS: 10,
+          CHA: 10,
+          CVN: 10,
+          MYS: 10,
+          LUCK: 10,
+        },
+      });
+    });
+
+    // Round once per attribute BEFORE the §1 formula: Prime→12, Core→11, Secondary/Neutral→10.
+    // HP = 6·11 + 2·12 + 2·12 = 114. The old unrounded path gave 111 — this pins the fix.
+    const actual = attributeValues(result.current.breakdowns);
+    expect(actual).toEqual({ HP: 114, Mana: 100, Stamina: 116, Reserve: 86 });
+  });
+});
+
 describe('useCharacterSheet — derived values (default state golden master)', () => {
   it('finalResources match the locked default output', () => {
     const { result } = renderHook(() => useCharacterSheet());
