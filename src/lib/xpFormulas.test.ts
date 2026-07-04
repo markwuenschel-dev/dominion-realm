@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { xpToNextLevel, sceneXP } from './xpFormulas';
+import { xpToNextLevel, xpProgress, sceneXP } from './xpFormulas';
 import type { ClassRarity } from '@/lib/classTaxonomy';
 
 /**
@@ -16,6 +16,27 @@ const PACED_RARITIES: ClassRarity[] = [
   'Legendary',
   'Mythic',
 ];
+
+describe('xpProgress — progress percent with the Unique/guard edges', () => {
+  it('carries null through for the Unique tier (xpToNextLevel === null)', () => {
+    expect(xpProgress(500, null)).toBeNull();
+  });
+
+  it('returns 0 when xpToNextLevel ≤ 0 (divide-by-zero guard)', () => {
+    expect(xpProgress(50, 0)).toBe(0);
+    expect(xpProgress(50, -10)).toBe(0);
+  });
+
+  it('rounds the ratio to a whole percent', () => {
+    expect(xpProgress(2, 3)).toBe(67); // 66.6…% → 67 (round, not floor)
+    expect(xpProgress(0, 100)).toBe(0);
+  });
+
+  it('clamps to [0, 100]', () => {
+    expect(xpProgress(150, 100)).toBe(100); // over cap
+    expect(xpProgress(-20, 100)).toBe(0); // below zero
+  });
+});
 
 describe('xpToNextLevel — design anchors', () => {
   it('Level 1 threshold is exactly 100 for every paced rarity', () => {

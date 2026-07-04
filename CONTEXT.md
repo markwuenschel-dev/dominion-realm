@@ -62,3 +62,12 @@ at call sites.
   `ATTR_ROLE_MULTIPLIERS[role]`, so the ladder value lives once in
   `ATTR_ROLE_MULTIPLIERS`. `describeClassAttrRoles(profile)` is the labelled
   ladder the sheet's class-mods badge renders. All in `lib/classTaxonomy.ts`.
+
+- **Point budget.** Every attribute starts at the all-5s point-buy baseline
+  (`ATTRIBUTE_BASELINE`, resource_system.md §18/§19). Points *spent* = each
+  attribute's deviation above baseline, summed across **all** sheet attributes —
+  **LUCK included** (it is a raisable attribute drawing from the same pool; the
+  resource-formula firewall governs formulas, not the point economy). The pool is
+  `level × pointsPerLevel`; class rarity grants no recurring bonus points.
+  `computePointBudget` / `computeSpentPoints` in `formulas/pointBudget.ts`;
+  `ATTRIBUTE_BASELINE` is the single source for the store's default attributes.
