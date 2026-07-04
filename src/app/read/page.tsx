@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getReadingEntries, readingUrl, readingKicker, readingMinutes } from '@/lib/reading';
+import { getReadingEntries, readingUrl, readingKicker } from '@/lib/reading';
 import { getSampleDownloads } from '@/lib/downloads';
 import { ReadingChrome } from '@/components/reading/ReadingChrome';
 import { ContentImage } from '@/components/ContentImage';
 import { BuyCta } from '@/components/BuyCta';
-import { ContinueReading } from '@/components/reading/ContinueReading';
 
 export const metadata: Metadata = {
   title: 'Read the Opening',
@@ -17,7 +16,6 @@ export default function ReadIndex() {
   const entries = getReadingEntries();
   const first = entries[0];
   const downloads = getSampleDownloads();
-  const chapters = entries.map((e) => ({ id: e.id, title: e.data.title, url: readingUrl(e.id) }));
 
   return (
     <ReadingChrome showIndexLink={false}>
@@ -33,8 +31,6 @@ export default function ReadIndex() {
         </p>
         <div className="reading-rule" />
       </div>
-
-      <ContinueReading chapters={chapters} />
 
       {first && (
         <Link className="reading-cta" href={readingUrl(first.id)}>
@@ -55,9 +51,7 @@ export default function ReadIndex() {
                 />
               </figure>
             )}
-            <span className="reading-item__kicker">
-              {readingKicker(entry)} · ~{readingMinutes(entry.body)} min
-            </span>
+            <span className="reading-item__kicker">{readingKicker(entry)}</span>
             <h2 className="reading-item__title">{entry.data.title}</h2>
             <p className="reading-item__summary">{entry.data.summary}</p>
           </Link>

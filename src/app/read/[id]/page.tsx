@@ -6,13 +6,11 @@ import {
   getReadingEntry,
   readingUrl,
   readingKicker,
-  readingMinutes,
   getNeighbors,
 } from '@/lib/reading';
 import { MdxBody } from '@/components/MdxBody';
 import { ContentImage } from '@/components/ContentImage';
 import { ReadingChrome } from '@/components/reading/ReadingChrome';
-import { Reader } from '@/components/reading/Reader';
 
 export function generateStaticParams() {
   return getReadingEntries().map((e) => ({ id: e.id }));
@@ -35,15 +33,11 @@ export default async function ReadChapter({ params }: { params: Promise<{ id: st
   if (!entry) notFound();
 
   const { prev, next } = getNeighbors(getReadingEntries(), id);
-  const minutes = readingMinutes(entry.body);
 
   return (
     <ReadingChrome>
-      <Reader chapterId={entry.id} minutes={minutes} />
       <article className="reading-article">
-        <span className="reading-article__kicker">
-          {readingKicker(entry)} · ~{minutes} min
-        </span>
+        <span className="reading-article__kicker">{readingKicker(entry)}</span>
         <h1 className="reading-article__title">{entry.data.title}</h1>
         <p className="reading-article__summary">{entry.data.summary}</p>
         <div className="reading-article__rule" />
