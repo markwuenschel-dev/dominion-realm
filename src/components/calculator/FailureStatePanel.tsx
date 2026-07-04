@@ -1,7 +1,7 @@
 'use client';
 
 import { SectionCard } from '@/components/layout/SectionCard';
-import { useCalculator } from '@/hooks/useCalculator';
+import { useResourceRatios } from '@/hooks/useCalculator';
 import { RESOURCE_KEYS, RESOURCE_COLORS } from '@/types';
 import { round } from '@/lib/utils';
 
@@ -59,10 +59,8 @@ const FAILURE_DESCRIPTIONS: Record<
   },
 };
 
-function ResourceZoneRow({ resource }: { resource: (typeof RESOURCE_KEYS)[number] }) {
-  const { ratios } = useCalculator();
+function ResourceZoneRow({ resource, q }: { resource: (typeof RESOURCE_KEYS)[number]; q: number }) {
   const colors = RESOURCE_COLORS[resource];
-  const q = ratios[resource];
   const qPct = round(q * 100, 1);
   const desc = FAILURE_DESCRIPTIONS[resource];
 
@@ -114,6 +112,7 @@ function ResourceZoneRow({ resource }: { resource: (typeof RESOURCE_KEYS)[number
 }
 
 export function FailureStatePanel() {
+  const ratios = useResourceRatios();
   return (
     <SectionCard
       section="§7"
@@ -122,7 +121,7 @@ export function FailureStatePanel() {
     >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {RESOURCE_KEYS.map((r) => (
-          <ResourceZoneRow key={r} resource={r} />
+          <ResourceZoneRow key={r} resource={r} q={ratios[r]} />
         ))}
       </div>
 

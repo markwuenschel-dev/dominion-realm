@@ -3,10 +3,13 @@
 import { SectionCard } from '@/components/layout/SectionCard';
 import { Input, Label } from '@/components/ui/index';
 import { Button } from '@/components/ui/button';
-import { useCalculator } from '@/hooks/useCalculator';
+import { useHealingResult } from '@/hooks/useCalculator';
 import { useCalculatorStore } from '@/store/calculatorStore';
 import { round } from '@/lib/utils';
+import type { HealingPulseResult } from '@/types';
 import { RotateCcw, Plus, Trash2 } from 'lucide-react';
+
+type HealingChannelResult = HealingPulseResult['channels'][number];
 
 type NumericChannelKey =
   | 'demand'
@@ -18,14 +21,12 @@ type NumericChannelKey =
   | 'K_W'
   | 'eta';
 
-function ChannelEditor({ index }: { index: number }) {
+function ChannelEditor({ index, result }: { index: number; result?: HealingChannelResult }) {
   const channel = useCalculatorStore((s) => s.healingPulse.channels[index]);
   const updateChannel = useCalculatorStore((s) => s.updateHealingChannel);
   const removeChannel = useCalculatorStore((s) => s.removeHealingChannel);
-  const { healingResult } = useCalculator();
 
   if (!channel) return null;
-  const result = healingResult.channels[index];
 
   function numField(key: NumericChannelKey, label: string, min = 0, step = 1) {
     if (!channel) return null;
@@ -116,7 +117,7 @@ export function HealingPulsePanel() {
   const setH0 = useCalculatorStore((s) => s.setHealingH0);
   const addChannel = useCalculatorStore((s) => s.addHealingChannel);
   const resetHealingPulse = useCalculatorStore((s) => s.resetHealingPulse);
-  const { healingResult } = useCalculator();
+  const healingResult = useHealingResult();
 
   function handleAddChannel() {
     addChannel({
@@ -168,7 +169,7 @@ export function HealingPulsePanel() {
 
       <div className="flex flex-col gap-2">
         {channels.map((_, i) => (
-          <ChannelEditor key={i} index={i} />
+          <ChannelEditor key={i} index={i} result={healingResult.channels[i]} />
         ))}
       </div>
 

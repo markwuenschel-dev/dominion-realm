@@ -1,17 +1,22 @@
 'use client';
 
 import { SectionCard } from '@/components/layout/SectionCard';
-import { useCalculator } from '@/hooks/useCalculator';
-import { RESOURCE_KEYS, RESOURCE_COLORS } from '@/types';
+import { useBaseRegen, useRegenResults } from '@/hooks/useCalculator';
+import { RESOURCE_KEYS, RESOURCE_COLORS, type RegenResult } from '@/types';
 import { round } from '@/lib/utils';
 
-function RegenRow({ resource }: { resource: (typeof RESOURCE_KEYS)[number] }) {
-  const { baseRegen, regenResults } = useCalculator();
+// Pure presentational row — takes its two derived values as props so the panel
+// runs the regen pipeline once, not once per row.
+function RegenRow({
+  resource,
+  base,
+  result,
+}: {
+  resource: (typeof RESOURCE_KEYS)[number];
+  base: number;
+  result: RegenResult;
+}) {
   const colors = RESOURCE_COLORS[resource];
-
-  const base = baseRegen[resource];
-  const result = regenResults.find((r) => r.resource === resource);
-  if (!result) return null;
 
   const { multiplier, actualRegen, zone } = result;
   const pct = round(multiplier * 100, 0);
@@ -56,7 +61,8 @@ function RegenRow({ resource }: { resource: (typeof RESOURCE_KEYS)[number] }) {
 }
 
 export function RegenBasePanel() {
-  const { regenResults } = useCalculator();
+  const baseRegen = useBaseRegen();
+  const regenResults = useRegenResults();
   const hasZero = regenResults.some((r) => r.zone === 'zero');
 
   return (
@@ -66,9 +72,12 @@ export function RegenBasePanel() {
       subtitle="BaseRegen × RecoveryStateMod × curve(q) — per tick"
     >
       <div className="flex flex-col gap-5">
-        {RESOURCE_KEYS.map((r) => (
-          <RegenRow key={r} resource={r} />
-        ))}
+        {RESOURCE_KEYS.map((r) => {
+          const result = regenResults.find((x) => x.resource === r);
+          return result ? (
+            <RegenRow key={r} resource={r} base={baseRegen[r]} result={result} />
+          ) : null;
+        })}
 
         {hasZero && (
           <p className="rounded border border-red-900/40 bg-red-950/20 px-3 py-2 text-xs text-red-400">
