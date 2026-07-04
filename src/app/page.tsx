@@ -17,7 +17,7 @@ import { BuyCta } from '@/components/BuyCta';
 export default function Home() {
   const socials = liveSocials();
   const navPages = liveNavPages();
-  const { axioms, comps, pubMilestones } = SITE;
+  const { axioms, comps, pubMilestones, cover } = SITE;
   const mapReady = navPageReady('map');
 
   const kitFormId = process.env.NEXT_PUBLIC_KIT_FORM_ID;
@@ -83,31 +83,45 @@ export default function Home() {
 
         <main className="main">
           {/* HERO */}
-          <section className="hero" id="hero">
+          <section className={`hero${cover ? ' has-cover' : ''}`} id="hero">
             <div className="hero-glow a" />
             <div className="hero-glow b" />
             <div className="hero-glow c" />
             <div className="wrap">
-              <span className="hero-genre reveal">Interface Fantasy / LitRPG</span>
-              <h1 className="hero-title reveal">
-                <span className="the">The Dominion</span>
-                <em>Realm</em>
-              </h1>
-              <p className="hero-logline reveal">
-                An Earth gamer&apos;s cybernetic implant translates a real metaphysical world into
-                RPG logic — until he realizes the interface is not the world.{' '}
-                <em>It is only his way of surviving contact with it.</em>
-              </p>
-              <div className="buy-row reveal">
-                <Link href="/read" className="btn btn-primary">
-                  Read the Opening <span className="arrow">→</span>
-                </Link>
-                <Link href="/codex" className="btn btn-ghost">
-                  Explore the World <span className="arrow">→</span>
-                </Link>
-                <span className="buy-note">Prologue &amp; Chapter One · free, no sign-up</span>
-                <BuyCta className="buy-cta--hero" newsletterHref="#join" />
+              <div className="hero-copy">
+                <span className="hero-genre reveal">Interface Fantasy / LitRPG</span>
+                <h1 className="hero-title reveal">
+                  <span className="the">The Dominion</span>
+                  <em>Realm</em>
+                </h1>
+                <p className="hero-logline reveal">
+                  An Earth gamer&apos;s cybernetic implant translates a real metaphysical world into
+                  RPG logic — until he realizes the interface is not the world.{' '}
+                  <em>It is only his way of surviving contact with it.</em>
+                </p>
+                <div className="buy-row reveal">
+                  <Link href="/read" className="btn btn-primary">
+                    Read the Opening <span className="arrow">→</span>
+                  </Link>
+                  <Link href="/codex" className="btn btn-ghost">
+                    Explore the World <span className="arrow">→</span>
+                  </Link>
+                  <span className="buy-note">Prologue &amp; Chapter One · free, no sign-up</span>
+                  <BuyCta className="buy-cta--hero" newsletterHref="#join" />
+                </div>
               </div>
+              {cover && (
+                <figure className="hero-cover reveal">
+                  <Image
+                    src={cover.src}
+                    alt={cover.alt}
+                    fill
+                    sizes="(max-width: 980px) 60vw, 340px"
+                    style={{ objectFit: 'cover' }}
+                    priority
+                  />
+                </figure>
+              )}
             </div>
             <div className="scroll-cue">
               <span>Scroll</span>

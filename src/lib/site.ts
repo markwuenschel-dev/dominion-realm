@@ -35,10 +35,24 @@ export interface Axiom {
   gloss?: string;
 }
 
+export interface CoverArt {
+  /** Public path to the cover image (a file under `public/`), e.g. `/cover.png`.
+   *  A plain path rather than a static import so the art can be dropped in and
+   *  wired with a one-line config edit, with no build coupling to the asset. */
+  src: string;
+  /** Alt text for the cover — the book's title treatment. */
+  alt: string;
+}
+
 export interface SiteConfig {
   /** Author display name. Placeholder until Mark supplies it — surfaces in the
    *  footer, the About page, and meta. */
   author: string;
+  /** The book-cover art shown on the homepage hero. Undefined until the art
+   *  exists — the hero renders without it rather than showing a placeholder
+   *  (same spirit as `liveSocials`/`pubMilestones`). When ready: drop the file
+   *  in `public/` and set `{ src, alt }`. */
+  cover?: CoverArt;
   /** Social links. URL-less entries are intentionally hidden (see `Social`). */
   socials: Social[];
   /** Publication timeline rows. Empty until Mark supplies dates — the homepage
@@ -54,6 +68,7 @@ export interface SiteConfig {
 
 export const SITE: SiteConfig = {
   author: '[ Author Name ]',
+  // cover: { src: '/cover.png', alt: 'The Dominion Realm — Book One' },
   socials: [
     { label: 'Instagram' },
     { label: 'Goodreads' },
