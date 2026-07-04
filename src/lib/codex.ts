@@ -6,7 +6,6 @@ import {
   type CodexEntry,
 } from './content';
 import { hasCoords, type PlaceMarker } from './map';
-import { eyeStageLabel } from './eyeStages';
 
 /**
  * Helpers for the World Codex (ADR-0002). The four codex collections share a
@@ -82,67 +81,6 @@ export function getPlaceMarkers(): PlaceMarker[] {
       },
     ];
   });
-}
-
-/** A labelled fact for the entry-page dossier, as pure data — the page maps it
- *  to markup (plain text, a pill, a link-pill, or a status badge). */
-export interface DossierField {
-  term: string;
-  value: string;
-  /** Render the value as a pill; when `href` is also set the pill is a link. */
-  chip?: boolean;
-  href?: string;
-  /** When set, render the value as a status badge keyed to this state. */
-  badge?: 'alive' | 'dead';
-}
-
-const STATUS_LABELS: Record<'alive' | 'dead', string> = {
-  alive: 'Alive',
-  dead: 'Deceased',
-};
-
-/**
- * Facts a codex entry declares in frontmatter but the body doesn't repeat —
- * surfaced under the summary as a small dossier. Narrows on `collection` so each
- * branch reads its own fields; a field is emitted only when present (an `unknown`
- * status and empty aliases produce nothing), so an entry with no dossier-worthy
- * data yields an empty list and the page renders no block.
- */
-export function dossierFields(entry: CodexEntry): DossierField[] {
-  const fields: DossierField[] = [];
-  switch (entry.collection) {
-    case 'characters': {
-      const { status, aliases, eyeStage } = entry.data;
-      if (status === 'alive' || status === 'dead') {
-        fields.push({ term: 'Status', value: STATUS_LABELS[status], badge: status });
-      }
-      if (aliases.length > 0) {
-        fields.push({ term: 'Also known as', value: aliases.join(' · ') });
-      }
-      if (eyeStage != null) {
-        fields.push({
-          term: 'Eye stage',
-          value: eyeStageLabel(eyeStage),
-          chip: true,
-          href: '/eyes',
-        });
-      }
-      break;
-    }
-    case 'concepts': {
-      const { stage } = entry.data;
-      if (stage != null) fields.push({ term: 'Stage', value: eyeStageLabel(stage), chip: true });
-      break;
-    }
-    case 'places': {
-      const { timeline } = entry.data;
-      if (timeline) fields.push({ term: 'Timeline', value: timeline });
-      break;
-    }
-    case 'factions':
-      break;
-  }
-  return fields;
 }
 
 export interface ResolvedLink {

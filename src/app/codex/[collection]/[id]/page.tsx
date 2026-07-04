@@ -6,32 +6,14 @@ import {
   getCodexEntry,
   entryKicker,
   resolveRelationships,
-  dossierFields,
   COLLECTION_LABELS,
   type CodexCollection,
-  type DossierField,
 } from '@/lib/codex';
 import { MdxBody } from '@/components/MdxBody';
 import { ContentImage } from '@/components/ContentImage';
 import { RevealGate } from '@/components/reveal/RevealGate';
 
 type Params = { collection: string; id: string };
-
-/** Render a single dossier fact as plain text, a pill, a link-pill, or a badge. */
-function DossierValue({ field }: { field: DossierField }) {
-  if (field.badge) {
-    return <span className={`codex-badge codex-badge--${field.badge}`}>{field.value}</span>;
-  }
-  if (field.href) {
-    return (
-      <Link className="codex-chip" href={field.href}>
-        {field.value}
-      </Link>
-    );
-  }
-  if (field.chip) return <span className="codex-chip">{field.value}</span>;
-  return <>{field.value}</>;
-}
 
 export function generateStaticParams() {
   return getCodexEntries().map((e) => ({ collection: e.collection, id: e.id }));
@@ -51,7 +33,6 @@ export default async function CodexEntryPage({ params }: { params: Promise<Param
 
   const kicker = entryKicker(entry);
   const links = resolveRelationships(entry, getCodexEntries());
-  const dossier = dossierFields(entry);
   const image = entry.data.image;
 
   return (
@@ -62,19 +43,6 @@ export default async function CodexEntryPage({ params }: { params: Promise<Param
       <h1 className="codex-entry__title">{entry.data.name}</h1>
       <p className="codex-entry__summary">{entry.data.summary}</p>
       <div className="codex-rule" />
-
-      {dossier.length > 0 && (
-        <dl className="codex-dossier">
-          {dossier.map((field) => (
-            <div className="codex-dossier__row" key={field.term}>
-              <dt className="codex-dossier__term">{field.term}</dt>
-              <dd className="codex-dossier__value">
-                <DossierValue field={field} />
-              </dd>
-            </div>
-          ))}
-        </dl>
-      )}
 
       {image && (
         <figure className="codex-entry__media">
