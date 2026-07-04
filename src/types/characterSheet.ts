@@ -4,6 +4,7 @@
 // LUCK has no resource-formula effect; it's tracked but not converted to a number.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { ATTRIBUTE_KEYS } from '@/types';
 import type { Attributes } from '@/types';
 import type { SpeciesKey, SoulLevelKey } from '@/lib/characterTemplates';
 import type { ClassKey } from '@/lib/classTaxonomy';
@@ -20,17 +21,10 @@ export interface CharacterSheetAttributes extends Attributes {
   LUCK: number;
 }
 
+// Domain law: the sheet attribute set is the formula set plus LUCK. Projected
+// from ATTRIBUTE_KEYS rather than restated, so adding an attribute is one edit.
 export const SHEET_ATTRIBUTE_KEYS = [
-  'CON',
-  'END',
-  'STR',
-  'AGI',
-  'DEX',
-  'INT',
-  'WIS',
-  'CHA',
-  'CVN',
-  'MYS',
+  ...ATTRIBUTE_KEYS,
   'LUCK',
 ] as const satisfies (keyof CharacterSheetAttributes)[];
 
@@ -48,19 +42,12 @@ export const SHEET_ATTRIBUTE_GROUPS: {
   { label: 'Fortune', keys: ['LUCK'], note: 'No resource-formula effect' },
 ];
 
-/** Attributes that feed into resource formulas (excludes LUCK) */
-export const FORMULA_ATTRIBUTE_KEYS = [
-  'CON',
-  'END',
-  'STR',
-  'AGI',
-  'DEX',
-  'INT',
-  'WIS',
-  'CHA',
-  'CVN',
-  'MYS',
-] as const satisfies (keyof Attributes)[];
+/**
+ * Attributes that feed into resource formulas (excludes LUCK).
+ * This *is* the canonical formula set — aliased, not copied, so the firewall
+ * "formula keys = sheet keys minus LUCK" is structural rather than clerical.
+ */
+export const FORMULA_ATTRIBUTE_KEYS = ATTRIBUTE_KEYS;
 
 // ────────────────────────────────────────────────
 // Full stat sheet state
