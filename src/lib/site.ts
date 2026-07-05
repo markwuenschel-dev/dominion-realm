@@ -138,9 +138,14 @@ export const NAV_PAGES: NavPage[] = [
   { idx: '→', label: 'The Timeline', slug: 'timeline' },
   { idx: '→', label: 'About', slug: 'about' },
   { idx: '→', label: 'Calculator', slug: 'calculator' },
+  // Interview-prep code-diagnosis bank — ungated, linked in nav so it's live.
+  { idx: '→', label: 'Questions', slug: 'questions' },
   // Built but not yet linked — flip `ready: true` once Marcus's sheet carries
   // the manuscript's real numbers (src/data/marcus-sheet.ts, drop `provisional`).
   { idx: '→', label: 'The Sheet', slug: 'interface', ready: false },
+  // Scaffolded sibling of Questions — the route + collection exist, but it ships
+  // empty. Flip `ready: true` once the drill generator fills src/content/drills/.
+  { idx: '→', label: 'Code Drills', slug: 'drills', ready: false },
 ];
 
 /** Nav pages that should appear in the live nav (hides `ready: false`). */
