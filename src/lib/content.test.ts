@@ -5,8 +5,6 @@ import {
   getCodexEntry,
   getJournalEntries,
   getReadingEntries,
-  getQuestionEntries,
-  getDrillEntries,
   CODEX_COLLECTIONS,
 } from './content';
 
@@ -30,14 +28,6 @@ describe('loaders parse the real corpus', () => {
     expect(getReadingEntries().length).toBeGreaterThan(0);
   });
 
-  it('loads the ungated questions/drills banks without a schema error', () => {
-    // Zod-validates every question's frontmatter (the corpus build-gate); drills
-    // ships empty and must load cleanly as [].
-    expect(() => getQuestionEntries()).not.toThrow();
-    expect(() => getDrillEntries()).not.toThrow();
-    expect(getQuestionEntries().length).toBeGreaterThan(0);
-  });
-
   it('only emits the four known codex collections', () => {
     const collections = new Set(getCodexEntries().map((e) => e.collection));
     for (const c of collections) {
@@ -55,11 +45,6 @@ describe('sorting', () => {
 
   it('sorts reading entries by ascending order', () => {
     const orders = getReadingEntries().map((e) => e.data.order);
-    expect(orders).toEqual([...orders].sort((a, b) => a - b));
-  });
-
-  it('sorts question entries by ascending order', () => {
-    const orders = getQuestionEntries().map((e) => e.data.order);
     expect(orders).toEqual([...orders].sort((a, b) => a - b));
   });
 

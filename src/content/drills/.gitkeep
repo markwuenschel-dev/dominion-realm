@@ -1,8 +1,0 @@
-# The Code Drills collection ships empty.
-#
-# This directory backs the `drills` content collection (schema in
-# src/lib/content.ts, mirrored in keystatic.config.ts) and the /drills route.
-# It is scaffolded for a future drill-generating chatbot: drop `<slug>.md` files
-# here (same frontmatter shape as src/content/questions/*.md, with `qid` like
-# "D001") and they appear at /drills automatically. Then flip `ready: true` on the
-# "Code Drills" entry in src/lib/site.ts (NAV_PAGES) to light it up in the nav.
