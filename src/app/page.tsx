@@ -117,7 +117,7 @@ export default function Home() {
                     alt={cover.alt}
                     fill
                     sizes="(max-width: 980px) 60vw, 340px"
-                    style={{ objectFit: 'cover' }}
+                    style={{ objectFit: 'contain' }}
                     priority
                   />
                 </figure>
