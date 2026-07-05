@@ -68,7 +68,7 @@ export interface SiteConfig {
 
 export const SITE: SiteConfig = {
   author: '[ Author Name ]',
-  // cover: { src: '/cover.png', alt: 'The Dominion Realm — Book One' },
+  cover: { src: '/cover.png', alt: 'The Dominion Realm — Book One' },
   socials: [
     { label: 'Instagram' },
     { label: 'Goodreads' },
