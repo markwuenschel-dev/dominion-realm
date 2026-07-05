@@ -310,11 +310,7 @@
   .hero-cover {
     position: relative;
     width: 100%;
-    /* Matches the cover art's natural ratio (941×1672 ≈ 9/16) so the frame
-       hugs the art with no letterbox. Paired with object-fit: contain on the
-       <Image>, so a differently-proportioned cover shows in full (bars, never
-       cropped) rather than being cut off. */
-    aspect-ratio: 941 / 1672;
+    aspect-ratio: 2 / 3;
     margin: 0;
     border-radius: var(--radius-lg);
     overflow: hidden;
