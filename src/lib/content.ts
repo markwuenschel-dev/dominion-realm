@@ -9,10 +9,8 @@ import { REVEAL_TIERS } from './reveal';
 /**
  * The content engine (migrated from Astro Content Collections, ADR-0002/0010).
  *
- * Loads the Markdown/MDX collections under `src/content/` (the four codex
- * collections plus journal, reading, timeline, and the ungated questions/drills
- * interview banks), validates each entry's frontmatter against a Zod schema, and
- * returns typed entries. The Zod
+ * Loads the six Markdown/MDX collections under `src/content/`, validates each
+ * entry's frontmatter against a Zod schema, and returns typed entries. The Zod
  * `.parse()` THROWS on a malformed entry (e.g. a bad `reveal` tier), so calling
  * a loader from `generateStaticParams`/a page fails `next build` rather than
  * shipping broken content — preserving the Astro-era build gate.
@@ -40,35 +38,6 @@ const codexBase = z.object({
   imageAlt: z.string().optional(),
   reveal: revealEnum,
   relationships: z.array(relationship).default([]),
-  draft: z.boolean().default(false),
-});
-
-/**
- * Interview code-diagnosis questions (and the future generated `drills`). Both
- * collections share this shape so the drills chatbot emits the same frontmatter.
- * Ungated by design — no `reveal` tier (mirrors `reading`); the whole question,
- * including the Level II / Level III stretches, lives in the Markdown body.
- */
-const questionSchema = z.object({
-  title: z.string(),
-  /** Display id, e.g. "Q001". */
-  qid: z.string(),
-  /** Sort key along the bank (ascending). */
-  order: z.number(),
-  category: z.enum([
-    'backend',
-    'python-ml',
-    'react-ts',
-    'sql',
-    'algorithms',
-    'testing',
-    'concurrency',
-  ]),
-  language: z.enum(['java', 'python', 'typescript', 'sql']),
-  /** Tier of the CORE question; the body always carries harder stretches. */
-  difficulty: z.enum(['mid', 'senior']).default('mid'),
-  summary: z.string(),
-  tags: z.array(z.string()).default([]),
   draft: z.boolean().default(false),
 });
 
@@ -127,8 +96,6 @@ const schemas = {
     relatedEntry: relationship.optional(),
     draft: z.boolean().default(false),
   }),
-  questions: questionSchema,
-  drills: questionSchema,
 } as const;
 
 export type CollectionName = keyof typeof schemas;
@@ -155,8 +122,6 @@ export type CodexEntry = { [C in CodexCollection]: Entry<C> }[CodexCollection];
 export type JournalEntry = Entry<'journal'>;
 export type ReadingEntry = Entry<'reading'>;
 export type TimelineEntry = Entry<'timeline'>;
-export type QuestionEntry = Entry<'questions'>;
-export type DrillEntry = Entry<'drills'>;
 
 /** Rewrite a frontmatter image path to its public /content-media URL. */
 export function resolveImage(collection: string, image: string | undefined): string | undefined {
@@ -239,20 +204,4 @@ export function getReadingEntry(id: string): ReadingEntry | undefined {
 
 export function getTimelineEntries(): TimelineEntry[] {
   return loadCollection('timeline').sort((a, b) => a.data.order - b.data.order);
-}
-
-export function getQuestionEntries(): QuestionEntry[] {
-  return loadCollection('questions').sort((a, b) => a.data.order - b.data.order);
-}
-
-export function getQuestionEntry(id: string): QuestionEntry | undefined {
-  return loadCollection('questions').find((e) => e.id === id);
-}
-
-export function getDrillEntries(): DrillEntry[] {
-  return loadCollection('drills').sort((a, b) => a.data.order - b.data.order);
-}
-
-export function getDrillEntry(id: string): DrillEntry | undefined {
-  return loadCollection('drills').find((e) => e.id === id);
 }

@@ -3,17 +3,8 @@ import { fileURLToPath } from 'node:url';
 import createMDX from '@next/mdx';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
-import rehypePrettyCode from 'rehype-pretty-code';
 
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
-
-// Shiki highlighting for code-heavy MDX (the questions/drills collections).
-// Kept in sync with `src/components/MdxBody.tsx` so page-routed `.mdx` and
-// loader-compiled bodies highlight identically. See that file for the rationale.
-const rehypePrettyCodeOptions = {
-  theme: { light: 'github-light', dark: 'github-dark' },
-  keepBackground: false,
-};
 
 /**
  * Next.js config for The Dominion Realm (migrated off Astro — see ADR-0010).
@@ -27,7 +18,7 @@ const rehypePrettyCodeOptions = {
 const withMDX = createMDX({
   options: {
     remarkPlugins: [remarkGfm],
-    rehypePlugins: [rehypeSlug, [rehypePrettyCode, rehypePrettyCodeOptions]],
+    rehypePlugins: [rehypeSlug],
   },
 });
 
