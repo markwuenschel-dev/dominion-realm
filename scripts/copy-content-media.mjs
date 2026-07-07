@@ -17,13 +17,19 @@ for (const collection of fs.readdirSync(CONTENT, { withFileTypes: true })) {
   if (!collection.isDirectory()) continue;
   const srcDir = path.join(CONTENT, collection.name);
   const destDir = path.join(OUT, collection.name);
-  const walk = (dir) => {
+  // Preserve the sub-path within the collection so per-entry asset folders (which
+  // Keystatic writes as `<collection>/<slug>/<file>`) survive the copy and match
+  // the URL stored in frontmatter. Legacy images at the collection root (rel = '')
+  // are unaffected.
+  const walk = (dir, rel = '') => {
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
       const full = path.join(dir, e.name);
-      if (e.isDirectory()) walk(full);
+      const relPath = path.join(rel, e.name);
+      if (e.isDirectory()) walk(full, relPath);
       else if (MEDIA.test(e.name)) {
-        fs.mkdirSync(destDir, { recursive: true });
-        fs.copyFileSync(full, path.join(destDir, e.name));
+        const dest = path.join(destDir, relPath);
+        fs.mkdirSync(path.dirname(dest), { recursive: true });
+        fs.copyFileSync(full, dest);
         copied++;
       }
     }

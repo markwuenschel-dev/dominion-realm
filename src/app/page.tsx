@@ -1,23 +1,65 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Fragment } from 'react';
-import marcusPortrait from '@/assets/cast/marcus.png';
-import serraPortrait from '@/assets/cast/serra.png';
-import sebPortrait from '@/assets/cast/seb.png';
-import brentPortrait from '@/assets/cast/brent.png';
-import maraPortrait from '@/assets/cast/mara.png';
-import mathiasPortrait from '@/assets/cast/mathias.png';
 import { SITE, liveSocials, NAV_SECTIONS, liveNavPages, navPageReady } from '@/lib/site';
+import { getHomeSettings } from '@/lib/homeSettings';
+import { getCodexEntry } from '@/lib/codex';
 import { HomeClient } from '@/components/HomeClient';
 import { BuyCta } from '@/components/BuyCta';
+import { MediaPlaceholder } from '@/components/MediaPlaceholder';
 
-// Homepage cast cards use dedicated portraits in src/assets/cast/ — kept separate
-// from the Codex's full character-file sheets so the two surfaces can differ.
+// The homepage cast cards draw their portraits from each character's Codex entry
+// image, so uploading a portrait in Keystatic updates both the card and the codex
+// page. Order + blurb are curated here; the picture and name come from content.
+const FEATURED_CAST = [
+  {
+    slug: 'marcus',
+    name: 'Marcus Vye',
+    role: 'Protagonist · The Ocular Interface',
+    desc: 'An Astria machine-learning engineer whose implant renders the Realm as a game. He perceives everything accurately — then reaches, every time, for the wrong conclusion.',
+  },
+  {
+    slug: 'serra-hawthorne',
+    name: 'Serra Hawthorne',
+    role: 'The Disruptor',
+    desc: "The warmest person in the room and the most dangerous. She reads a formation's weak point by feel and is through it before the enemy decides how to respond.",
+  },
+  {
+    slug: 'seb-rainier',
+    name: 'Seb Rainier',
+    role: 'The Leader',
+    desc: "The one who turned a roster of strong individuals into a whole. Marcus's mirror — the same fear of helplessness, the opposite answer: control.",
+  },
+  {
+    slug: 'brent-donovan',
+    name: 'Brent Donovan',
+    role: 'The Engineer',
+    desc: 'A civil engineer who asks the only two questions that matter under pressure: what holds this up, and what makes it fall. When Marcus spirals, Brent is the ground.',
+  },
+  {
+    slug: 'mara-valeria',
+    name: 'Mara Valeria',
+    role: 'The Observer',
+    desc: "She notices everything and draws no notice to herself. The setup to Serra's strike — she has already arranged the moment so the opening exists.",
+  },
+  {
+    slug: 'mathias-sterling',
+    name: 'Mathias Sterling',
+    role: 'The Scout',
+    desc: "A systems mind who reads the connections between things — the group's warm, curious balance-keeper, and the first to see a scattered threat as a single organism.",
+  },
+] as const;
 
 export default function Home() {
   const socials = liveSocials();
   const navPages = liveNavPages();
-  const { axioms, comps, pubMilestones, cover } = SITE;
+  const { axioms, comps, pubMilestones } = SITE;
+  const { cover } = getHomeSettings();
+  // Pull each featured character's portrait from its Codex entry (CMS-managed).
+  const cast = FEATURED_CAST.map((c) => ({
+    ...c,
+    image: getCodexEntry('characters', c.slug)?.data.image,
+  }));
   const mapReady = navPageReady('map');
 
   const kitFormId = process.env.NEXT_PUBLIC_KIT_FORM_ID;
@@ -184,112 +226,30 @@ export default function Home() {
                 <div className="spectral-rule" />
               </div>
               <div className="char-grid">
-                <Link className="char-card reveal" href="/codex/characters/marcus">
-                  <div className="char-portrait">
-                    <Image
-                      src={marcusPortrait}
-                      alt="Marcus"
-                      fill
-                      sizes="(max-width:980px) 100vw, 300px"
-                      style={{ objectFit: 'cover', objectPosition: 'top' }}
-                    />
-                  </div>
-                  <span className="char-role">Protagonist · The Ocular Interface</span>
-                  <h3 className="char-name">Marcus Vye</h3>
-                  <p className="char-desc">
-                    An Astria machine-learning engineer whose implant renders the Realm as a game.
-                    He perceives everything accurately — then reaches, every time, for the wrong
-                    conclusion.
-                  </p>
-                </Link>
-                <Link className="char-card reveal" href="/codex/characters/serra-hawthorne">
-                  <div className="char-portrait">
-                    <Image
-                      src={serraPortrait}
-                      alt="Serra Hawthorne"
-                      fill
-                      sizes="(max-width:980px) 100vw, 300px"
-                      style={{ objectFit: 'cover', objectPosition: 'top' }}
-                    />
-                  </div>
-                  <span className="char-role">The Disruptor</span>
-                  <h3 className="char-name">Serra Hawthorne</h3>
-                  <p className="char-desc">
-                    The warmest person in the room and the most dangerous. She reads a
-                    formation&apos;s weak point by feel and is through it before the enemy decides
-                    how to respond.
-                  </p>
-                </Link>
-                <Link className="char-card reveal" href="/codex/characters/seb-rainier">
-                  <div className="char-portrait">
-                    <Image
-                      src={sebPortrait}
-                      alt="Seb Rainier"
-                      fill
-                      sizes="(max-width:980px) 100vw, 300px"
-                      style={{ objectFit: 'cover', objectPosition: 'top' }}
-                    />
-                  </div>
-                  <span className="char-role">The Leader</span>
-                  <h3 className="char-name">Seb Rainier</h3>
-                  <p className="char-desc">
-                    The one who turned a roster of strong individuals into a whole. Marcus&apos;s
-                    mirror — the same fear of helplessness, the opposite answer: control.
-                  </p>
-                </Link>
-                <Link className="char-card reveal" href="/codex/characters/brent-donovan">
-                  <div className="char-portrait">
-                    <Image
-                      src={brentPortrait}
-                      alt="Brent Donovan"
-                      fill
-                      sizes="(max-width:980px) 100vw, 300px"
-                      style={{ objectFit: 'cover', objectPosition: 'top' }}
-                    />
-                  </div>
-                  <span className="char-role">The Engineer</span>
-                  <h3 className="char-name">Brent Donovan</h3>
-                  <p className="char-desc">
-                    A civil engineer who asks the only two questions that matter under pressure:
-                    what holds this up, and what makes it fall. When Marcus spirals, Brent is the
-                    ground.
-                  </p>
-                </Link>
-                <Link className="char-card reveal" href="/codex/characters/mara-valeria">
-                  <div className="char-portrait">
-                    <Image
-                      src={maraPortrait}
-                      alt="Mara Valeria"
-                      fill
-                      sizes="(max-width:980px) 100vw, 300px"
-                      style={{ objectFit: 'cover', objectPosition: 'top' }}
-                    />
-                  </div>
-                  <span className="char-role">The Observer</span>
-                  <h3 className="char-name">Mara Valeria</h3>
-                  <p className="char-desc">
-                    She notices everything and draws no notice to herself. The setup to Serra&apos;s
-                    strike — she has already arranged the moment so the opening exists.
-                  </p>
-                </Link>
-                <Link className="char-card reveal" href="/codex/characters/mathias-sterling">
-                  <div className="char-portrait">
-                    <Image
-                      src={mathiasPortrait}
-                      alt="Mathias Sterling"
-                      fill
-                      sizes="(max-width:980px) 100vw, 300px"
-                      style={{ objectFit: 'cover', objectPosition: 'top' }}
-                    />
-                  </div>
-                  <span className="char-role">The Scout</span>
-                  <h3 className="char-name">Mathias Sterling</h3>
-                  <p className="char-desc">
-                    A systems mind who reads the connections between things — the group&apos;s warm,
-                    curious balance-keeper, and the first to see a scattered threat as a single
-                    organism.
-                  </p>
-                </Link>
+                {cast.map((c) => (
+                  <Link
+                    key={c.slug}
+                    className="char-card reveal"
+                    href={`/codex/characters/${c.slug}`}
+                  >
+                    <div className="char-portrait">
+                      {c.image ? (
+                        <Image
+                          src={c.image}
+                          alt={c.name}
+                          fill
+                          sizes="(max-width:980px) 100vw, 300px"
+                          style={{ objectFit: 'cover', objectPosition: 'top' }}
+                        />
+                      ) : (
+                        <MediaPlaceholder label={c.name} />
+                      )}
+                    </div>
+                    <span className="char-role">{c.role}</span>
+                    <h3 className="char-name">{c.name}</h3>
+                    <p className="char-desc">{c.desc}</p>
+                  </Link>
+                ))}
               </div>
             </div>
           </section>

@@ -129,6 +129,11 @@ export type TimelineEntry = Entry<'timeline'>;
 /** Rewrite a frontmatter image path to its public /content-media URL. */
 export function resolveImage(collection: string, image: string | undefined): string | undefined {
   if (!image) return undefined;
+  // An absolute path is already a public URL. Keystatic writes per-entry asset
+  // folders and stores `/content-media/<collection>/<slug>/<file>`, which the
+  // subpath-preserving media copy serves verbatim — pass it through unchanged.
+  if (image.startsWith('/')) return image;
+  // A legacy relative './X.png' beside the entry resolves to its copied URL.
   const base = image
     .replace(/^\.?\//, '')
     .split('/')
@@ -155,15 +160,20 @@ function loadCollection<C extends CollectionName>(collection: C): Entry<C>[] {
       );
     }
     if ('image' in parsed && parsed.image) {
-      // Guard: only keep the image if its source file actually exists next to the
-      // `.md`. A declared-but-missing path (e.g. frontmatter wired ahead of the
-      // art) otherwise resolves to a /content-media URL that 404s at runtime,
-      // since the media-copy step silently skips files that aren't there. Drop it
-      // so the entry renders cleanly as text until the file is added.
-      const imageRel = parsed.image as string;
-      const imageSrc = path.resolve(path.dirname(path.join(dir, file)), imageRel);
-      (parsed as { image?: string }).image = fs.existsSync(imageSrc)
-        ? resolveImage(collection, imageRel)
+      // Guard: only keep the image if its source file actually exists. A
+      // declared-but-missing path (frontmatter wired ahead of the art) otherwise
+      // resolves to a URL that 404s at runtime, since the media-copy step silently
+      // skips files that aren't there. Keystatic paths
+      // (`/content-media/<collection>/<slug>/<file>`) live under src/content; a
+      // bare relative path lives beside the `.md`.
+      const declared = parsed.image as string;
+      const src = declared.startsWith('/content-media/')
+        ? path.join(CONTENT_DIR, declared.slice('/content-media/'.length))
+        : declared.startsWith('/')
+          ? path.join(process.cwd(), 'public', declared.slice(1))
+          : path.resolve(path.dirname(path.join(dir, file)), declared);
+      (parsed as { image?: string }).image = fs.existsSync(src)
+        ? resolveImage(collection, declared)
         : undefined;
     }
     return {

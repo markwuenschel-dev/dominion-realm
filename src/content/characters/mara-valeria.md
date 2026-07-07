@@ -1,6 +1,6 @@
 ---
 name: Mara Valeria
-image: ./Mara.png
+image: /content-media/characters/mara-valeria/Mara.png
 imageAlt: Mara on Earth
 summary: >-
   An observer and pattern-connector who makes herself easy to overlook — on

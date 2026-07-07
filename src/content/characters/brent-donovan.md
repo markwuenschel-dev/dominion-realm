@@ -1,6 +1,6 @@
 ---
 name: Brent Donovan
-image: ./Brent.png
+image: /content-media/characters/brent-donovan/Brent.png
 imageAlt: Brent on Earth
 summary: >-
   A civil engineer's practical, anti-abstraction competence — he asks what holds
