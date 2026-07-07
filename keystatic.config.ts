@@ -84,14 +84,19 @@ const codexBaseFields = {
 const bodyField = fields.markdoc({ label: 'Body', extension: 'md' });
 
 export default config({
-  // GitHub storage needs the Keystatic GitHub App secrets. They exist on the
-  // Railway deploy (so editors commit straight to the repo), but not at build /
-  // CI / local time — so fall back to `local` storage when the client id is
-  // absent. This keeps `next build` (which evaluates the /api/keystatic route)
-  // from failing without secrets, while production still uses github mode.
-  storage: process.env.KEYSTATIC_GITHUB_CLIENT_ID
-    ? { kind: 'github', repo: { owner: 'markwuenschel-dev', name: 'dominion-realm' } }
-    : { kind: 'local' },
+  // Storage mode is chosen by a single PUBLIC flag, `NEXT_PUBLIC_KEYSTATIC_GITHUB`,
+  // because the /keystatic UI is a CLIENT bundle and only `NEXT_PUBLIC_` vars reach
+  // it at build time. (The old check on `KEYSTATIC_GITHUB_CLIENT_ID` worked on the
+  // server but was always `undefined` in the browser, so the deployed editor fell
+  // back to `local` and never showed the GitHub sign-in.) Set the flag to `true`
+  // on the Railway deploy → github mode (commits to the repo); leave it unset in
+  // CI and local dev → `local` mode, so `next build` never evaluates github storage
+  // without the App secrets. The OAuth secrets themselves are read at request time
+  // by the route handler from the Railway runtime env.
+  storage:
+    process.env.NEXT_PUBLIC_KEYSTATIC_GITHUB === 'true'
+      ? { kind: 'github', repo: { owner: 'markwuenschel-dev', name: 'dominion-realm' } }
+      : { kind: 'local' },
   ui: {
     brand: { name: 'The Dominion Realm' },
   },
