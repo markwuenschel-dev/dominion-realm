@@ -33,3 +33,37 @@ Her interface is authorship of *salience* — what a mind notices and what it sl
 past. She can make the overlooked impossible to ignore, or make herself the thing
 no one quite registers. Where Marcus treats people as systems to be solved, Mara
 is the standing reminder that a person is not a variable, a puzzle, or a resource.
+
+<RevealGate tier="reader">
+
+## Belonging without being absorbed
+
+What Mara wants is precise and hard to give: to belong somewhere without being
+dissolved into it, and to be recognized *accurately* rather than often. She would
+rather be seen once, correctly, than looked at all day. So she withholds — not out
+of coldness, but because she decides, deliberately, whether your attention is worth
+the process of earning hers. She and Serra go back further than the Realm:
+roommates once, nearly sisters, a bond that predates all of this. And for all that
+Marcus prides himself on reading the model, Mara can genuinely out-think him on it.
+
+Her interface is **Specular Salience Transduction** — the authorship of attention,
+the power to decide what a room notices first. It is the most invisible power in
+the group, which is exactly how she likes it.
+
+</RevealGate>
+
+<RevealGate tier="deep">
+
+## Winning the truth, losing the room
+
+Mara is separated the moment they arrive and never reconnects with Serra before
+Eriadne. Her solo road runs through **Veshara**, a court that measures worth by
+display, where she exposes a predator nobleman the whole society is arranged not to
+see — and *wins the truth but loses the room*, which teaches her precisely what her
+gift can and cannot buy. Then the **Walking Grove**: a civilization living on the
+back of a slowly sickening behemoth, where she forces an entire community to stop
+ignoring the threat it has agreed not to notice. The cost accrues quietly — the
+projection-load of authoring everyone else's attention begins to erode her sense of
+who she is when no one is watching. She survives Book One.
+
+</RevealGate>

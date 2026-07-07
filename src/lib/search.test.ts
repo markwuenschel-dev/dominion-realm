@@ -44,6 +44,13 @@ describe('spoiler safety', () => {
       expect(typeof doc!.body).toBe('string');
     }
   });
+
+  it('strips in-body <RevealGate> spoiler sections from every indexed body', () => {
+    // A teaser entry may wrap deeper prose in <RevealGate> blocks; those must be
+    // stripped before indexing, so no indexed body may still contain a gate.
+    const leaked = docs.filter((d) => d.body?.includes('<RevealGate')).map((d) => d.id);
+    expect(leaked).toEqual([]);
+  });
 });
 
 describe('document shape', () => {
