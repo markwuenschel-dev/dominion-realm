@@ -182,14 +182,19 @@ visit `https://<your-domain>/keystatic` — with no app configured it shows a gu
    - **Permissions:** Repository → **Contents: Read & write**, **Metadata: Read**.
    - Install it on the **`dominion-realm`** repo. Copy the **Client ID** and
      generate a **Client secret**.
-2. In Railway → your service → **Variables**, add:
+2. In Railway → your service → **Variables**, add **four**:
    - `KEYSTATIC_GITHUB_CLIENT_ID`
    - `KEYSTATIC_GITHUB_CLIENT_SECRET`
    - `KEYSTATIC_SECRET` — any random 32+ char string (`openssl rand -hex 32`)
+   - `NEXT_PUBLIC_KEYSTATIC_GITHUB` = `true` — the public flag that tells the
+     browser editor to use GitHub mode (the other three are server-only, so the
+     UI can't see them). **Without this the editor loads in local mode and never
+     shows the GitHub sign-in.**
 3. Redeploy. `/keystatic` is now in GitHub mode and commits to `main` for you.
 
-Without `KEYSTATIC_GITHUB_CLIENT_ID` the config falls back to **local** mode
-(`keystatic.config.ts`), which is why `next build`/CI never need the secrets.
+Only `NEXT_PUBLIC_KEYSTATIC_GITHUB=true` flips the mode (`keystatic.config.ts`);
+CI and local dev leave it unset and use **local** storage, so `next build` never
+evaluates github mode without the secrets.
 
 ## Environment variables
 
