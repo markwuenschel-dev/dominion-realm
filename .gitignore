@@ -18,3 +18,4 @@ dist/
 .env.production
 .DS_Store
 .vscode/
+images_aspect_ratio.md
