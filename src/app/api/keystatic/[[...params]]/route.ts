@@ -6,34 +6,52 @@ import config from '../../../../../keystatic.config';
 
 const keystatic = makeRouteHandler({ config });
 
+/** Hosts that a browser can't reach — the internal bind address Next echoes back. */
+const isInternalHost = (host: string) => /^(127\.|0\.0\.0\.0|localhost|\[?::1\]?)/i.test(host);
+
 /**
- * Behind Railway's proxy the Next server sees its INTERNAL address as the request
- * host (e.g. `127.0.0.1:8080`), so Keystatic builds a GitHub OAuth `redirect_uri`
- * from that — which GitHub rejects ("redirect_uri is not associated with this
- * application"). Rewrite the request's origin to the real public URL before
- * Keystatic reads it. Precedence: an explicit `KEYSTATIC_URL` env override → the
- * proxy's `x-forwarded-host` → the known deploy URL. Only rewrites when the host
- * looks internal, and never in local dev (which uses local storage, not OAuth).
+ * Behind Railway's proxy, Next builds the route handler's request URL from the
+ * INTERNAL bind address (`localhost:8080`, which Keystatic then normalizes to
+ * `127.0.0.1`), so Keystatic's GitHub OAuth `redirect_uri` points at an
+ * unreachable host and the browser can't finish sign-in ("127.0.0.1 refused to
+ * connect"). Rewrite the request's origin to the real PUBLIC URL before Keystatic
+ * reads it.
+ *
+ * Detection keys off `new URL(req.url).host` — the SAME value Keystatic reads —
+ * NOT the `Host` header. Behind the proxy those two disagree: the header arrives
+ * as the public domain while the request URL carries the internal address, so a
+ * header-only check (the previous bug) saw "public", skipped the rewrite, and let
+ * Keystatic emit the internal `redirect_uri` anyway.
+ *
+ * Public-origin precedence: an explicit `KEYSTATIC_URL` override → the proxy's
+ * `x-forwarded-host` (the host the browser actually used, so it matches the GitHub
+ * App callback) → `NEXT_PUBLIC_SITE_URL` → the known deploy URL. Gated on GitHub
+ * storage mode — the only mode that does OAuth — so local dev (local storage) is
+ * untouched even without a production build.
  */
 function withPublicOrigin(req: Request): Request {
-  if (process.env.NODE_ENV !== 'production') return req;
-
-  const host = req.headers.get('host') ?? new URL(req.url).host;
-  const hostIsInternal = /^(127\.|0\.0\.0\.0|localhost|\[?::1\]?)/i.test(host);
-
-  let base: URL | null = null;
-  if (process.env.KEYSTATIC_URL) {
-    base = new URL(process.env.KEYSTATIC_URL);
-  } else if (hostIsInternal) {
-    const xfHost = req.headers.get('x-forwarded-host');
-    const xfProto = req.headers.get('x-forwarded-proto') ?? 'https';
-    base = xfHost
-      ? new URL(`${xfProto}://${xfHost}`)
-      : new URL('https://dominion-realm-production.up.railway.app');
-  }
-  if (!base) return req;
+  if (process.env.NEXT_PUBLIC_KEYSTATIC_GITHUB !== 'true') return req;
 
   const url = new URL(req.url);
+
+  let base: URL;
+  if (process.env.KEYSTATIC_URL) {
+    base = new URL(process.env.KEYSTATIC_URL);
+  } else if (isInternalHost(url.host)) {
+    const xfHost = req.headers.get('x-forwarded-host');
+    const xfProto = req.headers.get('x-forwarded-proto') ?? 'https';
+    if (xfHost && !isInternalHost(xfHost)) {
+      base = new URL(`${xfProto}://${xfHost}`);
+    } else if (process.env.NEXT_PUBLIC_SITE_URL) {
+      base = new URL(process.env.NEXT_PUBLIC_SITE_URL);
+    } else {
+      base = new URL('https://dominion-realm-production.up.railway.app');
+    }
+  } else {
+    return req; // request already carries a reachable public origin
+  }
+
+  if (url.protocol === base.protocol && url.host === base.host) return req;
   url.protocol = base.protocol;
   url.host = base.host;
 
