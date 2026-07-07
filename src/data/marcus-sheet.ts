@@ -79,7 +79,7 @@ export const marcusSheet: CharacterSheet = {
       desc: 'Renders a hostile reality as RPG logic. A mercy, not a truth — and it leaves things out.',
     },
     {
-      name: "Ayla's Counterweight",
+      name: "Illyri's Counterweight",
       tier: 'Passive',
       desc: 'The voice that refuses to hand him the answer, naming the place his reasoning broke.',
     },

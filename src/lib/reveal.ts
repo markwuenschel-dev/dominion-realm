@@ -79,3 +79,19 @@ export function isRevealTier(value: unknown): value is RevealTier {
 export function parseTier(value: unknown): RevealTier {
   return isRevealTier(value) ? value : DEFAULT_TIER;
 }
+
+/**
+ * Strip every in-body `<RevealGate>…</RevealGate>` block from an MDX string,
+ * leaving only the ungated (teaser) prose around them.
+ *
+ * A codex/journal entry can be teaser-tier overall yet wrap spoilers in
+ * `<RevealGate tier="reader|deep|beyond">` sections inside its body. The search
+ * corpus indexes teaser bodies (see `getSearchDocuments`), so those gated
+ * sections must be removed first or the spoilers leak into search — breaking the
+ * ADR-0004 guarantee that gated text never enters the index. In-body gates are
+ * authored flat (never nested), so a non-greedy match is sufficient; any gate,
+ * whatever its tier, is treated as non-teaser and dropped.
+ */
+export function stripGatedSections(mdx: string): string {
+  return mdx.replace(/<RevealGate\b[^>]*>[\s\S]*?<\/RevealGate>/g, '');
+}

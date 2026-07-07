@@ -67,7 +67,7 @@ export interface SiteConfig {
 }
 
 export const SITE: SiteConfig = {
-  author: '[ Author Name ]',
+  author: 'Mark Wuenschel',
   cover: { src: '/cover.png', alt: 'The Dominion Realm — Book One' },
   socials: [
     { label: 'Instagram' },

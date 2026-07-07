@@ -5,7 +5,7 @@ import { getReadingEntries } from './reading';
 import { codexUrl } from './codex';
 import { journalUrl } from './journal';
 import { readingUrl } from './reading';
-import { isUngated } from './reveal';
+import { isUngated, stripGatedSections } from './reveal';
 import type { SearchDoc } from './searchSchema';
 
 // The document shape + index config live in the client-safe schema module so the
@@ -18,6 +18,10 @@ export type { SearchDoc } from './searchSchema';
  * when the entry is ungated (codex/journal `reveal === 'teaser'`, or any reading
  * piece). Above-teaser bodies never enter the index, preserving the Pagefind-era
  * `data-pagefind-ignore` guarantee that spoilers stay out of search.
+ *
+ * A teaser entry can still wrap spoilers in in-body `<RevealGate>` sections, so
+ * its body is run through `stripGatedSections` before indexing — the gated prose
+ * is dropped and only the ungated teaser text is searchable.
  */
 
 export function getSearchDocuments(): SearchDoc[] {
@@ -30,7 +34,7 @@ export function getSearchDocuments(): SearchDoc[] {
       title: e.data.name,
       kind: e.collection,
       summary: e.data.summary,
-      body: isUngated(e.data.reveal) ? e.body : undefined,
+      body: isUngated(e.data.reveal) ? stripGatedSections(e.body) : undefined,
     });
   }
 
@@ -41,7 +45,7 @@ export function getSearchDocuments(): SearchDoc[] {
       title: p.data.title,
       kind: 'journal',
       summary: p.data.summary,
-      body: isUngated(p.data.reveal) ? p.body : undefined,
+      body: isUngated(p.data.reveal) ? stripGatedSections(p.body) : undefined,
     });
   }
 

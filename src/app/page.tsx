@@ -247,7 +247,7 @@ export default function Home() {
                       style={{ objectFit: 'cover', objectPosition: 'top' }}
                     />
                   </div>
-                  <span className="char-role">The Floor</span>
+                  <span className="char-role">The Engineer</span>
                   <h3 className="char-name">Brent Donovan</h3>
                   <p className="char-desc">
                     A civil engineer who asks the only two questions that matter under pressure:
@@ -265,7 +265,7 @@ export default function Home() {
                       style={{ objectFit: 'cover', objectPosition: 'top' }}
                     />
                   </div>
-                  <span className="char-role">The Watcher</span>
+                  <span className="char-role">The Observer</span>
                   <h3 className="char-name">Mara Valeria</h3>
                   <p className="char-desc">
                     She notices everything and draws no notice to herself. The setup to Serra&apos;s

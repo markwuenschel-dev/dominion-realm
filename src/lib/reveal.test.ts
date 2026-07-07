@@ -7,6 +7,7 @@ import {
   isUngated,
   isRevealTier,
   parseTier,
+  stripGatedSections,
 } from './reveal';
 
 /**
@@ -101,5 +102,36 @@ describe('parseTier', () => {
 
   it('defaults to the spoiler-safe teaser tier', () => {
     expect(DEFAULT_TIER).toBe('teaser');
+  });
+});
+
+describe('stripGatedSections', () => {
+  it('drops an above-teaser gate and its spoiler prose, keeping the surrounding text', () => {
+    const mdx = [
+      'Teaser-safe opening.',
+      '<RevealGate tier="deep">',
+      'He dies and comes back.',
+      '</RevealGate>',
+      'Teaser-safe closing.',
+    ].join('\n\n');
+    const stripped = stripGatedSections(mdx);
+    expect(stripped).toContain('Teaser-safe opening.');
+    expect(stripped).toContain('Teaser-safe closing.');
+    expect(stripped).not.toContain('dies');
+    expect(stripped).not.toContain('RevealGate');
+  });
+
+  it('removes every gate regardless of tier or attributes', () => {
+    const mdx =
+      '<RevealGate tier="reader" label="later">A</RevealGate> keep <RevealGate tier="deep">B</RevealGate>';
+    const stripped = stripGatedSections(mdx);
+    expect(stripped).not.toContain('A');
+    expect(stripped).not.toContain('B');
+    expect(stripped).toContain('keep');
+  });
+
+  it('leaves gate-free prose untouched', () => {
+    const plain = 'Just ordinary teaser prose, no gates here.';
+    expect(stripGatedSections(plain)).toBe(plain);
   });
 });

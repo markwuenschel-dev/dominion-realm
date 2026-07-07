@@ -34,13 +34,13 @@ export const CAST_PROFILES: CastProfile[] = [
   {
     id: 'marcus',
     displayName: 'Marcus Vye',
-    role: 'Protagonist · Interface Walker',
+    role: 'Protagonist · The Ocular Interface',
     scaffold: true,
     state: {
       name: 'Marcus Vye',
       level: 1,
       species: 'Human',
-      className: 'Psion',
+      className: 'Mage',
       soulLevel: 'Common',
       attributes: { ...BASE_ATTRS, INT: 7, WIS: 6, CVN: 6 }, // 4 pts: +2 INT +1 WIS +1 CVN
       currentXP: 0,
@@ -55,7 +55,7 @@ export const CAST_PROFILES: CastProfile[] = [
       name: 'Serra Hawthorne',
       level: 1,
       species: 'Human',
-      className: 'Rogue',
+      className: 'Warrior',
       soulLevel: 'Common',
       attributes: { ...BASE_ATTRS, AGI: 7, DEX: 6, CHA: 6 }, // 4 pts: +2 AGI +1 DEX +1 CHA
       currentXP: 0,
@@ -70,7 +70,7 @@ export const CAST_PROFILES: CastProfile[] = [
       name: 'Seb Rainier',
       level: 1,
       species: 'Human',
-      className: 'Warden',
+      className: 'Warrior',
       soulLevel: 'Common',
       attributes: { ...BASE_ATTRS, CHA: 7, STR: 6, CON: 6 }, // 4 pts: +2 CHA +1 STR +1 CON
       currentXP: 0,
@@ -79,13 +79,13 @@ export const CAST_PROFILES: CastProfile[] = [
   {
     id: 'brent',
     displayName: 'Brent Donovan',
-    role: 'The Floor',
+    role: 'The Engineer',
     scaffold: true,
     state: {
       name: 'Brent Donovan',
       level: 1,
       species: 'Human',
-      className: 'Warrior',
+      className: 'Warden',
       soulLevel: 'Common',
       attributes: { ...BASE_ATTRS, CON: 7, STR: 6, END: 6 }, // 4 pts: +2 CON +1 STR +1 END
       currentXP: 0,
@@ -94,13 +94,13 @@ export const CAST_PROFILES: CastProfile[] = [
   {
     id: 'mara',
     displayName: 'Mara Valeria',
-    role: 'The Watcher',
+    role: 'The Observer',
     scaffold: true,
     state: {
       name: 'Mara Valeria',
       level: 1,
       species: 'Human',
-      className: 'Scout',
+      className: 'Psion',
       soulLevel: 'Common',
       attributes: { ...BASE_ATTRS, DEX: 7, AGI: 6, WIS: 6 }, // 4 pts: +2 DEX +1 AGI +1 WIS
       currentXP: 0,
