@@ -1,6 +1,6 @@
 ---
 name: Seb Rainier
-image: ./Seb.png
+image: /content-media/characters/seb-rainier/Seb.png
 imageAlt: Seb on Earth
 summary: >-
   The leader who turned a roster of strong individuals into one coordinated

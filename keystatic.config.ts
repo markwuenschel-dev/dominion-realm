@@ -1,4 +1,4 @@
-import { config, fields, collection } from '@keystatic/core';
+import { config, fields, collection, singleton } from '@keystatic/core';
 import { REVEAL_TIERS, TIER_LABELS } from './src/lib/reveal';
 
 /**
@@ -48,21 +48,31 @@ const relationshipsField = fields.array(
 );
 
 /**
- * Shared codex fields (name, summary, image, reveal, relationships, draft).
- * `name` is the slug field, so it is supplied by `slugField` on each
- * collection rather than appearing here.
+ * A per-collection image field. Keystatic writes an upload to
+ * `src/content/<collection>/<slug>/<file>` (tracked in git) and stores the final
+ * public URL `/content-media/<collection>/<slug>/<file>` — which the
+ * subpath-preserving media copy (`scripts/copy-content-media.mjs`) serves
+ * verbatim and `resolveImage` (`src/lib/content.ts`) passes straight through. So
+ * a browser upload Just Works with no code change per entry.
+ */
+const codexImage = (collectionName: string) =>
+  fields.image({
+    label: 'Image',
+    directory: `src/content/${collectionName}`,
+    publicPath: `/content-media/${collectionName}/`,
+    validation: { isRequired: false },
+  });
+
+/**
+ * Shared codex fields (summary, alt, reveal, relationships, draft). `name` is the
+ * slug field, and `image` is added per collection via `codexImage` (its directory
+ * must name the collection), so neither appears here.
  */
 const codexBaseFields = {
   summary: fields.text({
     label: 'Summary',
     description: 'One- or two-sentence spoiler-safe summary (used in cards + OG).',
     multiline: true,
-  }),
-  image: fields.image({
-    label: 'Image',
-    directory: 'src/content/_assets/images',
-    publicPath: '../_assets/images/',
-    validation: { isRequired: false },
   }),
   imageAlt: fields.text({ label: 'Image alt text', validation: { isRequired: false } }),
   reveal: revealField,
@@ -93,6 +103,7 @@ export default config({
       format: { contentField: 'content' },
       schema: {
         name: fields.slug({ name: { label: 'Name' } }),
+        image: codexImage('characters'),
         ...codexBaseFields,
         role: fields.text({ label: 'Role', description: 'e.g. "Protagonist · Ocular Anomaly".' }),
         aliases: fields.array(fields.text({ label: 'Alias' }), {
@@ -124,6 +135,7 @@ export default config({
       format: { contentField: 'content' },
       schema: {
         name: fields.slug({ name: { label: 'Name' } }),
+        image: codexImage('concepts'),
         ...codexBaseFields,
         kind: fields.select({
           label: 'Kind',
@@ -151,6 +163,7 @@ export default config({
       format: { contentField: 'content' },
       schema: {
         name: fields.slug({ name: { label: 'Name' } }),
+        image: codexImage('factions'),
         ...codexBaseFields,
         kind: fields.select({
           label: 'Kind',
@@ -172,6 +185,7 @@ export default config({
       format: { contentField: 'content' },
       schema: {
         name: fields.slug({ name: { label: 'Name' } }),
+        image: codexImage('places'),
         ...codexBaseFields,
         region: fields.text({ label: 'Region', validation: { isRequired: false } }),
         timeline: fields.text({
@@ -215,12 +229,7 @@ export default config({
         }),
         pubDate: fields.date({ label: 'Publish date' }),
         updatedDate: fields.date({ label: 'Updated date', validation: { isRequired: false } }),
-        image: fields.image({
-          label: 'Image',
-          directory: 'src/content/_assets/images',
-          publicPath: '../_assets/images/',
-          validation: { isRequired: false },
-        }),
+        image: codexImage('journal'),
         imageAlt: fields.text({ label: 'Image alt text', validation: { isRequired: false } }),
         reveal: revealField,
         draft: fields.checkbox({ label: 'Draft', defaultValue: false }),
@@ -248,17 +257,33 @@ export default config({
           description: 'Sort key for reading order (and prev/next derivation).',
         }),
         summary: fields.text({ label: 'Summary', multiline: true }),
-        image: fields.image({
-          label: 'Image',
-          directory: 'src/content/_assets/images',
-          publicPath: '../_assets/images/',
-          validation: { isRequired: false },
-        }),
+        image: codexImage('reading'),
         imageAlt: fields.text({ label: 'Image alt text', validation: { isRequired: false } }),
         // NOTE: the reading sample has NO reveal field by design (ADR-0004) —
         // the Prologue + Chapter One are open bait, published ungated.
         draft: fields.checkbox({ label: 'Draft', defaultValue: false }),
         content: bodyField,
+      },
+    }),
+  },
+  singletons: {
+    home: singleton({
+      label: 'Homepage',
+      path: 'src/content/settings/home',
+      format: { data: 'json' },
+      schema: {
+        coverImage: fields.image({
+          label: 'Book cover',
+          description: 'Shown on the homepage hero. Recommended 2:3 (e.g. 800×1200).',
+          directory: 'public/covers',
+          publicPath: '/covers/',
+          validation: { isRequired: false },
+        }),
+        coverAlt: fields.text({
+          label: 'Cover alt text',
+          description: 'Describes the cover for screen readers — usually the title treatment.',
+          validation: { isRequired: false },
+        }),
       },
     }),
   },

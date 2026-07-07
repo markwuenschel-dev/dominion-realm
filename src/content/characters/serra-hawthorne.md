@@ -1,6 +1,6 @@
 ---
 name: Serra Hawthorne
-image: ./Serra.png
+image: /content-media/characters/serra-hawthorne/Serra.png
 imageAlt: Serra on Earth
 summary: >-
   The warmest, most magnetic person in any room — and the most dangerous. A

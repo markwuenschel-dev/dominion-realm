@@ -145,6 +145,52 @@ index.
 
 See [ADR-0004](docs/adr/0004-reveal-tier-model.md) for the rationale.
 
+## Editing in the browser (Keystatic) — including images
+
+You don't need Explorer or a manual `git push` to update content or pictures.
+**Keystatic** is a browser editor at **`/keystatic`**; on the live site it commits
+your change straight to `main`, and Railway redeploys automatically.
+
+**Day-to-day (once the one-time setup below is done):**
+
+1. Go to `https://<your-domain>/keystatic` and sign in with GitHub.
+2. Open an entry — a character, faction, the Homepage cover, etc.
+3. Drag a picture onto its **Image** field (or edit any text).
+4. **Save.** Keystatic commits to `main`; the site is live in ~1–2 minutes.
+
+Notes:
+- A character's **Image** feeds both its Codex page **and** its homepage cast card.
+- Recommended sizes: **portraits 3:4** (e.g. 900×1200), **book cover 2:3** (e.g.
+  800×1200). Entries with no image show a placeholder until you add one.
+- Uploads are stored in the repo under `src/content/<collection>/<slug>/` (the
+  cover under `public/covers/`) and served from `/content-media/…` after build —
+  all handled for you.
+
+**Local editing (no setup):** run `pnpm run dev` and open
+`http://localhost:3000/keystatic`. Same drag-drop editor, but it writes to your
+working tree — you commit/push yourself. Good for a quick pass before wiring the
+GitHub App.
+
+### One-time setup for hosted editing (the GitHub App)
+
+The hosted editor commits as you, so it needs a Keystatic GitHub App. Easiest path:
+visit `https://<your-domain>/keystatic` — with no app configured it shows a guided
+**“Connect GitHub”** flow that pre-fills most of this. Or do it manually:
+
+1. GitHub → **Settings → Developer settings → GitHub Apps → New GitHub App**.
+   - **Callback URL:** `https://<your-domain>/api/keystatic/github/oauth/callback`
+   - **Permissions:** Repository → **Contents: Read & write**, **Metadata: Read**.
+   - Install it on the **`dominion-realm`** repo. Copy the **Client ID** and
+     generate a **Client secret**.
+2. In Railway → your service → **Variables**, add:
+   - `KEYSTATIC_GITHUB_CLIENT_ID`
+   - `KEYSTATIC_GITHUB_CLIENT_SECRET`
+   - `KEYSTATIC_SECRET` — any random 32+ char string (`openssl rand -hex 32`)
+3. Redeploy. `/keystatic` is now in GitHub mode and commits to `main` for you.
+
+Without `KEYSTATIC_GITHUB_CLIENT_ID` the config falls back to **local** mode
+(`keystatic.config.ts`), which is why `next build`/CI never need the secrets.
+
 ## Environment variables
 
 Copy `.env.example` to `.env` for local use and set the same values in the

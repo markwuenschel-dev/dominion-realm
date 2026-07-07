@@ -471,6 +471,25 @@
     padding: 14px;
     position: relative;
   }
+  /* Stand-in for a missing content image; fills a position:relative media box. */
+  .media-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(circle at 50% 38%, rgba(200, 168, 106, 0.07), transparent 70%),
+      var(--bg-raise);
+    border-radius: inherit;
+  }
+  .media-placeholder__mark {
+    font-family: var(--serif-display);
+    font-size: 2.6rem;
+    line-height: 1;
+    color: var(--ink-faint);
+    opacity: 0.55;
+  }
   .char-portrait span {
     font-family: var(--mono);
     font-size: 0.54rem;

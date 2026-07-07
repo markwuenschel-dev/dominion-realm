@@ -1,6 +1,6 @@
 ---
 name: Mathias Sterling
-image: ./Mathias.png
+image: /content-media/characters/mathias-sterling/Mathias.png
 imageAlt: Mathias on Earth
 summary: >-
   A systems mind who sees the connections between things — the group's warm,

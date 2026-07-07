@@ -58,9 +58,17 @@ describe('resolveImage', () => {
     expect(resolveImage('characters', 'marcus.png')).toBe('/content-media/characters/marcus.png');
   });
 
-  it('strips a leading ./ or /', () => {
+  it('strips a leading ./ on a relative path', () => {
     expect(resolveImage('factions', './crest.png')).toBe('/content-media/factions/crest.png');
-    expect(resolveImage('places', '/map.png')).toBe('/content-media/places/map.png');
+  });
+
+  it('passes an absolute path through unchanged (Keystatic writes final URLs)', () => {
+    // Keystatic stores the finished public URL, including its per-entry subfolder;
+    // it must survive resolveImage verbatim so the asset is found where it lives.
+    expect(resolveImage('characters', '/content-media/characters/marcus/Marcus.png')).toBe(
+      '/content-media/characters/marcus/Marcus.png',
+    );
+    expect(resolveImage('places', '/map.png')).toBe('/map.png');
   });
 
   it('keeps only the final path segment (current flat-structure behavior)', () => {

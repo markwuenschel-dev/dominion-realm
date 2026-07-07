@@ -1,6 +1,6 @@
 ---
 name: Marcus
-image: ./Marcus.png
+image: /content-media/characters/marcus/Marcus.png
 imageAlt: Marcus on Earth
 summary: >-
   An Astria machine-learning engineer pulled into the Realm, where his implant

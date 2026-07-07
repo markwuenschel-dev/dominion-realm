@@ -5,7 +5,7 @@ summary: >-
   Marcus after he survives something he should not have — a mentor only in the
   loosest sense, who answers with better questions than the ones he asks.
 role: The Voice
-image: ./Illyristranthe.png
+image: /content-media/characters/illyristranthe/Illyristranthe.png
 imageAlt: Illyri — a remnant of star-pale light
 aliases:
   - Illyri

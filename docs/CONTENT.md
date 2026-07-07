@@ -70,8 +70,12 @@ common set of fields and each add a few of their own.
 - `reveal` — the spoiler tier (`teaser` / `reader` / `deep` / `beyond`).
   **Required** — there's no default, on purpose, so you never accidentally ship a
   spoiler as public. See Section 3 for what each tier means.
-- `image` / `imageAlt` — optional portrait or key art (put the file in the same
-  folder or in `src/assets/`) and its alt text.
+- `image` / `imageAlt` — optional portrait or key art, and its alt text. Easiest
+  is to drag a picture onto the **Image** field in `/keystatic` (see the README's
+  "Editing in the browser" section); it stores the file under
+  `src/content/<collection>/<slug>/` and fills in `image` with the finished
+  `/content-media/…` URL for you. A relative `./file.png` beside the entry also
+  works. A character's image feeds both its Codex page and its homepage cast card.
 - `relationships` — optional list of cross-links to other codex entries (any of
   the four collections). Each item is `entry: <slug>`, with an optional
   `collection:` and `label:`. Example in Section 3.

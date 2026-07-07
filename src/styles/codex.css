@@ -222,6 +222,7 @@
 /* Full-bleed banner crop at the top of the card; the negative margins pull it
    out past the card padding to the rounded edges (clipped by overflow:hidden). */
 .codex-card__media {
+  position: relative;
   margin: -26px -24px 20px;
   aspect-ratio: 16 / 9;
   overflow: hidden;
