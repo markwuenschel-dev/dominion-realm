@@ -53,7 +53,14 @@ function withPublicOrigin(req: Request): Request {
 
   if (url.protocol === base.protocol && url.host === base.host) return req;
   url.protocol = base.protocol;
-  url.host = base.host;
+  // Set hostname and port SEPARATELY. Assigning `url.host = base.host` leaves the
+  // existing port in place when `base.host` carries none (WHATWG URL semantics), so
+  // the internal `:8080` would leak into the redirect_uri as
+  // `dominion-realm-production.up.railway.app:8080` — which GitHub rejects
+  // ("redirect_uri is not associated"). `base.port` is '' for a default-port URL,
+  // and assigning '' clears the port.
+  url.hostname = base.hostname;
+  url.port = base.port;
 
   const headers = new Headers(req.headers);
   headers.set('host', base.host);
