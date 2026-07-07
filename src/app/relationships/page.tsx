@@ -10,8 +10,15 @@ import {
   COLLECTION_ORDER,
   type CodexEntry,
 } from '@/lib/codex';
+import { maxTier } from '@/lib/reveal';
 import { CodexChrome } from '@/components/CodexChrome';
 import { ConstellationClient } from '@/components/ConstellationClient';
+import {
+  ConstellationView,
+  type ConstNode,
+  type ConstEdge,
+  type ConstThread,
+} from '@/components/ConstellationView';
 
 export const metadata: Metadata = {
   title: 'The Constellation',
@@ -138,6 +145,62 @@ function labelFor(p: Point, r: number): SvgLabel {
 export default function RelationshipsPage() {
   const { byId, edges, degree, nodeEntries, hub, pos, threadIndex, legend } = build();
 
+  // Server-computed geometry → lean, serializable view-model handed to the client
+  // ConstellationView, which reads the reveal level and gates the render.
+  const nodes: ConstNode[] = nodeEntries.map((n) => {
+    const p = pos.get(n.id)!;
+    const r = nodeRadius(degree, n.id);
+    return {
+      id: n.id,
+      name: n.data.name,
+      collection: COLLECTION_LABELS[n.collection],
+      color: COLLECTION_COLOR[n.collection],
+      x: p.x,
+      y: p.y,
+      r,
+      isHub: n.id === hub.id,
+      reveal: n.data.reveal,
+      href: codexUrl(n.collection, n.id),
+      label: labelFor(p, r),
+    };
+  });
+
+  const edgeModel: ConstEdge[] = edges.map((e) => {
+    const a = pos.get(e.a)!;
+    const b = pos.get(e.b)!;
+    const ea = byId.get(e.a)!;
+    const eb = byId.get(e.b)!;
+    return {
+      key: `${e.a}|${e.b}`,
+      a: e.a,
+      b: e.b,
+      ax: a.x,
+      ay: a.y,
+      bx: b.x,
+      by: b.y,
+      labels: e.labels,
+      fallback: `${ea.data.name} — ${eb.data.name}`,
+      reveal: maxTier(ea.data.reveal, eb.data.reveal),
+    };
+  });
+
+  const threads: ConstThread[] = threadIndex.map(({ node, conns }) => ({
+    id: node.id,
+    name: node.data.name,
+    collection: COLLECTION_LABELS[node.collection],
+    color: COLLECTION_COLOR[node.collection],
+    href: codexUrl(node.collection, node.id),
+    reveal: node.data.reveal,
+    conns: conns.map((c, i) => ({
+      key: `${c.entry.id}-${i}`,
+      name: c.entry.data.name,
+      collection: c.entry.collection,
+      href: codexUrl(c.entry.collection, c.entry.id),
+      labels: c.labels,
+      reveal: c.entry.data.reveal,
+    })),
+  }));
+
   return (
     <CodexChrome>
       <div className="codex-head">
@@ -165,101 +228,7 @@ export default function RelationshipsPage() {
         ))}
       </div>
 
-      <div className="constellation-wrap">
-        <svg
-          className="constellation"
-          viewBox="0 0 1000 1000"
-          role="img"
-          aria-label="Relationship map of The Dominion Realm's codex entries"
-        >
-          <g className="edges">
-            {edges.map((e) => {
-              const a = pos.get(e.a)!;
-              const b = pos.get(e.b)!;
-              return (
-                <line
-                  key={`${e.a}|${e.b}`}
-                  className="edge"
-                  data-a={e.a}
-                  data-b={e.b}
-                  x1={a.x}
-                  y1={a.y}
-                  x2={b.x}
-                  y2={b.y}
-                >
-                  <title>
-                    {e.labels.join(' · ') ||
-                      `${byId.get(e.a)!.data.name} — ${byId.get(e.b)!.data.name}`}
-                  </title>
-                </line>
-              );
-            })}
-          </g>
-          <g className="nodes">
-            {nodeEntries.map((n) => {
-              const p = pos.get(n.id)!;
-              const r = nodeRadius(degree, n.id);
-              const lab = labelFor(p, r);
-              return (
-                <a
-                  key={n.id}
-                  className={`node${n.id === hub.id ? ' node--hub' : ''}`}
-                  href={codexUrl(n.collection, n.id)}
-                  data-id={n.id}
-                  tabIndex={-1}
-                  style={{ ['--c']: COLLECTION_COLOR[n.collection] } as CSSProperties}
-                >
-                  <title>
-                    {n.data.name} · {COLLECTION_LABELS[n.collection]}
-                  </title>
-                  <circle className="node-dot" cx={p.x} cy={p.y} r={r} />
-                  <text
-                    className="node-label"
-                    x={lab.x}
-                    y={lab.y}
-                    textAnchor={lab.anchor}
-                    dominantBaseline={lab.baseline}
-                  >
-                    {n.data.name}
-                  </text>
-                </a>
-              );
-            })}
-          </g>
-        </svg>
-      </div>
-
-      <section className="rel-index" aria-label="Relationships in words">
-        <h2 className="rel-index__title">Every thread, in words</h2>
-        <div className="rel-index__grid">
-          {threadIndex.map(({ node, conns }) => (
-            <div className="rel-row" key={node.id}>
-              <Link
-                className="rel-row__name"
-                href={codexUrl(node.collection, node.id)}
-                style={{ ['--c']: COLLECTION_COLOR[node.collection] } as CSSProperties}
-              >
-                {node.data.name}
-              </Link>
-              <span className="rel-row__kind">{COLLECTION_LABELS[node.collection]}</span>
-              <div className="rel-row__conns">
-                {conns.map((c, i) => (
-                  <Link
-                    className="rel-chip"
-                    href={codexUrl(c.entry.collection, c.entry.id)}
-                    key={`${c.entry.id}-${i}`}
-                  >
-                    {c.labels.length > 0 && (
-                      <span className="rel-chip__rel">{c.labels.join(' · ')}</span>
-                    )}
-                    {c.entry.data.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      <ConstellationView nodes={nodes} edges={edgeModel} threads={threads} />
 
       <Link className="codex-back" href="/codex">
         ← All entries

@@ -272,6 +272,26 @@
   border-radius: 999px;
   padding: 3px 8px;
 }
+/* A card sealed above the reader's reveal level: card-shaped placeholder that
+   withholds the entry's name, summary, and image (see GatedCard). */
+.codex-card--sealed {
+  border-style: dashed;
+  background: rgba(200, 168, 106, 0.03);
+  cursor: default;
+}
+.codex-card--sealed:hover {
+  transform: none;
+  border-color: var(--line-soft);
+  background: rgba(200, 168, 106, 0.03);
+}
+.codex-card__sealed-msg {
+  font-family: var(--serif-body);
+  font-style: italic;
+  font-size: 0.94rem;
+  color: var(--ink-dim);
+  margin-top: 8px;
+  padding-right: 56px;
+}
 
 /* ---- Entry page ---- */
 .codex-entry { max-width: 760px; }
@@ -446,6 +466,17 @@ a.codex-chip:hover { border-color: var(--gold); color: var(--gold-bright); }
   transition: border-color 0.35s var(--ease), color 0.35s var(--ease);
 }
 .codex-rel__item:hover { border-color: var(--gold); color: var(--gold-bright); }
+/* A relationship sealed above the reader's level: pill with the target name/URL
+   withheld (see GatedRelationships). */
+.codex-rel__item--sealed {
+  border-style: dashed;
+  color: var(--ink-faint);
+  cursor: default;
+}
+.codex-rel__item--sealed:hover {
+  border-color: var(--line);
+  color: var(--ink-faint);
+}
 .codex-rel__rel {
   font-family: var(--mono);
   font-size: 0.54rem;

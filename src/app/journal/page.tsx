@@ -26,6 +26,7 @@ export default function JournalIndex() {
     summary: p.data.summary,
     image: p.data.image,
     imageAlt: p.data.imageAlt,
+    reveal: p.data.reveal,
   }));
   const filters = [
     { value: 'all', label: 'All' },

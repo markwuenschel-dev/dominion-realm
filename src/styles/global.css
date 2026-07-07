@@ -1101,6 +1101,20 @@
   }
   .reveal-gate__mount > :first-child { margin-top: 0; }
 
+  /* Inline reveal gate: seals a word or phrase mid-sentence. */
+  .reveal-inline.is-sealed {
+    font-family: var(--mono);
+    font-size: 0.8em;
+    letter-spacing: 0.08em;
+    color: var(--gold);
+    background: rgba(200, 168, 106, 0.08);
+    border: 1px dashed var(--line);
+    border-radius: 3px;
+    padding: 0 6px;
+    white-space: nowrap;
+    cursor: help;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .reveal-toggle__btn { transition: none; }
   }

@@ -1,4 +1,4 @@
-import { isRevealed, TIER_LABELS, type RevealTier } from './reveal';
+import { projectByReveal, TIER_LABELS, type RevealTier } from './reveal';
 
 /**
  * Pure geometry + reveal-gating for the interactive world map (content-depth
@@ -87,28 +87,26 @@ export function hasCoords(coords: { x?: number | null; y?: number | null }): boo
  * accidental spoilers, not view-source.
  */
 export function selectVisibleMarkers(markers: PlaceMarker[], level: RevealTier): VisibleMarker[] {
-  return markers.map((m) => {
-    const x = clampPercent(m.x);
-    const y = clampPercent(m.y);
-    if (isRevealed(m.reveal, level)) {
-      return {
-        status: 'revealed',
-        id: m.id,
-        name: m.name,
-        kind: m.kind,
-        summary: m.summary,
-        href: m.href,
-        x,
-        y,
-      };
-    }
-    return {
+  return projectByReveal(
+    markers,
+    level,
+    (m): RevealedMarker => ({
+      status: 'revealed',
+      id: m.id,
+      name: m.name,
+      kind: m.kind,
+      summary: m.summary,
+      href: m.href,
+      x: clampPercent(m.x),
+      y: clampPercent(m.y),
+    }),
+    (m): SealedMarker => ({
       status: 'sealed',
       id: m.id,
       reveal: m.reveal,
       label: `Sealed · ${TIER_LABELS[m.reveal]}`,
-      x,
-      y,
-    };
-  });
+      x: clampPercent(m.x),
+      y: clampPercent(m.y),
+    }),
+  );
 }

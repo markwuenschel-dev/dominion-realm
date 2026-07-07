@@ -8,6 +8,7 @@ import {
   isRevealTier,
   parseTier,
   stripGatedSections,
+  projectByReveal,
 } from './reveal';
 
 /**
@@ -133,5 +134,55 @@ describe('stripGatedSections', () => {
   it('leaves gate-free prose untouched', () => {
     const plain = 'Just ordinary teaser prose, no gates here.';
     expect(stripGatedSections(plain)).toBe(plain);
+  });
+
+  it('strips inline <Reveal> spans, keeping surrounding text', () => {
+    const stripped = stripGatedSections('Serra <Reveal tier="deep">severs the bond</Reveal> here.');
+    expect(stripped).not.toContain('severs');
+    expect(stripped).not.toContain('Reveal');
+    expect(stripped).toContain('Serra');
+    expect(stripped).toContain('here.');
+  });
+
+  it('strips an inline <Reveal> nested inside a <RevealGate> block without leaking', () => {
+    const mdx = [
+      'Open teaser text.',
+      '<RevealGate tier="reader">',
+      'Reader prose with a <Reveal tier="deep">deep secret</Reveal> inside it.',
+      '</RevealGate>',
+      'Closing teaser text.',
+    ].join('\n\n');
+    const stripped = stripGatedSections(mdx);
+    expect(stripped).toContain('Open teaser text.');
+    expect(stripped).toContain('Closing teaser text.');
+    expect(stripped).not.toContain('deep secret');
+    expect(stripped).not.toContain('Reader prose');
+    // No dangling tag fragments survive either pass.
+    expect(stripped).not.toMatch(/Reveal/);
+  });
+});
+
+describe('projectByReveal', () => {
+  const items = [
+    { id: 'a', reveal: 'teaser' as const },
+    { id: 'b', reveal: 'reader' as const },
+    { id: 'c', reveal: 'deep' as const },
+  ];
+  const show = (i: (typeof items)[number]) => ({ kind: 'shown' as const, id: i.id });
+  const seal = (i: (typeof items)[number]) => ({ kind: 'sealed' as const, id: i.id });
+
+  it('shows items at or below the level and seals those above', () => {
+    const out = projectByReveal(items, 'reader', show, seal);
+    expect(out.map((o) => o.kind)).toEqual(['shown', 'shown', 'sealed']);
+  });
+
+  it('at teaser only teaser items are shown', () => {
+    const out = projectByReveal(items, 'teaser', show, seal);
+    expect(out.map((o) => o.kind)).toEqual(['shown', 'sealed', 'sealed']);
+  });
+
+  it('a beyond reader sees everything', () => {
+    const out = projectByReveal(items, 'beyond', show, seal);
+    expect(out.every((o) => o.kind === 'shown')).toBe(true);
   });
 });

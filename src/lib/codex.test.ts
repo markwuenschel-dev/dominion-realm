@@ -117,12 +117,23 @@ describe('dossierFields', () => {
     } as CodexEntry);
 
   it('surfaces a character status as a badge, but hides "unknown"', () => {
+    // A death is a spoiler, so the "Deceased" fact carries a deep tier.
     expect(fieldsFor('characters', { status: 'dead' })).toContainEqual({
       term: 'Status',
       value: 'Deceased',
       badge: 'dead',
+      reveal: 'deep',
     });
     expect(fieldsFor('characters', { status: 'unknown' })).toHaveLength(0);
+  });
+
+  it('leaves an "Alive" status at the teaser tier', () => {
+    expect(fieldsFor('characters', { status: 'alive' })).toContainEqual({
+      term: 'Status',
+      value: 'Alive',
+      badge: 'alive',
+      reveal: 'teaser',
+    });
   });
 
   it('lists aliases only when present', () => {
@@ -174,6 +185,33 @@ describe('resolveRelationships', () => {
     } as CodexEntry;
 
     const links = resolveRelationships(source, all);
-    expect(links).toEqual([{ url: '/codex/factions/astria', name: 'Astria', label: 'serves' }]);
+    expect(links).toEqual([
+      { url: '/codex/factions/astria', name: 'Astria', label: 'serves', reveal: 'teaser' },
+    ]);
+  });
+
+  it('gives a link the higher of its own tier and the target entry tier', () => {
+    const deepTarget = {
+      ...astria,
+      data: { ...astria.data, reveal: 'deep' as const },
+    } as CodexEntry;
+    const source = {
+      ...marcus,
+      data: { ...marcus.data, relationships: [{ entry: 'astria' }] as Relationship[] },
+    } as CodexEntry;
+    // Target is deep → the link inherits deep even with no explicit tier.
+    expect(resolveRelationships(source, [deepTarget])[0].reveal).toBe('deep');
+  });
+
+  it('honors an explicit relationship tier above the target tier', () => {
+    const source = {
+      ...marcus,
+      data: {
+        ...marcus.data,
+        relationships: [{ entry: 'astria', reveal: 'reader' }] as Relationship[],
+      },
+    } as CodexEntry;
+    // astria fixture is teaser; the explicit reader tier wins.
+    expect(resolveRelationships(source, [astria])[0].reveal).toBe('reader');
   });
 });

@@ -10,6 +10,8 @@ import {
   type SearchDoc,
   type SearchResult,
 } from '@/lib/searchSchema';
+import { isRevealed } from '@/lib/reveal';
+import { useReveal } from '@/components/reveal/RevealContext';
 
 /**
  * Client-side codex search over the build-time corpus (ADR-0010). The server
@@ -18,6 +20,7 @@ import {
  */
 export function SearchBox({ docs }: { docs: SearchDoc[] }) {
   const [query, setQuery] = useState('');
+  const { level } = useReveal();
 
   const mini = useMemo(() => {
     const ms = new MiniSearch<SearchDoc>({
@@ -31,7 +34,11 @@ export function SearchBox({ docs }: { docs: SearchDoc[] }) {
 
   // MiniSearch types hits with an `any` index signature; our SearchResult pins
   // the stored fields to STORE_FIELDS so the render below needs no per-field casts.
-  const results: SearchResult[] = query.trim() ? (mini.search(query) as SearchResult[]) : [];
+  // Hits above the reader's reveal level are dropped so a teaser viewer never
+  // sees an above-tier entry's title/summary in results.
+  const results: SearchResult[] = query.trim()
+    ? (mini.search(query) as SearchResult[]).filter((r) => isRevealed(r.reveal, level))
+    : [];
 
   return (
     <div className="dr-search">

@@ -48,6 +48,12 @@ export function rankOf(tier: RevealTier): number {
   return TIER_RANK[tier];
 }
 
+/** The higher (more revealing) of two tiers. Used to inherit a tier — e.g. a
+ *  relationship pointing at a `deep` entry is itself a `deep` fact. */
+export function maxTier(a: RevealTier, b: RevealTier): RevealTier {
+  return TIER_RANK[a] >= TIER_RANK[b] ? a : b;
+}
+
 /**
  * Is content at this tier ungated — i.e. the spoiler-safe baseline shown to
  * everyone, including no-JS readers, with no reveal gate? Only the default
@@ -81,17 +87,43 @@ export function parseTier(value: unknown): RevealTier {
 }
 
 /**
- * Strip every in-body `<RevealGate>…</RevealGate>` block from an MDX string,
- * leaving only the ungated (teaser) prose around them.
+ * Strip every in-body reveal gate from an MDX string, leaving only the ungated
+ * (teaser) prose around them — both the block `<RevealGate>…</RevealGate>` and
+ * the inline `<Reveal>…</Reveal>` span.
  *
- * A codex/journal entry can be teaser-tier overall yet wrap spoilers in
- * `<RevealGate tier="reader|deep|beyond">` sections inside its body. The search
- * corpus indexes teaser bodies (see `getSearchDocuments`), so those gated
- * sections must be removed first or the spoilers leak into search — breaking the
- * ADR-0004 guarantee that gated text never enters the index. In-body gates are
- * authored flat (never nested), so a non-greedy match is sufficient; any gate,
- * whatever its tier, is treated as non-teaser and dropped.
+ * A codex/journal entry can be teaser-tier overall yet wrap spoilers in gates
+ * inside its body. The search corpus indexes teaser bodies (see
+ * `getSearchDocuments`), so those gated sections must be removed first or the
+ * spoilers leak into search — breaking the ADR-0004 guarantee that gated text
+ * never enters the index. Any gate, whatever its tier, is treated as non-teaser
+ * and dropped.
+ *
+ * Inline `<Reveal>` spans are stripped first (they may sit inside a `<RevealGate>`
+ * block), then the blocks. `\b` after `Reveal` keeps the inline pattern from
+ * matching `<RevealGate>` (no word boundary between "Reveal" and "Gate"), so the
+ * two passes never cross-match. Gates of the same kind are authored flat (never
+ * self-nested), so a non-greedy match is sufficient.
  */
 export function stripGatedSections(mdx: string): string {
-  return mdx.replace(/<RevealGate\b[^>]*>[\s\S]*?<\/RevealGate>/g, '');
+  return mdx
+    .replace(/<Reveal\b[^>]*>[\s\S]*?<\/Reveal\s*>/g, '')
+    .replace(/<RevealGate\b[^>]*>[\s\S]*?<\/RevealGate\s*>/g, '');
+}
+
+/**
+ * Project a list of tier-carrying items to what a reader at `level` may see:
+ * each item at/below the level is passed through `show`, each one above it is
+ * replaced by `seal`. The single seam behind every whole-item gated surface
+ * (map markers, codex cards, constellation nodes, journal items) — the `seal`
+ * transform is where a surface DROPS the sensitive fields (name/summary/href) so
+ * no spoiler survives into the rendered DOM, exactly as `selectVisibleMarkers`
+ * does. Pure and dependency-free; the client callers own the `useReveal` read.
+ */
+export function projectByReveal<T extends { reveal: RevealTier }, R, S>(
+  items: readonly T[],
+  level: RevealTier,
+  show: (item: T) => R,
+  seal: (item: T) => S,
+): Array<R | S> {
+  return items.map((item) => (isRevealed(item.reveal, level) ? show(item) : seal(item)));
 }

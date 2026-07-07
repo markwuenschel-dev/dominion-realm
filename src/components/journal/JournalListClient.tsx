@@ -2,12 +2,16 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { isRevealed, TIER_LABELS, type RevealTier } from '@/lib/reveal';
+import { useReveal } from '@/components/reveal/RevealContext';
 
 /**
  * Journal stream filter (ported from the inline script in journal/index.astro).
  * Every post is rendered up-front (so no-JS readers see all of them); the filter
  * just toggles `.is-hidden` by category and reflects state in the URL hash. The
  * server passes already-serialized items (no Date objects cross the boundary).
+ * A post above the reader's reveal level renders as a sealed placeholder that
+ * withholds its title/summary/image.
  */
 
 export interface JournalItem {
@@ -19,6 +23,7 @@ export interface JournalItem {
   summary: string;
   image?: string;
   imageAlt?: string;
+  reveal: RevealTier;
 }
 
 const VALID = ['all', 'field-notes', 'from-the-desk'];
@@ -31,6 +36,7 @@ export function JournalListClient({
   filters: { value: string; label: string }[];
 }) {
   const [filter, setFilter] = useState('all');
+  const { level } = useReveal();
 
   useEffect(() => {
     const norm = () => {
@@ -80,13 +86,24 @@ export function JournalListClient({
         <div className="journal-list" id="journal-list">
           {items.map((p) => {
             const hidden = !(filter === 'all' || p.category === filter);
+            const base = `journal-item${hidden ? ' is-hidden' : ''}`;
+            if (!isRevealed(p.reveal, level)) {
+              return (
+                <div
+                  key={p.id}
+                  className={`${base} journal-item--sealed`}
+                  data-category={p.category}
+                  aria-label={`Sealed · ${TIER_LABELS[p.reveal]}`}
+                >
+                  <span className="journal-item__kicker">Sealed · {TIER_LABELS[p.reveal]}</span>
+                  <p className="journal-item__summary">
+                    Raise your reveal level to read this entry.
+                  </p>
+                </div>
+              );
+            }
             return (
-              <Link
-                key={p.id}
-                className={`journal-item${hidden ? ' is-hidden' : ''}`}
-                href={p.href}
-                data-category={p.category}
-              >
+              <Link key={p.id} className={base} href={p.href} data-category={p.category}>
                 {p.image && (
                   <figure className="journal-item__media">
                     {/* oxlint-disable-next-line next/no-img-element -- dynamic content image, dimensions unknown */}

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getCodexEntries, COLLECTION_ORDER, COLLECTION_LABELS } from '@/lib/codex';
 import { CodexCard } from '@/components/CodexCard';
+import { GatedCard } from '@/components/reveal/GatedCard';
 import { SearchBox } from '@/components/SearchBox';
 import { getSearchDocuments } from '@/lib/search';
 
@@ -51,7 +52,9 @@ export default function CodexIndex() {
           </div>
           <div className="codex-grid">
             {group.items.map((entry) => (
-              <CodexCard entry={entry} key={`${entry.collection}/${entry.id}`} />
+              <GatedCard tier={entry.data.reveal} key={`${entry.collection}/${entry.id}`}>
+                <CodexCard entry={entry} />
+              </GatedCard>
             ))}
           </div>
         </section>

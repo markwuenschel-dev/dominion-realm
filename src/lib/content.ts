@@ -28,6 +28,9 @@ const relationship = z.object({
   entry: z.string(),
   collection: z.enum(['characters', 'concepts', 'factions', 'places']).optional(),
   label: z.string().optional(),
+  /** Optional explicit tier for this link; the effective tier is the higher of
+   *  this and the target entry's own reveal (see `resolveRelationships`). */
+  reveal: revealEnum.optional(),
 });
 
 /** Shared codex fields (image is a string path here, resolved to a URL below). */
@@ -152,7 +155,16 @@ function loadCollection<C extends CollectionName>(collection: C): Entry<C>[] {
       );
     }
     if ('image' in parsed && parsed.image) {
-      (parsed as { image?: string }).image = resolveImage(collection, parsed.image as string);
+      // Guard: only keep the image if its source file actually exists next to the
+      // `.md`. A declared-but-missing path (e.g. frontmatter wired ahead of the
+      // art) otherwise resolves to a /content-media URL that 404s at runtime,
+      // since the media-copy step silently skips files that aren't there. Drop it
+      // so the entry renders cleanly as text until the file is added.
+      const imageRel = parsed.image as string;
+      const imageSrc = path.resolve(path.dirname(path.join(dir, file)), imageRel);
+      (parsed as { image?: string }).image = fs.existsSync(imageSrc)
+        ? resolveImage(collection, imageRel)
+        : undefined;
     }
     return {
       collection,

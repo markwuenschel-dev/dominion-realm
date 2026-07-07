@@ -41,7 +41,12 @@ describe('resolveTimelineLink', () => {
         beat({ entry: 'marcus', collection: 'characters', label: 'follows' }),
         codex,
       ),
-    ).toEqual({ url: '/codex/characters/marcus', name: 'Marcus', label: 'follows' });
+    ).toEqual({
+      url: '/codex/characters/marcus',
+      name: 'Marcus',
+      label: 'follows',
+      reveal: 'teaser',
+    });
   });
 
   it('returns undefined for a dangling related entry rather than throwing', () => {

@@ -14,6 +14,8 @@ import {
 import { MdxBody } from '@/components/MdxBody';
 import { ContentImage } from '@/components/ContentImage';
 import { RevealGate } from '@/components/reveal/RevealGate';
+import { GatedRelationships } from '@/components/reveal/GatedRelationships';
+import { isUngated, TIER_LABELS } from '@/lib/reveal';
 
 type Params = { collection: string; id: string };
 
@@ -56,60 +58,73 @@ export default async function CodexEntryPage({ params }: { params: Promise<Param
 
   return (
     <article className="codex-entry">
-      <span className="codex-entry__kicker">
-        {COLLECTION_LABELS[entry.collection]} · {kicker}
-      </span>
-      <h1 className="codex-entry__title">{entry.data.name}</h1>
-      <p className="codex-entry__summary">{entry.data.summary}</p>
-      <div className="codex-rule" />
+      {/* The whole entry — name, summary, image, dossier, body, and relationships
+          — is sealed behind its own reveal tier, so an above-teaser entry never
+          exposes its identity here. Inside, individual dossier facts and
+          relationships can seal at a still-deeper tier. Only the back-link stays
+          outside the gate. */}
+      <RevealGate
+        tier={entry.data.reveal}
+        label={`Raise your reveal level to ${TIER_LABELS[entry.data.reveal]} to open this entry.`}
+      >
+        <span className="codex-entry__kicker">
+          {COLLECTION_LABELS[entry.collection]} · {kicker}
+        </span>
+        <h1 className="codex-entry__title">{entry.data.name}</h1>
+        <p className="codex-entry__summary">{entry.data.summary}</p>
+        <div className="codex-rule" />
 
-      {dossier.length > 0 && (
-        <dl className="codex-dossier">
-          {dossier.map((field) => (
-            <div className="codex-dossier__row" key={field.term}>
-              <dt className="codex-dossier__term">{field.term}</dt>
-              <dd className="codex-dossier__value">
-                <DossierValue field={field} />
-              </dd>
-            </div>
-          ))}
-        </dl>
-      )}
+        {dossier.length > 0 && (
+          <dl className="codex-dossier">
+            {dossier.map((field) => {
+              const row = (
+                <div className="codex-dossier__row" key={field.term}>
+                  <dt className="codex-dossier__term">{field.term}</dt>
+                  <dd className="codex-dossier__value">
+                    <DossierValue field={field} />
+                  </dd>
+                </div>
+              );
+              // A fact with a deeper tier (e.g. a "Deceased" status) seals on its
+              // own even when the entry itself is open; ordinary facts render as
+              // a direct <dl> child, unchanged.
+              return field.reveal && !isUngated(field.reveal) ? (
+                <RevealGate key={field.term} tier={field.reveal}>
+                  {row}
+                </RevealGate>
+              ) : (
+                row
+              );
+            })}
+          </dl>
+        )}
 
-      {image && (
-        <figure className="codex-entry__media">
-          {/* Full-size view opens the raw asset in a new tab — stays a plain <a>. */}
-          <a
-            href={image}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Open the full-size character file for ${entry.data.name}`}
-          >
-            <ContentImage src={image} alt={entry.data.imageAlt ?? entry.data.name} />
-          </a>
-          <figcaption className="codex-entry__media-hint">Click to view full size</figcaption>
-        </figure>
-      )}
+        {image && (
+          <figure className="codex-entry__media">
+            {/* Full-size view opens the raw asset in a new tab — stays a plain <a>. */}
+            <a
+              href={image}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Open the full-size character file for ${entry.data.name}`}
+            >
+              <ContentImage src={image} alt={entry.data.imageAlt ?? entry.data.name} />
+            </a>
+            <figcaption className="codex-entry__media-hint">Click to view full size</figcaption>
+          </figure>
+        )}
 
-      <div className="codex-prose">
-        <RevealGate tier={entry.data.reveal}>
+        <div className="codex-prose">
           <MdxBody source={entry.body} />
-        </RevealGate>
-      </div>
+        </div>
 
-      {links.length > 0 && (
-        <section className="codex-rel">
-          <p className="codex-rel__label">Connected threads</p>
-          <div className="codex-rel__list">
-            {links.map((link) => (
-              <Link className="codex-rel__item" href={link.url} key={link.url}>
-                {link.label && <span className="codex-rel__rel">{link.label}</span>}
-                <span>{link.name}</span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+        {links.length > 0 && (
+          <section className="codex-rel">
+            <p className="codex-rel__label">Connected threads</p>
+            <GatedRelationships links={links} />
+          </section>
+        )}
+      </RevealGate>
 
       <Link className="codex-back" href="/codex">
         ← All entries
