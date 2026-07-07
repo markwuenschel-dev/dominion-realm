@@ -8,6 +8,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { SearchResult as MiniSearchHit } from 'minisearch';
+import type { RevealTier } from './reveal';
 
 export interface SearchDoc {
   id: string;
@@ -15,6 +16,9 @@ export interface SearchDoc {
   title: string;
   kind: string;
   summary: string;
+  /** Reveal tier of the source entry — stored so the client can hide an
+   *  above-level hit's title/summary (reading pieces default to teaser). */
+  reveal: RevealTier;
   /** Present only for ungated entries. */
   body?: string;
 }
@@ -22,12 +26,13 @@ export interface SearchDoc {
 /** Fields MiniSearch tokenizes and searches over. */
 export const SEARCH_FIELDS = ['title', 'summary', 'body'] as const satisfies (keyof SearchDoc)[];
 
-/** Fields stored on the index and returned on each hit for rendering. */
+/** Fields stored on the index and returned on each hit for rendering + gating. */
 export const STORE_FIELDS = [
   'title',
   'summary',
   'url',
   'kind',
+  'reveal',
 ] as const satisfies (keyof SearchDoc)[];
 
 /** Relevance boosts applied at search time, keyed by searchable field. */

@@ -17,6 +17,7 @@ const docs: SearchDoc[] = [
     title: 'Marcus Vye',
     kind: 'characters',
     summary: 'The Earth gamer at the centre of the Realm.',
+    reveal: 'teaser',
   },
   {
     id: 'factions/astria',
@@ -24,6 +25,7 @@ const docs: SearchDoc[] = [
     title: 'Astria',
     kind: 'factions',
     summary: 'The institution behind the experiment.',
+    reveal: 'teaser',
   },
   {
     id: 'reading/00-prologue',
@@ -32,6 +34,7 @@ const docs: SearchDoc[] = [
     kind: 'reading',
     summary: 'The opening pages.',
     body: 'full prose text',
+    reveal: 'teaser',
   },
 ];
 
@@ -64,6 +67,7 @@ describe('SearchBox', () => {
       title: `Alpha ${i}`,
       kind: 'characters',
       summary: 'shared keyword token',
+      reveal: 'teaser',
     }));
     const user = userEvent.setup();
     render(<SearchBox docs={many} />);

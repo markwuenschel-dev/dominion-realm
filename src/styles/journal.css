@@ -108,6 +108,11 @@
 .journal-item:last-child {
   border-bottom: 1px solid var(--line-soft);
 }
+/* A post sealed above the reader's level: title/summary/image withheld. */
+.journal-item--sealed {
+  cursor: default;
+  opacity: 0.85;
+}
 .journal-item:hover {
   border-color: var(--line);
 }

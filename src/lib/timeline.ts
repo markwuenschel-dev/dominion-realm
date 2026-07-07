@@ -1,5 +1,6 @@
 import { getTimelineEntries, type TimelineEntry, type CodexEntry } from './content';
 import { getCodexEntries, matchRelationship, codexUrl, type ResolvedLink } from './codex';
+import { DEFAULT_TIER, maxTier } from './reveal';
 
 /**
  * Helpers for the World Timeline — an in-world chronological spine of story and
@@ -25,5 +26,6 @@ export function resolveTimelineLink(
     url: codexUrl(target.collection, target.id),
     name: target.data.name,
     label: rel.label,
+    reveal: maxTier(rel.reveal ?? DEFAULT_TIER, target.data.reveal),
   };
 }

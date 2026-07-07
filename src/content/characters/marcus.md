@@ -74,7 +74,7 @@ fate.
 His Aetherfall class was **Aspect** — four combat forms most players treat as one,
 which he rotated in real time by reading what a fight actually needed. In the
 Realm that resolves to a general **Mage**, earned through behavior rather than
-chosen. His first real skill is **Insight** — a cheap, honest read that surfaces
+chosen — and, <Reveal tier="deep">much later, into something the Realm itself has a name for</Reveal>. His first real skill is **Insight** — a cheap, honest read that surfaces
 only what the interface can currently resolve and leaves the rest as `????`. And
 his growth refuses to run on rails: an **unbound affinity** that opens paths where
 there are no roads, powerful and almost impossible to steer.

@@ -7,6 +7,7 @@ import {
 } from './content';
 import { hasCoords, type PlaceMarker } from './map';
 import { eyeStageLabel } from './eyeStages';
+import { DEFAULT_TIER, maxTier, type RevealTier } from './reveal';
 
 /**
  * Helpers for the World Codex (ADR-0002). The four codex collections share a
@@ -94,6 +95,10 @@ export interface DossierField {
   href?: string;
   /** When set, render the value as a status badge keyed to this state. */
   badge?: 'alive' | 'dead';
+  /** Reveal tier for this individual fact; the entry page gates each row by it.
+   *  Omitted → teaser (always shown). Lets a spoilery fact (e.g. a "Deceased"
+   *  status) seal while the rest of the dossier stays visible. */
+  reveal?: RevealTier;
 }
 
 const STATUS_LABELS: Record<'alive' | 'dead', string> = {
@@ -114,7 +119,14 @@ export function dossierFields(entry: CodexEntry): DossierField[] {
     case 'characters': {
       const { status, aliases, eyeStage } = entry.data;
       if (status === 'alive' || status === 'dead') {
-        fields.push({ term: 'Status', value: STATUS_LABELS[status], badge: status });
+        // A death is a spoiler — seal a "Deceased" status at deep, but leave
+        // "Alive" (and every other fact) at teaser.
+        fields.push({
+          term: 'Status',
+          value: STATUS_LABELS[status],
+          badge: status,
+          reveal: status === 'dead' ? 'deep' : DEFAULT_TIER,
+        });
       }
       if (aliases.length > 0) {
         fields.push({ term: 'Also known as', value: aliases.join(' · ') });
@@ -149,6 +161,9 @@ export interface ResolvedLink {
   url: string;
   name: string;
   label?: string;
+  /** Effective tier of the link — the higher of the relationship's own `reveal`
+   *  and the target entry's tier — so gating a spoilery connection is automatic. */
+  reveal: RevealTier;
 }
 
 /** A single declared relationship from an entry's frontmatter. */
@@ -183,6 +198,7 @@ export function resolveRelationships(entry: CodexEntry, all: CodexEntry[]): Reso
       url: codexUrl(target.collection, target.id),
       name: target.data.name,
       label: rel.label,
+      reveal: maxTier(rel.reveal ?? DEFAULT_TIER, target.data.reveal),
     });
   }
   return links;
