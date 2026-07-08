@@ -71,3 +71,50 @@ at call sites.
   `level × pointsPerLevel`; class rarity grants no recurring bonus points.
   `computePointBudget` / `computeSpentPoints` in `formulas/pointBudget.ts`;
   `ATTRIBUTE_BASELINE` is the single source for the store's default attributes.
+
+## Media
+
+The picture layer, kept deliberately separate from the prose layer. Prose lives
+in git Markdown (edited via Keystatic); **media** — the image files *and* the
+"which picture belongs to what" links — lives in the hosted media store and is
+served live, without a commit or redeploy. See [ADR-0011](docs/adr/0011-media-layer-sanity.md).
+
+- **Subject** — any thing in the universe that can own pictures: a Character,
+  Place, Faction, Concept, Item, Creature, Event, Power, Combat System, or a kind
+  not yet invented. The media layer is **type-agnostic** — a Subject's `kind` is
+  an open, extensible label, so a new kind of thing never re-plumbs pictures. A
+  Subject is joined to its prose entry by **slug** (matched automatically; never
+  typed by hand). _Avoid_: entity, entry, record.
+
+- **Asset** — a single uploaded image file in the media store, delivered through
+  the media CDN (auto webp/avif, focal-point crop). _Avoid_: file, media, picture.
+
+- **Primary image** — the one canonical Asset per Subject, focal-point
+  auto-cropped into every context (card banner, portrait, detail page) from a
+  single upload. Replaces the old manual three-way CSS crop of one file.
+  _Avoid_: portrait, hero, main image (those are *contexts* the Primary is cropped into).
+
+- **Gallery** — the ordered list of additional Assets on a Subject beyond the
+  Primary, each with its own caption and alt text. _Avoid_: album, extras.
+
+- **Type slot** — a named, kind-specific Asset slot: **Map** (Places), **Sigil**
+  (Factions), **Banner** (a wide hero distinct from the Primary). Distinct from the
+  Gallery, which is an unordered-purpose ordered list; a Type slot has a fixed role.
+
+- **Scene art** — an Asset bound to a *story beat* (a chapter or a timeline Event)
+  rather than to a Subject. A separate association from the entity-owned images
+  above. _Avoid_: illustration, moment (ambiguous).
+
+- **Credit.** Every Asset carries required **alt text** (accessibility) and an
+  optional **artist credit** + source/licence note, so attribution travels with
+  the image rather than living in someone's memory. The credit renders publicly
+  ("Art by —") when present, and is invisible when absent.
+
+- **Source of truth.** The prose entry (git) is authoritative for whether a
+  Subject *exists* and its slug/name; the media store is authoritative for its
+  pictures. The two are reconciled one-way (prose → media): creating or renaming
+  prose creates or renames the matching Subject. Deletion is never mirrored.
+
+- **Orphaned Subject** — a Subject whose prose entry no longer exists. Its Assets
+  are **never auto-deleted**; the Subject is flagged for manual review so uploaded
+  art can never be destroyed by a words-side edit. _Avoid_: dangling, stale.
