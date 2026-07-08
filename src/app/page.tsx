@@ -4,6 +4,7 @@ import { Fragment } from 'react';
 import { SITE, liveSocials, NAV_SECTIONS, liveNavPages, navPageReady } from '@/lib/site';
 import { getHomeSettings } from '@/lib/homeSettings';
 import { getCodexEntry } from '@/lib/codex';
+import { getSiteCover, getCharacterPrimaryMap } from '@/sanity/media';
 import { HomeClient } from '@/components/HomeClient';
 import { BuyCta } from '@/components/BuyCta';
 import { MediaPlaceholder } from '@/components/MediaPlaceholder';
@@ -50,16 +51,24 @@ const FEATURED_CAST = [
   },
 ] as const;
 
-export default function Home() {
+export default async function Home() {
   const socials = liveSocials();
   const navPages = liveNavPages();
   const { axioms, comps, pubMilestones } = SITE;
-  const { cover } = getHomeSettings();
-  // Pull each featured character's portrait from its Codex entry (CMS-managed).
-  const cast = FEATURED_CAST.map((c) => ({
-    ...c,
-    image: getCodexEntry('characters', c.slug)?.data.image,
-  }));
+  // Media reads follow the Sanity → git → placeholder order (ADR-0011). The cover
+  // prefers the Sanity `siteSettings` singleton, falling back to the Keystatic
+  // home singleton; each cast portrait prefers its Subject's Primary, falling
+  // back to the character's Codex entry image.
+  const [sanityCover, portraits] = await Promise.all([getSiteCover(), getCharacterPrimaryMap()]);
+  const cover = sanityCover ?? getHomeSettings().cover;
+  const cast = FEATURED_CAST.map((c) => {
+    const sanity = portraits.get(c.slug);
+    return {
+      ...c,
+      image: sanity?.src ?? getCodexEntry('characters', c.slug)?.data.image,
+      imageAlt: sanity?.alt || c.name,
+    };
+  });
   const mapReady = navPageReady('map');
 
   const kitFormId = process.env.NEXT_PUBLIC_KIT_FORM_ID;
@@ -236,7 +245,7 @@ export default function Home() {
                       {c.image ? (
                         <Image
                           src={c.image}
-                          alt={c.name}
+                          alt={c.imageAlt}
                           fill
                           sizes="(max-width:980px) 100vw, 300px"
                           style={{ objectFit: 'cover', objectPosition: 'top' }}
