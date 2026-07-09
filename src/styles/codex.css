@@ -410,6 +410,139 @@ a.codex-chip:hover { border-color: var(--gold); color: var(--gold-bright); }
   color: var(--ink-dim);
 }
 
+/* --- Sanity media: banner, type slots, gallery, lightbox (ADR-0011) --- */
+.codex-entry__banner {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 6;
+  margin: 0 0 22px;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line-soft);
+}
+
+/* The primary image, now a lightbox trigger — a bare button around the <img>. */
+.codex-entry__media-open {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+.codex-entry__media-open img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line-soft);
+}
+
+.codex-entry__slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  margin: 26px 0 0;
+}
+.codex-entry__slot { margin: 0; }
+.codex-entry__slot--map { flex: 1 1 320px; }
+.codex-entry__slot--sigil { width: 168px; }
+.codex-entry__slot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line-soft);
+}
+.codex-entry__slot figcaption {
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+/* Thumbnail grid under the primary. */
+.codex-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  margin: 16px 0 0;
+}
+.codex-gallery__thumb {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  padding: 0;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--bg-raise);
+  cursor: zoom-in;
+  transition: border-color 0.25s var(--ease);
+}
+.codex-gallery__thumb:hover { border-color: var(--line); }
+.codex-gallery__thumb img { object-fit: cover; }
+
+/* Fullscreen lightbox overlay. */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(16px, 5vw, 56px);
+  background: rgba(6, 7, 10, 0.92);
+  backdrop-filter: blur(4px);
+}
+.lightbox__figure {
+  margin: 0;
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.lightbox__frame {
+  position: relative;
+  width: min(90vw, 900px);
+  height: min(80vh, 900px);
+}
+.lightbox__caption {
+  max-width: 90vw;
+  font-size: 0.9rem;
+  color: var(--ink-dim);
+  text-align: center;
+}
+.lightbox__close,
+.lightbox__nav {
+  position: absolute;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+  line-height: 1;
+  opacity: 0.72;
+  transition: opacity 0.2s var(--ease);
+}
+.lightbox__close:hover,
+.lightbox__nav:hover { opacity: 1; }
+.lightbox__close {
+  top: 18px;
+  right: 22px;
+  font-size: 1.5rem;
+}
+.lightbox__nav {
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 3rem;
+  padding: 0 12px;
+}
+.lightbox__nav--prev { left: 8px; }
+.lightbox__nav--next { right: 8px; }
+
 .codex-prose { margin-top: 34px; }
 .codex-prose p {
   font-size: 1.08rem;

@@ -6,14 +6,18 @@ import { projectId, dataset, apiVersion } from './env';
  *
  * The `production` dataset is publicly readable, so no token is needed — and none
  * is used here on purpose: this client only ever reads published documents. The
- * write token stays confined to the server-side migration/sync scripts. `useCdn`
- * serves reads from Sanity's cached API edge (fast, eventually-consistent), which
- * is correct for published media; on-demand revalidation (Phase 3 webhook) is what
- * refreshes a page after an edit, not client freshness.
+ * write token stays confined to the server-side migration/sync scripts.
+ *
+ * `useCdn: false` is deliberate: every media read opts into the Next Data Cache
+ * (tagged `sanity`), so results are already memoized and fast between edits. When
+ * the `/api/revalidate` webhook busts that tag after a Studio edit, the refetch
+ * must return *fresh* data — the API (not the ~60s edge cache) — for the change to
+ * appear immediately. `useCdn: true` would re-serve a stale edge copy and defeat
+ * the whole point of on-demand revalidation.
  */
 export const sanityClient = createClient({
   projectId,
   dataset,
   apiVersion,
-  useCdn: true,
+  useCdn: false,
 });
