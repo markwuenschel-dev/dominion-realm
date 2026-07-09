@@ -15,10 +15,14 @@
  * (OG/canonical metadata, the RSS feed, the Keystatic OAuth redirect). Set
  * `NEXT_PUBLIC_SITE_URL` in the deploy env (`env/dominion-realm.env`); it falls
  * back to the registered domain so a build without the var still emits sane URLs.
- * Trailing slash is stripped so callers can append `/path` unconditionally.
+ *
+ * Uses `|| ` (not `??`) and trims, so an env var present-but-empty — e.g. a bare
+ * `NEXT_PUBLIC_SITE_URL=` line — also falls back rather than yielding `''` and
+ * blowing up `new URL('')` (ERR_INVALID_URL) in `metadataBase`. Trailing slash
+ * is stripped so callers can append `/path` unconditionally.
  */
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://thedominionrealm.com'
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thedominionrealm.com'
 ).replace(/\/$/, '');
 
 export interface Social {
