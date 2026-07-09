@@ -1,0 +1,109 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+/**
+ * The media read seam (ADR-0011, Phase 3). We assert the externally observable
+ * contract: what the readers return for a given Sanity payload, and that a
+ * missing Subject/asset resolves to null/absent so the call site can fall back to
+ * the git image (Sanity → git → placeholder). Sanity itself is mocked.
+ *
+ * Each reader is wrapped in React `cache()`, which memoizes for the lifetime of
+ * the module — so we `resetModules()` and re-import per test to get a fresh cache
+ * and avoid one test's result leaking into the next.
+ */
+const fetch = vi.fn<(query: string, params?: unknown, opts?: unknown) => Promise<unknown>>();
+vi.mock('./client', () => ({ sanityClient: { fetch } }));
+
+async function loadMedia() {
+  vi.resetModules();
+  return import('./media');
+}
+
+// A raw Sanity image field as GROQ returns it (asset ref encodes WxH).
+const img = (alt?: string, caption?: string) => ({
+  _type: 'image',
+  asset: { _ref: 'image-abc123-800x1000-jpg', _type: 'reference' },
+  ...(alt ? { alt } : {}),
+  ...(caption ? { caption } : {}),
+});
+
+beforeEach(() => {
+  fetch.mockReset();
+});
+
+describe('subjectKey / subjectKindFor', () => {
+  it('maps each codex collection to its Subject kind', async () => {
+    const { subjectKey, subjectKindFor } = await loadMedia();
+    expect(subjectKey('characters', 'marcus')).toBe('character:marcus');
+    expect(subjectKey('places', 'eriadne')).toBe('place:eriadne');
+    expect(subjectKindFor('factions')).toBe('faction');
+    expect(subjectKindFor('concepts')).toBe('concept');
+  });
+});
+
+describe('getSubjectPrimaryMap', () => {
+  it('keys resolved primaries by kind:slug and carries alt', async () => {
+    fetch.mockResolvedValue([
+      { kind: 'character', slug: 'marcus', primary: img('Marcus Vye') },
+      { kind: 'place', slug: 'eriadne', primary: img() },
+    ]);
+    const { getSubjectPrimaryMap } = await loadMedia();
+    const map = await getSubjectPrimaryMap();
+
+    expect(map.get('character:marcus')?.alt).toBe('Marcus Vye');
+    expect(map.get('place:eriadne')?.alt).toBe('');
+    expect(map.get('character:marcus')?.source).toBeTruthy();
+    expect(map.size).toBe(2);
+  });
+
+  it('skips rows missing an asset or slug (degrades to git fallback)', async () => {
+    fetch.mockResolvedValue([
+      { kind: 'character', slug: 'marcus', primary: { _type: 'image' } }, // no asset
+      { kind: 'character', slug: null, primary: img() }, // no slug
+    ]);
+    const { getSubjectPrimaryMap } = await loadMedia();
+    expect((await getSubjectPrimaryMap()).size).toBe(0);
+  });
+});
+
+describe('getSubjectMedia', () => {
+  it('resolves primary, gallery (with captions), and type slots', async () => {
+    fetch.mockResolvedValue({
+      primary: img('Portrait'),
+      gallery: [img('One', 'First'), { _type: 'image' }, img('Two')],
+      banner: img('Banner'),
+      map: null,
+      sigil: img('Crest'),
+    });
+    const { getSubjectMedia } = await loadMedia();
+    const media = await getSubjectMedia('faction', 'astria');
+
+    expect(media?.primary?.alt).toBe('Portrait');
+    expect(media?.banner?.alt).toBe('Banner');
+    expect(media?.sigil?.alt).toBe('Crest');
+    expect(media?.map).toBeNull();
+    // The assetless middle gallery item is dropped.
+    expect(media?.gallery).toHaveLength(2);
+    expect(media?.gallery[0]).toMatchObject({ alt: 'One', caption: 'First' });
+    expect(media?.gallery[1]).toMatchObject({ alt: 'Two', caption: '' });
+  });
+
+  it('returns null when no Subject exists (call site falls back to git)', async () => {
+    fetch.mockResolvedValue(null);
+    const { getSubjectMedia } = await loadMedia();
+    expect(await getSubjectMedia('character', 'nobody')).toBeNull();
+  });
+});
+
+describe('getSiteCover', () => {
+  it('returns null when the singleton has no cover', async () => {
+    fetch.mockResolvedValue(null);
+    const { getSiteCover } = await loadMedia();
+    expect(await getSiteCover()).toBeNull();
+  });
+
+  it('defaults alt to the site name when the cover has none', async () => {
+    fetch.mockResolvedValue(img());
+    const { getSiteCover } = await loadMedia();
+    expect((await getSiteCover())?.alt).toBe('The Dominion Realm');
+  });
+});
