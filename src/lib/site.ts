@@ -5,10 +5,21 @@
  * URL is a one-line change instead of an edit hunt across templates.
  *
  * Everything here is plain data: page links are stored as base-relative slugs
- * and the consuming template prepends the base path. On Railway the site is
+ * and the consuming template prepends the base path. In production the site is
  * served from the root (`/`), so the base is simply `/`; keeping links
  * base-relative leaves room for a future subpath deploy without an edit hunt.
  */
+
+/**
+ * Canonical public origin — the single source of truth for absolute URLs
+ * (OG/canonical metadata, the RSS feed, the Keystatic OAuth redirect). Set
+ * `NEXT_PUBLIC_SITE_URL` in the deploy env (`env/dominion-realm.env`); it falls
+ * back to the registered domain so a build without the var still emits sane URLs.
+ * Trailing slash is stripped so callers can append `/path` unconditionally.
+ */
+export const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://thedominionrealm.com'
+).replace(/\/$/, '');
 
 export interface Social {
   label: string;

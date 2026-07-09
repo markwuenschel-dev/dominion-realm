@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
   SITE_THEMES,
@@ -11,7 +12,11 @@ import {
 
 export type SiteTheme = SiteThemeId;
 
+/** Embedded editors that render their own chrome the site switcher must not overlay. */
+const EDITOR_ROUTES = ['/studio', '/keystatic'];
+
 export function ThemeSwitcher() {
+  const pathname = usePathname();
   const [theme, setTheme] = useState<SiteThemeId>('grimoire');
   const [mounted, setMounted] = useState(false);
 
@@ -29,6 +34,9 @@ export function ThemeSwitcher() {
   }
 
   if (!mounted) return null;
+  // Don't overlay the embedded editors (Sanity Studio / Keystatic) — the
+  // fixed switcher sits on top of their own toolbars (e.g. Sanity's Publish).
+  if (EDITOR_ROUTES.some((route) => pathname?.startsWith(route))) return null;
 
   return (
     <div className="theme-switcher-wrap">

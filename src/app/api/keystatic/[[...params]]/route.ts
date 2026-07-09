@@ -1,8 +1,9 @@
 // Keystatic GitHub OAuth + read/write API (ADR-0009/0010). Reads its GitHub App
 // credentials from env: KEYSTATIC_GITHUB_CLIENT_ID, KEYSTATIC_GITHUB_CLIENT_SECRET,
-// KEYSTATIC_SECRET (set these in the Railway service env, not committed).
+// KEYSTATIC_SECRET (set these in the deploy env, e.g. env/dominion-realm.env, not committed).
 import { makeRouteHandler } from '@keystatic/next/route-handler';
 import config from '../../../../../keystatic.config';
+import { SITE_URL } from '@/lib/site';
 
 const keystatic = makeRouteHandler({ config });
 
@@ -10,9 +11,9 @@ const keystatic = makeRouteHandler({ config });
 const isInternalHost = (host: string) => /^(127\.|0\.0\.0\.0|localhost|\[?::1\]?)/i.test(host);
 
 /**
- * Behind Railway's proxy, Next builds the route handler's request URL from the
- * INTERNAL bind address (`localhost:8080`, which Keystatic then normalizes to
- * `127.0.0.1`), so Keystatic's GitHub OAuth `redirect_uri` points at an
+ * Behind the reverse proxy (Caddy), Next builds the route handler's request URL
+ * from the INTERNAL bind address (the container's `localhost`, which Keystatic
+ * then normalizes to `127.0.0.1`), so Keystatic's GitHub OAuth `redirect_uri` points at an
  * unreachable host and the browser can't finish sign-in ("127.0.0.1 refused to
  * connect"). Rewrite the request's origin to the real PUBLIC URL before Keystatic
  * reads it.
@@ -25,7 +26,7 @@ const isInternalHost = (host: string) => /^(127\.|0\.0\.0\.0|localhost|\[?::1\]?
  *
  * Public-origin precedence: an explicit `KEYSTATIC_URL` override → the proxy's
  * `x-forwarded-host` (the host the browser actually used, so it matches the GitHub
- * App callback) → `NEXT_PUBLIC_SITE_URL` → the known deploy URL. Gated on GitHub
+ * App callback) → the canonical `SITE_URL`. Gated on GitHub
  * storage mode — the only mode that does OAuth — so local dev (local storage) is
  * untouched even without a production build.
  */
@@ -42,10 +43,8 @@ function withPublicOrigin(req: Request): Request {
     const xfProto = req.headers.get('x-forwarded-proto') ?? 'https';
     if (xfHost && !isInternalHost(xfHost)) {
       base = new URL(`${xfProto}://${xfHost}`);
-    } else if (process.env.NEXT_PUBLIC_SITE_URL) {
-      base = new URL(process.env.NEXT_PUBLIC_SITE_URL);
     } else {
-      base = new URL('https://dominion-realm-production.up.railway.app');
+      base = new URL(SITE_URL);
     }
   } else {
     return req; // request already carries a reachable public origin
