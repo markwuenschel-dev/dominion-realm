@@ -33,8 +33,22 @@ import process from 'node:process';
 
 const DRY_RUN = process.argv.includes('--dry-run');
 const ROOT = process.cwd();
-const CHARACTERS_DIR = path.join(ROOT, 'src', 'content', 'characters');
+const CONTENT_DIR = path.join(ROOT, 'src', 'content');
 const COVER_PATH = path.join(ROOT, 'public', 'covers', 'cover.png');
+
+/**
+ * The codex collections synced into Sanity, each mapped to its Subject `kind`.
+ * The join is by *collection*, not the git `kind:` taxonomy. Collections with no
+ * git art (concepts/factions/places today) still get slug+title Subject shells so
+ * the author can add Primary/Gallery/Map/Sigil art in Studio — the site keeps
+ * falling back to git/placeholder until they do.
+ */
+const COLLECTIONS = [
+  { dir: 'characters', kind: 'character' },
+  { dir: 'concepts', kind: 'concept' },
+  { dir: 'factions', kind: 'faction' },
+  { dir: 'places', kind: 'place' },
+];
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ?? 'zwq04v8v';
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? 'production';
@@ -82,24 +96,26 @@ function imageField(assetId, alt) {
   };
 }
 
-async function migrateCharacters() {
-  const files = fg.sync('**/*.{md,mdx}', { cwd: CHARACTERS_DIR });
+async function migrateCollection({ dir, kind }) {
+  const collectionDir = path.join(CONTENT_DIR, dir);
+  if (!fs.existsSync(collectionDir)) {
+    console.log(`\n${dir}: directory missing; skipping`);
+    return new Set();
+  }
+  const files = fg.sync('**/*.{md,mdx}', { cwd: collectionDir });
   const seenSlugs = new Set();
 
-  console.log(`\nCharacters (${files.length} found)`);
+  console.log(`\n${dir} → kind "${kind}" (${files.length} found)`);
   for (const file of files) {
     const slug = file.replace(/\.mdx?$/, '');
     seenSlugs.add(slug);
-    const raw = fs.readFileSync(path.join(CHARACTERS_DIR, file), 'utf8');
+    const raw = fs.readFileSync(path.join(collectionDir, file), 'utf8');
     const { data } = matter(raw);
     const name = data.name ?? slug;
     const absPath = imageFileFor(data.image);
 
     if (!absPath || !fs.existsSync(absPath)) {
-      console.log(
-        `  · ${slug} — no portrait on disk (image: ${data.image ?? 'none'}); skipping art`,
-      );
-      // Still create the Subject so the slug join exists; primary stays empty.
+      console.log(`  · ${slug} — no art on disk; creating shell (primary stays empty)`);
     }
 
     console.log(`  → ${slug}  (${name})`);
@@ -108,7 +124,7 @@ async function migrateCharacters() {
     const doc = {
       _id: `subject-${slug}`,
       _type: 'subject',
-      kind: 'character',
+      kind,
       title: name,
       slug: { _type: 'slug', current: slug },
       orphaned: false,
@@ -119,19 +135,20 @@ async function migrateCharacters() {
       console.log(`      [dry-run] would createOrReplace subject-${slug}`);
     } else {
       await client.createOrReplace(doc);
-      console.log(`      ✓ subject-${slug} ${assetId ? '(with primary)' : '(no primary)'}`);
+      console.log(`      ✓ subject-${slug} ${assetId ? '(with primary)' : '(shell)'}`);
     }
   }
   return seenSlugs;
 }
 
-async function flagOrphans(seenSlugs) {
+async function flagOrphans(kind, seenSlugs) {
   const existing = await client.fetch(
-    `*[_type == "subject" && kind == "character"]{ _id, "slug": slug.current, orphaned }`,
+    `*[_type == "subject" && kind == $kind]{ _id, "slug": slug.current, orphaned }`,
+    { kind },
   );
   const orphans = existing.filter((d) => d.slug && !seenSlugs.has(d.slug) && !d.orphaned);
   if (orphans.length === 0) return;
-  console.log(`\nOrphans (${orphans.length}) — prose gone, flagging (art kept)`);
+  console.log(`\nOrphans in "${kind}" (${orphans.length}) — prose gone, flagging (art kept)`);
   for (const o of orphans) {
     console.log(`  ⚠ ${o.slug}`);
     if (!DRY_RUN) await client.patch(o._id).set({ orphaned: true }).commit();
@@ -164,8 +181,10 @@ async function main() {
     `Sanity media migration → project ${projectId}/${dataset}` +
       (DRY_RUN ? '  [DRY RUN — no writes]' : ''),
   );
-  const seenSlugs = await migrateCharacters();
-  await flagOrphans(seenSlugs);
+  for (const collection of COLLECTIONS) {
+    const seenSlugs = await migrateCollection(collection);
+    await flagOrphans(collection.kind, seenSlugs);
+  }
   await migrateCover();
   console.log(`\nDone.${DRY_RUN ? ' (dry run — nothing written)' : ''}`);
 }

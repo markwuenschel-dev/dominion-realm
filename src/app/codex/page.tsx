@@ -5,6 +5,7 @@ import { CodexCard } from '@/components/CodexCard';
 import { GatedCard } from '@/components/reveal/GatedCard';
 import { SearchBox } from '@/components/SearchBox';
 import { getSearchDocuments } from '@/lib/search';
+import { getSubjectPrimaryMap, subjectKey } from '@/sanity/media';
 
 export const metadata: Metadata = {
   title: 'The World Codex',
@@ -12,8 +13,9 @@ export const metadata: Metadata = {
     'Explore the characters, powers, factions, and places of The Dominion Realm — spoiler-gated by your chosen reveal level.',
 };
 
-export default function CodexIndex() {
+export default async function CodexIndex() {
   const entries = getCodexEntries();
+  const primaryMap = await getSubjectPrimaryMap();
   const groups = COLLECTION_ORDER.map((collection) => ({
     collection,
     label: COLLECTION_LABELS[collection],
@@ -53,7 +55,10 @@ export default function CodexIndex() {
           <div className="codex-grid">
             {group.items.map((entry) => (
               <GatedCard tier={entry.data.reveal} key={`${entry.collection}/${entry.id}`}>
-                <CodexCard entry={entry} />
+                <CodexCard
+                  entry={entry}
+                  sanity={primaryMap.get(subjectKey(entry.collection, entry.id))}
+                />
               </GatedCard>
             ))}
           </div>

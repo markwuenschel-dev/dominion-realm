@@ -13,9 +13,12 @@ import {
 } from '@/lib/codex';
 import { MdxBody } from '@/components/MdxBody';
 import { ContentImage } from '@/components/ContentImage';
+import { SubjectImage } from '@/components/SubjectImage';
+import { SubjectGallery } from '@/components/SubjectGallery';
 import { RevealGate } from '@/components/reveal/RevealGate';
 import { GatedRelationships } from '@/components/reveal/GatedRelationships';
 import { isUngated, TIER_LABELS } from '@/lib/reveal';
+import { getSubjectMedia, subjectKindFor } from '@/sanity/media';
 
 type Params = { collection: string; id: string };
 
@@ -55,6 +58,10 @@ export default async function CodexEntryPage({ params }: { params: Promise<Param
   const links = resolveRelationships(entry, getCodexEntries());
   const dossier = dossierFields(entry);
   const image = entry.data.image;
+  // Sanity media (ADR-0011): primary + gallery + type slots for this Subject,
+  // joined by kind:slug. null when no Subject exists → git image fallback below.
+  const media = await getSubjectMedia(subjectKindFor(entry.collection), id);
+  const hasSanityMedia = Boolean(media && (media.primary || media.gallery.length > 0));
 
   return (
     <article className="codex-entry">
@@ -67,6 +74,17 @@ export default async function CodexEntryPage({ params }: { params: Promise<Param
         tier={entry.data.reveal}
         label={`Raise your reveal level to ${TIER_LABELS[entry.data.reveal]} to open this entry.`}
       >
+        {media?.banner && (
+          <div className="codex-entry__banner">
+            <SubjectImage
+              source={media.banner.source}
+              alt={media.banner.alt || entry.data.name}
+              aspect={[16, 6]}
+              sizes="(max-width: 820px) 100vw, 760px"
+              priority
+            />
+          </div>
+        )}
         <span className="codex-entry__kicker">
           {COLLECTION_LABELS[entry.collection]} · {kicker}
         </span>
@@ -99,7 +117,45 @@ export default async function CodexEntryPage({ params }: { params: Promise<Param
           </dl>
         )}
 
-        {image && (
+        {/* Type slots the media reader surfaces per kind: a Place's Map, a
+            Faction's Sigil. Empty until authored in Studio, so this renders
+            nothing today. */}
+        {(media?.map || media?.sigil) && (
+          <div className="codex-entry__slots">
+            {media.map && (
+              <figure className="codex-entry__slot codex-entry__slot--map">
+                <SubjectImage
+                  source={media.map.source}
+                  alt={media.map.alt || `Map of ${entry.data.name}`}
+                  fill={false}
+                  sizes="(max-width: 760px) 100vw, 680px"
+                />
+                <figcaption>Map</figcaption>
+              </figure>
+            )}
+            {media.sigil && (
+              <figure className="codex-entry__slot codex-entry__slot--sigil">
+                <SubjectImage
+                  source={media.sigil.source}
+                  alt={media.sigil.alt || `Sigil of ${entry.data.name}`}
+                  fill={false}
+                  sizes="220px"
+                />
+                <figcaption>Sigil</figcaption>
+              </figure>
+            )}
+          </div>
+        )}
+
+        {/* Primary + gallery + lightbox come from Sanity; a git image is the
+            fallback (its old "open raw in a new tab" behavior, unchanged). */}
+        {hasSanityMedia ? (
+          <SubjectGallery
+            primary={media!.primary}
+            gallery={media!.gallery}
+            name={entry.data.name}
+          />
+        ) : image ? (
           <figure className="codex-entry__media">
             {/* Full-size view opens the raw asset in a new tab — stays a plain <a>. */}
             <a
@@ -112,7 +168,7 @@ export default async function CodexEntryPage({ params }: { params: Promise<Param
             </a>
             <figcaption className="codex-entry__media-hint">Click to view full size</figcaption>
           </figure>
-        )}
+        ) : null}
 
         <div className="codex-prose">
           <MdxBody source={entry.body} />

@@ -128,10 +128,21 @@ managed the same way as everything else instead of as a one-off.
 2. **Seed & migrate.** One-way sync (prose → Subject by slug) with orphan-flagging,
    never auto-delete; move the 7 character portraits + `cover.png` into Sanity;
    verify each renders.
-3. **Wire the site.** Point cast cards, codex cards, detail pages, and the home hero
-   at Sanity (focal-point crop) behind the git fallback; build the gallery
-   grid/lightbox and type-slot rendering; add the revalidation webhook. The
-   backbone everything else references.
+3. **Wire the site. — DONE (2026-07-08).** Cast cards, codex cards, detail pages,
+   and the home hero read Sanity (hotspot focal-point crop via `@sanity/image-url`,
+   rendered through `next/image` in `SubjectImage`) behind the git fallback; the
+   gallery grid + keyboard lightbox and per-kind type-slot rendering (banner / map /
+   sigil) ship in `SubjectGallery`; the `/api/revalidate` webhook busts the coarse
+   `sanity` cache tag (signature-verified). Read seam generalized to a type-agnostic
+   `getSubjectPrimaryMap()` + `getSubjectMedia(kind, slug)` (`kind:slug` join). The
+   sync script now seeds Subjects for all four collections. The backbone everything
+   else references.
+
+   **Operator steps (one-time, not code):** run
+   `node --env-file=.env scripts/sanity-migrate.mjs` to seed the Subjects; set
+   `SANITY_REVALIDATE_SECRET` in Railway; add a Sanity **webhook** (dashboard →
+   API → Webhooks) `POST`ing to `https://<site>/api/revalidate` on
+   Subject/siteSettings changes, with that same value as its **signing secret**.
 4. **Folded-in gaps.** Per-page OG images (bare Primary, cropped), 'Art by —' credit
    display, and the nightly backup export to a private repo.
 5. **Cleanup.** Retire `scripts/copy-content-media.mjs` and the gitignored

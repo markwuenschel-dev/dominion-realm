@@ -4,10 +4,11 @@ import { Fragment } from 'react';
 import { SITE, liveSocials, NAV_SECTIONS, liveNavPages, navPageReady } from '@/lib/site';
 import { getHomeSettings } from '@/lib/homeSettings';
 import { getCodexEntry } from '@/lib/codex';
-import { getSiteCover, getCharacterPrimaryMap } from '@/sanity/media';
+import { getSiteCover, getSubjectPrimaryMap } from '@/sanity/media';
 import { HomeClient } from '@/components/HomeClient';
 import { BuyCta } from '@/components/BuyCta';
 import { MediaPlaceholder } from '@/components/MediaPlaceholder';
+import { SubjectImage } from '@/components/SubjectImage';
 
 // The homepage cast cards draw their portraits from each character's Codex entry
 // image, so uploading a portrait in Keystatic updates both the card and the codex
@@ -59,13 +60,15 @@ export default async function Home() {
   // prefers the Sanity `siteSettings` singleton, falling back to the Keystatic
   // home singleton; each cast portrait prefers its Subject's Primary, falling
   // back to the character's Codex entry image.
-  const [sanityCover, portraits] = await Promise.all([getSiteCover(), getCharacterPrimaryMap()]);
-  const cover = sanityCover ?? getHomeSettings().cover;
+  const [sanityCover, portraits] = await Promise.all([getSiteCover(), getSubjectPrimaryMap()]);
+  const gitCover = sanityCover ? null : getHomeSettings().cover;
+  const hasCover = Boolean(sanityCover || gitCover);
   const cast = FEATURED_CAST.map((c) => {
-    const sanity = portraits.get(c.slug);
+    const sanity = portraits.get(`character:${c.slug}`);
     return {
       ...c,
-      image: sanity?.src ?? getCodexEntry('characters', c.slug)?.data.image,
+      sanity,
+      gitImage: getCodexEntry('characters', c.slug)?.data.image,
       imageAlt: sanity?.alt || c.name,
     };
   });
@@ -134,7 +137,7 @@ export default async function Home() {
 
         <main className="main">
           {/* HERO */}
-          <section className={`hero${cover ? ' has-cover' : ''}`} id="hero">
+          <section className={`hero${hasCover ? ' has-cover' : ''}`} id="hero">
             <div className="hero-glow a" />
             <div className="hero-glow b" />
             <div className="hero-glow c" />
@@ -161,16 +164,27 @@ export default async function Home() {
                   <BuyCta className="buy-cta--hero" newsletterHref="#join" />
                 </div>
               </div>
-              {cover && (
+              {hasCover && (
                 <figure className="hero-cover reveal">
-                  <Image
-                    src={cover.src}
-                    alt={cover.alt}
-                    fill
-                    sizes="(max-width: 980px) 60vw, 340px"
-                    style={{ objectFit: 'contain' }}
-                    priority
-                  />
+                  {sanityCover ? (
+                    <SubjectImage
+                      source={sanityCover.source}
+                      alt={sanityCover.alt}
+                      fill
+                      objectFit="contain"
+                      sizes="(max-width: 980px) 60vw, 340px"
+                      priority
+                    />
+                  ) : (
+                    <Image
+                      src={gitCover!.src}
+                      alt={gitCover!.alt}
+                      fill
+                      sizes="(max-width: 980px) 60vw, 340px"
+                      style={{ objectFit: 'contain' }}
+                      priority
+                    />
+                  )}
                 </figure>
               )}
             </div>
@@ -242,9 +256,16 @@ export default async function Home() {
                     href={`/codex/characters/${c.slug}`}
                   >
                     <div className="char-portrait">
-                      {c.image ? (
+                      {c.sanity ? (
+                        <SubjectImage
+                          source={c.sanity.source}
+                          alt={c.imageAlt}
+                          aspect={[3, 4]}
+                          sizes="(max-width:980px) 100vw, 300px"
+                        />
+                      ) : c.gitImage ? (
                         <Image
-                          src={c.image}
+                          src={c.gitImage}
                           alt={c.imageAlt}
                           fill
                           sizes="(max-width:980px) 100vw, 300px"
