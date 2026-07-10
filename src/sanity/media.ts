@@ -158,6 +158,32 @@ export const getSubjectPrimaryMap = cache(async (): Promise<Map<string, Resolved
 });
 
 /**
+ * Homepage cast-card images for every non-draft Subject, keyed by `${kind}:${slug}`.
+ * Prefers the dedicated `card` slot and coalesces to `primary` when it's unset, so
+ * the homepage "Dramatis Personae" cards can differ from the Codex (which reads
+ * `primary` directly) yet degrade to the same portrait until a card is uploaded.
+ * A Subject with neither asset is absent, so the call site falls back to its git
+ * image (Sanity → git → placeholder).
+ */
+export const getSubjectCardMap = cache(async (): Promise<Map<string, ResolvedImage>> => {
+  const rows = await sanityClient.fetch<
+    Array<{ kind: string | null; slug: string | null; image: RawImage }>
+  >(
+    `*[_type == "subject" && defined(coalesce(card.asset, primary.asset)) && !(_id in path("drafts.**"))]{
+      kind, "slug": slug.current, "image": coalesce(card, primary)
+    }`,
+    {},
+    { next: { tags: [SANITY_TAG] } },
+  );
+  const map = new Map<string, ResolvedImage>();
+  for (const r of rows) {
+    const resolved = resolve(r.image);
+    if (r.kind && r.slug && resolved) map.set(`${r.kind}:${r.slug}`, resolved);
+  }
+  return map;
+});
+
+/**
  * Full media for one Subject (primary + gallery + type slots), or null when no
  * Subject exists for that `kind`/`slug`. Empty slots resolve to null / an empty
  * gallery, so a call site renders only what's present.

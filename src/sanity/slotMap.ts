@@ -22,11 +22,14 @@ export const SUBJECT_KINDS = [
 export type SubjectKind = (typeof SUBJECT_KINDS)[number]['value'];
 
 /** The named type slots, beyond the universal Primary + Gallery. */
-export type TypeSlot = 'banner' | 'map' | 'sigil';
+export type TypeSlot = 'banner' | 'map' | 'sigil' | 'card';
 
-/** Which type slots each kind shows. Every kind gets a Banner by default. */
+/** Which type slots each kind shows. Every kind gets a Banner by default. The
+ *  `card` slot is a homepage-only portrait for the featured cast — when set it
+ *  overrides the Primary on the "Dramatis Personae" cards, so the homepage can
+ *  differ from the Codex; left empty, the card falls back to the Primary. */
 const KIND_SLOTS: Record<string, TypeSlot[]> = {
-  character: ['banner'],
+  character: ['card', 'banner'],
   place: ['banner', 'map'],
   faction: ['banner', 'sigil'],
   concept: ['banner'],

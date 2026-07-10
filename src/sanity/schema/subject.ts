@@ -46,7 +46,14 @@ export const subject = defineType({
         'Set by sync when the matching prose entry no longer exists. The art is kept — review and delete by hand if you want.',
     }),
     imageField('primary', 'Primary image', {
-      description: 'The canonical image — auto-cropped for card, portrait, and detail.',
+      description: 'The canonical image — used on the Codex card, portrait, and detail.',
+    }),
+    imageField('card', 'Cast card (homepage)', {
+      description:
+        'Optional. A dedicated portrait for the homepage “Dramatis Personae” card, so it can ' +
+        'differ from the Codex. Left empty, the homepage falls back to the Primary image.',
+      hidden: ({ document }: { document?: { kind?: string } }) =>
+        !isSlotVisible(document?.kind, 'card'),
     }),
     galleryField('gallery', 'Gallery', 'Ordered extra images, each with its own caption + alt.'),
     imageField('banner', 'Banner (wide)', {
