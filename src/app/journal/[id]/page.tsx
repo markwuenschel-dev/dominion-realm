@@ -5,7 +5,8 @@ import { getJournalPosts, getJournalEntry, journalKicker, formatJournalDate } fr
 import { MdxBody } from '@/components/MdxBody';
 import { RevealGate } from '@/components/reveal/RevealGate';
 import { JournalChrome } from '@/components/journal/JournalChrome';
-import { TIER_LABELS } from '@/lib/reveal';
+import { isUngated, TIER_LABELS } from '@/lib/reveal';
+import { defaultSocialImage, previewMetadata } from '@/sanity/og';
 
 export function generateStaticParams() {
   return getJournalPosts().map((p) => ({ id: p.id }));
@@ -19,7 +20,11 @@ export async function generateMetadata({
   const { id } = await params;
   const post = getJournalEntry(id);
   if (!post) return {};
-  return { title: post.data.title, description: post.data.summary };
+  // Sealed posts inherit generic site metadata so their title/summary don't leak;
+  // a teaser post publishes its real title/summary over the default social image
+  // (journal posts have no Sanity Subject, so no per-post Primary).
+  if (!isUngated(post.data.reveal)) return {};
+  return previewMetadata(post.data.title, post.data.summary, await defaultSocialImage());
 }
 
 export default async function JournalPost({ params }: { params: Promise<{ id: string }> }) {
