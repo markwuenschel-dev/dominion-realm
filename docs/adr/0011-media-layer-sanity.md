@@ -31,7 +31,11 @@ Status: accepted. Amends ADR-0002 and ADR-0009 for the media slice only.
   alt text and optional artist credit. See [CONTEXT.md](../../CONTEXT.md#media).
 - **Folded in:** per-page social/share (OG) images sourced from the Primary; the
   homepage book cover (previously a one-off in `public/covers/`) managed the same
-  way as everything else.
+  way as everything else; and a separate landscape `siteSettings.socialImage`
+  for public default social cards. The social image is not the portrait cover:
+  its role is a 1200×630 preview, with a static `public/og-default.png` fallback.
+  V1 references Sanity CDN crops directly in metadata; a Next-generated branded
+  card remains later polish.
 
 ## Considered and rejected
 

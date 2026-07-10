@@ -94,6 +94,15 @@ served live, without a commit or redeploy. See [ADR-0011](docs/adr/0011-media-la
   single upload. Replaces the old manual three-way CSS crop of one file.
   _Avoid_: portrait, hero, main image (those are *contexts* the Primary is cropped into).
 
+- **Teaser-safe Primary** — the Primary image of a Teaser Subject, suitable for
+  public social metadata as well as the visible page. A subject-level Teaser
+  gate trusts its Primary to be spoiler-safe; per-Asset reveal tiers are outside
+  the current model.
+
+- **Site social image** — the dedicated 1200×630 landscape Asset used for public
+  site-wide and sealed-entry social metadata. It belongs to `siteSettings` and
+  is distinct from the portrait book cover; its static fallback is `og-default`.
+
 - **Gallery** — the ordered list of additional Assets on a Subject beyond the
   Primary, each with its own caption and alt text. _Avoid_: album, extras.
 
@@ -107,8 +116,29 @@ served live, without a commit or redeploy. See [ADR-0011](docs/adr/0011-media-la
 
 - **Credit.** Every Asset carries required **alt text** (accessibility) and an
   optional **artist credit** + source/licence note, so attribution travels with
-  the image rather than living in someone's memory. The credit renders publicly
-  ("Art by —") when present, and is invisible when absent.
+  the image rather than living in someone's memory. Every credited Asset has at
+  least one reachable public credit surface: detail/full image, gallery lightbox,
+  or (for the standalone cover) the homepage hero. Cards omit credit because they
+  link to their credited detail surface; licence terms can require a stricter
+  placement. The credit renders publicly ("Art by —") when present, while the
+  licence note remains private.
+
+- **Credit URL.** An optional, valid web address for a credited artist or source.
+  A nonblank Credit URL makes the public credit an outbound link; when absent,
+  the artist name remains plain text.
+
+- **Tier 1 recovery.** The sanctioned, fast recovery path for a recent,
+  localized author error, using Sanity Studio undo and native document history.
+  It restores a particular document without rolling back the media layer.
+
+- **Tier 2 recovery.** The independent catastrophic-recovery path: a restorable
+  native Sanity dataset export held outside Sanity. It protects against account
+  or vendor loss, and against changes older than Tier 1 retains; it is not the
+  first response to one recently damaged caption or Subject.
+
+- **Recovery runbook.** The documented choice of recovery tier for a failure.
+  Use Tier 1 for a recent, localized document error; use Tier 2 for loss of the
+  Sanity account, vendor access, or data outside the Tier-1 retention window.
 
 - **Source of truth.** The prose entry (git) is authoritative for whether a
   Subject *exists* and its slug/name; the media store is authoritative for its
