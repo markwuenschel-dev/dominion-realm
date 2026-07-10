@@ -170,11 +170,22 @@ managed the same way as everything else instead of as a one-off.
    `SANITY_REVALIDATE_SECRET` in the EC2 deploy env (`env/dominion-realm.env`); add a Sanity **webhook** (dashboard →
    API → Webhooks) `POST`ing to `https://<site>/api/revalidate` on
    Subject/siteSettings changes, with that same value as its **signing secret**.
-4. **Folded-in gaps.** Per-page OG images (bare Primary, cropped), 'Art by —' credit
-   display, and the two-tier backup: three-day Sanity history for recent
-   localized recovery; native dataset export nightly plus manual dispatch for
-   independent catastrophic recovery. S3 uses overwrite-protected date-stamped
-   exports; choose the long-term retention schedule before implementation.
+4. **Folded-in gaps.**
+   - **Per-page OG images — DONE (2026-07-10).** Each entry/detail route emits an
+     OG + Twitter card via `src/sanity/og.ts`: a *teaser* entry's Primary,
+     CDN-cropped to a 1200×630 scraper-safe JPEG, is its social image;
+     `siteSettings.socialImage` (new field) cropped the same way is the default
+     for entries with no Primary, every above-teaser (sealed) entry, and general
+     routes, resolved in the root `generateMetadata`; the static
+     `public/og-default.png` is the last-resort fallback. Metadata is
+     reveal-gated — sealed entries inherit generic site metadata so their
+     title/summary never leak (closes a prior leak). Points straight at the
+     Sanity CDN, so a media edit needs no redeploy.
+   - **Remaining:** 'Art by —' credit display, and the two-tier backup: three-day
+     Sanity history for recent localized recovery; native dataset export nightly
+     plus manual dispatch for independent catastrophic recovery. S3 uses
+     overwrite-protected date-stamped exports; retention schedule chosen (90/90
+     days) in ADR-0013.
 5. **Cleanup.** Retire `scripts/copy-content-media.mjs` and the gitignored
    `public/content-media/` for migrated collections; delete the stale
    `images_aspect_ratio.md`; keep git portraits as a fallback through a confidence

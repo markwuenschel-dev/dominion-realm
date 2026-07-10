@@ -5,6 +5,7 @@ import { RevealProvider } from '@/components/reveal/RevealContext';
 import { Analytics } from '@/components/Analytics';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
 import { SITE_URL } from '@/lib/site';
+import { defaultSocialImage } from '@/sanity/og';
 
 /**
  * Root layout (migrated from Base.astro, ADR-0010). Self-hosts the three Realm
@@ -39,21 +40,32 @@ const mono = Space_Mono({
 const DESCRIPTION =
   "An Earth gamer's cybernetic implant translates a real metaphysical world into RPG logic — until he realizes the interface is not the world. It is only his way of surviving contact with it.";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: {
-    default: 'The Dominion Realm — An Interface Fantasy Novel',
-    template: '%s — The Dominion Realm',
-  },
-  description: DESCRIPTION,
-  icons: { icon: '/favicon.svg' },
-  openGraph: {
-    type: 'website',
-    title: 'The Dominion Realm',
+/**
+ * Async so the default social image resolves from Sanity (`siteSettings.
+ * socialImage`, ADR-0011 Phase 4) with the static `og-default.png` fallback.
+ * Every route inherits this OG/Twitter image unless it sets its own (a teaser
+ * entry with a Primary does); the fetch is `sanity`-tagged and cached, so this
+ * stays statically rendered and refreshes on the revalidation webhook.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const image = await defaultSocialImage();
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: {
+      default: 'The Dominion Realm — An Interface Fantasy Novel',
+      template: '%s — The Dominion Realm',
+    },
     description: DESCRIPTION,
-  },
-  twitter: { card: 'summary_large_image' },
-};
+    icons: { icon: '/favicon.svg' },
+    openGraph: {
+      type: 'website',
+      title: 'The Dominion Realm',
+      description: DESCRIPTION,
+      images: [image],
+    },
+    twitter: { card: 'summary_large_image', images: [image] },
+  };
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -19,6 +19,7 @@ import { RevealGate } from '@/components/reveal/RevealGate';
 import { GatedRelationships } from '@/components/reveal/GatedRelationships';
 import { isUngated, TIER_LABELS } from '@/lib/reveal';
 import { getSubjectMedia, subjectKindFor } from '@/sanity/media';
+import { entrySocialImage, previewMetadata } from '@/sanity/og';
 
 type Params = { collection: string; id: string };
 
@@ -46,7 +47,12 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const { collection, id } = await params;
   const entry = getCodexEntry(collection as CodexCollection, id);
   if (!entry) return {};
-  return { title: entry.data.name, description: entry.data.summary };
+  // A sealed (above-teaser) entry must not leak its name/summary — inherit the
+  // generic site metadata + default social art (the no-JS reveal baseline).
+  if (!isUngated(entry.data.reveal)) return {};
+  const media = await getSubjectMedia(subjectKindFor(entry.collection), id);
+  const image = await entrySocialImage(entry.data.reveal, media?.primary);
+  return previewMetadata(entry.data.name, entry.data.summary, image);
 }
 
 export default async function CodexEntryPage({ params }: { params: Promise<Params> }) {

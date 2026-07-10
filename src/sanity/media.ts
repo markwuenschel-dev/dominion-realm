@@ -82,6 +82,17 @@ export const getSiteCover = cache(async (): Promise<ResolvedImage | null> => {
   return { source: resolved.source, alt: resolved.alt || 'The Dominion Realm' };
 });
 
+/** The default social/OG image from the `siteSettings` singleton, or null if
+ *  unset — the call site then falls back to the static `public/og-default.png`. */
+export const getSocialImage = cache(async (): Promise<ResolvedImage | null> => {
+  const social = await sanityClient.fetch<RawImage>(
+    `*[_id == "siteSettings"][0].socialImage`,
+    {},
+    { next: { tags: [SANITY_TAG] } },
+  );
+  return resolve(social);
+});
+
 /**
  * Primary images for every non-draft Subject, keyed by `${kind}:${slug}` — the
  * join back to the git codex entry. A Subject with no Primary asset is simply
