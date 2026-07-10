@@ -38,7 +38,7 @@ const KIND_LABELS: Record<string, string> = {
   threat: 'Threat',
 };
 
-/** Canonical URL for a codex entry (root-served — no base path on Railway). */
+/** Canonical URL for a codex entry (root-served — no base path). */
 export function codexUrl(collection: string, id: string): string {
   return `/codex/${collection}/${id}`;
 }

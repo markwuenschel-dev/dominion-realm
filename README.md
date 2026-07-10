@@ -55,7 +55,7 @@ change is an ordinary Git commit.
 - **CMS** — **[Keystatic](https://keystatic.com)** in GitHub storage mode
 - **Search** — **[MiniSearch](https://lucaong.github.io/minisearch/)** · **Downloads** — JSZip (EPUB) + PDFKit (PDF)
 - **Tests** — **[Vitest](https://vitest.dev)** + Testing Library (jsdom)
-- **Hosting** — a Node service on **[Railway](https://railway.app)**, served from `/`
+- **Hosting** — a Node service on **AWS EC2**, a Docker container behind a **[Caddy](https://caddyserver.com)** reverse proxy (TLS), served from `/`
 
 ## Quick start
 
@@ -149,14 +149,18 @@ See [ADR-0004](docs/adr/0004-reveal-tier-model.md) for the rationale.
 
 You don't need Explorer or a manual `git push` to update content or pictures.
 **Keystatic** is a browser editor at **`/keystatic`**; on the live site it commits
-your change straight to `main`, and Railway redeploys automatically.
+your change straight to `main`. Reaching the live site then takes a deploy — a
+container rebuild on the EC2 host (currently manual; see [Deployment](#deployment)).
+*(Picture edits are different: those are made in Sanity Studio at `/studio` and go
+live in seconds via webhook, no deploy — see [ADR-0011](docs/adr/0011-media-layer-sanity.md).)*
 
 **Day-to-day (once the one-time setup below is done):**
 
 1. Go to `https://<your-domain>/keystatic` and sign in with GitHub.
 2. Open an entry — a character, faction, the Homepage cover, etc.
 3. Drag a picture onto its **Image** field (or edit any text).
-4. **Save.** Keystatic commits to `main`; the site is live in ~1–2 minutes.
+4. **Save.** Keystatic commits to `main`; the change goes live on the next deploy
+   (a container rebuild on the host — currently manual, see [Deployment](#deployment)).
 
 Notes:
 - A character's **Image** feeds both its Codex page **and** its homepage cast card.
@@ -182,7 +186,7 @@ visit `https://<your-domain>/keystatic` — with no app configured it shows a gu
    - **Permissions:** Repository → **Contents: Read & write**, **Metadata: Read**.
    - Install it on the **`dominion-realm`** repo. Copy the **Client ID** and
      generate a **Client secret**.
-2. In Railway → your service → **Variables**, add **four**:
+2. In the EC2 deploy env (`env/dominion-realm.env` on the host), add **four**:
    - `KEYSTATIC_GITHUB_CLIENT_ID`
    - `KEYSTATIC_GITHUB_CLIENT_SECRET`
    - `KEYSTATIC_SECRET` — any random 32+ char string (`openssl rand -hex 32`)
@@ -190,7 +194,7 @@ visit `https://<your-domain>/keystatic` — with no app configured it shows a gu
      browser editor to use GitHub mode (the other three are server-only, so the
      UI can't see them). **Without this the editor loads in local mode and never
      shows the GitHub sign-in.**
-3. Redeploy. `/keystatic` is now in GitHub mode and commits to `main` for you.
+3. Rebuild the container. `/keystatic` is now in GitHub mode and commits to `main` for you.
 
 Only `NEXT_PUBLIC_KEYSTATIC_GITHUB=true` flips the mode (`keystatic.config.ts`);
 CI and local dev leave it unset and use **local** storage, so `next build` never
@@ -198,16 +202,16 @@ evaluates github mode without the secrets.
 
 ## Environment variables
 
-Copy `.env.example` to `.env` for local use and set the same values in the
-Railway dashboard for production. Nothing here is required to run the public
-site.
+Copy `.env.example` to `.env` for local use and set the same values in the EC2
+deploy env (`env/dominion-realm.env` on the host) for production. Nothing here is
+required to run the public site.
 
 | Variable | Required for | Notes |
 | --- | --- | --- |
 | `KEYSTATIC_GITHUB_CLIENT_ID` | `/keystatic` admin | From the Keystatic GitHub App (ADR-0009) |
 | `KEYSTATIC_GITHUB_CLIENT_SECRET` | `/keystatic` admin | From the same GitHub App |
 | `KEYSTATIC_SECRET` | `/keystatic` admin | Any random 32+ char string (`openssl rand -hex 32`) |
-| `NEXT_PUBLIC_SITE_URL` | Canonical/OG tags, RSS | e.g. `https://dominionrealm.com` |
+| `NEXT_PUBLIC_SITE_URL` | Canonical/OG tags, RSS | e.g. `https://thedominionrealm.com` |
 | `NEXT_PUBLIC_GA4_ID` | Analytics | Google Analytics 4 measurement ID |
 | `NEXT_PUBLIC_KIT_FORM_ID` | Newsletter | Kit (ConvertKit) form ID |
 | `NEXT_PUBLIC_BUY_URL` | Buy button | Real product/checkout URL; unset → "Coming soon" newsletter fallback |
@@ -215,18 +219,27 @@ site.
 
 ## Deployment
 
-Hosted as a Node service on **Railway**. **Railpack** auto-detects **pnpm** from
-`pnpm-lock.yaml` and `packageManager` in `package.json`; `railway.json` pins
-`pnpm run start`. Pushing to `main` deploys automatically.
+Hosted on **AWS EC2** as a **Docker** container behind a **[Caddy](https://caddyserver.com)**
+reverse proxy that terminates TLS (automatic Let's Encrypt) and serves the app at
+the root of its own hostname. Deploys are **not** automatic on push to `main` —
+they are a container rebuild on the host:
 
-1. **New Project → Deploy from GitHub repo → `dominion-realm`**.
-2. Add the environment variables above under the service's **Variables** tab.
-3. Set `NEXT_PUBLIC_SITE_URL` to the Railway domain (correct canonical/OG/RSS URLs).
-4. Point the Keystatic GitHub App's OAuth **callback URL** at
-   `https://<railway-domain>/api/keystatic/github/oauth/callback`.
+```bash
+# on the EC2 host, in the compose project directory
+docker compose build dominion-realm && docker compose up -d dominion-realm
+```
 
-See [ADR-0010](docs/adr/0010-migrate-astro-to-nextjs.md) for the architecture and
-the migration from the original Astro stack.
+1. Get the code onto the host (git pull) and set the environment variables above
+   in `env/dominion-realm.env` (not committed).
+2. Set `NEXT_PUBLIC_SITE_URL` to the site's public origin (correct canonical/OG/RSS
+   URLs). It falls back to `https://thedominionrealm.com` if unset/empty.
+3. Point the Keystatic GitHub App's OAuth **callback URL** at
+   `https://<your-domain>/api/keystatic/github/oauth/callback`.
+4. Rebuild the container (above). Caddy issues/renews the TLS cert automatically.
+
+See [ADR-0012](docs/adr/0012-host-on-aws-ec2.md) for the hosting architecture and
+[ADR-0010](docs/adr/0010-migrate-astro-to-nextjs.md) for the original Astro → Next.js
+migration.
 
 ## Testing & CI
 

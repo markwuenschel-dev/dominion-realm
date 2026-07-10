@@ -8,7 +8,8 @@ const projectRoot = path.dirname(fileURLToPath(import.meta.url));
  * Next.js config for The Dominion Realm (migrated off Astro — ADR-0010; upgraded
  * to Next 16 for the Sanity media layer — ADR-0011).
  *
- * Served as a Node server on Railway (`next start`), so there is no static
+ * Served as a Node server on AWS EC2 (Docker container behind Caddy; `next start`),
+ * so there is no static
  * `output: export` and no project base path — the site lives at `/`. MDX is
  * wired via `@next/mdx`; the codex/journal/reading *bodies* are compiled per
  * entry through `next-mdx-remote`-style `compileMDX` in `src/lib/content.ts`,
@@ -29,7 +30,7 @@ const withMDX = createMDX({
 const nextConfig = {
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
   reactStrictMode: true,
-  // Railway (Railpack builder) runs `next build` then `next start` (reads $PORT).
+  // The Docker image runs `next build` then `next start` (reads $PORT).
   // Pin the tracing/workspace root so a stray parent lockfile doesn't misinfer it.
   outputFileTracingRoot: projectRoot,
   images: {

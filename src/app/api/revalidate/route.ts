@@ -7,7 +7,7 @@ import { type NextRequest, NextResponse } from 'next/server';
  *
  * Sanity POSTs here whenever a Subject / siteSettings document is published. We
  * verify the request's `sanity-webhook-signature` against SANITY_REVALIDATE_SECRET
- * (set as the webhook's signing secret in the Sanity dashboard AND as a Railway
+ * (set as the webhook's signing secret in the Sanity dashboard AND as a server
  * env var), then bust the single `sanity` cache tag every media read carries — so
  * one edit refreshes the homepage, the codex index, and every detail page on their
  * next request, with no redeploy. Coarse by design: it's structurally impossible

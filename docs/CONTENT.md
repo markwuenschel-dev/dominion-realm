@@ -1,7 +1,8 @@
 # Editing the Site — An Author's Guide
 
 > **Stack note (2026):** the site has migrated from Astro to **Next.js + React**,
-> hosted on **Railway** — see [ADR-0010](adr/0010-migrate-astro-to-nextjs.md). For
+> hosted on **AWS EC2** (Docker + Caddy) — see [ADR-0010](adr/0010-migrate-astro-to-nextjs.md)
+> and [ADR-0012](adr/0012-host-on-aws-ec2.md). For
 > authors, almost nothing changes: content is still Markdown/MDX files under
 > `src/content/`, validated at build. The differences are where the hand-coded
 > pages live (`src/app/*` instead of `src/pages/*.astro`) and that the Keystatic
@@ -280,8 +281,9 @@ The favicon is `public/favicon.svg`.
 
 ## 5. How to make an edit and publish — three paths
 
-All three end the same way: a change lands on `main`, and the site
-**auto-deploys** to Railway. Pick whichever fits the edit.
+All three end the same way: a change lands on `main`. The site owner then deploys
+it — currently a **manual container rebuild** on the EC2 host (see the README's
+Deployment section); there is no auto-deploy on push yet. Pick whichever fits the edit.
 
 ### Path A — edit on github.com (best for non-technical edits)
 
@@ -343,16 +345,17 @@ no git commands. It runs in **GitHub cloud mode**, which means it reads from and
 writes to this repo directly.
 
 > **One-time setup required.** Cloud editing only works after the site owner
-> creates a GitHub App and adds three secrets to the **Railway** service — see the
-> checklist in [ADR-0009](adr/0009-cms-keystatic.md) (the host is now Railway, per
-> [ADR-0010](adr/0010-migrate-astro-to-nextjs.md)). Until that's done, use the
+> creates a GitHub App and adds three secrets to the EC2 deploy env
+> (`env/dominion-realm.env`) — see the checklist in
+> [ADR-0009](adr/0009-cms-keystatic.md) (the host is now AWS EC2, per
+> [ADR-0012](adr/0012-host-on-aws-ec2.md)). Until that's done, use the
 > Markdown/git paths above.
 
 ### How to use it
 
 1. **Open the admin** at **`/keystatic`** on the live site — e.g.
-   `https://<your-railway-domain>/keystatic`. (The CMS admin needs a server to talk
-   to GitHub; Railway runs the whole site as a Node server, so the admin lives on
+   `https://<your-domain>/keystatic`. (The CMS admin needs a server to talk
+   to GitHub; EC2 runs the whole site as a Node server, so the admin lives on
    the main deploy — there's no separate host any more.)
 2. **Log in with GitHub.** Authorize the app the first time; after that it's one
    click.
@@ -360,15 +363,15 @@ writes to this repo directly.
    journal, reading — appears as a list. Pick an entry to edit it, or create a new
    one. The fields you see are the same ones in this guide (name, summary, the
    reveal-tier dropdown, draft toggle, the body editor), just as form inputs.
-4. **Save.** Keystatic **commits your change directly to the repo** on your behalf,
-   which **triggers a deploy** — the same end result as editing the Markdown by
-   hand, but without touching git.
+4. **Save.** Keystatic **commits your change directly to the repo** on your behalf.
+   Going live then needs a deploy (a container rebuild on the host) — the same end
+   result as editing the Markdown by hand, but without touching git.
 
 ### One-time setup
 
 Before anyone can log in, the **site owner** does a **one-time GitHub App setup**
 (creating/connecting the Keystatic GitHub App and adding its credentials to the
-Railway service's environment variables). This is a one-off; after it's done, the `/keystatic` form
+EC2 deploy env, `env/dominion-realm.env`). This is a one-off; after it's done, the `/keystatic` form
 just works. The steps live in
 [ADR-0009 — Keystatic CMS](adr/0009-cms-keystatic.md).
 
@@ -411,4 +414,4 @@ request — never a broken live site. Edit boldly.
 - [ADR-0007 — Visual identity & tokens](adr/0007-evolve-not-reinvent-identity.md) — the design-token system.
 - [ADR-0009 — Keystatic CMS](adr/0009-cms-keystatic.md) — the form-based editor (added alongside this guide).
 - `src/lib/content.ts` — the authoritative schema for every field above.
-- [ADR-0010 — Astro → Next.js migration](adr/0010-migrate-astro-to-nextjs.md) — the framework + host move (Railway).
+- [ADR-0010 — Astro → Next.js migration](adr/0010-migrate-astro-to-nextjs.md) — the framework + original host move; hosting since moved to EC2 ([ADR-0012](adr/0012-host-on-aws-ec2.md)).

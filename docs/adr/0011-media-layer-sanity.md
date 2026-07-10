@@ -4,7 +4,12 @@ Images — both the files *and* their associations to entities — move **out of
 into **Sanity**, a hosted headless CMS used purely as the media layer, delivered
 through Sanity's image CDN. Prose stays exactly where it is: git Markdown edited
 via Keystatic. An author uploads a picture in Sanity's browser Studio and it goes
-live in seconds, with **no commit and no Railway redeploy**.
+live in seconds, with **no commit and no redeploy**.
+
+> **Hosting note (2026-07-09):** "Railway" references below are historical — the site
+> now runs on **AWS EC2** (Docker + Caddy), per [ADR-0012](0012-host-on-aws-ec2.md).
+> Set any env var this ADR says to put "in Railway" in the EC2 deploy env file
+> `env/dominion-realm.env` instead. The media-layer design is otherwise unchanged.
 
 This is a **scoped reversal** of [ADR-0002](0002-content-collections.md) and
 [ADR-0009](0009-cms-keystatic.md), which kept *all* content in git and rejected a
