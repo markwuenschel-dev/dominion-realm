@@ -9,6 +9,7 @@ import { HomeClient } from '@/components/HomeClient';
 import { BuyCta } from '@/components/BuyCta';
 import { MediaPlaceholder } from '@/components/MediaPlaceholder';
 import { SubjectImage } from '@/components/SubjectImage';
+import { ImageCredit } from '@/components/ImageCredit';
 
 // The homepage cast cards draw their portraits from each character's Codex entry
 // image, so uploading a portrait in Keystatic updates both the card and the codex
@@ -185,6 +186,7 @@ export default async function Home() {
                       priority
                     />
                   )}
+                  {sanityCover && <ImageCredit credit={sanityCover.credit} />}
                 </figure>
               )}
             </div>

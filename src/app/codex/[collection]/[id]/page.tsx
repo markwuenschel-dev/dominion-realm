@@ -15,6 +15,7 @@ import { MdxBody } from '@/components/MdxBody';
 import { ContentImage } from '@/components/ContentImage';
 import { SubjectImage } from '@/components/SubjectImage';
 import { SubjectGallery } from '@/components/SubjectGallery';
+import { ImageCredit } from '@/components/ImageCredit';
 import { RevealGate } from '@/components/reveal/RevealGate';
 import { GatedRelationships } from '@/components/reveal/GatedRelationships';
 import { isUngated, TIER_LABELS } from '@/lib/reveal';
@@ -81,15 +82,18 @@ export default async function CodexEntryPage({ params }: { params: Promise<Param
         label={`Raise your reveal level to ${TIER_LABELS[entry.data.reveal]} to open this entry.`}
       >
         {media?.banner && (
-          <div className="codex-entry__banner">
-            <SubjectImage
-              source={media.banner.source}
-              alt={media.banner.alt || entry.data.name}
-              aspect={[16, 6]}
-              sizes="(max-width: 820px) 100vw, 760px"
-              priority
-            />
-          </div>
+          <>
+            <div className="codex-entry__banner">
+              <SubjectImage
+                source={media.banner.source}
+                alt={media.banner.alt || entry.data.name}
+                aspect={[16, 6]}
+                sizes="(max-width: 820px) 100vw, 760px"
+                priority
+              />
+            </div>
+            <ImageCredit credit={media.banner.credit} />
+          </>
         )}
         <span className="codex-entry__kicker">
           {COLLECTION_LABELS[entry.collection]} · {kicker}
@@ -137,6 +141,7 @@ export default async function CodexEntryPage({ params }: { params: Promise<Param
                   sizes="(max-width: 760px) 100vw, 680px"
                 />
                 <figcaption>Map</figcaption>
+                <ImageCredit credit={media.map.credit} />
               </figure>
             )}
             {media.sigil && (
@@ -148,6 +153,7 @@ export default async function CodexEntryPage({ params }: { params: Promise<Param
                   sizes="220px"
                 />
                 <figcaption>Sigil</figcaption>
+                <ImageCredit credit={media.sigil.credit} />
               </figure>
             )}
           </div>

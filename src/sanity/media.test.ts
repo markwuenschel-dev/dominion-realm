@@ -94,6 +94,68 @@ describe('getSubjectMedia', () => {
   });
 });
 
+describe('credit + licence privacy', () => {
+  // A fully-loaded raw image: public credit/creditUrl AND a private licence note.
+  const rich = (over: Record<string, unknown> = {}) => ({
+    _type: 'image',
+    asset: { _ref: 'image-abc123-800x1000-jpg', _type: 'reference' },
+    hotspot: { x: 0.5, y: 0.3 },
+    crop: { top: 0, bottom: 0, left: 0, right: 0 },
+    alt: 'Portrait',
+    credit: 'Jane Doe',
+    creditUrl: 'https://jane.example',
+    license: 'CC-BY, bought 2026',
+    ...over,
+  });
+
+  it('lifts a public credit (name + validated url) off the asset', async () => {
+    fetch.mockResolvedValue({ primary: rich(), gallery: [], banner: null, map: null, sigil: null });
+    const { getSubjectMedia } = await loadMedia();
+    const media = await getSubjectMedia('character', 'jane');
+    expect(media?.primary?.credit).toEqual({ name: 'Jane Doe', url: 'https://jane.example' });
+  });
+
+  it('never lets the private licence reach the resolved source', async () => {
+    fetch.mockResolvedValue({ primary: rich(), gallery: [], banner: null, map: null, sigil: null });
+    const { getSubjectMedia } = await loadMedia();
+    const src = (await getSubjectMedia('character', 'jane'))?.primary?.source as Record<
+      string,
+      unknown
+    >;
+    // source is trimmed to urlFor's needs — focal point kept, licence/credit dropped.
+    expect(Object.keys(src)).toEqual(expect.arrayContaining(['asset', 'hotspot', 'crop']));
+    expect(src).not.toHaveProperty('license');
+    expect(src).not.toHaveProperty('credit');
+    expect(src).not.toHaveProperty('alt');
+  });
+
+  it('has no credit when the name is blank, even if a creditUrl is set', async () => {
+    fetch.mockResolvedValue({
+      primary: rich({ credit: '   ', creditUrl: 'https://jane.example' }),
+      gallery: [],
+      banner: null,
+      map: null,
+      sigil: null,
+    });
+    const { getSubjectMedia } = await loadMedia();
+    expect((await getSubjectMedia('character', 'jane'))?.primary?.credit).toBeNull();
+  });
+
+  it('omits the url when only a credit name is present', async () => {
+    fetch.mockResolvedValue({
+      primary: rich({ creditUrl: undefined }),
+      gallery: [],
+      banner: null,
+      map: null,
+      sigil: null,
+    });
+    const { getSubjectMedia } = await loadMedia();
+    expect((await getSubjectMedia('character', 'jane'))?.primary?.credit).toEqual({
+      name: 'Jane Doe',
+    });
+  });
+});
+
 describe('getSiteCover', () => {
   it('returns null when the singleton has no cover', async () => {
     fetch.mockResolvedValue(null);

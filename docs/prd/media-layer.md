@@ -181,11 +181,18 @@ managed the same way as everything else instead of as a one-off.
      reveal-gated — sealed entries inherit generic site metadata so their
      title/summary never leak (closes a prior leak). Points straight at the
      Sanity CDN, so a media edit needs no redeploy.
-   - **Remaining:** 'Art by —' credit display, and the two-tier backup: three-day
-     Sanity history for recent localized recovery; native dataset export nightly
-     plus manual dispatch for independent catastrophic recovery. S3 uses
-     overwrite-protected date-stamped exports; retention schedule chosen (90/90
-     days) in ADR-0013.
+   - **'Art by —' credit display — DONE (2026-07-10).** A shared `ImageCredit`
+     renders a low-emphasis credit under the detail Primary, in a separate
+     lightbox line, under the banner / map / sigil, and under the homepage cover;
+     card grids and thumbnails omit it (they link to a credited surface). A
+     validated `creditUrl` makes the name a safe outbound link (`nofollow
+     noopener`); the URL is never parsed from the name. The read seam now trims
+     each image `source` to what `urlFor` needs, so the private `license` note is
+     dropped at the server boundary and can never reach the browser.
+   - **Remaining:** the two-tier backup: three-day Sanity history for recent
+     localized recovery; native dataset export nightly plus manual dispatch for
+     independent catastrophic recovery. S3 uses overwrite-protected date-stamped
+     exports; retention schedule chosen (90/90 days) in ADR-0013.
 5. **Cleanup.** Retire `scripts/copy-content-media.mjs` and the gitignored
    `public/content-media/` for migrated collections; delete the stale
    `images_aspect_ratio.md`; keep git portraits as a fallback through a confidence

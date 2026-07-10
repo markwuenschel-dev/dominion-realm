@@ -410,6 +410,28 @@ a.codex-chip:hover { border-color: var(--gold); color: var(--gold-bright); }
   color: var(--ink-dim);
 }
 
+/* Low-emphasis "Art by —" credit under full/detail images, the lightbox, and the
+   homepage cover (ADR-0011, Phase 4). Cards/thumbnails omit it. */
+.image-credit {
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+}
+.image-credit a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.image-credit a:hover {
+  color: var(--accent);
+}
+.lightbox__credit {
+  margin-top: 4px;
+  text-align: center;
+}
+
 /* --- Sanity media: banner, type slots, gallery, lightbox (ADR-0011) --- */
 .codex-entry__banner {
   position: relative;
