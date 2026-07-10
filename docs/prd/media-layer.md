@@ -17,7 +17,7 @@ author:
 1. **Hand-edited paths break.** Frontmatter paths and file-name casing drift out of
    sync (e.g. the recent Illyristranthe casing fixes). It is fiddly and error-prone.
 2. **Every change is a full redeploy.** Swapping one picture means a git commit and
-   a Railway rebuild of the whole site — slow feedback for a visual edit.
+   a full rebuild of the whole site — slow feedback for a visual edit.
 3. **The browser editor isn't usable.** Point-click-upload from any device isn't a
    working reality today.
 4. **One image per entity is too few.** Each entry has a single `image` slot; there
@@ -140,7 +140,7 @@ managed the same way as everything else instead of as a one-off.
 
    **Operator steps (one-time, not code):** run
    `node --env-file=.env scripts/sanity-migrate.mjs` to seed the Subjects; set
-   `SANITY_REVALIDATE_SECRET` in Railway; add a Sanity **webhook** (dashboard →
+   `SANITY_REVALIDATE_SECRET` in the EC2 deploy env (`env/dominion-realm.env`); add a Sanity **webhook** (dashboard →
    API → Webhooks) `POST`ing to `https://<site>/api/revalidate` on
    Subject/siteSettings changes, with that same value as its **signing secret**.
 4. **Folded-in gaps.** Per-page OG images (bare Primary, cropped), 'Art by —' credit

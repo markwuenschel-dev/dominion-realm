@@ -3,7 +3,7 @@ import { REVEAL_TIERS, TIER_LABELS } from './src/lib/reveal';
 
 /**
  * Keystatic CMS (ADR-0009, amended by ADR-0010) — a browser-based editor that
- * commits straight to this repo. On Railway (a Node server) it ships with the
+ * commits straight to this repo. On the EC2 deploy (a Node server) it ships with the
  * main deploy and is served under `/keystatic`, backed by the GitHub-OAuth
  * route handler at `/api/keystatic`.
  *
@@ -89,10 +89,10 @@ export default config({
   // it at build time. (The old check on `KEYSTATIC_GITHUB_CLIENT_ID` worked on the
   // server but was always `undefined` in the browser, so the deployed editor fell
   // back to `local` and never showed the GitHub sign-in.) Set the flag to `true`
-  // on the Railway deploy → github mode (commits to the repo); leave it unset in
+  // on the production deploy → github mode (commits to the repo); leave it unset in
   // CI and local dev → `local` mode, so `next build` never evaluates github storage
   // without the App secrets. The OAuth secrets themselves are read at request time
-  // by the route handler from the Railway runtime env.
+  // by the route handler from the runtime env.
   storage:
     process.env.NEXT_PUBLIC_KEYSTATIC_GITHUB === 'true'
       ? { kind: 'github', repo: { owner: 'markwuenschel-dev', name: 'dominion-realm' } }

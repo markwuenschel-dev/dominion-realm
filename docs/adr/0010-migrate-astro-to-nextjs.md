@@ -4,6 +4,13 @@ The site moves off **Astro** (static, dual-hosted on GitHub Pages + Netlify) to 
 
 Status: accepted.
 
+> **⚠ Superseded in part by [ADR-0012](0012-host-on-aws-ec2.md) (2026-07-09):** the
+> **host** moved from Railway to **AWS EC2** (a Docker container behind a Caddy reverse
+> proxy). Everything else here — the Astro → Next.js framework move, the removed base
+> path, the content/search/CMS changes — still stands. Read "Railway" below as
+> historical: the Node-server posture is unchanged; only the platform running it, and
+> the deploy mechanism (a manual container rebuild, not push-to-deploy), differ.
+
 ## What changes
 
 - **Framework.** Astro components/pages → Next.js App Router pages and React Server/Client Components. Astro islands (the reveal toggle, the Eyes interactive, the Interface sheet, the homepage scroll behaviour) become React client components.
