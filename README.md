@@ -83,8 +83,8 @@ matching variables are set — see [Environment variables](#environment-variable
 | `pnpm run check` | Type-check + content-schema validation (`tsc --noEmit`) |
 | `pnpm test` | Run the Vitest suite once |
 | `pnpm run test:watch` | Vitest in watch mode |
-| `pnpm run lint` | ESLint (`next lint`) |
-| `pnpm run format` / `format:check` | Write / verify Prettier formatting |
+| `pnpm run lint` | Lint (`oxlint` — correctness + suspicious, React/Next plugins) |
+| `pnpm run format` / `format:check` | Write / verify formatting (`oxfmt`) |
 
 `predev` and `prebuild` automatically copy content media into `public/` and
 generate the EPUB/PDF reading-sample downloads.
@@ -151,8 +151,10 @@ You don't need Explorer or a manual `git push` to update content or pictures.
 **Keystatic** is a browser editor at **`/keystatic`**; on the live site it commits
 your change straight to `main`. Reaching the live site then takes a deploy — a
 container rebuild on the EC2 host (currently manual; see [Deployment](#deployment)).
-*(Picture edits are different: those are made in Sanity Studio at `/studio` and go
-live in seconds via webhook, no deploy — see [ADR-0011](docs/adr/0011-media-layer-sanity.md).)*
+*(Two picture paths coexist: **Sanity Studio** at `/studio` is the primary media
+layer — edits go live in seconds via webhook, no deploy ([ADR-0011](docs/adr/0011-media-layer-sanity.md)).
+The Keystatic **Image** fields below are the git fallback, committed to the repo
+and shown when a subject has no Sanity media.)*
 
 **Day-to-day (once the one-time setup below is done):**
 
@@ -249,9 +251,9 @@ pnpm test        # Vitest (lib + component coverage)
 pnpm run build   # the real content-schema gate
 ```
 
-Every pull request runs the **CI** workflow — `format:check → tsc → next build →
-vitest` — plus an advisory accessibility audit. Branch protection should require
-the build job before merge.
+Every pull request runs the **CI** workflow — `format:check`, `lint`, `tsc`, and
+`vitest` in parallel, then `next build` — plus an advisory accessibility audit.
+Branch protection should require the build job before merge.
 
 ## Documentation
 
