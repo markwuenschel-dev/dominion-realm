@@ -26,10 +26,21 @@ import type { SubjectKind } from './slotMap';
 /** Cache tag every Sanity read carries; the revalidation webhook busts it. */
 const SANITY_TAG = 'sanity';
 
-/** A resolved Sanity image: its source (for `urlFor`) plus alt text. */
+/** A public artist credit lifted off an Asset. Private licence notes are never
+ *  part of this — see `resolve`. */
+export interface Credit {
+  /** Artist name, shown as “Art by NAME”. */
+  name: string;
+  /** Optional validated URL — renders the name as a safe outbound link. */
+  url?: string;
+}
+
+/** A resolved Sanity image: its source (for `urlFor`), alt text, and public credit. */
 export interface ResolvedImage {
   source: SanityImageSource;
   alt: string;
+  /** Public artist credit, or null. Private licence notes never travel here. */
+  credit: Credit | null;
 }
 
 /** A gallery item — a resolved image plus its optional caption. */
@@ -46,8 +57,20 @@ export interface SubjectMedia {
   sigil: ResolvedImage | null;
 }
 
-/** A raw Sanity image field as returned by GROQ (asset ref + optional meta). */
-type RawImage = (SanityImageSource & { alt?: string; caption?: string }) | null | undefined;
+/** A raw Sanity image field as returned by GROQ (asset ref + optional meta).
+ *  `license` is fetched server-side but deliberately dropped in `resolve`. */
+type RawImage =
+  | (SanityImageSource & {
+      alt?: string;
+      caption?: string;
+      credit?: string;
+      creditUrl?: string;
+      license?: string;
+      hotspot?: unknown;
+      crop?: unknown;
+    })
+  | null
+  | undefined;
 
 /** Map a git codex collection to its Sanity `Subject.kind`. The join is by
  *  collection, NOT the git `kind:` taxonomy (which is finer-grained content). */
@@ -64,10 +87,28 @@ export function subjectKey(collection: CodexCollection, slug: string): string {
   return `${COLLECTION_KIND[collection]}:${slug}`;
 }
 
-/** Coerce a raw GROQ image field into a ResolvedImage, or null when unset. */
+/** Coerce a raw GROQ image field into a ResolvedImage, or null when unset.
+ *
+ *  `source` is trimmed to exactly what `urlFor` needs (asset + focal point), so a
+ *  private field — notably `license` — can never cross the server→client boundary
+ *  by riding along inside the image object. The public `credit` is lifted out
+ *  separately; a blank credit name resolves to null (and a `creditUrl` without a
+ *  name is ignored, per the PRD). */
 function resolve(img: RawImage): ResolvedImage | null {
   if (!img || typeof img !== 'object' || !('asset' in img) || !img.asset) return null;
-  return { source: img, alt: img.alt ?? '' };
+  const source = {
+    _type: 'image',
+    asset: img.asset,
+    hotspot: img.hotspot,
+    crop: img.crop,
+  } as SanityImageSource;
+  const name = typeof img.credit === 'string' ? img.credit.trim() : '';
+  const url = typeof img.creditUrl === 'string' ? img.creditUrl.trim() : '';
+  return {
+    source,
+    alt: img.alt ?? '',
+    credit: name ? { name, ...(url ? { url } : {}) } : null,
+  };
 }
 
 /** The homepage book cover from the `siteSettings` singleton, or null if unset. */
@@ -79,7 +120,7 @@ export const getSiteCover = cache(async (): Promise<ResolvedImage | null> => {
   );
   const resolved = resolve(cover);
   if (!resolved) return null;
-  return { source: resolved.source, alt: resolved.alt || 'The Dominion Realm' };
+  return { ...resolved, alt: resolved.alt || 'The Dominion Realm' };
 });
 
 /** The default social/OG image from the `siteSettings` singleton, or null if

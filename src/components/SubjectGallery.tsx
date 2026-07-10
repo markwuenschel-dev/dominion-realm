@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { SubjectImage } from './SubjectImage';
+import { ImageCredit } from './ImageCredit';
 import type { GalleryImage, ResolvedImage } from '@/sanity/media';
 
 interface SubjectGalleryProps {
@@ -54,6 +55,7 @@ export function SubjectGallery({ primary, gallery, name }: SubjectGalleryProps) 
           <figcaption className="codex-entry__media-hint">
             {items.length > 1 ? 'Click to open the gallery' : 'Click to view full size'}
           </figcaption>
+          <ImageCredit credit={primary.credit} />
         </figure>
       )}
 
@@ -147,6 +149,7 @@ function Lightbox({ items, index, name, onClose, onStep }: LightboxProps) {
         {current.caption && (
           <figcaption className="lightbox__caption">{current.caption}</figcaption>
         )}
+        <ImageCredit credit={current.credit} className="lightbox__credit" />
       </figure>
       {many && (
         <button

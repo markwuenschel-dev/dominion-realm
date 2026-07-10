@@ -26,10 +26,20 @@ export const imageMetaFields = [
     description: 'Shown publicly as “Art by —” when present.',
   }),
   defineField({
+    name: 'creditUrl',
+    title: 'Artist link',
+    type: 'url',
+    description:
+      'Optional. A link for the credit (portfolio, profile). Renders the credit ' +
+      'name as an outbound link; ignored unless a credit name is set.',
+    validation: (rule) => rule.uri({ scheme: ['http', 'https'] }),
+  }),
+  defineField({
     name: 'license',
     title: 'Source / licence note',
     type: 'string',
-    description: 'Optional, private: where it came from and any licence terms.',
+    description:
+      'Optional, private: where it came from and any licence terms. Never shown publicly.',
   }),
 ];
 

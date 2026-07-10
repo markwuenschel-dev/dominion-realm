@@ -37,8 +37,16 @@ async function loadOg() {
   return import('./og');
 }
 
-const primary = { source: { asset: { _ref: 'image-primary-800x1000-jpg' } }, alt: 'Portrait' };
-const social = { source: { asset: { _ref: 'image-social-1200x630-jpg' } }, alt: '' };
+const primary = {
+  source: { asset: { _ref: 'image-primary-800x1000-jpg' } },
+  alt: 'Portrait',
+  credit: null,
+};
+const social = {
+  source: { asset: { _ref: 'image-social-1200x630-jpg' } },
+  alt: '',
+  credit: null,
+};
 
 beforeEach(() => {
   getSocialImage.mockReset();
