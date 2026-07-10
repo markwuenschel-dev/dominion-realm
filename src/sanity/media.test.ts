@@ -65,6 +65,32 @@ describe('getSubjectPrimaryMap', () => {
   });
 });
 
+describe('getSubjectCardMap', () => {
+  // The GROQ `coalesce(card, primary)` runs in Sanity; the mock returns the
+  // already-coalesced `image`, so here we assert the reader keys and resolves it.
+  it('keys the coalesced card/primary image by kind:slug', async () => {
+    fetch.mockResolvedValue([
+      { kind: 'character', slug: 'marcus', image: img('Marcus — cast card') },
+      { kind: 'character', slug: 'serra-hawthorne', image: img('Serra — primary fallback') },
+    ]);
+    const { getSubjectCardMap } = await loadMedia();
+    const map = await getSubjectCardMap();
+
+    expect(map.get('character:marcus')?.alt).toBe('Marcus — cast card');
+    expect(map.get('character:serra-hawthorne')?.alt).toBe('Serra — primary fallback');
+    expect(map.size).toBe(2);
+  });
+
+  it('skips rows with neither a card nor primary asset (git fallback)', async () => {
+    fetch.mockResolvedValue([
+      { kind: 'character', slug: 'marcus', image: { _type: 'image' } }, // no asset
+      { kind: 'character', slug: null, image: img() }, // no slug
+    ]);
+    const { getSubjectCardMap } = await loadMedia();
+    expect((await getSubjectCardMap()).size).toBe(0);
+  });
+});
+
 describe('getSubjectMedia', () => {
   it('resolves primary, gallery (with captions), and type slots', async () => {
     fetch.mockResolvedValue({

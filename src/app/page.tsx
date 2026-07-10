@@ -4,16 +4,17 @@ import { Fragment } from 'react';
 import { SITE, liveSocials, NAV_SECTIONS, liveNavPages, navPageReady } from '@/lib/site';
 import { getHomeSettings } from '@/lib/homeSettings';
 import { getCodexEntry } from '@/lib/codex';
-import { getSiteCover, getSubjectPrimaryMap } from '@/sanity/media';
+import { getSiteCover, getSubjectCardMap } from '@/sanity/media';
 import { HomeClient } from '@/components/HomeClient';
 import { BuyCta } from '@/components/BuyCta';
 import { MediaPlaceholder } from '@/components/MediaPlaceholder';
 import { SubjectImage } from '@/components/SubjectImage';
 import { ImageCredit } from '@/components/ImageCredit';
 
-// The homepage cast cards draw their portraits from each character's Codex entry
-// image, so uploading a portrait in Keystatic updates both the card and the codex
-// page. Order + blurb are curated here; the picture and name come from content.
+// The homepage cast cards prefer each Subject's dedicated homepage `card` image
+// (Sanity Studio), so they can differ from the Codex; with no card set they fall
+// back to the Subject's Primary, then the character's git Codex image. Order,
+// name, role, and blurb are curated here; only the picture comes from content.
 const FEATURED_CAST = [
   {
     slug: 'marcus',
@@ -59,9 +60,10 @@ export default async function Home() {
   const { axioms, comps, pubMilestones } = SITE;
   // Media reads follow the Sanity → git → placeholder order (ADR-0011). The cover
   // prefers the Sanity `siteSettings` singleton, falling back to the Keystatic
-  // home singleton; each cast portrait prefers its Subject's Primary, falling
-  // back to the character's Codex entry image.
-  const [sanityCover, portraits] = await Promise.all([getSiteCover(), getSubjectPrimaryMap()]);
+  // home singleton; each cast portrait prefers its Subject's dedicated homepage
+  // `card` slot (coalescing to Primary), falling back to the character's Codex
+  // entry image — so these cards can differ from the Codex portraits.
+  const [sanityCover, portraits] = await Promise.all([getSiteCover(), getSubjectCardMap()]);
   const gitCover = sanityCover ? null : getHomeSettings().cover;
   const hasCover = Boolean(sanityCover || gitCover);
   const cast = FEATURED_CAST.map((c) => {
@@ -209,26 +211,43 @@ export default async function Home() {
               <div className="story-body">
                 <p className="dropcap reveal">
                   <span className="lead">
-                    Six of Earth&apos;s most gifted gamers are manipulated by Astria into an
-                    experiment they barely understand
+                    Astria recruits six elite gamers for an experimental neuroquantum trial they
+                    barely understand.
                   </span>{' '}
-                  — the implantation of an experimental neuroquantum lattice, threaded directly into
-                  the optic nerve. When they wake, they are no longer on Earth. They are in the
-                  Realm: a real, breathing metaphysical world that answers to laws older than
-                  language.
+                  The procedure implants a lattice along the optic nerve, supposedly designed to
+                  translate thought, perception, and digital information more directly than any
+                  technology before it.
+                </p>
+                <p className="reveal">When they wake, they are no longer on Earth.</p>
+                <p className="reveal">
+                  They have been transported into the Dominion Realm—a living metaphysical world
+                  governed by forces older than humanity and entirely independent of the experiment
+                  that brought them there. The six are scattered, cut off from one another, and
+                  forced to survive before they understand where they are or what has happened to
+                  them.
+                </p>
+                <p className="reveal">Marcus sees the Realm differently.</p>
+                <p className="reveal">
+                  His implant translates what he encounters into familiar RPG logic: health, levels,
+                  skills, classes, threats. The interface gives him a usable model of the world, but
+                  it is only a model. The power beneath it is not code. The people around him are
+                  not NPCs. The Realm was not built for him, and its laws do not become simple
+                  merely because his implant can assign them numbers.
                 </p>
                 <p className="reveal">
-                  Marcus, the protagonist, sees it differently than the others. His implant renders
-                  the Realm as RPG logic — health bars, skill trees, loot, levels. It is legible. It
-                  is survivable. But the power humming beneath the interface is not code, and it was
-                  not built for him. It is ancient, and it is real.
+                  As Marcus grows stronger, the gaps in that translation become harder to ignore.
+                  The interface can identify patterns without explaining them. It can describe an
+                  effect while missing its cause. It can show him something accurately without
+                  showing him the whole truth.
                 </p>
                 <p className="reveal">
-                  The deeper he descends, the more the abstraction frays. The numbers are a mercy,
-                  not a truth — a fragile membrane between a fragile mind and something that does
-                  not care to be understood. To master the Realm, Marcus must first accept that
-                  everything he can read about it is a translation. And every translation leaves
-                  something out.
+                  That is Marcus&apos;s greatest advantage—and his greatest danger.
+                </p>
+                <p className="reveal">
+                  He is exceptionally good at understanding systems. To survive the Realm, he must
+                  learn that understanding a system does not give him authority over everything
+                  inside it, and that the most dangerous mistakes begin when an incomplete model
+                  feels complete.
                 </p>
               </div>
               {comps.length > 0 && (
