@@ -110,11 +110,38 @@ managed the same way as everything else instead of as a one-off.
   broken image.
 - **Gallery UX:** thumbnail grid → click opens a lightbox with caption and
   keyboard navigation.
-- **Backups:** nightly export of all Assets + labels committed to a **private
-  GitHub repo** the author owns (versioned; roll back to any snapshot).
-- **Social images:** the Primary, CDN-cropped to 1200×630, as each route's OG
-  image; a default site image when a Subject has no Primary. A branded card is a
-  later polish, out of scope for v1.
+- **Backups:** the restore artifact is Sanity's native dataset export (documents
+  + Assets), never a bespoke manifest or importer. It runs nightly and has a
+  manual-dispatch escape hatch for deliberate media sessions; a small
+  human-readable manifest is secondary, for inspection and diffs only. Exports
+  live in a dedicated private S3 bucket the author controls. Each export uses a
+  unique UTC date-stamped key; lifecycle expiration, not version history,
+  controls retention. Bucket versioning is an overwrite/delete safety net, not
+  an immutability claim. The Action's IAM principal may only write exports; it
+  cannot delete objects or versions, or alter versioning/lifecycle. The manifest
+  lives in private GitHub, recording each S3 key and SHA-256 checksum. S3 expires
+  current exports after 90 days and noncurrent versions after 90 days, clearing
+  the three-day Free-plan document-history window without introducing a GFS
+  pruner. GFS-by-prefix is deferred until asset volume makes flat retention
+  material or year-scale snapshots become an explicit need.
+- **Social images:** a Teaser Subject's Primary, CDN-cropped to 1200×630, is its
+  OG image; `siteSettings.socialImage` is the default for a Subject with no
+  Primary, every above-Teaser entry, and general site routes. Its resilient
+  fallback is `public/og-default.png`, not the portrait book cover. Metadata
+  follows the same rule: only Teaser entries publish their real title/summary/
+  image; Reader, Deep, and Beyond entries use generic site metadata. Never use
+  Gallery, Banner, Map, or Sigil as a social image. A branded card and per-Asset
+  reveal tiers are later work, out of scope for v1. V1 points metadata directly
+  at the appropriately cropped Sanity CDN Asset; it does not generate a Next.js
+  image route or require a redeploy for a media edit.
+- **Public credit display:** every credited Asset has one reachable public credit
+  surface. Show a low-emphasis `Art by —` line below detail/full images and in a
+  separate lightbox line; show it below the standalone homepage cover too. Card
+  grids and thumbnails omit it because they link to a credited detail surface.
+  Source/licence notes stay private, but their terms may require stricter display
+  placement for a particular Asset. The artist name is plain text; an optional
+  schema-validated `creditUrl` renders a nonblank credit as a safe outbound link
+  rather than trying to parse a URL from its name.
 - **Folded in:** per-page OG images from the Primary; homepage cover as a Subject/
   singleton in the same system; automated backup export.
 
@@ -144,7 +171,10 @@ managed the same way as everything else instead of as a one-off.
    API → Webhooks) `POST`ing to `https://<site>/api/revalidate` on
    Subject/siteSettings changes, with that same value as its **signing secret**.
 4. **Folded-in gaps.** Per-page OG images (bare Primary, cropped), 'Art by —' credit
-   display, and the nightly backup export to a private repo.
+   display, and the two-tier backup: three-day Sanity history for recent
+   localized recovery; native dataset export nightly plus manual dispatch for
+   independent catastrophic recovery. S3 uses overwrite-protected date-stamped
+   exports; choose the long-term retention schedule before implementation.
 5. **Cleanup.** Retire `scripts/copy-content-media.mjs` and the gitignored
    `public/content-media/` for migrated collections; delete the stale
    `images_aspect_ratio.md`; keep git portraits as a fallback through a confidence
@@ -180,10 +210,26 @@ Assert externally observable behavior, not Sanity internals.
   without a redeploy (integration/smoke against the webhook).
 - **Build integrity:** `next build` passes with the new resolver; the server-only
   boundary is respected (Sanity reads stay server-side).
-- **Social images:** each entity/detail route emits an OG image tag pointing at its
-  Primary (or a sensible default when absent).
+- **Social images:** each entity/detail route emits an OG image tag pointing
+  directly at the Primary's Sanity CDN crop (or a sensible default when absent),
+  without a Next-generated image route.
+- **Default social art:** general routes, missing Primaries, and sealed entries
+  resolve `siteSettings.socialImage` before the static `public/og-default.png`;
+  the 2:3 homepage cover is never used as a social fallback.
+- **Metadata reveal:** a Teaser entry emits its real title, summary, and
+  Teaser-safe Primary; every above-Teaser entry emits generic site metadata and
+  default social art, matching the no-JavaScript reveal baseline.
 - **A11y:** alt text is required on every Asset; a missing alt is caught before it
   ships.
+- **Credits:** detail images, gallery lightbox images, and the standalone homepage
+  cover render their optional artist credit; cards/thumbnails do not. An absent
+  credit renders nothing; a nonblank, validated `creditUrl` makes the credit an
+  external link with safe rel attributes, and private licence notes never reach
+  the browser.
+- **Restore proof:** before treating the backup as a recovery guarantee, import
+  the latest tarball into a throwaway Sanity dataset and verify its assets and
+  documents. Repeat that proof periodically; a checksum alone proves transport
+  integrity, not a working restore.
 
 ## Out of Scope
 

@@ -8,4 +8,4 @@ Status: accepted.
 
 Considered: a 2-tier (Safe / Spoiler) and a 3-tier (no *Beyond*) model — rejected in favor of series-level future-proofing.
 
-Consequence: more authoring discipline (every entry and gated section needs a tier), and the reveal toggle is a real, testable UI component, not a content detail.
+Consequence: more authoring discipline (every entry and gated section needs a tier), and the reveal toggle is a real, testable UI component, not a content detail. Public metadata is also a reveal surface: Teaser entries may publish their title, summary, and Teaser-safe Primary image; Reader, Deep, and Beyond entries must emit generic site metadata instead. This protects casual link previews and search snippets, though slugs, static route existence, and the RSC payload remain outside the accidental-spoiler boundary.
