@@ -4,6 +4,7 @@ import '@/styles/global.css';
 import { RevealProvider } from '@/components/reveal/RevealContext';
 import { Analytics } from '@/components/Analytics';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
+import { SITE_URL } from '@/lib/site';
 
 /**
  * Root layout (migrated from Base.astro, ADR-0010). Self-hosts the three Realm
@@ -39,7 +40,7 @@ const DESCRIPTION =
   "An Earth gamer's cybernetic implant translates a real metaphysical world into RPG logic — until he realizes the interface is not the world. It is only his way of surviving contact with it.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://dominionrealm.com'),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: 'The Dominion Realm — An Interface Fantasy Novel',
     template: '%s — The Dominion Realm',

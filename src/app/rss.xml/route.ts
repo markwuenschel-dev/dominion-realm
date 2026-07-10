@@ -1,4 +1,5 @@
 import { getJournalPosts, journalUrl, CATEGORY_LABELS } from '@/lib/journal';
+import { SITE_URL as SITE } from '@/lib/site';
 
 /**
  * RSS 2.0 feed for the Author Journal (ADR-0003/0010). Replaces @astrojs/rss
@@ -6,7 +7,6 @@ import { getJournalPosts, journalUrl, CATEGORY_LABELS } from '@/lib/journal';
  * body), so it is safe regardless of a post's reveal tier. Served at /rss.xml.
  */
 
-const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://dominionrealm.com').replace(/\/$/, '');
 const TITLE = 'The Dominion Realm — Author Journal';
 const DESCRIPTION =
   "Dispatches from inside the Realm and notes from the author's desk, from the world of The Dominion Realm.";
