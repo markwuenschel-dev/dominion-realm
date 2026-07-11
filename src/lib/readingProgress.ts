@@ -15,8 +15,10 @@ export const READING_PREFS_KEY = 'dr-reading-prefs';
 
 export interface ReadingProgress {
   chapterId: string;
-  /** Fraction scrolled through the chapter body, 0–1. */
+  /** Fraction scrolled through the current scene-page body, 0–1. */
   scrollPct: number;
+  /** 1-based scene-page within the chapter; omitted (treated as 1) for part 1. */
+  part?: number;
 }
 
 export interface ReadingPrefs {
@@ -66,9 +68,15 @@ export function parseProgress(raw: string | null): ReadingProgress | null {
   try {
     const obj = JSON.parse(raw) as unknown;
     if (typeof obj !== 'object' || obj === null) return null;
-    const { chapterId, scrollPct } = obj as Record<string, unknown>;
+    const { chapterId, scrollPct, part } = obj as Record<string, unknown>;
     if (typeof chapterId !== 'string' || !chapterId) return null;
-    return { chapterId, scrollPct: clampScroll(typeof scrollPct === 'number' ? scrollPct : 0) };
+    const p =
+      typeof part === 'number' && Number.isFinite(part) && part >= 2 ? Math.floor(part) : undefined;
+    return {
+      chapterId,
+      scrollPct: clampScroll(typeof scrollPct === 'number' ? scrollPct : 0),
+      ...(p ? { part: p } : {}),
+    };
   } catch {
     return null;
   }
@@ -99,7 +107,12 @@ export function writeProgress(progress: ReadingProgress): void {
   try {
     localStorage.setItem(
       READING_PROGRESS_KEY,
-      JSON.stringify({ chapterId: progress.chapterId, scrollPct: clampScroll(progress.scrollPct) }),
+      JSON.stringify({
+        chapterId: progress.chapterId,
+        scrollPct: clampScroll(progress.scrollPct),
+        // Part 1 is the canonical base URL, so only persist a later scene.
+        ...(progress.part && progress.part >= 2 ? { part: Math.floor(progress.part) } : {}),
+      }),
     );
   } catch {
     /* storage blocked — progress just won't persist this session */

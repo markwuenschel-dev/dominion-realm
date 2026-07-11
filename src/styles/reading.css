@@ -506,6 +506,31 @@
   color: var(--gold-bright);
 }
 
+/* Scene pager variant: a centered "Part x of N" over the prev/next row. */
+.reading-nav--pager {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.reading-nav__part {
+  align-self: center;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.reading-nav__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 640px) {
+  .reading-nav__row {
+    grid-template-columns: 1fr;
+  }
+}
+
 .reading-back {
   display: inline-block;
   margin: clamp(36px, 6vw, 52px) auto 0;

@@ -24,7 +24,11 @@ export function ContinueReading({ chapters }: { chapters: ContinueChapter[] }) {
     const saved = readProgress();
     if (!saved || saved.scrollPct <= 0.02) return;
     const match = chapters.find((c) => c.id === saved.chapterId);
-    if (match) setResume(match);
+    // Resume the exact scene-page they left on (part 1 stays the base URL).
+    if (match)
+      setResume(
+        saved.part && saved.part >= 2 ? { ...match, url: `${match.url}/${saved.part}` } : match,
+      );
   }, [chapters]);
 
   if (!resume) return null;

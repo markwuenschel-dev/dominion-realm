@@ -22,7 +22,16 @@ import {
  * server-rendered `.reading-prose` reads them). Renders defaults on the server
  * and first paint, then hydrates the reader's stored prefs — no mismatch.
  */
-export function Reader({ chapterId, minutes }: { chapterId: string; minutes: number }) {
+export function Reader({
+  chapterId,
+  minutes,
+  part = 1,
+}: {
+  chapterId: string;
+  minutes: number;
+  /** 1-based scene-page, so persisted progress can resume the right scene. */
+  part?: number;
+}) {
   const [prefs, setPrefs] = useState<ReadingPrefs>(DEFAULT_PREFS);
   const barRef = useRef<HTMLDivElement>(null);
   const lastWritten = useRef(0);
@@ -68,7 +77,7 @@ export function Reader({ chapterId, minutes }: { chapterId: string; minutes: num
         // Only persist on a meaningful move — keeps writes off the hot path.
         if (Math.abs(pct - lastWritten.current) >= 0.01) {
           lastWritten.current = pct;
-          writeProgress({ chapterId, scrollPct: pct });
+          writeProgress({ chapterId, scrollPct: pct, part });
         }
         ticking = false;
       });
@@ -98,7 +107,7 @@ export function Reader({ chapterId, minutes }: { chapterId: string; minutes: num
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };
-  }, [chapterId]);
+  }, [chapterId, part]);
 
   const update = useCallback((patch: Partial<ReadingPrefs>) => {
     setPrefs((prev) => {

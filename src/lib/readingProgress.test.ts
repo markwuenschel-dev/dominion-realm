@@ -69,6 +69,23 @@ describe('parseProgress', () => {
     });
     expect(parseProgress('{"chapterId":"x"}')).toEqual({ chapterId: 'x', scrollPct: 0 });
   });
+
+  it('carries a later scene part, and omits it for part 1 / bad values', () => {
+    expect(parseProgress('{"chapterId":"x","scrollPct":0.5,"part":3}')).toEqual({
+      chapterId: 'x',
+      scrollPct: 0.5,
+      part: 3,
+    });
+    // part 1 is the base URL, so it is never persisted as a part.
+    expect(parseProgress('{"chapterId":"x","scrollPct":0.5,"part":1}')).toEqual({
+      chapterId: 'x',
+      scrollPct: 0.5,
+    });
+    expect(parseProgress('{"chapterId":"x","scrollPct":0.5,"part":"2"}')).toEqual({
+      chapterId: 'x',
+      scrollPct: 0.5,
+    });
+  });
 });
 
 describe('parsePrefs', () => {

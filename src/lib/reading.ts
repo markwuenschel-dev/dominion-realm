@@ -19,6 +19,50 @@ export function readingUrl(id: string): string {
   return `/read/${id}`;
 }
 
+/**
+ * URL for one scene-page of a chapter. Part 1 is the canonical chapter URL
+ * (`/read/<id>`); later parts hang off it (`/read/<id>/2`), so single-scene
+ * pieces and existing links keep their clean address.
+ */
+export function readingSceneUrl(id: string, part: number): string {
+  return part <= 1 ? `/read/${id}` : `/read/${id}/${part}`;
+}
+
+/**
+ * Split a chapter body into scenes at markdown thematic breaks (a line of only
+ * `---`, `***`, or `___`). Trims blank segments; always returns at least one
+ * scene, so a break-free piece (the Prologue) paginates to a single page.
+ */
+export function splitScenes(body: string): string[] {
+  const parts = body
+    .split(/^[ \t]*(?:-{3,}|\*{3,}|_{3,})[ \t]*$/m)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return parts.length ? parts : [body.trim()];
+}
+
+/** How many scenes a piece splits into (>= 1). */
+export function sceneCount(entry: ReadingEntry): number {
+  return splitScenes(entry.body).length;
+}
+
+/** Below this whole-body word count a piece stays one page even if it has scene
+ *  breaks — so a short Prologue isn't chopped into tiny pages, only a long
+ *  chapter is (Chapter 1 is ~9.5k words; the Prologue ~750). */
+export const PAGINATE_WORD_THRESHOLD = 2500;
+
+/** Whether a piece is long enough AND multi-scene to read as paged scenes. */
+export function shouldPaginate(entry: ReadingEntry): boolean {
+  if (sceneCount(entry) < 2) return false;
+  return entry.body.trim().split(/\s+/).filter(Boolean).length >= PAGINATE_WORD_THRESHOLD;
+}
+
+/** Clamp a 1-based scene part into the piece's range. */
+export function clampPart(part: number, count: number): number {
+  if (!Number.isFinite(part)) return 1;
+  return Math.min(Math.max(1, Math.floor(part)), Math.max(1, count));
+}
+
 /** Short kicker line for a card / header, e.g. "Prologue" or "Chapter". */
 export function readingKicker(entry: ReadingEntry): string {
   return KIND_LABELS[entry.data.kind];
