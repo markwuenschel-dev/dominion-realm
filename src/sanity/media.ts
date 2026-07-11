@@ -134,6 +134,17 @@ export const getSocialImage = cache(async (): Promise<ResolvedImage | null> => {
   return resolve(social);
 });
 
+/** The `/map` page artwork from the `siteSettings` singleton, or null if unset —
+ *  the page then falls back to the generated interactive ley-line diagram. */
+export const getRealmMap = cache(async (): Promise<ResolvedImage | null> => {
+  const map = await sanityClient.fetch<RawImage>(
+    `*[_id == "siteSettings"][0].realmMap`,
+    {},
+    { next: { tags: [SANITY_TAG] } },
+  );
+  return resolve(map);
+});
+
 /**
  * Primary images for every non-draft Subject, keyed by `${kind}:${slug}` — the
  * join back to the git codex entry. A Subject with no Primary asset is simply

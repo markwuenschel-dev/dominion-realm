@@ -41,6 +41,16 @@
   --map-route-stroke: rgba(200, 168, 106, 0.2);
 }
 
+/* The uploaded PNG shares the SVG's framing (border, radius, full-width block). */
+.realm-map__png {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-lg);
+  background: var(--bg);
+}
+
 [data-theme-mode='light'] .realm-map__svg {
   --map-bg-center: #e8e4d4;
   --map-bg-mid: #ddd8c6;
