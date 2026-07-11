@@ -38,6 +38,12 @@ const nextConfig = {
   // Pin the tracing/workspace root so a stray parent lockfile doesn't misinfer it
   // (also the root standalone traces from).
   outputFileTracingRoot: projectRoot,
+  // Skip the in-build type-check and lint — the CI "Build & validate" gate and the
+  // local pre-commit flow already run `tsc --noEmit` and `oxlint`, so re-running
+  // them inside every Docker build is ~25s of pure duplication before a deploy.
+  // (A type error still can't reach a deploy: it fails CI before merge to main.)
+  typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
   images: {
     formats: ['image/avif', 'image/webp'],
     // Media served from the Sanity image CDN (ADR-0011). Local art (public/,
