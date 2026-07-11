@@ -3,10 +3,9 @@
 import { useEffect } from 'react';
 
 /**
- * The Neurochromatic Eyes interactive, ported from eyes.astro's inline script.
- * Builds the stage rail + stepper, drives the procedural eye SVG (by id) per
- * stage, and gates fades/meter animation behind a motion probe. Operates on the
- * server-rendered markup; renders nothing.
+ * The Neurochromatic Eyes interactive. Builds the stage rail + stepper, drives the
+ * per-stage data/meters/text, and swaps the stage art image (`#eyeImg`, uploaded
+ * via Sanity) per stage. Operates on the server-rendered markup; renders nothing.
  */
 export function EyesClient() {
   useEffect(() => {
@@ -112,81 +111,6 @@ export function EyesClient() {
       },
     ];
 
-    const STAGE_CFG = [
-      {
-        pupilR: 28,
-        pupilCoreR: 22,
-        fiberOp: 0.28,
-        cryptOp: 0.0,
-        veinOp: 0.0,
-        limbalW: 2.2,
-        lp: [0.35, 0.7],
-        sweepDur: 6.0,
-        glintOp: 0.22,
-        sweepOp: 0.06,
-      },
-      {
-        pupilR: 30,
-        pupilCoreR: 23,
-        fiberOp: 0.5,
-        cryptOp: 0.18,
-        veinOp: 0.0,
-        limbalW: 2.8,
-        lp: [0.5, 0.9],
-        sweepDur: 5.0,
-        glintOp: 0.2,
-        sweepOp: 0.1,
-      },
-      {
-        pupilR: 38,
-        pupilCoreR: 30,
-        fiberOp: 0.72,
-        cryptOp: 0.45,
-        veinOp: 0.55,
-        limbalW: 3.4,
-        lp: [0.65, 1.0],
-        sweepDur: 3.4,
-        glintOp: 0.14,
-        sweepOp: 0.16,
-      },
-      {
-        pupilR: 26,
-        pupilCoreR: 20,
-        fiberOp: 0.85,
-        cryptOp: 0.7,
-        veinOp: 0.25,
-        limbalW: 3.8,
-        lp: [0.6, 0.95],
-        sweepDur: 4.0,
-        glintOp: 0.13,
-        sweepOp: 0.2,
-      },
-      {
-        pupilR: 34,
-        pupilCoreR: 27,
-        fiberOp: 0.92,
-        cryptOp: 0.88,
-        veinOp: 0.8,
-        limbalW: 4.4,
-        lp: [0.75, 1.0],
-        sweepDur: 2.8,
-        glintOp: 0.07,
-        sweepOp: 0.28,
-      },
-      {
-        pupilR: 22,
-        pupilCoreR: 17,
-        fiberOp: 1.0,
-        cryptOp: 1.0,
-        veinOp: 0.0,
-        limbalW: 5.0,
-        lp: [0.9, 1.0],
-        sweepDur: 1.8,
-        glintOp: 0.04,
-        sweepOp: 0.36,
-      },
-    ];
-
     const rail = $('rail');
     let current = 0;
 
@@ -238,71 +162,27 @@ export function EyesClient() {
       floats: [...document.querySelectorAll<HTMLElement>('#floats span')],
     };
 
+    // Stage art (uploaded in Sanity). One image per stage if a gallery is set, else
+    // a single image reused across stages.
+    const eyeImg = document.getElementById('eyeImg') as HTMLImageElement | null;
+    let stageImages: string[] = [];
+    try {
+      stageImages = JSON.parse(eyeImg?.dataset.stageImages || '[]');
+    } catch {
+      stageImages = [];
+    }
+
     let MOTION = false;
 
     function renderEye(idx: number) {
       const s = STAGES[idx];
-      const cf = STAGE_CFG[idx];
+      // The stage hue still tints the viewport chrome + rings via CSS var.
       root.style.setProperty('--stage-hue', s.hue);
-      const hue = s.hue;
-
-      $('ig1').setAttribute('stop-color', hue);
-      $('ig1').setAttribute('stop-opacity', (0.35 + idx * 0.07).toFixed(2));
-      $('pg0').setAttribute(
-        'stop-color',
-        idx >= 4 ? `color-mix(in srgb, ${hue} 20%, #1a0a2e)` : '#1a0a2e',
-      );
-
-      const haloOp = 0.0 + idx * 0.08;
-      $('lh0').setAttribute('stop-color', hue);
-      $('lh0').setAttribute('stop-opacity', (haloOp * 0.5).toFixed(3));
-      $('lh1').setAttribute('stop-color', hue);
-      $('lh1').setAttribute('stop-opacity', haloOp.toFixed(3));
-
-      const sp = $('spokes-primary');
-      const ss = $('spokes-secondary');
-      sp.querySelectorAll('line').forEach((l) => l.setAttribute('stroke', hue));
-      ss.querySelectorAll('line').forEach((l) => l.setAttribute('stroke', hue));
-      sp.setAttribute('opacity', cf.fiberOp.toFixed(2));
-      ss.setAttribute('opacity', (cf.fiberOp * 0.45).toFixed(2));
-
-      const crypts = $('crypts');
-      const collar = $('collarette-ring');
-      const cnotches = $('collarette-notches');
-      crypts.setAttribute('opacity', cf.cryptOp.toFixed(2));
-      crypts.querySelectorAll('path').forEach((p) => p.setAttribute('stroke', hue));
-      collar.setAttribute('opacity', cf.cryptOp.toFixed(2));
-      collar.setAttribute('stroke', hue);
-      cnotches.setAttribute('opacity', cf.cryptOp.toFixed(2));
-      cnotches.querySelectorAll('line').forEach((l) => l.setAttribute('stroke', hue));
-
-      $('veins').style.opacity = cf.veinOp.toFixed(2);
-
-      const limb = $('limbal-ring');
-      limb.setAttribute('stroke', hue);
-      limb.setAttribute('stroke-width', cf.limbalW.toFixed(1));
-      limb.style.setProperty('--lp-lo', cf.lp[0].toFixed(2));
-      limb.style.setProperty('--lp-hi', cf.lp[1].toFixed(2));
-      limb.style.animationDuration = (2.8 - idx * 0.28).toFixed(2) + 's';
-
-      $('pupil-glow').setAttribute('r', String(cf.pupilR));
-      $('pupil-void').setAttribute('r', String(cf.pupilCoreR));
-      const pedge = $('pupil-edge');
-      pedge.setAttribute('r', String(cf.pupilCoreR));
-      pedge.setAttribute('stroke', hue);
-      pedge.setAttribute('opacity', idx >= 3 ? '0.45' : '0.0');
-
-      const sweepG = $('sweep-group');
-      sweepG.style.animationDuration = cf.sweepDur.toFixed(1) + 's';
-      $('sweep-wedge').setAttribute('opacity', cf.sweepOp.toFixed(2));
-      $('sweep-line').setAttribute('stroke', hue);
-      $('sw0').setAttribute('stop-color', hue);
-
-      $('glint-main').setAttribute('opacity', cf.glintOp.toFixed(2));
-      $('glint-small').setAttribute('opacity', (cf.glintOp * 0.55).toFixed(2));
-
+      if (eyeImg && stageImages.length) {
+        eyeImg.src = stageImages[Math.min(idx, stageImages.length - 1)];
+      }
       els.floats.forEach((f, fi) => f.classList.toggle('on', fi <= idx));
-      els.floats[0].textContent = s.wl;
+      if (els.floats[0]) els.floats[0].textContent = s.wl;
     }
 
     function animateMeter(barEl: HTMLElement, valEl: HTMLElement, target: number) {
