@@ -16,10 +16,10 @@
  *   Add mapX and mapY (0–100) to a place's codex frontmatter — MapMarkers
  *   overlays it automatically. Optional mapKind: city | ruin | frontier | landmark.
  *
- * PROVISIONAL: the eight element/thread NAMES are an evocative placeholder set,
- * consistent with established lore (elemental ley lines + the Thread City).
- * Rename freely from the manuscript — the order and hues can stay as-is.
- * `provisional` documents intent; drives the cartouche badge when true.
+ * THREAD NAMES: the eight elements and their threads are canon (Fire→Ember,
+ * Water→Tide, Earth→Strata, Wind→Gale, Light→Dawn, Shadow→Umbral, Life→Verdant,
+ * Death→Hollow). `provisional` drives the cartouche "Provisional" badge; false
+ * now that the names are settled. Glosses are editable flavour, not hard canon.
  */
 
 export interface LeyLine {
@@ -89,7 +89,7 @@ export interface RealmMap {
 }
 
 export const realmMap: RealmMap = {
-  provisional: true,
+  provisional: false,
   hub: {
     name: 'Eriadne',
     kind: 'The Thread City',
@@ -192,52 +192,52 @@ export const realmMap: RealmMap = {
   ],
   leyLines: [
     {
-      element: 'Tide',
-      name: 'The Tidethread',
-      hue: '#4fd6e0',
-      gloss: 'Water, depth, and what the current carries under.',
+      element: 'Fire',
+      name: 'Ember Thread',
+      hue: '#ef7a5e',
+      gloss: 'Fire and will — the thread that asks the highest price.',
     },
     {
-      element: 'Verdance',
-      name: 'The Greenthread',
+      element: 'Water',
+      name: 'Tide Thread',
+      hue: '#4fd6e0',
+      gloss: 'Water and depth — what the current carries under.',
+    },
+    {
+      element: 'Earth',
+      name: 'Strata Thread',
+      hue: '#c69a5a',
+      gloss: 'Stone and strata — the weight that holds a world up.',
+    },
+    {
+      element: 'Wind',
+      name: 'Gale Thread',
+      hue: '#7fb0e0',
+      gloss: 'Air and storm — the held breath before the strike.',
+    },
+    {
+      element: 'Light',
+      name: 'Dawn Thread',
+      hue: '#f0d878',
+      gloss: 'Light and revelation — what the dawn makes plain.',
+    },
+    {
+      element: 'Shadow',
+      name: 'Umbral Thread',
+      hue: '#9b6cf0',
+      gloss: 'Shadow and secrets — the cost of unseeing.',
+    },
+    {
+      element: 'Life',
+      name: 'Verdant Thread',
       hue: '#46c6a0',
       gloss: 'Growth and rot — the slow patience of living things.',
     },
     {
-      element: 'Tempest',
-      name: 'The Stormthread',
-      hue: '#5b8def',
-      gloss: 'Air and lightning; the held breath before the strike.',
-    },
-    {
-      element: 'Aether',
-      name: 'The Aetherthread',
-      hue: '#8a7bf0',
-      gloss: 'Mind and the arcane — the thread Marcus reads best.',
-    },
-    {
-      element: 'Umbra',
-      name: 'The Umbral Thread',
-      hue: '#9b6cf0',
-      gloss: 'Shadow, secrets, and the cost of unseeing.',
-    },
-    {
-      element: 'Spirit',
-      name: 'The Soulthread',
-      hue: '#c86fce',
-      gloss: 'Echo and self — what the Realm remembers of you.',
-    },
-    {
-      element: 'Ember',
-      name: 'The Emberthread',
-      hue: '#ef6f9e',
-      gloss: 'Fire and will; the thread that asks the highest price.',
-    },
-    {
-      element: 'Forge',
-      name: 'The Forgethread',
-      hue: '#e0a850',
-      gloss: 'Stone and making — the weight that holds a city up.',
+      element: 'Death',
+      name: 'Hollow Thread',
+      hue: '#7a7690',
+      gloss: 'Endings and the hollow after — what the Realm lets go.',
     },
   ],
 };
