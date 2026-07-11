@@ -5,7 +5,7 @@ import Image from 'next/image';
 import '@/styles/reading.css';
 import '@/styles/map.css';
 import { realmMap } from '@/data/realm-map';
-import { computeLeyNodes, codexHref } from '@/lib/map-geometry';
+import { computeLeyNodes } from '@/lib/map-geometry';
 import { getRealmMap } from '@/sanity/media';
 import { ReadingChrome } from '@/components/reading/ReadingChrome';
 import { MapClient } from '@/components/MapClient';
@@ -18,9 +18,8 @@ export const metadata: Metadata = {
     'A map of the Realm — Eriadne at the convergence of the eight elemental ley lines, the ruins-portal at its edge, and the frontiers the threats come from.',
 };
 
-const { hub, ruins, threats, regions = [], routes = [], leyLines, provisional } = realmMap;
+const { leyLines, provisional } = realmMap;
 const nodes = computeLeyNodes(leyLines);
-const landmarks = [hub, ruins, ...threats];
 
 /** The git-tier map artwork, shown unless a Sanity upload overrides it. Lives in
  *  `public/`; the legend below still derives from `realm-map.ts`. */
@@ -75,7 +74,7 @@ export default async function MapPage() {
 
           <figcaption className="realm-map__cap">
             A cartographer&apos;s rendering of the Realm — Eriadne at the convergence of the eight
-            ley lines. The threads and frontiers below name what it holds.
+            ley lines, named below.
           </figcaption>
         </figure>
 
@@ -109,63 +108,6 @@ export default async function MapPage() {
                 </li>
               ))}
             </ul>
-
-            <h2 className="map-key__title">Landmarks &amp; Frontiers</h2>
-            <ul className="land-legend">
-              {landmarks.map((m, i) => {
-                const href = codexHref(m.href);
-                return (
-                  <li
-                    key={`${m.name}-${i}`}
-                    className="land-legend__item"
-                    style={{ ['--swatch']: m.color ?? 'var(--gold)' } as CSSProperties}
-                  >
-                    <span className="land-legend__swatch" aria-hidden="true" />
-                    <div>
-                      <span className="land-legend__name">
-                        {href ? <Link href={href}>{m.name}</Link> : m.name}
-                      </span>
-                      <span className="land-legend__kind">{m.kind}</span>
-                      <p className="land-legend__gloss">{m.gloss}</p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-
-            {regions.length > 0 && (
-              <>
-                <h2 className="map-key__title">Regions</h2>
-                <ul className="region-legend land-legend">
-                  {regions.map((r) => (
-                    <li key={r.id} className="land-legend__item region-legend__item">
-                      <span className="land-legend__swatch" aria-hidden="true" />
-                      <div>
-                        <span className="land-legend__name">{r.label}</span>
-                        {r.gloss && <p className="land-legend__gloss">{r.gloss}</p>}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
-
-            {routes.length > 0 && (
-              <>
-                <h2 className="map-key__title">Routes</h2>
-                <ul className="route-legend land-legend">
-                  {routes.map((r) => (
-                    <li key={r.id} className="land-legend__item route-legend__item">
-                      <span className="land-legend__swatch rm-route-swatch" aria-hidden="true" />
-                      <div>
-                        <span className="land-legend__name">{r.label}</span>
-                        {r.gloss && <p className="land-legend__gloss">{r.gloss}</p>}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
           </div>
         </section>
 
