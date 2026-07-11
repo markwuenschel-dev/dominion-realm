@@ -56,7 +56,7 @@ export async function generateMetadata(): Promise<Metadata> {
       template: '%s — The Dominion Realm',
     },
     description: DESCRIPTION,
-    icons: { icon: '/favicon.svg' },
+    icons: { icon: '/favicon.png' },
     openGraph: {
       type: 'website',
       title: 'The Dominion Realm',
