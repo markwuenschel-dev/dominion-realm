@@ -30,8 +30,13 @@ const withMDX = createMDX({
 const nextConfig = {
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
   reactStrictMode: true,
-  // The Docker image runs `next build` then `next start` (reads $PORT).
-  // Pin the tracing/workspace root so a stray parent lockfile doesn't misinfer it.
+  // Emit a self-contained server (.next/standalone) whose node_modules is traced
+  // down to only what runtime needs — so the Docker image copies a few MB instead
+  // of the whole dep tree, cutting deploy build time sharply. The Dockerfile then
+  // copies .next/standalone + .next/static + public and runs `node server.js`.
+  output: 'standalone',
+  // Pin the tracing/workspace root so a stray parent lockfile doesn't misinfer it
+  // (also the root standalone traces from).
   outputFileTracingRoot: projectRoot,
   images: {
     formats: ['image/avif', 'image/webp'],
