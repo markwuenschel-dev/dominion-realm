@@ -195,3 +195,19 @@ describe('getSiteCover', () => {
     expect((await getSiteCover())?.alt).toBe('The Dominion Realm');
   });
 });
+
+describe('getRealmMap', () => {
+  it('returns null when the singleton has no realm map (falls back to the diagram)', async () => {
+    fetch.mockResolvedValue(null);
+    const { getRealmMap } = await loadMedia();
+    expect(await getRealmMap()).toBeNull();
+  });
+
+  it('resolves the uploaded map image and its alt', async () => {
+    fetch.mockResolvedValue(img('The Realm, hand-drawn'));
+    const { getRealmMap } = await loadMedia();
+    const map = await getRealmMap();
+    expect(map?.alt).toBe('The Realm, hand-drawn');
+    expect(map?.source).toBeTruthy();
+  });
+});

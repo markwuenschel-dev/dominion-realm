@@ -20,6 +20,11 @@ export const siteSettings = defineType({
         'Primary, and sealed (above-teaser) entries. Recommended 1.91:1 ' +
         '(1200×630). Not the 2:3 book cover.',
     }),
+    imageField('realmMap', 'Realm map', {
+      description:
+        'The /map page artwork. When set, it replaces the generated ley-line ' +
+        'diagram with this image; leave empty to keep the interactive diagram.',
+    }),
   ],
   preview: {
     select: { media: 'cover' },

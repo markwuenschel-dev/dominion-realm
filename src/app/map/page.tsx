@@ -1,15 +1,16 @@
 import type { Metadata } from 'next';
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import '@/styles/reading.css';
 import '@/styles/map.css';
 import { realmMap } from '@/data/realm-map';
-import { getPlaceMarkers } from '@/lib/codex';
 import { computeLeyNodes, codexHref } from '@/lib/map-geometry';
+import { getRealmMap } from '@/sanity/media';
 import { ReadingChrome } from '@/components/reading/ReadingChrome';
 import { MapClient } from '@/components/MapClient';
-import { MapMarkers } from '@/components/MapMarkers';
-import { RealmMapSvg } from '@/components/RealmMapSvg';
+import { SubjectImage } from '@/components/SubjectImage';
+import { ImageCredit } from '@/components/ImageCredit';
 
 export const metadata: Metadata = {
   title: 'The Map',
@@ -21,8 +22,17 @@ const { hub, ruins, threats, regions = [], routes = [], leyLines, provisional } 
 const nodes = computeLeyNodes(leyLines);
 const landmarks = [hub, ruins, ...threats];
 
-export default function MapPage() {
-  const placeMarkers = getPlaceMarkers();
+/** The git-tier map artwork, shown unless a Sanity upload overrides it. Lives in
+ *  `public/`; the legend below still derives from `realm-map.ts`. */
+const GIT_MAP = {
+  src: '/eriadne-map.png',
+  width: 1536,
+  height: 1024,
+  alt: 'A map of the Realm — Eriadne at the convergence of the eight ley lines.',
+};
+
+export default async function MapPage() {
+  const mapImage = await getRealmMap();
 
   return (
     <ReadingChrome>
@@ -40,14 +50,32 @@ export default function MapPage() {
 
         <figure className="realm-map">
           <div className="realm-map__stage">
-            <RealmMapSvg />
-            <MapMarkers markers={placeMarkers} />
+            {mapImage ? (
+              <SubjectImage
+                source={mapImage.source}
+                alt={mapImage.alt || GIT_MAP.alt}
+                fill={false}
+                sizes="(max-width: 980px) 100vw, 980px"
+                className="realm-map__png"
+              />
+            ) : (
+              <Image
+                src={GIT_MAP.src}
+                alt={GIT_MAP.alt}
+                width={GIT_MAP.width}
+                height={GIT_MAP.height}
+                sizes="(max-width: 980px) 100vw, 980px"
+                className="realm-map__png"
+                priority
+              />
+            )}
           </div>
 
+          {mapImage?.credit && <ImageCredit credit={mapImage.credit} />}
+
           <figcaption className="realm-map__cap">
-            A cartographer&apos;s rendering — the eight threads as Eriadne&apos;s scholars name
-            them. Hover or select a thread to trace it home; select a marked place to open its codex
-            entry.
+            A cartographer&apos;s rendering of the Realm — Eriadne at the convergence of the eight
+            ley lines. The threads and frontiers below name what it holds.
           </figcaption>
         </figure>
 
