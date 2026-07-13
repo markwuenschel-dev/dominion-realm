@@ -17,6 +17,28 @@ export default defineConfig({
   basePath: '/studio',
   projectId,
   dataset,
-  schema: { types: schemaTypes },
+  schema: {
+    types: schemaTypes,
+    // A Scene created from a chapter's coverage pane (see `structure.ts`) is
+    // pre-filled with that chapter's beat + beatRef, so the git↔Sanity join
+    // can't be typo'd at the point it's created (ADR-0014).
+    templates: (prev) => [
+      ...prev,
+      {
+        id: 'scene-for-beat',
+        title: 'Scene art for a beat',
+        schemaType: 'scene',
+        parameters: [
+          { name: 'beat', type: 'string' },
+          { name: 'beatRef', type: 'string' },
+        ],
+        value: ({ beat, beatRef }: { beat: string; beatRef: string }) => ({
+          beat,
+          beatRef,
+          title: beatRef,
+        }),
+      },
+    ],
+  },
   plugins: [structureTool({ structure }), visionTool({ defaultApiVersion: apiVersion })],
 });

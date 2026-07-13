@@ -51,6 +51,17 @@ export const defaultSocialImage = async (): Promise<string> => {
 };
 
 /**
+ * The OG image for a given source cropped to the social frame, else the default
+ * social image. Used for ungated surfaces that pick their own hero without a
+ * reveal tier to weigh — notably a reading chapter's Scene-art plate.
+ */
+export const socialImageFor = async (
+  source: SanityImageSource | null | undefined,
+): Promise<string> => {
+  return source ? ogCrop(source) : defaultSocialImage();
+};
+
+/**
  * The OG image for an entry: a teaser entry's Primary cropped to the social
  * frame, else the default social image. Never a Gallery / Banner / Map / Sigil.
  */

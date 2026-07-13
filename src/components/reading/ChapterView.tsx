@@ -14,6 +14,8 @@ import {
 import { MdxBody } from '@/components/MdxBody';
 import { ContentImage } from '@/components/ContentImage';
 import { Reader } from '@/components/reading/Reader';
+import { SceneArt } from '@/components/reading/SceneArt';
+import type { SceneMedia } from '@/sanity/media';
 
 /** One prev/next target for the scene pager — a scene within the chapter, or a
  *  neighbouring chapter at its boundary. */
@@ -31,7 +33,17 @@ interface PagerLink {
  * then spills into the previous/next chapter at the ends. Single-scene pieces
  * (the Prologue) render exactly as before — one page, no pager.
  */
-export function ChapterView({ entry, part }: { entry: ReadingEntry; part: number }) {
+export function ChapterView({
+  entry,
+  part,
+  sceneMedia,
+}: {
+  entry: ReadingEntry;
+  part: number;
+  /** Sanity Scene art for this chapter (part 1 only); null falls back to the git
+   *  hero, then nothing. Never passed for later scene-pages. */
+  sceneMedia?: SceneMedia | null;
+}) {
   // Long multi-scene chapters read as paged scenes; short pieces (the Prologue)
   // stay a single page, their scene breaks rendering as in-body dividers.
   const paginated = shouldPaginate(entry);
@@ -71,11 +83,16 @@ export function ChapterView({ entry, part }: { entry: ReadingEntry; part: number
         {p === 1 && <p className="reading-article__summary">{entry.data.summary}</p>}
         <div className="reading-article__rule" />
 
-        {p === 1 && entry.data.image && (
-          <figure className="reading-article__media">
-            <ContentImage src={entry.data.image} alt={entry.data.imageAlt ?? entry.data.title} />
-          </figure>
-        )}
+        {/* Opening plate, part 1 only: Sanity Scene art wins, else the git hero,
+            else nothing (the Sanity → git → placeholder order). */}
+        {p === 1 &&
+          (sceneMedia ? (
+            <SceneArt images={sceneMedia.images} title={entry.data.title} />
+          ) : entry.data.image ? (
+            <figure className="reading-article__media">
+              <ContentImage src={entry.data.image} alt={entry.data.imageAlt ?? entry.data.title} />
+            </figure>
+          ) : null)}
 
         <div className="reading-prose">
           <MdxBody source={sceneBody} />
