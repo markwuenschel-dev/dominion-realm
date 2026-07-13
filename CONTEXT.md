@@ -110,9 +110,21 @@ served live, without a commit or redeploy. See [ADR-0011](docs/adr/0011-media-la
   (Factions), **Banner** (a wide hero distinct from the Primary). Distinct from the
   Gallery, which is an unordered-purpose ordered list; a Type slot has a fixed role.
 
-- **Scene art** — an Asset bound to a *story beat* (a chapter or a timeline Event)
-  rather than to a Subject. A separate association from the entity-owned images
-  above. _Avoid_: illustration, moment (ambiguous).
+- **Scene art** — an ordered gallery of Assets bound to a *story beat* (a whole
+  reading Chapter or a timeline Event) rather than to a Subject. Despite the name
+  it is **beat-scoped, not sub-scene-scoped**: it addresses the beat by its git
+  **filename slug** (`beatRef`) — the same id the beat's URL uses — never a scene
+  index within a chapter. The join is **unvalidated and one-way** (prose → media),
+  like a Subject's: a `beatRef` matching no beat simply renders nothing, and no
+  Asset is auto-deleted on a words-side rename. Its first image is the beat's hero
+  **plate**; on reading it renders once, at the top of the chapter's first page,
+  and also feeds that chapter's social (OG) image. A separate association from the
+  entity-owned images above. See [ADR-0014](docs/adr/0014-scene-art-beat-scoped.md).
+  _Avoid_: illustration, moment (ambiguous), scene index.
+
+- **Plate** — the first, hero image of a beat's Scene art, shown large at the
+  beat's doorway (a reading Chapter's first page). Extra Scene images live behind
+  the plate in the Gallery lightbox. _Avoid_: cover (that's the book's), banner.
 
 - **Credit.** Every Asset carries required **alt text** (accessibility) and an
   optional **artist credit** + source/licence note, so attribution travels with

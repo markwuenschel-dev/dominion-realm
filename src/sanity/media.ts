@@ -57,6 +57,15 @@ export interface SubjectMedia {
   sigil: ResolvedImage | null;
 }
 
+/** Which kind of story beat a Scene binds to — matches the `scene.beat` enum. */
+export type SceneBeat = 'reading' | 'timeline';
+
+/** Art bound to a story beat (a reading chapter or a timeline Event): an ordered
+ *  gallery whose first image is the beat's hero plate. */
+export interface SceneMedia {
+  images: GalleryImage[];
+}
+
 /** A raw Sanity image field as returned by GROQ (asset ref + optional meta).
  *  `license` is fetched server-side but deliberately dropped in `resolve`. */
 type RawImage =
@@ -225,6 +234,35 @@ export const getSubjectMedia = cache(
         return r ? [{ ...r, caption: (g as { caption?: string })?.caption ?? '' }] : [];
       }),
     };
+  },
+);
+
+/**
+ * Scene art for one story beat, keyed by `beat` + `beatRef` (the git filename
+ * slug of the chapter or timeline Event this art illustrates). Returns the
+ * ordered gallery, or null when no non-draft Scene matches or it has no images —
+ * so the call site falls back to the git hero, then nothing (Sanity → git →
+ * placeholder). The `beat` filter matters: a chapter and an Event can share a
+ * slug, and only the right kind of beat should claim the art.
+ *
+ * The join is intentionally unvalidated (CONTEXT.md § Scene art): a `beatRef`
+ * that matches no beat simply renders nothing, and nothing is auto-deleted.
+ */
+export const getSceneMedia = cache(
+  async (beat: SceneBeat, beatRef: string): Promise<SceneMedia | null> => {
+    const doc = await sanityClient.fetch<{ images: RawImage[] | null } | null>(
+      `*[_type == "scene" && beat == $beat && beatRef == $beatRef && !(_id in path("drafts.**"))][0]{
+        images
+      }`,
+      { beat, beatRef },
+      { next: { tags: [SANITY_TAG] } },
+    );
+    if (!doc) return null;
+    const images = (doc.images ?? []).flatMap((g) => {
+      const r = resolve(g);
+      return r ? [{ ...r, caption: (g as { caption?: string })?.caption ?? '' }] : [];
+    });
+    return images.length ? { images } : null;
   },
 );
 

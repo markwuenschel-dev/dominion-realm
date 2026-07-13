@@ -120,6 +120,35 @@ describe('getSubjectMedia', () => {
   });
 });
 
+describe('getSceneMedia', () => {
+  it('resolves a beat’s ordered images with captions, dropping assetless ones', async () => {
+    fetch.mockResolvedValue({
+      images: [img('Hero', 'The storm wakes'), { _type: 'image' }, img('Second')],
+    });
+    const { getSceneMedia } = await loadMedia();
+    const scene = await getSceneMedia('reading', '01-chapter-one');
+
+    expect(scene?.images).toHaveLength(2);
+    expect(scene?.images[0]).toMatchObject({ alt: 'Hero', caption: 'The storm wakes' });
+    expect(scene?.images[1]).toMatchObject({ alt: 'Second', caption: '' });
+    // The reader filters on both beat and beatRef so beats can't claim each other's art.
+    const [, params] = fetch.mock.calls[0];
+    expect(params).toEqual({ beat: 'reading', beatRef: '01-chapter-one' });
+  });
+
+  it('returns null when no Scene matches (call site falls back to the git hero)', async () => {
+    fetch.mockResolvedValue(null);
+    const { getSceneMedia } = await loadMedia();
+    expect(await getSceneMedia('reading', 'no-such-chapter')).toBeNull();
+  });
+
+  it('returns null when a Scene exists but has no usable images', async () => {
+    fetch.mockResolvedValue({ images: [{ _type: 'image' }, null] });
+    const { getSceneMedia } = await loadMedia();
+    expect(await getSceneMedia('timeline', '01-the-astria-experiment')).toBeNull();
+  });
+});
+
 describe('credit + licence privacy', () => {
   // A fully-loaded raw image: public credit/creditUrl AND a private licence note.
   const rich = (over: Record<string, unknown> = {}) => ({

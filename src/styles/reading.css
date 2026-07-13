@@ -367,6 +367,36 @@
   border: 1px solid var(--line-soft);
 }
 
+/* ---- Scene art: the chapter-opening plate (Sanity media, part 1 only) ---- */
+.scene-art {
+  margin: 28px 0 0;
+}
+.scene-art__plate {
+  display: block;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  padding: 0;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--surface-sunken, transparent);
+}
+.scene-art__plate img {
+  border-radius: inherit;
+}
+.scene-art__caption {
+  margin-top: 8px;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: var(--ink-dim);
+  text-wrap: pretty;
+}
+.scene-art__count {
+  color: var(--ink-faint, var(--ink-dim));
+}
+
 /* ---- Prose: comfortable measure (~64ch), generous leading ---- */
 .reading-prose {
   margin-top: clamp(32px, 5vw, 48px);
