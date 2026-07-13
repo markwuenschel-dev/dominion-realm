@@ -9,9 +9,9 @@
     "pnpm": "9.15.9"
   },
   "scripts": {
-    "predev": "node scripts/copy-content-media.mjs && node scripts/generate-downloads.mjs",
+    "predev": "node scripts/copy-content-media.mjs && node scripts/generate-downloads.mjs && node scripts/generate-content-manifest.mjs",
     "dev": "next dev",
-    "prebuild": "node scripts/copy-content-media.mjs && node scripts/generate-downloads.mjs",
+    "prebuild": "node scripts/copy-content-media.mjs && node scripts/generate-downloads.mjs && node scripts/generate-content-manifest.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "oxlint -D correctness -D suspicious -A react-in-jsx-scope -A vitest/no-conditional-expect --react-plugin --nextjs-plugin --react-perf-plugin --vitest-plugin src",
