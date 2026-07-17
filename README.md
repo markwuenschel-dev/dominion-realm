@@ -80,7 +80,7 @@ matching variables are set — see [Environment variables](#environment-variable
 | `pnpm run dev` | Start the dev server at `http://localhost:3000` |
 | `pnpm run build` | Production build (`next build`) |
 | `pnpm run start` | Serve the production build (reads `$PORT`) |
-| `pnpm run check` | Type-check + content-schema validation (`tsc --noEmit`) |
+| `pnpm run check` | Type-check only (`tsc --noEmit`) |
 | `pnpm test` | Run the Vitest suite once |
 | `pnpm run test:watch` | Vitest in watch mode |
 | `pnpm run lint` | Lint (`oxlint` — correctness + suspicious, React/Next plugins) |
@@ -246,9 +246,9 @@ migration.
 ## Testing & CI
 
 ```bash
-pnpm run check   # types + content schema
+pnpm run check   # types only (tsc --noEmit)
 pnpm test        # Vitest (lib + component coverage)
-pnpm run build   # the real content-schema gate
+pnpm run build   # the real content-schema gate (Zod throws on bad frontmatter)
 ```
 
 Every pull request runs the **CI** workflow — `format:check`, `lint`, `tsc`, and
