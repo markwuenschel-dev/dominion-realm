@@ -111,13 +111,15 @@ export function stripGatedSections(mdx: string): string {
 }
 
 /**
- * Project a list of tier-carrying items to what a reader at `level` may see:
- * each item at/below the level is passed through `show`, each one above it is
- * replaced by `seal`. The single seam behind every whole-item gated surface
- * (map markers, codex cards, constellation nodes, journal items) — the `seal`
- * transform is where a surface DROPS the sensitive fields (name/summary/href) so
- * no spoiler survives into the rendered DOM, exactly as `selectVisibleMarkers`
- * does. Pure and dependency-free; the client callers own the `useReveal` read.
+ * Project a list of tier-carrying items through show/seal transforms. Useful
+ * when a surface wants one pass that both filters visibility and drops
+ * sensitive fields from sealed items (map markers, relationship lists).
+ *
+ * Not the only gated-surface seam: whole-item gates that seal in-place
+ * (codex cards, constellation nodes, journal rows) call `isRevealed` directly
+ * and own their own placeholder markup. The decision rule is still shared —
+ * everyone defers to `isRevealed` / `isUngated` — this helper is just the
+ * list-projection shape. Pure; client callers own the `useReveal` read.
  */
 export function projectByReveal<T extends { reveal: RevealTier }, R, S>(
   items: readonly T[],
