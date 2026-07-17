@@ -186,6 +186,22 @@ export function matchRelationship(
 }
 
 /**
+ * Project a matched relationship + target into a `ResolvedLink`. The single
+ * owner of the projection — including the tier-inheritance rule (a link's
+ * effective tier is the higher of the relationship's own `reveal` and the
+ * target's tier), which is a spoiler-safety invariant and must not be re-typed
+ * at call sites. Shared by the codex entry pages and the timeline.
+ */
+export function toResolvedLink(rel: Relationship, target: CodexEntry): ResolvedLink {
+  return {
+    url: codexUrl(target.collection, target.id),
+    name: target.data.name,
+    label: rel.label,
+    reveal: maxTier(rel.reveal ?? DEFAULT_TIER, target.data.reveal),
+  };
+}
+
+/**
  * Resolve an entry's `relationships` to live links. Dangling links are skipped
  * so a not-yet-written cross-reference never breaks the build.
  */
@@ -194,12 +210,7 @@ export function resolveRelationships(entry: CodexEntry, all: CodexEntry[]): Reso
   for (const rel of entry.data.relationships) {
     const target = matchRelationship(rel, all);
     if (!target) continue;
-    links.push({
-      url: codexUrl(target.collection, target.id),
-      name: target.data.name,
-      label: rel.label,
-      reveal: maxTier(rel.reveal ?? DEFAULT_TIER, target.data.reveal),
-    });
+    links.push(toResolvedLink(rel, target));
   }
   return links;
 }

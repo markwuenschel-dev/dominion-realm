@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   matchRelationship,
   resolveRelationships,
+  toResolvedLink,
   entryKicker,
   dossierFields,
   type Relationship,
@@ -63,6 +64,37 @@ describe('matchRelationship', () => {
     expect(matchRelationship({ entry: 'marcus', collection: 'characters' }, candidates)).toBe(
       marcus,
     );
+  });
+});
+
+describe('toResolvedLink', () => {
+  // The single owner of the relationship→link projection, shared by the codex
+  // entry pages and the timeline (audit CAND-15). The tier-inheritance rule —
+  // a link's effective tier is the higher of the relationship's own reveal and
+  // the target's tier — is a spoiler-safety invariant, pinned here once.
+  const sealedTarget = {
+    ...entry('concepts', 'eyes', 'The Eyes'),
+    data: { ...eyes.data, reveal: 'sealed' },
+  } as CodexEntry;
+
+  it('projects url, name, and label from the target and relationship', () => {
+    const link = toResolvedLink({ entry: 'astria', label: 'founder of' }, astria);
+    expect(link).toEqual({
+      url: '/codex/factions/astria',
+      name: 'Astria',
+      label: 'founder of',
+      reveal: 'teaser',
+    });
+  });
+
+  it('inherits the target tier when it is higher than the relationship tier', () => {
+    const link = toResolvedLink({ entry: 'eyes' }, sealedTarget);
+    expect(link.reveal).toBe('sealed');
+  });
+
+  it('keeps the relationship tier when it is higher than the target tier', () => {
+    const link = toResolvedLink({ entry: 'astria', reveal: 'sealed' }, astria);
+    expect(link.reveal).toBe('sealed');
   });
 });
 
