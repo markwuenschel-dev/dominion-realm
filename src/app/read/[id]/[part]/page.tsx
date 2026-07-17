@@ -1,6 +1,12 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getReadingEntries, getReadingEntry, sceneCount, shouldPaginate } from '@/lib/reading';
+import {
+  getReadingEntries,
+  getReadingEntry,
+  sceneCount,
+  shouldPaginate,
+  parseLaterScenePart,
+} from '@/lib/reading';
 import { ReadingChrome } from '@/components/reading/ReadingChrome';
 import { ChapterView } from '@/components/reading/ChapterView';
 import { defaultSocialImage, previewMetadata } from '@/sanity/og';
@@ -17,13 +23,6 @@ export function generateStaticParams() {
   });
 }
 
-/** Parse a `[part]` segment into a valid later-scene index for `entry`, or null. */
-function parsePart(raw: string, count: number): number | null {
-  const n = Number(raw);
-  if (!Number.isInteger(n) || n < 2 || n > count) return null;
-  return n;
-}
-
 export async function generateMetadata({
   params,
 }: {
@@ -33,7 +32,7 @@ export async function generateMetadata({
   const entry = getReadingEntry(id);
   if (!entry || !shouldPaginate(entry)) return {};
   const count = sceneCount(entry);
-  const n = parsePart(part, count);
+  const n = parseLaterScenePart(part, count);
   if (!n) return {};
   const title = `${entry.data.title} — Part ${n} of ${count}`;
   return previewMetadata(title, entry.data.summary, await defaultSocialImage());
@@ -47,7 +46,7 @@ export default async function ReadChapterScene({
   const { id, part } = await params;
   const entry = getReadingEntry(id);
   if (!entry || !shouldPaginate(entry)) notFound();
-  const n = parsePart(part, sceneCount(entry));
+  const n = parseLaterScenePart(part, sceneCount(entry));
   if (!n) notFound();
 
   return (

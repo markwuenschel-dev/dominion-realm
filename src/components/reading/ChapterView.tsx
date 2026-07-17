@@ -8,7 +8,6 @@ import {
   readingMinutes,
   splitScenes,
   shouldPaginate,
-  clampPart,
   type ReadingEntry,
 } from '@/lib/reading';
 import { MdxBody } from '@/components/MdxBody';
@@ -32,6 +31,10 @@ interface PagerLink {
  * digestible pages instead of one endless scroll. The pager walks scenes first,
  * then spills into the previous/next chapter at the ends. Single-scene pieces
  * (the Prologue) render exactly as before — one page, no pager.
+ *
+ * `part` must already be a valid 1-based scene index — the `/read/[id]/[part]`
+ * route rejects out-of-range parts (404 via `parseLaterScenePart`); the
+ * canonical `/read/[id]` route always passes `1`. This view does not re-clamp.
  */
 export function ChapterView({
   entry,
@@ -49,7 +52,7 @@ export function ChapterView({
   const paginated = shouldPaginate(entry);
   const scenes = paginated ? splitScenes(entry.body) : [entry.body];
   const count = scenes.length;
-  const p = clampPart(part, count);
+  const p = part;
   const sceneBody = scenes[p - 1];
   const minutes = readingMinutes(sceneBody);
 

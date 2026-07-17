@@ -57,10 +57,23 @@ export function shouldPaginate(entry: ReadingEntry): boolean {
   return entry.body.trim().split(/\s+/).filter(Boolean).length >= PAGINATE_WORD_THRESHOLD;
 }
 
-/** Clamp a 1-based scene part into the piece's range. */
+/** Soft-clamp a 1-based scene part into the piece's range. For non-HTTP callers
+ *  that want a nearest-valid index. HTTP routes do **not** use this — they
+ *  reject out-of-range parts with 404 via `parseLaterScenePart` (audit CAND-22). */
 export function clampPart(part: number, count: number): number {
   if (!Number.isFinite(part)) return 1;
   return Math.min(Math.max(1, Math.floor(part)), Math.max(1, count));
+}
+
+/**
+ * Parse a `/read/<id>/[part]` segment into a valid **later-scene** index
+ * (part ≥ 2), or `null` to 404. Part 1 lives at the canonical `/read/<id>`
+ * route. This is the HTTP ownership of scene-part validity — reject, don't clamp.
+ */
+export function parseLaterScenePart(raw: string, count: number): number | null {
+  const n = Number(raw);
+  if (!Number.isInteger(n) || n < 2 || n > count) return null;
+  return n;
 }
 
 /** Short kicker line for a card / header, e.g. "Prologue" or "Chapter". */
