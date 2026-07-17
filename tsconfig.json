@@ -26,6 +26,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "scripts/pdfkit.d.ts",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],

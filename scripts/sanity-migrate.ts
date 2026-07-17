@@ -2,10 +2,10 @@
  * Phase-2 media migration / sync (ADR-0011, docs/prd/media-layer.md).
  *
  * One-way sync: prose (git) -> Sanity Subject, joined by slug. Reads each
- * character's frontmatter (name / image / imageAlt), uploads the portrait as a
- * Sanity asset, and creates-or-replaces a `subject` document keyed by a
- * deterministic id (`subject-<slug>`). The homepage cover (public/covers/cover.png)
- * becomes the `siteSettings` singleton's cover.
+ * codex entry via the shared content engine, uploads portrait art as a Sanity
+ * asset, and creates-or-replaces a `subject` document keyed by a deterministic
+ * id (`subject-<slug>`). The homepage cover (public/covers/cover.png) becomes
+ * the `siteSettings` singleton's cover.
  *
  * Idempotent by design:
  *   - deterministic _ids + createOrReplace -> re-running updates in place,
@@ -18,37 +18,28 @@
  * the art is kept for manual review, per the PRD.
  *
  * Usage (Node 22+, from the repo root):
- *   node --env-file=.env scripts/sanity-migrate.mjs            # apply
- *   node --env-file=.env scripts/sanity-migrate.mjs --dry-run  # preview only
+ *   pnpm exec tsx --env-file=.env scripts/sanity-migrate.ts            # apply
+ *   pnpm exec tsx --env-file=.env scripts/sanity-migrate.ts --dry-run  # preview
  *
  * Requires SANITY_API_WRITE_TOKEN (Editor role) in the environment.
  */
 
 import { createClient } from '@sanity/client';
-import fg from 'fast-glob';
-import matter from 'gray-matter';
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
+import {
+  CODEX_COLLECTIONS,
+  imageSourcePath,
+  loadCollection,
+  type CodexCollection,
+} from '../src/lib/contentCore';
+import { subjectKindFor } from '../src/sanity/collectionKind';
+import type { SubjectKind } from '../src/sanity/slotMap';
 
 const DRY_RUN = process.argv.includes('--dry-run');
 const ROOT = process.cwd();
-const CONTENT_DIR = path.join(ROOT, 'src', 'content');
 const COVER_PATH = path.join(ROOT, 'public', 'covers', 'cover.png');
-
-/**
- * The codex collections synced into Sanity, each mapped to its Subject `kind`.
- * The join is by *collection*, not the git `kind:` taxonomy. Collections with no
- * git art (concepts/factions/places today) still get slug+title Subject shells so
- * the author can add Primary/Gallery/Map/Sigil art in Studio — the site keeps
- * falling back to git/placeholder until they do.
- */
-const COLLECTIONS = [
-  { dir: 'characters', kind: 'character' },
-  { dir: 'concepts', kind: 'concept' },
-  { dir: 'factions', kind: 'faction' },
-  { dir: 'places', kind: 'place' },
-];
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ?? 'zwq04v8v';
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? 'production';
@@ -58,26 +49,15 @@ const token = process.env.SANITY_API_WRITE_TOKEN;
 if (!token) {
   console.error(
     'ERROR: SANITY_API_WRITE_TOKEN is not set. Run with:\n' +
-      '  node --env-file=.env scripts/sanity-migrate.mjs',
+      '  pnpm exec tsx --env-file=.env scripts/sanity-migrate.ts',
   );
   process.exit(1);
 }
 
 const client = createClient({ projectId, dataset, apiVersion, token, useCdn: false });
 
-/** Resolve a frontmatter image path to an absolute file on disk. */
-function imageFileFor(imagePath) {
-  if (!imagePath) return undefined;
-  if (imagePath.startsWith('/content-media/')) {
-    // Served from public/ at runtime; the source lives under public/ too.
-    return path.join(ROOT, 'public', imagePath.slice(1));
-  }
-  if (imagePath.startsWith('/')) return path.join(ROOT, 'public', imagePath.slice(1));
-  return undefined;
-}
-
 /** Upload a local image file, returning its Sanity asset _id (or null in dry-run). */
-async function uploadAsset(absPath) {
+async function uploadAsset(absPath: string): Promise<string | null> {
   const filename = path.basename(absPath);
   if (DRY_RUN) {
     console.log(`      [dry-run] would upload asset: ${filename}`);
@@ -88,7 +68,7 @@ async function uploadAsset(absPath) {
 }
 
 /** Build an image field object referencing an uploaded asset. */
-function imageField(assetId, alt) {
+function imageField(assetId: string, alt?: string) {
   return {
     _type: 'image',
     asset: { _type: 'reference', _ref: assetId },
@@ -96,56 +76,50 @@ function imageField(assetId, alt) {
   };
 }
 
-async function migrateCollection({ dir, kind }) {
-  const collectionDir = path.join(CONTENT_DIR, dir);
-  if (!fs.existsSync(collectionDir)) {
-    console.log(`\n${dir}: directory missing; skipping`);
-    return new Set();
-  }
-  const files = fg.sync('**/*.{md,mdx}', { cwd: collectionDir });
-  const seenSlugs = new Set();
+async function migrateCollection(collection: CodexCollection): Promise<Set<string>> {
+  const kind = subjectKindFor(collection);
+  // Include drafts so Studio Subjects stay in sync with every prose file.
+  const entries = loadCollection(collection, 'include');
+  const seenSlugs = new Set<string>();
 
-  console.log(`\n${dir} → kind "${kind}" (${files.length} found)`);
-  for (const file of files) {
-    const slug = file.replace(/\.mdx?$/, '');
-    seenSlugs.add(slug);
-    const raw = fs.readFileSync(path.join(collectionDir, file), 'utf8');
-    const { data } = matter(raw);
-    const name = data.name ?? slug;
-    const absPath = imageFileFor(data.image);
+  console.log(`\n${collection} → kind "${kind}" (${entries.length} found)`);
+  for (const entry of entries) {
+    seenSlugs.add(entry.id);
+    const name = entry.data.name;
+    const absPath = imageSourcePath(entry.data.image);
+    const alt = 'imageAlt' in entry.data ? entry.data.imageAlt : undefined;
 
-    if (!absPath || !fs.existsSync(absPath)) {
-      console.log(`  · ${slug} — no art on disk; creating shell (primary stays empty)`);
+    if (!absPath) {
+      console.log(`  · ${entry.id} — no art on disk; creating shell (primary stays empty)`);
     }
 
-    console.log(`  → ${slug}  (${name})`);
-    const assetId = absPath && fs.existsSync(absPath) ? await uploadAsset(absPath) : null;
+    console.log(`  → ${entry.id}  (${name})`);
+    const assetId = absPath ? await uploadAsset(absPath) : null;
 
     const doc = {
-      _id: `subject-${slug}`,
+      _id: `subject-${entry.id}`,
       _type: 'subject',
       kind,
       title: name,
-      slug: { _type: 'slug', current: slug },
+      slug: { _type: 'slug', current: entry.id },
       orphaned: false,
-      ...(assetId ? { primary: imageField(assetId, data.imageAlt) } : {}),
+      ...(assetId ? { primary: imageField(assetId, alt) } : {}),
     };
 
     if (DRY_RUN) {
-      console.log(`      [dry-run] would createOrReplace subject-${slug}`);
+      console.log(`      [dry-run] would createOrReplace subject-${entry.id}`);
     } else {
       await client.createOrReplace(doc);
-      console.log(`      ✓ subject-${slug} ${assetId ? '(with primary)' : '(shell)'}`);
+      console.log(`      ✓ subject-${entry.id} ${assetId ? '(with primary)' : '(shell)'}`);
     }
   }
   return seenSlugs;
 }
 
-async function flagOrphans(kind, seenSlugs) {
-  const existing = await client.fetch(
-    `*[_type == "subject" && kind == $kind]{ _id, "slug": slug.current, orphaned }`,
-    { kind },
-  );
+async function flagOrphans(kind: SubjectKind, seenSlugs: Set<string>) {
+  const existing = await client.fetch<
+    { _id: string; slug: string | null; orphaned?: boolean }[]
+  >(`*[_type == "subject" && kind == $kind]{ _id, "slug": slug.current, orphaned }`, { kind });
   const orphans = existing.filter((d) => d.slug && !seenSlugs.has(d.slug) && !d.orphaned);
   if (orphans.length === 0) return;
   console.log(`\nOrphans in "${kind}" (${orphans.length}) — prose gone, flagging (art kept)`);
@@ -181,15 +155,15 @@ async function main() {
     `Sanity media migration → project ${projectId}/${dataset}` +
       (DRY_RUN ? '  [DRY RUN — no writes]' : ''),
   );
-  for (const collection of COLLECTIONS) {
+  for (const collection of CODEX_COLLECTIONS) {
     const seenSlugs = await migrateCollection(collection);
-    await flagOrphans(collection.kind, seenSlugs);
+    await flagOrphans(subjectKindFor(collection), seenSlugs);
   }
   await migrateCover();
   console.log(`\nDone.${DRY_RUN ? ' (dry run — nothing written)' : ''}`);
 }
 
-main().catch((err) => {
-  console.error('\nMigration failed:', err.message ?? err);
+main().catch((err: unknown) => {
+  console.error('\nMigration failed:', err instanceof Error ? err.message : err);
   process.exit(1);
 });

@@ -13,7 +13,7 @@ import {
 
 /**
  * Pure generator-core tests. This is the logic shared by the build-time EPUB
- * and PDF generators (scripts/generate-downloads.mjs), kept dependency-free so
+ * and PDF generators (scripts/generate-downloads.ts), kept dependency-free so
  * it runs identically on CI's Node and under Vitest.
  */
 

@@ -166,7 +166,7 @@ managed the same way as everything else instead of as a one-off.
    else references.
 
    **Operator steps (one-time, not code):** run
-   `node --env-file=.env scripts/sanity-migrate.mjs` to seed the Subjects; set
+   `pnpm exec tsx --env-file=.env scripts/sanity-migrate.ts` to seed the Subjects; set
    `SANITY_REVALIDATE_SECRET` in the EC2 deploy env (`env/dominion-realm.env`); add a Sanity **webhook** (dashboard →
    API → Webhooks) `POST`ing to `https://<site>/api/revalidate` on
    Subject/siteSettings changes, with that same value as its **signing secret**.

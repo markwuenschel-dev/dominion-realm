@@ -4,6 +4,9 @@ import { sanityClient } from './client';
 import type { SanityImageSource } from './image';
 import type { CodexCollection } from '@/lib/content';
 import type { SubjectKind } from './slotMap';
+import { COLLECTION_KIND, subjectKindFor } from './collectionKind';
+
+export { subjectKindFor };
 
 /**
  * The site's read seam into the Sanity media layer (ADR-0011, Phase 3).
@@ -80,15 +83,6 @@ type RawImage =
     })
   | null
   | undefined;
-
-/** Map a git codex collection to its Sanity `Subject.kind`. The join is by
- *  collection, NOT the git `kind:` taxonomy (which is finer-grained content). */
-const COLLECTION_KIND: Record<CodexCollection, SubjectKind> = {
-  characters: 'character',
-  concepts: 'concept',
-  factions: 'faction',
-  places: 'place',
-};
 
 /** The `kind:slug` key both readers use — kind disambiguates cross-collection
  *  slug collisions. */
@@ -266,7 +260,4 @@ export const getSceneMedia = cache(
   },
 );
 
-/** Map a git codex collection to its Sanity `Subject.kind` (for detail pages). */
-export function subjectKindFor(collection: CodexCollection): SubjectKind {
-  return COLLECTION_KIND[collection];
-}
+
