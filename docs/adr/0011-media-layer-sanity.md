@@ -6,10 +6,11 @@ through Sanity's image CDN. Prose stays exactly where it is: git Markdown edited
 via Keystatic. An author uploads a picture in Sanity's browser Studio and it goes
 live in seconds, with **no commit and no redeploy**.
 
-> **Hosting note (2026-07-09):** "Railway" references below are historical — the site
-> now runs on **AWS EC2** (Docker + Caddy), per [ADR-0012](0012-host-on-aws-ec2.md).
-> Set any env var this ADR says to put "in Railway" in the EC2 deploy env file
-> `env/dominion-realm.env` instead. The media-layer design is otherwise unchanged.
+> **Hosting note (2026-07-09, refreshed 2026-07-17):** Older drafts of this ADR
+> named Railway. The site runs on **AWS EC2** (Docker + Caddy), per
+> [ADR-0012](0012-host-on-aws-ec2.md). Env vars for the media layer live in the
+> EC2 deploy file `env/dominion-realm.env` (and local `.env`). The media-layer
+> design is otherwise unchanged.
 
 This is a **scoped reversal** of [ADR-0002](0002-content-collections.md) and
 [ADR-0009](0009-cms-keystatic.md), which kept *all* content in git and rejected a
@@ -102,7 +103,7 @@ posture as ADR-0009).
 5. **Add CORS origins.** Project → **API** → **CORS origins** → **Add** both, with
    *Allow credentials* checked:
    - `http://localhost:3000` (local dev)
-   - your Railway production URL (e.g. `https://your-site.up.railway.app`)
+   - your EC2 production URL (the Caddy hostname from ADR-0012)
 
 6. **Hand back to Claude:** the **Project ID** and confirmation the dataset is
    **`production`** / Public. Keep the **write token** for the env-var step.
@@ -111,7 +112,7 @@ Environment variables (Claude will finalize names during the build; expect rough
 
 | Variable | Value | Where |
 | --- | --- | --- |
-| `NEXT_PUBLIC_SANITY_PROJECT_ID` | the Project ID (non-secret) | Railway + local `.env` |
-| `NEXT_PUBLIC_SANITY_DATASET` | `production` | Railway + local `.env` |
-| `SANITY_API_WRITE_TOKEN` | the `media-sync` token (secret) | Railway + local `.env` |
-| `SANITY_REVALIDATE_SECRET` | a random string (Claude generates) | Railway + Sanity webhook |
+| `NEXT_PUBLIC_SANITY_PROJECT_ID` | the Project ID (non-secret) | EC2 `env/dominion-realm.env` + local `.env` |
+| `NEXT_PUBLIC_SANITY_DATASET` | `production` | EC2 `env/dominion-realm.env` + local `.env` |
+| `SANITY_API_WRITE_TOKEN` | the `media-sync` token (secret) | EC2 `env/dominion-realm.env` + local `.env` |
+| `SANITY_REVALIDATE_SECRET` | a random string (Claude generates) | EC2 `env/dominion-realm.env` + Sanity webhook |
