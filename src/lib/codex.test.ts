@@ -72,9 +72,9 @@ describe('toResolvedLink', () => {
   // entry pages and the timeline (audit CAND-15). The tier-inheritance rule —
   // a link's effective tier is the higher of the relationship's own reveal and
   // the target's tier — is a spoiler-safety invariant, pinned here once.
-  const sealedTarget = {
+  const deepTarget = {
     ...entry('concepts', 'eyes', 'The Eyes'),
-    data: { ...eyes.data, reveal: 'sealed' },
+    data: { ...eyes.data, reveal: 'deep' },
   } as CodexEntry;
 
   it('projects url, name, and label from the target and relationship', () => {
@@ -88,13 +88,13 @@ describe('toResolvedLink', () => {
   });
 
   it('inherits the target tier when it is higher than the relationship tier', () => {
-    const link = toResolvedLink({ entry: 'eyes' }, sealedTarget);
-    expect(link.reveal).toBe('sealed');
+    const link = toResolvedLink({ entry: 'eyes' }, deepTarget);
+    expect(link.reveal).toBe('deep');
   });
 
   it('keeps the relationship tier when it is higher than the target tier', () => {
-    const link = toResolvedLink({ entry: 'astria', reveal: 'sealed' }, astria);
-    expect(link.reveal).toBe('sealed');
+    const link = toResolvedLink({ entry: 'astria', reveal: 'beyond' }, astria);
+    expect(link.reveal).toBe('beyond');
   });
 });
 
