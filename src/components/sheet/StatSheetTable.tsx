@@ -19,6 +19,7 @@ import {
   type AttrKey,
 } from '@/lib/classTaxonomy';
 import { getSoulMultiplier } from '@/lib/formulas/progression';
+import { parseSheetImport } from '@/lib/sheetImport';
 import { formatResourceFormula } from '@/lib/formulas/resources';
 import { effectiveAttribute } from '@/lib/formulas/resourceChain';
 import {
@@ -273,7 +274,11 @@ export function StatSheetTable() {
     reader.onload = (ev) => {
       try {
         const data = JSON.parse(ev.target?.result as string);
-        if (typeof data === 'object' && data !== null) loadState(data);
+        // Schema gate (src/lib/sheetImport.ts): wrong shapes reject (warned to
+        // the console), out-of-range numbers clamp — nothing unvalidated
+        // reaches the persisted store.
+        const parsed = parseSheetImport(data);
+        if (parsed) loadState(parsed);
       } catch {
         // ignore malformed JSON
       }
