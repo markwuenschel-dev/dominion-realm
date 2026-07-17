@@ -35,7 +35,7 @@ describe('relationshipCollectionSchema', () => {
   });
 
   it('rejects an unknown collection name', () => {
-    expect(() => relationshipCollectionSchema.parse('dragons')).toThrow();
+    expect(() => relationshipCollectionSchema.parse('dragons')).toThrow(/Invalid|invalid|enum/i);
   });
 
   it('shared options are exactly unset plus the four collections (no drift)', () => {
