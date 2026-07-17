@@ -1,10 +1,13 @@
 name: CI
 
-# Validation gate for every pull request (ADR-0010 — Next.js on Railway). The
-# `verify` job is what branch protection should require before merge; `a11y` is
-# advisory for now. Deployment is handled by Railway on push to `main`, not here.
+# Validation gate for pull requests and for pushes to main (ADR-0012 — Next.js
+# on AWS EC2). The `verify` job is what branch protection should require before
+# merge; `a11y` is advisory for now. Production deploys are manual via
+# `scripts/deploy.ps1` — this workflow does not deploy.
 on:
   pull_request:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
