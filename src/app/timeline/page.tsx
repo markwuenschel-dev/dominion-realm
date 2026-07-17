@@ -37,7 +37,7 @@ export default function TimelinePage() {
           {entries.map((entry) => {
             const link = resolveTimelineLink(entry, codex);
             return (
-              <li className="timeline-beat" key={entry.id}>
+              <li className="timeline-beat" key={entry.id} id={entry.id}>
                 <span className="timeline-beat__node" aria-hidden="true" />
                 <div className="timeline-beat__body">
                   <RevealGate
