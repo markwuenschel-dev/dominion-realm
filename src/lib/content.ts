@@ -3,6 +3,7 @@ import fg from 'fast-glob';
 import matter from 'gray-matter';
 import fs from 'node:fs';
 import path from 'node:path';
+import { cache } from 'react';
 import { z } from 'zod';
 import { REVEAL_TIERS } from './reveal';
 
@@ -141,7 +142,12 @@ export function resolveImage(collection: string, image: string | undefined): str
   return base ? `/content-media/${collection}/${base}` : undefined;
 }
 
-function loadCollection<C extends CollectionName>(collection: C): Entry<C>[] {
+// Request-memoized like the Sanity readers (src/sanity/media.ts): every getter
+// funnels through here, so one wrap dedupes the fg.sync + readFileSync work
+// across a request tree instead of re-scanning the corpus per call. Outside a
+// React request scope (vitest, scripts) `cache` is a pass-through, so the
+// call-time NODE_ENV draft gate and env-stubbing tests behave unchanged.
+const loadCollection = cache(<C extends CollectionName>(collection: C): Entry<C>[] => {
   const dir = path.join(CONTENT_DIR, collection);
   if (!fs.existsSync(dir)) return [];
   const files = fg.sync('**/*.{md,mdx}', { cwd: dir });
@@ -189,7 +195,7 @@ function loadCollection<C extends CollectionName>(collection: C): Entry<C>[] {
   // exercise both branches without module-reset gymnastics.
   const isProd = process.env.NODE_ENV === 'production';
   return isProd ? entries.filter((e) => !(e.data as { draft?: boolean }).draft) : entries;
-}
+});
 
 /* ---- Raw loaders (consumed by the lib/codex|journal|reading helpers) ---- */
 
