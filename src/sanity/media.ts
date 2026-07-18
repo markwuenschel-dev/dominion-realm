@@ -259,5 +259,3 @@ export const getSceneMedia = cache(
     return images.length ? { images } : null;
   },
 );
-
-

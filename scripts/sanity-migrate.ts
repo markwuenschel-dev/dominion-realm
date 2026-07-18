@@ -117,9 +117,10 @@ async function migrateCollection(collection: CodexCollection): Promise<Set<strin
 }
 
 async function flagOrphans(kind: SubjectKind, seenSlugs: Set<string>) {
-  const existing = await client.fetch<
-    { _id: string; slug: string | null; orphaned?: boolean }[]
-  >(`*[_type == "subject" && kind == $kind]{ _id, "slug": slug.current, orphaned }`, { kind });
+  const existing = await client.fetch<{ _id: string; slug: string | null; orphaned?: boolean }[]>(
+    `*[_type == "subject" && kind == $kind]{ _id, "slug": slug.current, orphaned }`,
+    { kind },
+  );
   const orphans = existing.filter((d) => d.slug && !seenSlugs.has(d.slug) && !d.orphaned);
   if (orphans.length === 0) return;
   console.log(`\nOrphans in "${kind}" (${orphans.length}) — prose gone, flagging (art kept)`);

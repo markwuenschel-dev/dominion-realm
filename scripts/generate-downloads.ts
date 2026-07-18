@@ -36,9 +36,7 @@ const FIXED_DATE = new Date(BOOK.modified);
 
 type SampleChapter = ReturnType<typeof buildChapters>[number];
 type TextRun = { text: string; bold: boolean; italic: boolean };
-type Block =
-  | { type: 'paragraph'; runs: TextRun[] }
-  | { type: 'scene-break' };
+type Block = { type: 'paragraph'; runs: TextRun[] } | { type: 'scene-break' };
 type PdfCtor = typeof PDFDocument;
 
 /** Read reading-sample sources via the shared content engine (never drafts). */
@@ -195,7 +193,9 @@ async function buildPdf(PDFDocument: PdfCtor, chapters: SampleChapter[]): Promis
   });
   const chunks: Buffer[] = [];
   doc.on('data', (c: Buffer) => chunks.push(c));
-  const done = new Promise<Buffer>((resolve) => doc.on('end', () => resolve(Buffer.concat(chunks))));
+  const done = new Promise<Buffer>((resolve) =>
+    doc.on('end', () => resolve(Buffer.concat(chunks))),
+  );
 
   // Title page.
   doc.moveDown(6);
@@ -288,7 +288,9 @@ async function main() {
     fs.writeFileSync(path.join(OUT_DIR, EPUB_FILENAME), epub);
     console.log(`[downloads] wrote ${DOWNLOAD_DIR}/${EPUB_FILENAME} (${epub.length} bytes)`);
   } catch (err) {
-    console.error(`[downloads] EPUB generation failed: ${err instanceof Error ? err.message : err}`);
+    console.error(
+      `[downloads] EPUB generation failed: ${err instanceof Error ? err.message : err}`,
+    );
     writeHtmlFallback('epub', chapters);
   }
 

@@ -256,10 +256,7 @@ export function getReadingEntries(drafts: DraftPolicy = 'env'): ReadingEntry[] {
   return loadCollection('reading', drafts).sort((a, b) => a.data.order - b.data.order);
 }
 
-export function getReadingEntry(
-  id: string,
-  drafts: DraftPolicy = 'env',
-): ReadingEntry | undefined {
+export function getReadingEntry(id: string, drafts: DraftPolicy = 'env'): ReadingEntry | undefined {
   return loadCollection('reading', drafts).find((e) => e.id === id);
 }
 
