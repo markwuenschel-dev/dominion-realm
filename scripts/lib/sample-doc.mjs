@@ -7,8 +7,8 @@
  * deliberately plain JavaScript with JSDoc types and imports NOTHING (no
  * `node:fs`, no libs) so that:
  *
- *   - `scripts/generate-downloads.mjs` (the build-time generator) can run it on
- *     CI's Node 22 without TypeScript transpilation, and
+ *   - `scripts/generate-downloads.ts` (the build-time generator) can run it via
+ *     `tsx` without pulling the pure core into the Next client bundle, and
  *   - `src/lib/downloads.ts` (the React UI) and the Vitest suite can import the
  *     same constants/functions for a single source of truth.
  *

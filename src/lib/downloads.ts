@@ -2,7 +2,7 @@ import { EPUB_HREF, PDF_HREF } from '../../scripts/lib/sample-doc.mjs';
 
 /**
  * UI contract for the reading-sample downloads (Tier 3). The files themselves
- * are generated at prebuild by `scripts/generate-downloads.mjs` into
+ * are generated at prebuild by `scripts/generate-downloads.ts` into
  * `public/downloads/`; this module exposes the hrefs/labels the `/read` page
  * links to, re-exporting the canonical paths from the generator's pure core so
  * filenames live in exactly one place.

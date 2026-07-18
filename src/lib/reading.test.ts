@@ -7,6 +7,7 @@ import {
   shouldPaginate,
   PAGINATE_WORD_THRESHOLD,
   clampPart,
+  parseLaterScenePart,
   readingSceneUrl,
   type ReadingEntry,
 } from './reading';
@@ -102,6 +103,26 @@ describe('clampPart', () => {
     expect(clampPart(2.7, 3)).toBe(2);
     expect(clampPart(NaN, 3)).toBe(1);
     expect(clampPart(2, 0)).toBe(1);
+  });
+});
+
+describe('parseLaterScenePart', () => {
+  // HTTP ownership of scene-part validity (audit CAND-22): reject, don't clamp.
+  // Part 1 is the canonical /read/<id> route; this parser only admits later parts.
+  it('accepts an in-range later part', () => {
+    expect(parseLaterScenePart('2', 3)).toBe(2);
+    expect(parseLaterScenePart('3', 3)).toBe(3);
+  });
+
+  it('rejects part 1 (belongs on the canonical chapter URL)', () => {
+    expect(parseLaterScenePart('1', 3)).toBeNull();
+  });
+
+  it('rejects out-of-range and non-integer segments', () => {
+    expect(parseLaterScenePart('0', 3)).toBeNull();
+    expect(parseLaterScenePart('4', 3)).toBeNull();
+    expect(parseLaterScenePart('2.7', 3)).toBeNull();
+    expect(parseLaterScenePart('abc', 3)).toBeNull();
   });
 });
 
