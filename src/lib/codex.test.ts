@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   matchRelationship,
   resolveRelationships,
+  resolveLink,
   entryKicker,
   dossierFields,
   type Relationship,
@@ -168,6 +169,22 @@ describe('dossierFields', () => {
 
   it('produces no dossier for a faction', () => {
     expect(fieldsFor('factions', { kind: 'threat' })).toHaveLength(0);
+  });
+});
+
+describe('resolveLink — one (relationship, target) → ResolvedLink builder', () => {
+  it('builds the link and inherits the higher of the link and target tiers', () => {
+    const deepAstria = entry('factions', 'astria', 'Astria');
+    (deepAstria.data as { reveal: string }).reveal = 'deep';
+    const link = resolveLink({ entry: 'astria', label: 'allied' } as Relationship, deepAstria);
+    expect(link).toMatchObject({ name: 'Astria', label: 'allied', reveal: 'deep' });
+  });
+
+  it("takes the link's own tier when it is higher than the target's", () => {
+    // astria is teaser; an explicit reader tier on the link wins.
+    expect(resolveLink({ entry: 'astria', reveal: 'reader' } as Relationship, astria).reveal).toBe(
+      'reader',
+    );
   });
 });
 
