@@ -1,5 +1,9 @@
 import { config, fields, collection, singleton } from '@keystatic/core';
 import { REVEAL_TIERS, TIER_LABELS } from './src/lib/reveal';
+import {
+  RELATIONSHIP_COLLECTIONS,
+  RELATIONSHIP_COLLECTION_UNSET,
+} from './src/lib/relationshipCollections';
 
 /**
  * Keystatic CMS (ADR-0009, amended by ADR-0010) — a browser-based editor that
@@ -31,14 +35,16 @@ const relationshipsField = fields.array(
     entry: fields.text({ label: 'Entry slug' }),
     collection: fields.select({
       label: 'Collection',
+      description:
+        '(unset) = match the slug across all collections. Sourced from relationshipCollections.ts so the CMS cannot write a value the Zod loader rejects.',
       options: [
-        { label: '(unset)', value: 'unset' },
-        { label: 'Characters', value: 'characters' },
-        { label: 'Concepts', value: 'concepts' },
-        { label: 'Factions', value: 'factions' },
-        { label: 'Places', value: 'places' },
+        { label: '(unset)', value: RELATIONSHIP_COLLECTION_UNSET },
+        ...RELATIONSHIP_COLLECTIONS.map((value) => ({
+          label: value.charAt(0).toUpperCase() + value.slice(1),
+          value,
+        })),
       ],
-      defaultValue: 'unset',
+      defaultValue: RELATIONSHIP_COLLECTION_UNSET,
     }),
     label: fields.text({ label: 'Label', validation: { isRequired: false } }),
   }),

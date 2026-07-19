@@ -1,4 +1,14 @@
 import 'server-only';
+import { cache } from 'react';
+import {
+  getCodexEntries as getCodexEntriesUncached,
+  getCodexEntry as getCodexEntryUncached,
+  getJournalEntries as getJournalEntriesUncached,
+  getJournalEntry as getJournalEntryUncached,
+  getReadingEntries as getReadingEntriesUncached,
+  getReadingEntry as getReadingEntryUncached,
+  getTimelineEntries as getTimelineEntriesUncached,
+} from './contentCore';
 
 /**
  * The content engine (migrated from Astro Content Collections, ADR-0002/0010).
@@ -17,18 +27,29 @@ import 'server-only';
  * can share the same Zod + slug rules without importing this server boundary.
  */
 
+/**
+ * Request-memoized getters (CAND-12). Every page/`lib/*` helper imports these
+ * from here (the server boundary), so wrapping the raw `contentCore` getters in
+ * React `cache` dedupes the `fg.sync` + `readFileSync` corpus scan when the same
+ * getter runs more than once in a request tree. `contentCore` itself stays
+ * React-free so `tsx` build scripts can import it; outside a React request scope
+ * (vitest, scripts) `cache` is a pass-through, so the call-time NODE_ENV draft
+ * gate and env-stubbing tests behave unchanged.
+ */
+export const getCodexEntries = cache(getCodexEntriesUncached);
+export const getCodexEntry = cache(getCodexEntryUncached);
+export const getJournalEntries = cache(getJournalEntriesUncached);
+export const getJournalEntry = cache(getJournalEntryUncached);
+export const getReadingEntries = cache(getReadingEntriesUncached);
+export const getReadingEntry = cache(getReadingEntryUncached);
+export const getTimelineEntries = cache(getTimelineEntriesUncached);
+
 export {
   CODEX_COLLECTIONS,
   contentImage,
-  getCodexEntries,
-  getCodexEntry,
-  getJournalEntries,
-  getJournalEntry,
-  getReadingEntries,
-  getReadingEntry,
-  getTimelineEntries,
   imageSourcePath,
   loadCollection,
+  relationshipCollectionSchema,
   resolveImage,
   type CodexCollection,
   type CodexEntry,

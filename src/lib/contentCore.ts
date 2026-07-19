@@ -3,6 +3,7 @@ import matter from 'gray-matter';
 import fs from 'node:fs';
 import path from 'node:path';
 import { z } from 'zod';
+import { RELATIONSHIP_COLLECTIONS, RELATIONSHIP_COLLECTION_UNSET } from './relationshipCollections';
 import { REVEAL_TIERS } from './reveal';
 
 /**
@@ -15,9 +16,20 @@ const CONTENT_DIR = path.join(process.cwd(), 'src', 'content');
 
 const revealEnum = z.enum(REVEAL_TIERS);
 
+/**
+ * Relationship collection constraint. Keystatic may write the sentinel `unset`
+ * (see RELATIONSHIP_COLLECTION_OPTIONS); that means "no constraint" and must
+ * parse to `undefined` so a CMS-default save never fails the build (audit
+ * CAND-01). Exported for the fitness test that pins write ⊆ read.
+ */
+export const relationshipCollectionSchema = z.preprocess(
+  (value) => (value === RELATIONSHIP_COLLECTION_UNSET || value === '' ? undefined : value),
+  z.enum(RELATIONSHIP_COLLECTIONS).optional(),
+);
+
 const relationship = z.object({
   entry: z.string(),
-  collection: z.enum(['characters', 'concepts', 'factions', 'places']).optional(),
+  collection: relationshipCollectionSchema,
   label: z.string().optional(),
   /** Optional explicit tier for this link; the effective tier is the higher of
    *  this and the target entry's own reveal (see `resolveRelationships`). */
