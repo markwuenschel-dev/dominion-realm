@@ -25,11 +25,17 @@ at call sites.
   returns it unchanged even for classes that list LUCK as Prime/Core/Secondary
   (Gambler, Fatewright, …).
 
-- **Resource chain.** `computeResourceChain(input)` in `formulas/resourceChain.ts`
-  runs the whole §1 → final pipeline: effective attributes → §1 maxima → base
-  maxima × race mod × condition mod (Reserve additionally × soul multiplier),
-  rounded. `useCharacterSheet` calls it once; class influence enters only through
-  the effective-attribute seam, never as a resource-level multiplier.
+- **Resource core (shared pipeline).** `resourceCore(effectiveAttrs, mods, soulMult)`
+  in `formulas/resourceChain.ts` is the one derivation **both** surfaces run through:
+  it rounds the §1 base **once**, then applies per-resource mods (Reserve additionally
+  × soul), rounding the final. Two adapters supply its inputs — `computeSheetResources`
+  (the character sheet: real class profile via the effective-attribute seam + race +
+  condition mods, returns the full chain with breakdowns) and `computeCalculatorResources`
+  (the standalone calculator: `NEUTRAL_PROFILE` + identity mods, returns just the maxima).
+  The calculator no longer reaches around the pipeline to raw `computeResourceMaxima`, so
+  the two surfaces agree above the §1 leaves, not only at them; its Reserve maximum is now
+  a rounded integer like every other maximum. Class influence still enters only through the
+  effective-attribute seam, never as a resource-level multiplier.
 
 - **Final resources.** The sheet's rendered maxima, produced by the resource chain
   above: base maxima × race mod × condition mod (Reserve additionally × soul

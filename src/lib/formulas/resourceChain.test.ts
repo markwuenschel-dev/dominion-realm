@@ -6,7 +6,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { describe, it, expect } from 'vitest';
-import { effectiveAttribute, computeResourceChain } from './resourceChain';
+import {
+  effectiveAttribute,
+  computeSheetResources,
+  computeCalculatorResources,
+} from './resourceChain';
+import { DEFAULT_ATTRIBUTES } from '@/lib/constants';
 import { computeResourceMaxima } from './resources';
 import { getClassProfile } from '@/lib/classTaxonomy';
 import { FORMULA_ATTRIBUTE_KEYS } from '@/types/characterSheet';
@@ -48,11 +53,11 @@ describe('effectiveAttribute — round once at the attribute layer', () => {
   });
 });
 
-describe('computeResourceChain — round once, then feed the §1 formulas', () => {
+describe('computeSheetResources — round once, then feed the §1 formulas', () => {
   const warrior = getClassProfile('Warrior');
 
   it('derives maxima from the rounded effective attributes (display == formula)', () => {
-    const chain = computeResourceChain({
+    const chain = computeSheetResources({
       attributes: attrs(10),
       profile: warrior,
       raceMod: NO_MOD,
@@ -75,7 +80,7 @@ describe('computeResourceChain — round once, then feed the §1 formulas', () =
   });
 
   it('applies race × condition to all resources and soul × to Reserve only, rounding final', () => {
-    const chain = computeResourceChain({
+    const chain = computeSheetResources({
       attributes: attrs(10),
       profile: warrior,
       raceMod: { HP: 1.1, Mana: 1, Stamina: 1, Reserve: 1.2 },
@@ -97,5 +102,25 @@ describe('computeResourceChain — round once, then feed the §1 formulas', () =
       conditionMod: 1,
       final: 155,
     });
+  });
+});
+
+describe('computeCalculatorResources — the calculator shares the pipeline, neutral class', () => {
+  it('leaves HP/Mana/Stamina identical to the raw §1 maxima (neutral class is a no-op there)', () => {
+    // Reserve base = 2·10+2·10+2·10+10+10 = 80; at soulLevelMod 1.0 nothing fractionalizes.
+    const out = computeCalculatorResources(DEFAULT_ATTRIBUTES, 1.0);
+    expect(out).toEqual(computeResourceMaxima(DEFAULT_ATTRIBUTES, 1.0));
+  });
+
+  it('rounds Reserve to an integer once soulLevelMod makes it fractional (was unrounded)', () => {
+    const oddReserve = { ...DEFAULT_ATTRIBUTES, MYS: 11 }; // Reserve base = 81
+    // The OLD calculator path returned the unrounded float:
+    expect(computeResourceMaxima(oddReserve, 1.5).Reserve).toBe(121.5);
+    // The unified pipeline rounds it — the intended change:
+    const out = computeCalculatorResources(oddReserve, 1.5);
+    expect(out.Reserve).toBe(122);
+    expect(Number.isInteger(out.Reserve)).toBe(true);
+    // HP/Mana/Stamina are unaffected by soul and already integers.
+    expect(out.HP).toBe(computeResourceMaxima(oddReserve).HP);
   });
 });
