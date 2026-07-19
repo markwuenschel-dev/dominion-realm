@@ -2,7 +2,7 @@
 
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
-import { isRevealed, TIER_LABELS, type RevealTier } from '@/lib/reveal';
+import { isRevealed, sealedLabel, type RevealTier } from '@/lib/reveal';
 import { useReveal } from '@/components/reveal/RevealContext';
 
 /**
@@ -111,12 +111,10 @@ export function ConstellationView({
             {nodes.map((n) => {
               const open = seen(n.reveal);
               const style = { ['--c']: open ? n.color : 'var(--line)' } as CSSProperties;
-              const label = open ? n.name : `Sealed · ${TIER_LABELS[n.reveal]}`;
+              const label = open ? n.name : sealedLabel(n.reveal);
               const common = (
                 <>
-                  <title>
-                    {open ? `${n.name} · ${n.collection}` : `Sealed · ${TIER_LABELS[n.reveal]}`}
-                  </title>
+                  <title>{open ? `${n.name} · ${n.collection}` : sealedLabel(n.reveal)}</title>
                   <circle className="node-dot" cx={n.x} cy={n.y} r={n.r} />
                   <text
                     className="node-label"
@@ -169,7 +167,7 @@ export function ConstellationView({
                   </Link>
                 ) : (
                   <span className="rel-row__name rel-row__name--sealed">
-                    Sealed · {TIER_LABELS[t.reveal]}
+                    {sealedLabel(t.reveal)}
                   </span>
                 )}
                 <span className="rel-row__kind">{t.collection}</span>
@@ -184,7 +182,7 @@ export function ConstellationView({
                       </Link>
                     ) : (
                       <span className="rel-chip rel-chip--sealed" key={c.key}>
-                        Sealed · {TIER_LABELS[c.reveal]}
+                        {sealedLabel(c.reveal)}
                       </span>
                     ),
                   )}
