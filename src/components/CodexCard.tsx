@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { CodexEntry } from '@/lib/codex';
 import { entryKicker, codexUrl } from '@/lib/codex';
-import { TIER_LABELS } from '@/lib/reveal';
+import { isUngated, TIER_LABELS } from '@/lib/reveal';
 import { ContentImage } from '@/components/ContentImage';
 import { MediaPlaceholder } from '@/components/MediaPlaceholder';
 import { SubjectImage } from '@/components/SubjectImage';
@@ -39,7 +39,7 @@ export function CodexCard({ entry, sanity }: { entry: CodexEntry; sanity?: Resol
       <span className="codex-card__kicker">{kicker}</span>
       <h3 className="codex-card__name">{entry.data.name}</h3>
       <p className="codex-card__summary">{entry.data.summary}</p>
-      {tier !== 'teaser' && (
+      {!isUngated(tier) && (
         <span className="codex-card__tier" data-tier={tier}>
           {TIER_LABELS[tier]}
         </span>

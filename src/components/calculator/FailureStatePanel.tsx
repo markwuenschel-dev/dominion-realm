@@ -4,12 +4,13 @@ import { SectionCard } from '@/components/layout/SectionCard';
 import { useResourceRatios } from '@/hooks/useCalculator';
 import { RESOURCE_KEYS } from '@/types';
 import { RESOURCE_COLORS } from '@/lib/palette';
+import { OVEREXTENSION_THRESHOLD } from '@/lib/constants';
 import { round } from '@/lib/utils';
 
 const ZONE_THRESHOLDS = [
   {
     label: 'Safe',
-    min: 0.2,
+    min: OVEREXTENSION_THRESHOLD,
     max: 1.0,
     color: 'text-emerald-400',
     bg: 'bg-emerald-950/20 border-emerald-900/30',
@@ -17,7 +18,7 @@ const ZONE_THRESHOLDS = [
   {
     label: 'Overextension',
     min: 0.0,
-    max: 0.2,
+    max: OVEREXTENSION_THRESHOLD,
     color: 'text-amber-400',
     bg: 'bg-amber-950/20 border-amber-900/30',
   },
@@ -67,7 +68,7 @@ function ResourceZoneRow({ resource, q }: { resource: (typeof RESOURCE_KEYS)[num
 
   let activeZone: 'safe' | 'overextension' | 'collapse';
   if (q <= 0) activeZone = 'collapse';
-  else if (q < 0.2) activeZone = 'overextension';
+  else if (q < OVEREXTENSION_THRESHOLD) activeZone = 'overextension';
   else activeZone = 'safe';
 
   return (

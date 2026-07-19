@@ -1,7 +1,8 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import { DEFAULT_TIER, REVEAL_STORAGE_KEY, parseTier, type RevealTier } from '@/lib/reveal';
+import { DEFAULT_TIER, type RevealTier } from '@/lib/reveal';
+import { readReveal, writeReveal } from '@/lib/revealStorage';
 
 /**
  * Reveal-level state (ADR-0004), ported from the Astro RevealToggle controller.
@@ -22,11 +23,9 @@ export function RevealProvider({ children }: { children: React.ReactNode }) {
   const [level, setLevelState] = useState<RevealTier>(DEFAULT_TIER);
 
   useEffect(() => {
-    try {
-      setLevelState(parseTier(localStorage.getItem(REVEAL_STORAGE_KEY)));
-    } catch {
-      /* storage blocked — stay at the safe default */
-    }
+    // Restore the persisted choice after mount; absent/blocked → stay at default.
+    const stored = readReveal();
+    if (stored) setLevelState(stored);
   }, []);
 
   useEffect(() => {
@@ -35,11 +34,7 @@ export function RevealProvider({ children }: { children: React.ReactNode }) {
 
   const setLevel = useCallback((tier: RevealTier) => {
     setLevelState(tier);
-    try {
-      localStorage.setItem(REVEAL_STORAGE_KEY, tier);
-    } catch {
-      /* storage blocked — still applies for this session */
-    }
+    writeReveal(tier);
   }, []);
 
   return <RevealCtx.Provider value={{ level, setLevel }}>{children}</RevealCtx.Provider>;

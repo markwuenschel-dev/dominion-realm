@@ -186,6 +186,23 @@ export function matchRelationship(
 }
 
 /**
+ * Build a live link from a declared relationship and the entry it resolves to.
+ * The effective reveal tier is the higher of the link's own tier and the
+ * target's — a link pointing at a `deep` entry is itself a `deep` fact. The one
+ * place a (relationship, target) pair becomes a `ResolvedLink`, shared by the
+ * codex entry-page list and the timeline beat's cross-link so both build the
+ * link and merge the tier identically.
+ */
+export function resolveLink(rel: Relationship, target: CodexEntry): ResolvedLink {
+  return {
+    url: codexUrl(target.collection, target.id),
+    name: target.data.name,
+    label: rel.label,
+    reveal: maxTier(rel.reveal ?? DEFAULT_TIER, target.data.reveal),
+  };
+}
+
+/**
  * Resolve an entry's `relationships` to live links. Dangling links are skipped
  * so a not-yet-written cross-reference never breaks the build.
  */
@@ -193,13 +210,7 @@ export function resolveRelationships(entry: CodexEntry, all: CodexEntry[]): Reso
   const links: ResolvedLink[] = [];
   for (const rel of entry.data.relationships) {
     const target = matchRelationship(rel, all);
-    if (!target) continue;
-    links.push({
-      url: codexUrl(target.collection, target.id),
-      name: target.data.name,
-      label: rel.label,
-      reveal: maxTier(rel.reveal ?? DEFAULT_TIER, target.data.reveal),
-    });
+    if (target) links.push(resolveLink(rel, target));
   }
   return links;
 }

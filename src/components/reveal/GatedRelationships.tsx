@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { projectByReveal, TIER_LABELS } from '@/lib/reveal';
+import { projectByReveal, sealedLabel } from '@/lib/reveal';
 import { useReveal } from './RevealContext';
 import type { ResolvedLink } from '@/lib/codex';
 
@@ -29,9 +29,9 @@ export function GatedRelationships({ links }: { links: ResolvedLink[] }) {
           <span
             key={item.key}
             className="codex-rel__item codex-rel__item--sealed"
-            aria-label={`Sealed · ${TIER_LABELS[item.reveal]} — raise your reveal level to see this connection.`}
+            aria-label={`${sealedLabel(item.reveal)} — raise your reveal level to see this connection.`}
           >
-            <span className="codex-rel__rel">Sealed · {TIER_LABELS[item.reveal]}</span>
+            <span className="codex-rel__rel">{sealedLabel(item.reveal)}</span>
             <span>Raise your reveal level</span>
           </span>
         ) : (

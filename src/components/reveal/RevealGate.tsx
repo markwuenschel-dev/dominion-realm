@@ -1,6 +1,6 @@
 'use client';
 
-import { isRevealed, isUngated, TIER_LABELS, type RevealTier } from '@/lib/reveal';
+import { isRevealed, isUngated, sealedLabel, sealedPrompt, type RevealTier } from '@/lib/reveal';
 import { useReveal } from './RevealContext';
 
 /**
@@ -33,7 +33,7 @@ export function RevealGate({
   }
 
   const open = isRevealed(tier, level);
-  const sealedMessage = label ?? `Raise your reveal level to ${TIER_LABELS[tier]} to read this.`;
+  const sealedMessage = label ?? sealedPrompt(tier);
 
   return (
     <div className={`reveal-gate ${open ? 'is-open' : 'is-sealed'}`} data-reveal-tier={tier}>
@@ -41,7 +41,7 @@ export function RevealGate({
         children
       ) : (
         <p className="reveal-gate__sealed">
-          <span className="reveal-gate__lock">Sealed · {TIER_LABELS[tier]}</span>
+          <span className="reveal-gate__lock">{sealedLabel(tier)}</span>
           <span className="reveal-gate__msg">{sealedMessage}</span>
         </p>
       )}

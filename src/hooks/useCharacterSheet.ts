@@ -5,7 +5,7 @@
 
 import { useMemo } from 'react';
 import { useCharacterSheetStore } from '@/store/characterSheetStore';
-import { computeResourceChain } from '@/lib/formulas/resourceChain';
+import { computeSheetResources } from '@/lib/formulas/resourceChain';
 import { computeActivityRegenRates } from '@/lib/formulas/activityRegen';
 import { SPECIES_TEMPLATES } from '@/lib/characterTemplates';
 import { getClassProfile } from '@/lib/classTaxonomy';
@@ -32,7 +32,7 @@ export function useCharacterSheet(): CharacterSheetDerived {
   // owns the round-once rule and the LUCK firewall; Reserve alone × soul multiplier.
   const { finalResources, breakdowns } = useMemo(
     () =>
-      computeResourceChain({
+      computeSheetResources({
         attributes,
         profile: classProfile,
         raceMod: speciesTemplate.raceMod,

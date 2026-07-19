@@ -1,6 +1,6 @@
 import 'server-only';
 import type { Metadata } from 'next';
-import { urlFor, type SanityImageSource } from './image';
+import { imageUrl, type SanityImageSource } from './image';
 import { getSocialImage, type ResolvedImage } from './media';
 import { isUngated, type RevealTier } from '@/lib/reveal';
 
@@ -31,13 +31,13 @@ export const OG_DEFAULT = '/og-default.png';
 
 /** Crop a Sanity source to the 1200×630 social frame as a scraper-safe JPEG. */
 function ogCrop(source: SanityImageSource): string {
-  return urlFor(source)
-    .width(OG_WIDTH)
-    .height(OG_HEIGHT)
-    .fit('crop')
-    .format('jpg')
-    .quality(80)
-    .url();
+  return imageUrl(source, {
+    width: OG_WIDTH,
+    height: OG_HEIGHT,
+    fit: 'crop',
+    format: 'jpg',
+    quality: 80,
+  });
 }
 
 /**

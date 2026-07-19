@@ -90,6 +90,12 @@ const UNCLASSED: ClassProfile = {
   resourceShape: 'No class modifier',
 };
 
+/** The identity class profile — every attribute Neutral (×1.0), so passing it
+ *  scales nothing. It makes the standalone calculator's class-free stance
+ *  executable: the shared resource pipeline (`resourceCore`) takes it as the
+ *  neutral input instead of the calculator re-deriving raw §1 maxima itself. */
+export const NEUTRAL_PROFILE: ClassProfile = UNCLASSED;
+
 const COMMON: ClassProfile[] = [
   {
     key: 'Warrior',

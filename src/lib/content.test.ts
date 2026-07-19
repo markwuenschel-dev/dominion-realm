@@ -1,6 +1,7 @@
 import { afterEach, describe, it, expect, vi } from 'vitest';
 import {
   resolveImage,
+  contentImage,
   getCodexEntries,
   getJournalEntries,
   getReadingEntries,
@@ -86,6 +87,35 @@ describe('resolveImage', () => {
       if (entry.data.image) {
         expect(entry.data.image).toMatch(new RegExp(`^/content-media/${entry.collection}/`));
       }
+    }
+  });
+});
+
+describe('contentImage — one seam: URL + disk source + existence', () => {
+  it('returns nothing for an absent image', () => {
+    expect(contentImage('characters', undefined)).toEqual({
+      url: undefined,
+      diskPath: undefined,
+      exists: false,
+    });
+  });
+
+  it('maps the URL via resolveImage yet reports a missing file as non-existent', () => {
+    const img = contentImage('characters', '/content-media/characters/nope-missing-xyz.png');
+    expect(img.url).toBe('/content-media/characters/nope-missing-xyz.png'); // passthrough URL
+    expect(img.exists).toBe(false);
+    expect(img.diskPath).toBeUndefined();
+  });
+
+  it('resolves a real entry image to an existing on-disk source', () => {
+    const withImage = getCodexEntries().find((e) => e.data.image);
+    // The corpus has entries with images (see the resolveImage test above); guard
+    // anyway so the suite never fails on an empty corpus.
+    if (withImage?.data.image) {
+      const img = contentImage(withImage.collection, withImage.data.image);
+      expect(img.url).toBe(withImage.data.image);
+      expect(img.exists).toBe(true);
+      expect(img.diskPath).toBeDefined();
     }
   });
 });

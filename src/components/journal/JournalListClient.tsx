@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { isRevealed, TIER_LABELS, type RevealTier } from '@/lib/reveal';
+import { isRevealed, sealedLabel, type RevealTier } from '@/lib/reveal';
 import { useReveal } from '@/components/reveal/RevealContext';
 
 /**
@@ -93,9 +93,9 @@ export function JournalListClient({
                   key={p.id}
                   className={`${base} journal-item--sealed`}
                   data-category={p.category}
-                  aria-label={`Sealed · ${TIER_LABELS[p.reveal]}`}
+                  aria-label={sealedLabel(p.reveal)}
                 >
-                  <span className="journal-item__kicker">Sealed · {TIER_LABELS[p.reveal]}</span>
+                  <span className="journal-item__kicker">{sealedLabel(p.reveal)}</span>
                   <p className="journal-item__summary">
                     Raise your reveal level to read this entry.
                   </p>
