@@ -8,6 +8,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   effectiveAttribute,
+  describeEffectiveAttribute,
   computeSheetResources,
   computeCalculatorResources,
 } from './resourceChain';
@@ -50,6 +51,33 @@ describe('effectiveAttribute — round once at the attribute layer', () => {
   it('returns the raw value unchanged for a Neutral / Unclassed attribute', () => {
     const unclassed = getClassProfile('None'); // every multiplier ×1.0
     expect(effectiveAttribute(13, unclassed, 'STR')).toBe(13);
+  });
+});
+
+describe('describeEffectiveAttribute — multiplier and effective from one seam call', () => {
+  it('returns the class multiplier alongside the rounded effective value', () => {
+    const warrior = getClassProfile('Warrior'); // STR is Prime (×1.15)
+    expect(describeEffectiveAttribute(10, warrior, 'STR')).toEqual({
+      multiplier: 1.15,
+      effective: 12,
+    });
+  });
+
+  it('gives LUCK a ×1.0 multiplier and never scales it — the one home for the firewall', () => {
+    const gambler = getClassProfile('Gambler'); // LUCK is Prime — must NOT scale
+    expect(describeEffectiveAttribute(10, gambler, 'LUCK')).toEqual({
+      multiplier: 1,
+      effective: 10,
+    });
+  });
+
+  it('agrees with effectiveAttribute on the effective value (one is a projection of the other)', () => {
+    const warrior = getClassProfile('Warrior');
+    for (const attr of ['STR', 'CON', 'CHA'] as const) {
+      expect(describeEffectiveAttribute(13, warrior, attr).effective).toBe(
+        effectiveAttribute(13, warrior, attr),
+      );
+    }
   });
 });
 

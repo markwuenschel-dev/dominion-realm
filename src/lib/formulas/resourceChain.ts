@@ -66,16 +66,36 @@ export interface ResourceCore {
   finalResources: ResourceMaxima;
 }
 
+/** An attribute's class multiplier and its resulting effective (rounded) value. */
+export interface EffectiveAttributeParts {
+  multiplier: number;
+  effective: number;
+}
+
 /**
- * Resolve a raw attribute to its effective value under a class profile.
- * Scales by the Prime/Core/Secondary/Neutral multiplier, then rounds once.
+ * Resolve a raw attribute to its class multiplier AND effective value in one
+ * place. The single home for the LUCK firewall: LUCK carries a ×1.0 multiplier
+ * and is never scaled, even for classes that list it as Prime/Core/Secondary
+ * (Gambler, Fatewright, …). Consumed by `effectiveAttribute` (the formula path)
+ * and the sheet's per-attribute badge (the display path), so the multiplier the
+ * cell shows and the value the formula uses can never disagree on the LUCK rule.
+ */
+export function describeEffectiveAttribute(
+  raw: number,
+  profile: ClassProfile,
+  attr: AttrKey,
+): EffectiveAttributeParts {
+  if (attr === 'LUCK') return { multiplier: 1, effective: raw };
+  const multiplier = getClassAttrMultiplier(profile, attr);
+  return { multiplier, effective: Math.round(raw * multiplier) };
+}
+
+/**
+ * The effective value of an attribute: scaled by its Prime/Core/Secondary/Neutral
+ * multiplier and rounded once. Thin projection of `describeEffectiveAttribute`.
  */
 export function effectiveAttribute(raw: number, profile: ClassProfile, attr: AttrKey): number {
-  // LUCK is never a resource-formula input and canon forbids scaling it, even for
-  // classes that list it as Prime/Core/Secondary (Gambler, Fatewright, …). Guard
-  // here so display and formula share one LUCK rule.
-  if (attr === 'LUCK') return raw;
-  return Math.round(raw * getClassAttrMultiplier(profile, attr));
+  return describeEffectiveAttribute(raw, profile, attr).effective;
 }
 
 /**

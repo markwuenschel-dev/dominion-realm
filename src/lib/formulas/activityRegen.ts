@@ -7,6 +7,10 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { FinalResources, RegenRates } from '@/types/characterSheet';
+import {
+  ACTIVITY_REGEN_COEFFICIENTS as C,
+  ACTIVITY_REGEN_ATTR_DIVISORS as D,
+} from '@/lib/constants';
 
 /** Round to 2 decimal places (matches the sheet's display precision). */
 function round2(n: number): number {
@@ -15,7 +19,8 @@ function round2(n: number): number {
 
 /**
  * Activity-based regen rates (§7). Rates scale off the character's FINAL resource
- * maxima; the rest/meditation tiers add a flat attribute term (CON/END/WIS).
+ * maxima; the rest/meditation tiers add a flat attribute term (CON/END/WIS). The
+ * coefficients live once in `constants.ts` (ACTIVITY_REGEN_COEFFICIENTS / _DIVISORS).
  */
 export function computeActivityRegenRates(
   final: FinalResources,
@@ -25,28 +30,28 @@ export function computeActivityRegenRates(
   const { CON, END, WIS } = attrs;
   return {
     HP: {
-      safeRest: round2(HP * 0.03 + CON / 2),
-      lightRest: round2(HP * 0.015 + CON / 4),
-      activeTravel: round2(HP * 0.005),
+      safeRest: round2(HP * C.HP.safeRest + CON / D.HP.safeRest),
+      lightRest: round2(HP * C.HP.lightRest + CON / D.HP.lightRest),
+      activeTravel: round2(HP * C.HP.activeTravel),
       combat: 0,
     },
     Mana: {
-      meditation: round2(Mana * 0.05 + WIS / 5),
-      calmNoncombat: round2(Mana * 0.02 + WIS / 10),
-      activeTravel: round2(Mana * 0.01),
-      combat: round2(Mana * 0.005),
+      meditation: round2(Mana * C.Mana.meditation + WIS / D.Mana.meditation),
+      calmNoncombat: round2(Mana * C.Mana.calmNoncombat + WIS / D.Mana.calmNoncombat),
+      activeTravel: round2(Mana * C.Mana.activeTravel),
+      combat: round2(Mana * C.Mana.combat),
     },
     Stamina: {
-      fullRest: round2(Stamina * 0.12 + END / 2),
-      catchingBreath: round2(Stamina * 0.08 + END / 3),
-      lightMovement: round2(Stamina * 0.03),
-      combat: round2(Stamina * 0.01),
+      fullRest: round2(Stamina * C.Stamina.fullRest + END / D.Stamina.fullRest),
+      catchingBreath: round2(Stamina * C.Stamina.catchingBreath + END / D.Stamina.catchingBreath),
+      lightMovement: round2(Stamina * C.Stamina.lightMovement),
+      combat: round2(Stamina * C.Stamina.combat),
     },
     Reserve: {
-      deepSleep: round2(Reserve * 0.08 + WIS / 4),
-      meditation: round2(Reserve * 0.05 + WIS / 5),
-      ordinaryRest: round2(Reserve * 0.03),
-      activeTravel: round2(Reserve * 0.01),
+      deepSleep: round2(Reserve * C.Reserve.deepSleep + WIS / D.Reserve.deepSleep),
+      meditation: round2(Reserve * C.Reserve.meditation + WIS / D.Reserve.meditation),
+      ordinaryRest: round2(Reserve * C.Reserve.ordinaryRest),
+      activeTravel: round2(Reserve * C.Reserve.activeTravel),
       combat: 0,
     },
   };

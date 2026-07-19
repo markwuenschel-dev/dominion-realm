@@ -11,7 +11,6 @@ import {
 } from '@/lib/characterTemplates';
 import {
   getClassProfile,
-  getClassAttrMultiplier,
   describeClassAttrRoles,
   classesByRarity,
   PICKER_RARITIES,
@@ -20,7 +19,7 @@ import {
 } from '@/lib/classTaxonomy';
 import { getSoulMultiplier } from '@/lib/formulas/progression';
 import { formatResourceFormula } from '@/lib/formulas/resources';
-import { effectiveAttribute } from '@/lib/formulas/resourceChain';
+import { describeEffectiveAttribute } from '@/lib/formulas/resourceChain';
 import {
   Select,
   SelectContent,
@@ -106,11 +105,14 @@ function AttrCell({ attrKey, dimmed = false }: { attrKey: SheetAttributeKey; dim
   const setAttribute = useCharacterSheetStore((s) => s.setAttribute);
 
   const profile = getClassProfile(classKey);
-  // LUCK is never scaled, so it never carries a multiplier badge (guards the
-  // Gambler/Fatewright LUCK-Prime case). The displayed number comes from the same
-  // seam the resource formulas consume, so cell and formula can't disagree.
-  const mod = attrKey === 'LUCK' ? 1 : getClassAttrMultiplier(profile, attrKey as AttrKey);
-  const effective = effectiveAttribute(rawValue, profile, attrKey as AttrKey);
+  // Multiplier badge AND effective value come from one seam call, so the LUCK
+  // firewall (LUCK → ×1.0, never scaled) lives once and cell can't disagree with
+  // the formula that consumes the same seam.
+  const { multiplier: mod, effective } = describeEffectiveAttribute(
+    rawValue,
+    profile,
+    attrKey as AttrKey,
+  );
 
   return (
     <TD>

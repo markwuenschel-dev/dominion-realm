@@ -6,6 +6,7 @@ import { useResourceMaxima, useResourceRatios } from '@/hooks/useCalculator';
 import { useCalculatorStore } from '@/store/calculatorStore';
 import { RESOURCE_KEYS } from '@/types';
 import { RESOURCE_COLORS } from '@/lib/palette';
+import { OVEREXTENSION_THRESHOLD } from '@/lib/constants';
 import { fmtResource, round } from '@/lib/utils';
 
 // Derived max/q come from the panel as props; the row keeps only its own
@@ -26,7 +27,7 @@ function ResourceRow({
   const qPct = round(q * 100, 0);
 
   const isFloor = resource === 'Mana' || resource === 'Stamina';
-  const isOverextension = isFloor && q < 0.2;
+  const isOverextension = isFloor && q < OVEREXTENSION_THRESHOLD;
 
   return (
     <div className={`rounded-md border p-3 ${colors.border} bg-panel-raised`}>
