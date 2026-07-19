@@ -197,7 +197,13 @@ export function contentImage(
   return { url: resolveImage(collection, declared), diskPath, exists: diskPath !== undefined };
 }
 
-function applyDraftPolicy<C extends CollectionName>(
+/**
+ * The pure draft filter behind every getter's `drafts` argument — exported as a
+ * seam so the three `DraftPolicy` branches can be proven against an in-memory
+ * fixture corpus (CAND-24) instead of the live content tree, whose draft count
+ * can drift to zero and make a corpus-dependent assertion pass vacuously.
+ */
+export function applyDraftPolicy<C extends CollectionName>(
   entries: Entry<C>[],
   drafts: DraftPolicy,
 ): Entry<C>[] {

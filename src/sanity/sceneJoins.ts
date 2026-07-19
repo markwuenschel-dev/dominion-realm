@@ -13,6 +13,17 @@
  * against the live dataset (exiting non-zero on any orphan).
  */
 
+/**
+ * The kinds of story beat a Scene may bind to — the single source of truth for
+ * the `scene.beat` enum. Shared so the runtime reader (`media.ts`), this
+ * detector, and their tests all reference one list; the set can no longer drift
+ * between a hand-copied GROQ filter and a hand-copied `!== 'reading' && …` guard.
+ */
+export const SCENE_BEATS = ['reading', 'timeline'] as const;
+
+/** One story-beat kind (`scene.beat`), derived from {@link SCENE_BEATS}. */
+export type SceneBeat = (typeof SCENE_BEATS)[number];
+
 /** The join-relevant slice of a Sanity `scene` document. */
 export interface SceneJoinDoc {
   _id: string;
@@ -21,11 +32,10 @@ export interface SceneJoinDoc {
   beatRef?: string | null;
 }
 
-/** The git-side beat ids a Scene may bind to, keyed by its `beat` value. */
-export interface BeatSets {
-  reading: readonly string[];
-  timeline: readonly string[];
-}
+/** The git-side beat ids a Scene may bind to, keyed by its `beat` kind — one key
+ *  per {@link SCENE_BEATS} member, so a new beat kind can't be added without a
+ *  corresponding id set. */
+export type BeatSets = Record<SceneBeat, readonly string[]>;
 
 /** One broken join: the Scene doc plus why it can never render. */
 export interface OrphanScene {
@@ -46,11 +56,12 @@ export function findOrphanScenes(scenes: readonly SceneJoinDoc[], beats: BeatSet
       orphans.push({ doc, reason: 'missing-fields' });
       continue;
     }
-    if (doc.beat !== 'reading' && doc.beat !== 'timeline') {
+    const beat = SCENE_BEATS.find((b) => b === doc.beat);
+    if (!beat) {
       orphans.push({ doc, reason: 'unknown-beat' });
       continue;
     }
-    if (!beats[doc.beat].includes(doc.beatRef)) {
+    if (!beats[beat].includes(doc.beatRef)) {
       orphans.push({ doc, reason: 'unknown-beatRef' });
     }
   }

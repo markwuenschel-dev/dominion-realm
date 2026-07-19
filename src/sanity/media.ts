@@ -5,8 +5,10 @@ import type { SanityImageSource } from './image';
 import type { CodexCollection } from '@/lib/content';
 import type { SubjectKind } from './slotMap';
 import { COLLECTION_KIND, subjectKindFor } from './collectionKind';
+import { SCENE_BEATS, type SceneBeat } from './sceneJoins';
 
 export { subjectKindFor };
+export type { SceneBeat };
 
 /**
  * The site's read seam into the Sanity media layer (ADR-0011, Phase 3).
@@ -64,9 +66,6 @@ export interface SubjectMedia {
   map: ResolvedImage | null;
   sigil: ResolvedImage | null;
 }
-
-/** Which kind of story beat a Scene binds to — matches the `scene.beat` enum. */
-export type SceneBeat = 'reading' | 'timeline';
 
 /** Art bound to a story beat (a reading chapter or a timeline Event): an ordered
  *  gallery whose first image is the beat's hero plate. */
@@ -275,5 +274,60 @@ export const getSceneMedia = cache(
       return r ? [{ ...r, caption: (g as { caption?: string })?.caption ?? '' }] : [];
     });
     return images.length ? { images } : null;
+  },
+);
+
+/** One requested Scene join: the beat kind plus the git `beatRef` to look up. */
+export interface SceneBeatKey {
+  beat: SceneBeat;
+  beatRef: string;
+}
+
+/** The `${beat}:${beatRef}` key a {@link getSceneMediaMap} row is stored under —
+ *  the beat kind is part of the key because a chapter and an Event can share a
+ *  slug, so the call site reads back with the same `(beat, beatRef)` it asked for. */
+export function sceneKey(beat: SceneBeat, beatRef: string): string {
+  return `${beat}:${beatRef}`;
+}
+
+/**
+ * Scene art for many beats at once, keyed by `${beat}:${beatRef}` — the batched
+ * counterpart to {@link getSceneMedia}, modelled on {@link getSubjectPrimaryMap}.
+ *
+ * The requested keys are grouped by beat *kind* and each kind is fetched in a
+ * single `beatRef in [...]` query, so a page listing N beats of one kind issues
+ * ONE Sanity read, not N (the N+1 the timeline page used to fan out — including
+ * for sealed beats). {@link SCENE_BEATS} is the single source of truth for which
+ * kinds exist, so a new beat kind is batched automatically. A beat with no
+ * non-draft Scene (or a Scene with no usable images) is simply absent from the
+ * map, so the call site falls back to the git hero, then nothing.
+ */
+export const getSceneMediaMap = cache(
+  async (keys: readonly SceneBeatKey[]): Promise<Map<string, SceneMedia>> => {
+    const map = new Map<string, SceneMedia>();
+    for (const beat of SCENE_BEATS) {
+      const beatRefs = keys.filter((k) => k.beat === beat).map((k) => k.beatRef);
+      if (beatRefs.length === 0) continue;
+      const rows = await sanityClient.fetch<
+        Array<{ beatRef: string | null; images: RawImage[] | null }>
+      >(
+        `*[_type == "scene" && beat == $beat && beatRef in $beatRefs && ${PUBLISHED_FILTER}]{
+          beatRef, images
+        }`,
+        { beat, beatRefs },
+        { next: { tags: [SANITY_TAG] } },
+      );
+      for (const r of rows) {
+        if (!r.beatRef || map.has(sceneKey(beat, r.beatRef))) continue;
+        const images = (r.images ?? []).flatMap((g) => {
+          const resolved = resolve(g);
+          return resolved
+            ? [{ ...resolved, caption: (g as { caption?: string })?.caption ?? '' }]
+            : [];
+        });
+        if (images.length) map.set(sceneKey(beat, r.beatRef), { images });
+      }
+    }
+    return map;
   },
 );

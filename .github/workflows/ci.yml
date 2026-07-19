@@ -9,6 +9,10 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    # Nightly (03:17 UTC) — drives the off-path `scene-joins` check only.
+    # `verify`/`a11y` opt out of this event so the PR/push gate is unchanged.
+    - cron: '17 3 * * *'
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -20,6 +24,8 @@ permissions:
 jobs:
   verify:
     name: Build & validate
+    # PR/push/dispatch gate — never the nightly cron (that runs `scene-joins`).
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -61,8 +67,9 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('pnpm-lock.yaml') }}-
             ${{ runner.os }}-nextjs-
       - name: Build (Next.js)
-        # `tsc --noEmit` runs above; the Zod content loader (src/lib/content.ts)
-        # throws on a malformed entry, so this build is the content-schema gate.
+        # `tsc --noEmit` runs above; the Zod content loader (src/lib/contentCore.ts,
+        # re-exported by the server-only src/lib/content.ts shim) throws on a
+        # malformed entry, so this build is the content-schema gate.
         run: pnpm run build
       - name: Upload build for a11y
         uses: actions/upload-artifact@v4
@@ -77,6 +84,7 @@ jobs:
   a11y:
     name: Accessibility (advisory)
     needs: verify
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -106,3 +114,29 @@ jobs:
           pnpm exec next start &
           pnpm exec wait-on -t 60000 http://localhost:3000/
           pnpm exec pa11y-ci
+
+  scene-joins:
+    name: Scene-art joins (nightly / on-demand)
+    # OFF the push/PR path by design: default CI stays network-free (ADR-0014).
+    # This is the only job driven by the nightly `schedule`; it also runs on a
+    # manual `workflow_dispatch`. It reaches the public Sanity dataset over the
+    # network, so it must never gate a merge.
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Check live Scene-art joins
+        # Diffs published Sanity `scene` docs against the git beat tree and fails
+        # on an orphaned beatRef (scripts/check-scene-joins.ts). Queries the PUBLIC
+        # production dataset (defaults zwq04v8v/production) with NO token — the
+        # dataset is publicly readable, so no secret is set here.
+        run: pnpm scene:check
