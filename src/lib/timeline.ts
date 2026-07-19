@@ -1,5 +1,5 @@
 import { getTimelineEntries, type TimelineEntry, type CodexEntry } from './content';
-import { getCodexEntries, matchRelationship, toResolvedLink, type ResolvedLink } from './codex';
+import { getCodexEntries, matchRelationship, resolveLink, type ResolvedLink } from './codex';
 
 /**
  * Helpers for the World Timeline — an in-world chronological spine of story and
@@ -21,6 +21,5 @@ export function resolveTimelineLink(
   if (!rel) return undefined;
   const target = matchRelationship(rel, all);
   if (!target) return undefined;
-  // Projection (incl. the tier-inheritance spoiler rule) lives once in codex.ts.
-  return toResolvedLink(rel, target);
+  return resolveLink(rel, target);
 }

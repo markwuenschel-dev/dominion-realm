@@ -1,0 +1,1013 @@
+schema_version: repo-audit-swarm/candidate-ledger@1
+meta:
+  repo: dominion-realm
+  date: 2026-07-18
+  branch: chore/integrity-queue-2
+  commit: 416ba40
+  mode: parallel-report
+  swarm: Repo Audit Swarm
+  prior_run:
+    date: 2026-07-17
+    branch: main
+    commit: a77b19f
+    candidate_count: 23
+  captain_baseline:
+    verified: true
+    format: "pnpm format:check clean (193 files)"
+    test: "pnpm test -> 40 files / 428 tests passed"
+    check: "pnpm check (tsc --noEmit) clean"
+    lint: "pnpm lint (oxlint src) clean"
+  overall_grade: B
+  overall_rationale: >-
+    Green baseline (428 tests) after queue-2 closed CI/scripts/timeline/join
+    gaps; held at B by remaining Keystatic↔Zod drift (on #106), RSS contract,
+    timeline CMS hole, and new residual (draft-policy tests, lint scripts,
+    cross-branch merge collision with #106).
+  lane_grades:
+    deepening_seams: { grade: "B+", score: 4 }
+    graded_integrity: { grade: "B+", score: 4 }
+    blast_radius_lane: { grade: "B", score: 4 }
+    verification_readiness: { grade: "B+", score: 4 }
+  triage:
+    candidate_count: 27
+    lane_count: 4
+    blocked_count: 5
+    resolved_since_last_run: 9
+    by_action:
+      design: 2
+      direct-fix: 14
+      fitness-check: 5
+      triage: 6
+    by_priority_band:
+      high_ge_12: 12
+      mid_6_11: 14
+      low_le_5: 1
+    needs_decision: 5
+
+resolved_since_last_run:
+  - candidate_id: CAND-03
+    title: "CI never runs on push to main"
+    how: "push: branches:[main] + workflow_dispatch"
+    status: shipped
+  - candidate_id: CAND-05
+    title: "Build scripts re-implement content engine"
+    how: "contentCore shared; residual lint → CAND-25"
+    status: shipped
+  - candidate_id: CAND-07
+    title: "Scene art timeline inert"
+    how: "timeline page + TIMELINE_BEATS + Studio panes"
+    status: shipped
+  - candidate_id: CAND-08
+    title: "check-links.mjs Astro-era dead"
+    how: "script deleted"
+    status: shipped
+  - candidate_id: CAND-11
+    title: "Env vars undocumented"
+    how: ".env.example documents KEYSTATIC_URL + Sanity API version"
+    status: shipped
+  - candidate_id: CAND-16
+    title: "Slug/beatRef join has no detection harness"
+    how: "sceneJoins detector + tests + live script"
+    status: shipped
+  - candidate_id: CAND-18
+    title: "Timeline excluded from search"
+    how: "search corpus indexes timeline"
+    status: shipped
+  - candidate_id: CAND-20
+    title: "README overstates pnpm check"
+    how: "README now says type-check only"
+    status: shipped
+  - candidate_id: CAND-22
+    title: "Scene-part reject vs clamp dual semantics"
+    how: "parseLaterScenePart owns HTTP reject"
+    status: shipped
+
+candidates:
+  - candidate_id: CAND-01
+    title: "Keystatic relationship collection default unset outside Zod enum"
+    category: "Data / Schema / Contract"
+    lane_sources: [deepening_seams, blast_radius_lane]
+    summary: >-
+      Keystatic defaults a relationship collection to unset, a value the read-side Zod enum rejects, so a CMS save with the default turns the next build red.
+    root_cause: >-
+      Write-side option values are not constrained to be a subset of the read-side schema; Keystatic and Zod are hand-mirrored.
+    check: "Fitness test asserting option values subset of Zod enum, or remove unset."
+    note: "Fix lives on unmerged PR #106; still present in this worktree."
+    evidence:
+      - "keystatic.config.ts:34,40 — unset default"
+      - "src/lib/contentCore.ts:20 — enum omits unset"
+      - "src/lib/contentCore.ts:190-197 — parse throws"
+    scores:
+      severity: 4
+      confidence: 5
+      leverage: 5
+      locality: 3
+      testability: 5
+      blast_radius: 4
+      regression_risk: 4
+      human_decision_risk: 2
+    rollup:
+      priority_score: 12
+      priority_band: high
+      recommended_action: direct-fix
+      branch: direct-fix
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [SEAM-2A, BLAST-2]
+      group: keystatic-zod-relationship-unset
+    status: carried-on-open-PR
+
+  - candidate_id: CAND-02
+    title: "RSS emits title+summary for every journal post vs ADR-0004"
+    category: "Bug"
+    lane_sources: [blast_radius_lane, verification_readiness]
+    summary: >-
+      RSS publishes title and summary for every journal post including sealed ones, contradicting ADR-0004; OG path is correct; zero route tests.
+    root_cause: >-
+      RSS was never gated through the reveal-tier projection; a comment claims spoiler-safety the code does not enforce.
+    check: "Decide the external RSS contract, then unit-test GET() and gate sealed metadata."
+    evidence:
+      - "src/app/rss.xml/route.ts:25-40 — emits title+summary unconditionally"
+      - "src/app/rss.xml/route.ts:5-7 — spoiler-safe claim"
+      - "no rss test file"
+    scores:
+      severity: 4
+      confidence: 5
+      leverage: 4
+      locality: 4
+      testability: 5
+      blast_radius: 3
+      regression_risk: 4
+      human_decision_risk: 5
+    rollup:
+      priority_score: 10
+      priority_band: mid
+      recommended_action: fitness-check
+      branch: fitness-check
+      execution_mode: blocked-needs-human-decision
+      blocked_by: ["A public/external contract"]
+    dedup:
+      merged_from: [BLAST-3, VERIF-5]
+      group: rss-adr0004-sealed-metadata
+    status: needs-human-decision
+
+  - candidate_id: CAND-04
+    title: "Committed content-manifest is an ungated golden (TIMELINE_BEATS now)"
+    category: "Testing / Fixture / Golden"
+    lane_sources: [verification_readiness, blast_radius_lane]
+    summary: >-
+      The committed content-manifest golden has no regen/diff gate on this branch, and the sceneJoins sync test is tautological (feeds the manifest back into itself).
+    root_cause: >-
+      Generator output is treated as a static source; the one test that looks like a freshness guard never compares against the content tree.
+    check: "Vitest: re-derive beat ids from contentCore and expect equal to READING_BEATS/TIMELINE_BEATS; or regenerate + git diff --exit-code in CI."
+    note: "PR #106 adds a staleness gate against the old reading-only .mjs shape; this branch emits TIMELINE_BEATS via .ts — coordinate merge (see CAND-26)."
+    evidence:
+      - "src/sanity/sceneJoins.test.ts:63-71 — tautological sync"
+      - "scripts/generate-content-manifest.ts:22-27,48 — committed output"
+      - "ci.yml:40-54 — no regen/diff step"
+    scores:
+      severity: 3
+      confidence: 5
+      leverage: 4
+      locality: 5
+      testability: 5
+      blast_radius: 3
+      regression_risk: 3
+      human_decision_risk: 1
+    rollup:
+      priority_score: 15
+      priority_band: high
+      recommended_action: fitness-check
+      branch: fitness-check
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [VERIF-2, L4-New-4, L3-New-1]
+      group: content-manifest-golden
+    status: open
+
+  - candidate_id: CAND-06
+    title: "Timeline in Zod + files but absent from Keystatic / CONTENT.md"
+    category: "Data / Schema / Contract"
+    lane_sources: [deepening_seams, blast_radius_lane]
+    summary: >-
+      Timeline is Zod-validated and file-backed but has no Keystatic collection and is undocumented in CONTENT.md.
+    root_cause: >-
+      Write-side and docs never extended when timeline was added to the read schema.
+    check: "Decide CMS ownership, then add Keystatic collection + docs."
+    evidence:
+      - "src/lib/contentCore.ts:81-92 — timeline Zod schema"
+      - "keystatic.config.ts — no timeline collection"
+      - "docs/CONTENT.md:86-91 — timeline omitted"
+    scores:
+      severity: 4
+      confidence: 5
+      leverage: 4
+      locality: 2
+      testability: 4
+      blast_radius: 4
+      regression_risk: 3
+      human_decision_risk: 4
+    rollup:
+      priority_score: 8
+      priority_band: mid
+      recommended_action: design
+      branch: design
+      execution_mode: blocked-needs-human-decision
+      blocked_by: ["Data schema or architecture direction"]
+    dedup:
+      merged_from: [SEAM-2B, BLAST-1]
+      group: timeline-keystatic-gap
+    status: needs-human-decision
+
+  - candidate_id: CAND-09
+    title: "resource_system.md missing; Faith/Occult vs CVN/MYS (citations proliferated)"
+    category: "Maintainability"
+    lane_sources: [blast_radius_lane]
+    summary: >-
+      CONTEXT cites a missing resource_system.md and names Faith/Occult while code uses CVN/MYS; citations now reach a rendered footer and formula modules.
+    root_cause: >-
+      Terminology and a referenced SoT were never reconciled after a rename; the missing file kept being cited.
+    check: "Decide canonical naming and whether to add the doc or rewrite citations/footer."
+    note: "Blast expanded: user-facing footer and multiple formula modules cite the missing doc."
+    evidence:
+      - "CONTEXT.md:54,67 — Faith/Occult + missing doc cite"
+      - "src/types/index.ts:24-25 — CVN/MYS"
+      - "src/components/sheet/CharacterSheetShell.tsx:12 — user-facing footer cite"
+    scores:
+      severity: 3
+      confidence: 5
+      leverage: 3
+      locality: 2
+      testability: 3
+      blast_radius: 3
+      regression_risk: 4
+      human_decision_risk: 4
+    rollup:
+      priority_score: 5
+      priority_band: low
+      recommended_action: triage
+      branch: triage
+      execution_mode: blocked-needs-human-decision
+      blocked_by: ["A numerical correctness expectation"]
+    dedup:
+      merged_from: [BLAST-4, L3-New-5]
+      group: resource-system-doc-drift
+    status: needs-human-decision
+
+  - candidate_id: CAND-10
+    title: "Sheet JSON import bypasses schema"
+    category: "Data / Schema / Contract"
+    lane_sources: [graded_integrity]
+    summary: >-
+      Character sheet JSON import writes into the store without Zod, so malformed JSON can corrupt sheet state.
+    root_cause: >-
+      Import parses JSON and spreads into state instead of the Zod path used elsewhere.
+    check: "Reject invalid import JSON; add Zod parse + unit test."
+    evidence:
+      - "src/components/sheet/StatSheetTable.tsx:275-276 — JSON.parse + loadState"
+      - "src/store/characterSheetStore.ts:96-105 — unvalidated spread"
+    scores:
+      severity: 3
+      confidence: 5
+      leverage: 4
+      locality: 4
+      testability: 5
+      blast_radius: 2
+      regression_risk: 3
+      human_decision_risk: 1
+    rollup:
+      priority_score: 15
+      priority_band: high
+      recommended_action: fitness-check
+      branch: fitness-check
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [QUAL-6]
+      group: sheet-import-schema
+    status: carried-on-open-PR
+
+  - candidate_id: CAND-12
+    title: "Content loaders re-scan the filesystem every call (no React.cache)"
+    category: "Maintainability"
+    lane_sources: [graded_integrity]
+    summary: >-
+      loadCollection still does fg.sync + readFileSync every call with no request-level memoization; amplified by timeline fan-out.
+    root_cause: >-
+      Content loaders were never wrapped in React.cache() the way media.ts was.
+    check: "Wrap contentCore getters in cache() at the server boundary; assert single FS scan per request."
+    note: "PR #106 wraps cache() in content.ts; this branch moved loaders to contentCore.ts — merge must re-apply cache onto contentCore (see CAND-26)."
+    evidence:
+      - "src/lib/contentCore.ts:177-224 — uncached loadCollection"
+      - "src/sanity/media.ts:118+ — cache() pattern"
+      - "src/app/timeline/page.tsx:23-30 — N beat fetches amplify cost"
+    scores:
+      severity: 3
+      confidence: 5
+      leverage: 4
+      locality: 3
+      testability: 4
+      blast_radius: 2
+      regression_risk: 3
+      human_decision_risk: 1
+    rollup:
+      priority_score: 13
+      priority_band: high
+      recommended_action: direct-fix
+      branch: direct-fix
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [QUAL-1]
+      group: content-loader-cache
+    status: carried-on-open-PR
+
+  - candidate_id: CAND-13
+    title: "next.config ignores TS/ESLint errors during builds"
+    category: "Build / CI"
+    lane_sources: [graded_integrity]
+    summary: >-
+      next.config still disables TypeScript and ESLint build errors.
+    root_cause: >-
+      ignoreBuildErrors / ignoreDuringBuilds remain enabled.
+    check: "Remove ignore flags or keep the justifying comment with explicit deploy-gate ownership."
+    note: "Mitigated by CAND-03 (push-to-main CI) but flags still present."
+    evidence:
+      - "next.config.mjs:41-46 — ignore flags + justifying comment"
+    scores:
+      severity: 3
+      confidence: 5
+      leverage: 3
+      locality: 4
+      testability: 2
+      blast_radius: 3
+      regression_risk: 4
+      human_decision_risk: 3
+    rollup:
+      priority_score: 7
+      priority_band: mid
+      recommended_action: triage
+      branch: triage
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [QUAL-10]
+      group: next-ignore-build-errors
+    status: carried-on-open-PR
+
+  - candidate_id: CAND-14
+    title: "projectByReveal doc overclaims; most callers hand-roll"
+    category: "Maintainability"
+    lane_sources: [deepening_seams]
+    summary: >-
+      projectByReveal docs claim it is the single reveal projection, but callers still hand-roll tier checks.
+    root_cause: >-
+      Helper documented as canonical before call sites migrated.
+    check: "Migrate hand-rolled callers; align the doc."
+    evidence:
+      - "src/lib/reveal.ts:118-121 — overclaim"
+      - "src/components/CodexCard.tsx:42 — bare tier !== teaser"
+    scores:
+      severity: 2
+      confidence: 5
+      leverage: 3
+      locality: 4
+      testability: 4
+      blast_radius: 2
+      regression_risk: 2
+      human_decision_risk: 2
+    rollup:
+      priority_score: 12
+      priority_band: high
+      recommended_action: direct-fix
+      branch: direct-fix
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [SEAM-3]
+      group: projectByReveal-doc-drift
+    status: carried-on-open-PR
+
+  - candidate_id: CAND-15
+    title: "Relationship to ResolvedLink projection duplicated"
+    category: "Maintainability"
+    lane_sources: [deepening_seams]
+    summary: >-
+      Relationship to ResolvedLink projection (reveal inheritance) is duplicated across codex and timeline.
+    root_cause: >-
+      No shared helper owns the projection.
+    check: "Extract toResolvedLink; assert both callers match."
+    evidence:
+      - "src/lib/codex.ts:197-204 — copy A"
+      - "src/lib/timeline.ts:25-30 — copy B"
+    scores:
+      severity: 2
+      confidence: 5
+      leverage: 2
+      locality: 5
+      testability: 5
+      blast_radius: 2
+      regression_risk: 3
+      human_decision_risk: 1
+    rollup:
+      priority_score: 13
+      priority_band: high
+      recommended_action: direct-fix
+      branch: direct-fix
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [SEAM-4]
+      group: resolved-link-projection
+    note: "Shipped on main via PR #108 (740327e): resolveLink seam in codex.ts + timeline.ts."
+    status: shipped
+
+  - candidate_id: CAND-17
+    title: "homeSettings JSON.parse without Zod"
+    category: "Data / Schema / Contract"
+    lane_sources: [graded_integrity]
+    summary: >-
+      homeSettings is JSON.parsed without Zod, so malformed settings flow unchecked.
+    root_cause: >-
+      Read path never brought under the Zod gate.
+    check: "Add Zod schema + parse; unit-test rejection."
+    evidence:
+      - "src/lib/homeSettings.ts:32-35 — JSON.parse without Zod"
+    scores:
+      severity: 2
+      confidence: 5
+      leverage: 3
+      locality: 5
+      testability: 5
+      blast_radius: 1
+      regression_risk: 2
+      human_decision_risk: 1
+    rollup:
+      priority_score: 16
+      priority_band: high
+      recommended_action: direct-fix
+      branch: direct-fix
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [QUAL-5]
+      group: home-settings-zod
+    status: carried-on-open-PR
+
+  - candidate_id: CAND-19
+    title: "Dual cover source-of-truth: Keystatic vs Sanity"
+    category: "Architecture Fitness"
+    lane_sources: [blast_radius_lane]
+    summary: >-
+      Cover image still has two reachable sources (Sanity siteSettings and Keystatic/git homeSettings).
+    root_cause: >-
+      Two systems model the cover without retiring the older path.
+    check: "Pick a single SoT; retire or hard-gate the other."
+    note: "Precedence now documented (Sanity then git) but both paths remain reachable."
+    evidence:
+      - "src/app/page.tsx:61-67 — Sanity preferred, git fallback"
+      - "src/lib/homeSettings.ts:28-42 — git cover still live"
+    scores:
+      severity: 2
+      confidence: 4
+      leverage: 3
+      locality: 3
+      testability: 3
+      blast_radius: 3
+      regression_risk: 2
+      human_decision_risk: 4
+    rollup:
+      priority_score: 6
+      priority_band: mid
+      recommended_action: design
+      branch: design
+      execution_mode: blocked-needs-human-decision
+      blocked_by: ["Deleting or retiring code that is still reachable", "Data schema or architecture direction"]
+    dedup:
+      merged_from: [BLAST-9]
+      group: dual-cover-sot
+    status: needs-human-decision
+
+  - candidate_id: CAND-21
+    title: "ADR-0011 still claims Railway (CI half already fixed)"
+    category: "Build / CI"
+    lane_sources: [graded_integrity, blast_radius_lane]
+    summary: >-
+      ADR-0011 still references Railway hosting after the deploy reality moved to EC2.
+    root_cause: >-
+      Hosting docs were not fully updated after the hosting change.
+    check: "Update ADR-0011 Railway mentions to the current host."
+    note: "CI comment already ADR-0012/EC2 on this branch; ADR-0011 Railway claims remain."
+    evidence:
+      - "docs/adr/0011-media-layer-sanity.md:114-117 — Railway claim"
+      - "ci.yml:3-6 — already EC2 on this branch"
+    scores:
+      severity: 2
+      confidence: 5
+      leverage: 2
+      locality: 5
+      testability: 1
+      blast_radius: 1
+      regression_risk: 1
+      human_decision_risk: 1
+    rollup:
+      priority_score: 12
+      priority_band: high
+      recommended_action: direct-fix
+      branch: direct-fix
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [QUAL-8]
+      group: hosting-doc-drift
+    status: carried-on-open-PR
+
+  - candidate_id: CAND-23
+    title: "Keystatic trusts x-forwarded-host"
+    category: "Other"
+    lane_sources: [graded_integrity]
+    summary: >-
+      Keystatic OAuth origin still reads x-forwarded-host, which can be attacker-controlled behind a misconfigured proxy.
+    root_cause: >-
+      Host resolution trusts a forwarded header without a pinned allowlist.
+    check: "Security triage: allowlist host or pin trusted proxy config."
+    note: "Now gated on NEXT_PUBLIC_KEYSTATIC_GITHUB + isInternalHost, which narrows but does not close the trust boundary."
+    evidence:
+      - "src/app/api/keystatic/[[...params]]/route.ts:34,41-44 — x-forwarded-host + isInternalHost"
+    scores:
+      severity: 3
+      confidence: 3
+      leverage: 3
+      locality: 4
+      testability: 3
+      blast_radius: 3
+      regression_risk: 3
+      human_decision_risk: 4
+    rollup:
+      priority_score: 6
+      priority_band: mid
+      recommended_action: triage
+      branch: triage
+      execution_mode: blocked-needs-human-decision
+      blocked_by: ["Security or production safety"]
+    dedup:
+      merged_from: [QUAL-12]
+      group: keystatic-forwarded-host
+    status: needs-human-decision
+
+  - candidate_id: CAND-24
+    title: "DraftPolicy tests are vacuous; include/exclude branches untested"
+    category: "Testing"
+    lane_sources: [graded_integrity]
+    summary: >-
+      DraftPolicy (env/include/exclude) is plumbed through every getter, but only the env branch is weakly tested against the live corpus; exclude (downloads) and include (manifest) have no coverage.
+    root_cause: >-
+      Tests exercise real corpus rather than fixtures, so a corpus with zero drafts makes the production-drop assertion vacuous.
+    check: "Fixture-based unit tests: exclude drops drafts in dev; include keeps drafts in production; env follows NODE_ENV."
+    evidence:
+      - "src/lib/contentCore.ts:162-175 — three draft branches"
+      - "src/lib/content.test.ts:93-113 — corpus-dependent vacuous loop"
+      - "scripts/generate-downloads.ts:44 — exclude untested"
+      - "scripts/generate-content-manifest.ts:22-27 — include untested"
+    scores:
+      severity: 3
+      confidence: 5
+      leverage: 4
+      locality: 4
+      testability: 5
+      blast_radius: 2
+      regression_risk: 1
+      human_decision_risk: 1
+    rollup:
+      priority_score: 17
+      priority_band: high
+      recommended_action: direct-fix
+      branch: direct-fix
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [L2-NEW-2]
+      group: draft-policy-test-gap
+    note: "Shipped via swarm lane D: exported applyDraftPolicy seam; fixture-based non-vacuous tests for exclude/include/env branches (content.test.ts)."
+    status: shipped
+
+  - candidate_id: CAND-25
+    title: "oxlint still scoped to src; TypeScript build scripts unlinted"
+    category: "Build / CI"
+    lane_sources: [graded_integrity, verification_readiness, blast_radius_lane, deepening_seams]
+    summary: >-
+      Queue-2 moved real logic into scripts/*.ts under tsc+oxfmt, but oxlint still ends at src, so correctness/suspicious rules never see build scripts.
+    root_cause: >-
+      lint script path arg was not widened when scripts became first-class TypeScript.
+    check: "Change package.json lint to oxlint … src scripts."
+    note: "Residual half of shipped CAND-05 (engine dedup done; gate half remains)."
+    evidence:
+      - "package.json:17 — oxlint … src"
+      - "scripts/check-scene-joins.ts — network script unlinted"
+      - "scripts/sanity-migrate.ts — credential-bearing script unlinted"
+    scores:
+      severity: 2
+      confidence: 5
+      leverage: 4
+      locality: 5
+      testability: 4
+      blast_radius: 2
+      regression_risk: 2
+      human_decision_risk: 2
+    rollup:
+      priority_score: 14
+      priority_band: high
+      recommended_action: direct-fix
+      branch: direct-fix
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [L2-NEW-3, L4-New-1, L3-New-6, CAND-05-residual]
+      group: scripts-lint-gate
+    note: "Shipped via swarm lane A: oxlint widened to 'src scripts'; the two _id false positives resolved with an .oxlintrc.json no-underscore-dangle allowlist (_id/_type/_ref/_rev) so the rule stays live elsewhere."
+    status: shipped
+
+  - candidate_id: CAND-26
+    title: "Cross-branch collision with PR #106 (manifest, contentCore, ci.yml)"
+    category: "Build / CI"
+    lane_sources: [blast_radius_lane]
+    summary: >-
+      This branch renamed the manifest generator .mjs→.ts and added TIMELINE_BEATS while #106 modified the old .mjs and adds a reading-only staleness gate; content.ts was gutted to a barrel while #106 wraps cache()/wiring there; both edit ci.yml.
+    root_cause: >-
+      Two branches independently evolved the same seams from a77b19f with incompatible shapes.
+    check: "Triage merge order: keep .ts generator + TIMELINE_BEATS; re-apply #106 cache() onto contentCore; keep push trigger + any #106 gate step."
+    evidence:
+      - "scripts/generate-content-manifest.ts — .ts + TIMELINE_BEATS"
+      - "src/lib/content.ts:20-40 — re-export barrel only"
+      - "src/lib/contentCore.ts:177-266 — loaders live here"
+      - "ci.yml:3-11 — push trigger + EC2 comment"
+    scores:
+      severity: 4
+      confidence: 5
+      leverage: 4
+      locality: 2
+      testability: 3
+      blast_radius: 5
+      regression_risk: 4
+      human_decision_risk: 3
+    rollup:
+      priority_score: 6
+      priority_band: mid
+      recommended_action: triage
+      branch: triage
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [L3-New-1, L3-New-2, L3-New-3]
+      group: pr106-merge-collision
+    status: open
+
+  - candidate_id: CAND-27
+    title: "Timeline Scene media is an N+1 Sanity fan-out"
+    category: "Architecture Fitness"
+    lane_sources: [deepening_seams, graded_integrity]
+    summary: >-
+      Timeline fetches getSceneMedia once per beat (including sealed beats), while Subjects already have a one-query map reader.
+    root_cause: >-
+      getSceneMedia is a single-item reader shipped for reading detail pages and reused for N-beat timeline without a batch shape.
+    check: "Add getSceneMediaMap(beat); timeline reads from it; spy that render issues ≤1 Sanity fetch per beat-kind."
+    evidence:
+      - "src/app/timeline/page.tsx:23-30 — Promise.all per beat"
+      - "src/sanity/media.ts:245-261 — single-item getSceneMedia"
+      - "src/sanity/media.ts:156-172 — getSubjectPrimaryMap batch pattern"
+    scores:
+      severity: 2
+      confidence: 5
+      leverage: 3
+      locality: 4
+      testability: 3
+      blast_radius: 2
+      regression_risk: 2
+      human_decision_risk: 2
+    rollup:
+      priority_score: 11
+      priority_band: mid
+      recommended_action: direct-fix
+      branch: direct-fix
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [L1-NC-1, L2-NEW-1]
+      group: scene-media-batch-reader
+    note: "Shipped via swarm lane B: getSceneMediaMap batch reader (modeled on getSubjectPrimaryMap); timeline reads from it; spy test proves =1 fetch per beat-kind."
+    status: shipped
+
+  - candidate_id: CAND-28
+    title: "Timeline Scene-art render path and Studio structure have no tests"
+    category: "Testing"
+    lane_sources: [verification_readiness]
+    summary: >-
+      CAND-07 wired timeline Scene art and manifest-driven Studio panes, but coverage stops at the lib getSceneMedia seam.
+    root_cause: >-
+      RSC page and Studio structure were added without a render/structure test.
+    check: "Render test: SceneArt present with media, absent on miss; structure smoke: each READING/TIMELINE beat yields a filtered list item."
+    evidence:
+      - "src/app/timeline/page.tsx:64-72 — SceneArt wiring untested"
+      - "src/sanity/structure.ts:41-90 — beat panes untested"
+    scores:
+      severity: 2
+      confidence: 5
+      leverage: 3
+      locality: 4
+      testability: 3
+      blast_radius: 3
+      regression_risk: 3
+      human_decision_risk: 2
+    rollup:
+      priority_score: 9
+      priority_band: mid
+      recommended_action: fitness-check
+      branch: fitness-check
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [L4-New-2]
+      group: timeline-scene-test-gap
+    note: "Shipped via swarm lane B: page.test.tsx (SceneArt present/absent/sealed) + structure.test.ts Studio coverage smoke."
+    status: shipped
+
+  - candidate_id: CAND-29
+    title: "Subject join-key format kind:slug expressed three times"
+    category: "Maintainability"
+    lane_sources: [deepening_seams]
+    summary: >-
+      subjectKey() builds kind:slug for consumers while two map producers rebuild the identical string inline — a format drift becomes a silent graceful miss.
+    root_cause: >-
+      No keyOf(kind,slug) primitive; producers have kind not collection so they cannot reuse subjectKey.
+    check: "Extract keyOf; have subjectKey and both map builders call it; round-trip test."
+    evidence:
+      - "src/sanity/media.ts:89-91 — subjectKey"
+      - "src/sanity/media.ts:169 — producer inline"
+      - "src/sanity/media.ts:195 — second producer inline"
+    scores:
+      severity: 2
+      confidence: 5
+      leverage: 3
+      locality: 5
+      testability: 5
+      blast_radius: 3
+      regression_risk: 2
+      human_decision_risk: 1
+    rollup:
+      priority_score: 14
+      priority_band: high
+      recommended_action: direct-fix
+      branch: direct-fix
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [L1-NC-2]
+      group: subject-key-format
+    note: "Shipped on main via PR #108 (b2cdbfd): subjectKeyForKind extracted; both map producers call it (media.ts:187,213)."
+    status: shipped
+
+  - candidate_id: CAND-30
+    title: "Frontmatter image-path resolution implemented twice with latent divergence"
+    category: "Maintainability"
+    lane_sources: [deepening_seams]
+    summary: >-
+      loadCollection inlines image-path resolution while imageSourcePath exports a near-copy that returns undefined for bare relative paths.
+    root_cause: >-
+      Pre-resolution guard was added to loadCollection without routing through imageSourcePath.
+    check: "One resolver for all three path shapes; table test across call sites."
+    evidence:
+      - "src/lib/contentCore.ts:206-210 — relative path branch in loader"
+      - "src/lib/contentCore.ts:147-160 — imageSourcePath has no relative branch"
+      - "scripts/sanity-migrate.ts:89 — calls imageSourcePath post-normalize"
+    scores:
+      severity: 2
+      confidence: 4
+      leverage: 3
+      locality: 4
+      testability: 4
+      blast_radius: 2
+      regression_risk: 2
+      human_decision_risk: 1
+    rollup:
+      priority_score: 12
+      priority_band: high
+      recommended_action: direct-fix
+      branch: direct-fix
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [L1-NC-3]
+      group: image-path-resolver
+    note: "Shipped on main via PR #108 (9155fd3): one contentImage seam for the frontmatter image-path rule."
+    status: shipped
+
+  - candidate_id: CAND-31
+    title: "Post-split doc drift still names content.ts as the schema home"
+    category: "Maintainability"
+    lane_sources: [deepening_seams]
+    summary: >-
+      After content.ts became a re-export shim, CONTENT.md, keystatic.config.ts, and ci.yml still point readers at it for schemas/loaders that live in contentCore.ts.
+    root_cause: >-
+      Engine extraction did not repoint human-facing references.
+    check: "Repoint the three references to contentCore.ts (or note the shim)."
+    evidence:
+      - "docs/CONTENT.md:392,416 — cites content.ts as schema home"
+      - "keystatic.config.ts:11,55 — mirrors content.ts"
+      - "ci.yml:64 — Zod loader comment cites content.ts"
+    scores:
+      severity: 1
+      confidence: 5
+      leverage: 2
+      locality: 4
+      testability: 1
+      blast_radius: 1
+      regression_risk: 1
+      human_decision_risk: 1
+    rollup:
+      priority_score: 10
+      priority_band: mid
+      recommended_action: direct-fix
+      branch: direct-fix
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [L1-NC-4]
+      group: contentcore-doc-drift
+    note: "Shipped via swarm lane C: CONTENT.md, keystatic.config.ts, ci.yml repointed from content.ts shim to contentCore.ts (verified symbols live there)."
+    status: shipped
+
+  - candidate_id: CAND-32
+    title: "ADR-0014 and CONTEXT.md still say scene art is reading-only"
+    category: "Maintainability"
+    lane_sources: [blast_radius_lane]
+    summary: >-
+      Timeline now renders Scene art, but ADR-0014 and CONTEXT.md still describe it as reading-only with timeline as an unshipped fast-follow.
+    root_cause: >-
+      CAND-07 shipped the render surface without updating the governing docs.
+    check: "Update ADR-0014 status note and CONTEXT § Scene art / § Plate to include timeline."
+    evidence:
+      - "src/app/timeline/page.tsx:64-72 — SceneArt on timeline"
+      - "docs/adr/0014-scene-art-beat-scoped.md:36-38 — Reading only this pass"
+      - "CONTEXT.md:120-127 — reading-doorway-only"
+    scores:
+      severity: 2
+      confidence: 5
+      leverage: 3
+      locality: 4
+      testability: 2
+      blast_radius: 2
+      regression_risk: 1
+      human_decision_risk: 2
+    rollup:
+      priority_score: 11
+      priority_band: mid
+      recommended_action: direct-fix
+      branch: direct-fix
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [L3-New-4]
+      group: scene-art-doc-drift
+    note: "Shipped via swarm lane C: ADR-0014 + CONTEXT.md updated to reflect timeline scene-art now shipped (inline per-beat render)."
+    status: shipped
+
+  - candidate_id: CAND-33
+    title: "check-scene-joins has no package.json alias (scene:check)"
+    category: "Build / CI"
+    lane_sources: [deepening_seams]
+    summary: >-
+      The CAND-16 live detector exists but is only runnable via a hand-typed pnpm exec tsx path; ADR-0014 anticipated a scene:check script.
+    root_cause: >-
+      Detector landed without a package.json surface.
+    check: "Add \"scene:check\": \"tsx scripts/check-scene-joins.ts\"."
+    evidence:
+      - "package.json:11-23 — no scene:check"
+      - "scripts/check-scene-joins.ts:14 — hand-typed invocation"
+      - "docs/adr/0014-scene-art-beat-scoped.md:49 — names scene:check"
+    scores:
+      severity: 1
+      confidence: 5
+      leverage: 2
+      locality: 5
+      testability: 2
+      blast_radius: 1
+      regression_risk: 1
+      human_decision_risk: 2
+    rollup:
+      priority_score: 11
+      priority_band: mid
+      recommended_action: direct-fix
+      branch: direct-fix
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [L1-NC-5]
+      group: scene-check-alias
+    note: "Shipped via swarm lane A: added \"scene:check\": \"tsx scripts/check-scene-joins.ts\" to package.json."
+    status: shipped
+
+  - candidate_id: CAND-34
+    title: "Scene beat-kind literals duplicated (GROQ reader vs detector)"
+    category: "Architecture Fitness"
+    lane_sources: [graded_integrity]
+    summary: >-
+      The join rule beat in {reading,timeline} lives independently in the GROQ reader and the pure detector; parity is hand-mirrored by one test.
+    root_cause: >-
+      Detector re-hardcodes beat-kind literals instead of importing a shared SceneBeat set.
+    check: "Export SCENE_BEATS / SceneBeat from one module; consume in detector and reader construction."
+    evidence:
+      - "src/sanity/media.ts:248 — reader filter"
+      - "src/sanity/sceneJoins.ts:49-53 — detector re-hardcodes kinds"
+      - "src/sanity/sceneJoins.test.ts:42-47 — hand-mirrored parity"
+    scores:
+      severity: 2
+      confidence: 4
+      leverage: 2
+      locality: 4
+      testability: 4
+      blast_radius: 2
+      regression_risk: 2
+      human_decision_risk: 2
+    rollup:
+      priority_score: 10
+      priority_band: mid
+      recommended_action: fitness-check
+      branch: fitness-check
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [L2-NEW-5]
+      group: scene-beat-shared-constant
+    note: "Shipped via swarm lane B: SCENE_BEATS/SceneBeat exported from sceneJoins.ts; reader + detector consume it; parity test asserts against the constant."
+    status: shipped
+
+  - candidate_id: CAND-35
+    title: "Hand-rolled pdfkit.d.ts types text() options as object"
+    category: "Static"
+    lane_sources: [graded_integrity]
+    summary: >-
+      Ambient pdfkit types declare text() options as object, so option-key typos are unchecked and the shim can drift from pdfkit@0.15.2.
+    root_cause: >-
+      declare module fully replaces the package typing surface with a lossy approximation; @types/pdfkit not installed.
+    check: "Install @types/pdfkit and delete the shim, or tighten PDFTextOptions."
+    evidence:
+      - "scripts/pdfkit.d.ts:10 — options?: object"
+      - "scripts/generate-downloads.ts:236-241 — untyped option keys"
+      - "package.json — pdfkit without @types"
+    scores:
+      severity: 1
+      confidence: 4
+      leverage: 2
+      locality: 5
+      testability: 2
+      blast_radius: 1
+      regression_risk: 2
+      human_decision_risk: 2
+    rollup:
+      priority_score: 9
+      priority_band: mid
+      recommended_action: triage
+      branch: triage
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [L2-NEW-4]
+      group: pdfkit-ambient-types
+    note: "Shipped via swarm lane A: installed @types/pdfkit and deleted the lossy scripts/pdfkit.d.ts shim; tsc clean (no option-key drift found)."
+    status: shipped
+
+  - candidate_id: CAND-36
+    title: "Live scene-joins check has no automated trigger"
+    category: "Build / CI"
+    lane_sources: [verification_readiness]
+    summary: >-
+      The red-capable live scene-joins check is local/ops only; an orphaned Scene is caught only if a human remembers to run it.
+    root_cause: >-
+      Deliberate network-free default CI left the live check with no optional/nightly home.
+    check: "Triage: workflow_dispatch/nightly job (public dataset, no token) or documented pre-release gate."
+    evidence:
+      - "scripts/check-scene-joins.ts:9-16 — LOCAL/OPS only"
+      - "ci.yml — no scene-joins job"
+    scores:
+      severity: 2
+      confidence: 5
+      leverage: 3
+      locality: 4
+      testability: 3
+      blast_radius: 3
+      regression_risk: 2
+      human_decision_risk: 3
+    rollup:
+      priority_score: 9
+      priority_band: mid
+      recommended_action: triage
+      branch: triage
+      execution_mode: auto
+      blocked_by: []
+    dedup:
+      merged_from: [L4-New-3]
+      group: scene-joins-ci-trigger
+    note: "Shipped via swarm lane C: nightly schedule + workflow_dispatch scene-joins job in ci.yml running pnpm scene:check against the public dataset (no token); off the push/PR gate by design."
+    status: shipped

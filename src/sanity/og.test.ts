@@ -12,25 +12,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const getSocialImage = vi.fn<() => Promise<{ source: unknown; alt: string } | null>>();
 vi.mock('./media', () => ({ getSocialImage }));
 
-// Chainable urlFor builder that records the source it was handed and the crop.
-type Builder = {
-  width: (n: number) => Builder;
-  height: (n: number) => Builder;
-  fit: (s: string) => Builder;
-  format: (s: string) => Builder;
-  quality: (n: number) => Builder;
-  url: () => string;
-};
-const chain: Builder = {
-  width: vi.fn<Builder['width']>(() => chain),
-  height: vi.fn<Builder['height']>(() => chain),
-  fit: vi.fn<Builder['fit']>(() => chain),
-  format: vi.fn<Builder['format']>(() => chain),
-  quality: vi.fn<Builder['quality']>(() => chain),
-  url: vi.fn<Builder['url']>(() => 'https://cdn.sanity.io/crop.jpg'),
-};
-const urlFor = vi.fn<(source: unknown) => Builder>(() => chain);
-vi.mock('./image', () => ({ urlFor }));
+// The fixed-crop seam, mocked to record which source it crops and to what frame,
+// without hitting the real Sanity CDN builder.
+const imageUrl = vi.fn<(source: unknown, opts: Record<string, unknown>) => string>(
+  () => 'https://cdn.sanity.io/crop.jpg',
+);
+vi.mock('./image', () => ({ imageUrl }));
 
 async function loadOg() {
   vi.resetModules();
@@ -50,8 +37,7 @@ const social = {
 
 beforeEach(() => {
   getSocialImage.mockReset();
-  urlFor.mockClear();
-  Object.values(chain).forEach((fn) => (fn as unknown as { mockClear(): void }).mockClear());
+  imageUrl.mockClear();
 });
 
 describe('defaultSocialImage', () => {
@@ -60,10 +46,11 @@ describe('defaultSocialImage', () => {
     const { defaultSocialImage } = await loadOg();
 
     expect(await defaultSocialImage()).toBe('https://cdn.sanity.io/crop.jpg');
-    expect(urlFor).toHaveBeenCalledWith(social.source);
-    expect(chain.width).toHaveBeenCalledWith(1200);
-    expect(chain.height).toHaveBeenCalledWith(630);
-    expect(chain.format).toHaveBeenCalledWith('jpg'); // scraper-safe, not webp/avif
+    expect(imageUrl).toHaveBeenCalledWith(
+      social.source,
+      // 1200x630 social frame, scraper-safe jpg (not webp/avif).
+      expect.objectContaining({ width: 1200, height: 630, fit: 'crop', format: 'jpg' }),
+    );
   });
 
   it('falls back to the static og-default when no social image is set', async () => {
@@ -71,7 +58,7 @@ describe('defaultSocialImage', () => {
     const { defaultSocialImage, OG_DEFAULT } = await loadOg();
 
     expect(await defaultSocialImage()).toBe(OG_DEFAULT);
-    expect(urlFor).not.toHaveBeenCalled();
+    expect(imageUrl).not.toHaveBeenCalled();
   });
 });
 
@@ -80,7 +67,10 @@ describe('entrySocialImage', () => {
     const { entrySocialImage } = await loadOg();
 
     expect(await entrySocialImage('teaser', primary)).toBe('https://cdn.sanity.io/crop.jpg');
-    expect(urlFor).toHaveBeenCalledWith(primary.source);
+    expect(imageUrl).toHaveBeenCalledWith(
+      primary.source,
+      expect.objectContaining({ width: 1200, height: 630, fit: 'crop' }),
+    );
     expect(getSocialImage).not.toHaveBeenCalled(); // Primary short-circuits the default
   });
 
@@ -89,8 +79,8 @@ describe('entrySocialImage', () => {
     const { entrySocialImage } = await loadOg();
 
     expect(await entrySocialImage('teaser', null)).toBe('https://cdn.sanity.io/crop.jpg');
-    expect(urlFor).toHaveBeenCalledWith(social.source);
-    expect(urlFor).not.toHaveBeenCalledWith(primary.source);
+    expect(imageUrl).toHaveBeenCalledWith(social.source, expect.objectContaining({ width: 1200 }));
+    expect(imageUrl).not.toHaveBeenCalledWith(primary.source, expect.anything());
   });
 
   it('never uses a sealed entry’s Primary — sealed entries get the default', async () => {
@@ -100,7 +90,7 @@ describe('entrySocialImage', () => {
     for (const tier of ['reader', 'deep', 'beyond'] as const) {
       expect(await entrySocialImage(tier, primary)).toBe(OG_DEFAULT);
     }
-    expect(urlFor).not.toHaveBeenCalled(); // the sealed Primary is never cropped
+    expect(imageUrl).not.toHaveBeenCalled(); // the sealed Primary is never cropped
   });
 });
 

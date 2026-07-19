@@ -27,8 +27,12 @@ export const STAMINA_COEFFICIENTS = { END: 5, CON: 2, STR: 1, AGI: 1, DEX: 1 } a
 export const RESERVE_COEFFICIENTS = { CON: 2, END: 2, WIS: 2, CVN: 1, MYS: 1 } as const;
 export const MANA_RESERVE_RATIO = 5 as const;
 export const STAMINA_RESERVE_RATIO = 5 as const;
-export const MANA_FLOOR_FRACTION = 0.2;
-export const STAMINA_FLOOR_FRACTION = 0.2;
+/** The 20% mark: below it a resource enters overextension. The §6 Mana/Stamina
+ *  Reserve-buffered floor and the calculator's failure-zone displays all key off
+ *  this one number rather than a scattered `0.2` literal. */
+export const OVEREXTENSION_THRESHOLD = 0.2;
+export const MANA_FLOOR_FRACTION = OVEREXTENSION_THRESHOLD;
+export const STAMINA_FLOOR_FRACTION = OVEREXTENSION_THRESHOLD;
 
 // ── Regen coefficients — formula lock §3 ──
 export const HP_REGEN_COEFFICIENTS = { CON: 0.5, END: 0.3, WIS: 0.2 };
@@ -41,6 +45,25 @@ export const RESERVE_REGEN_COEFFICIENTS = {
   CVN: 0.15,
   MYS: 0.15,
 };
+
+// ── Activity-based regen coefficients — formula lock §7 ──
+// Per-activity rates scale off the FINAL resource maxima; the rest/meditation
+// tiers add a flat attribute term (max × fraction + attribute ÷ divisor). Kept
+// here so the §7 model has one tuning surface like every other formula family.
+export const ACTIVITY_REGEN_COEFFICIENTS = {
+  HP: { safeRest: 0.03, lightRest: 0.015, activeTravel: 0.005 },
+  Mana: { meditation: 0.05, calmNoncombat: 0.02, activeTravel: 0.01, combat: 0.005 },
+  Stamina: { fullRest: 0.12, catchingBreath: 0.08, lightMovement: 0.03, combat: 0.01 },
+  Reserve: { deepSleep: 0.08, meditation: 0.05, ordinaryRest: 0.03, activeTravel: 0.01 },
+} as const;
+
+/** Divisors for the flat attribute term added to the rest/meditation tiers. */
+export const ACTIVITY_REGEN_ATTR_DIVISORS = {
+  HP: { safeRest: 2, lightRest: 4 },
+  Mana: { meditation: 5, calmNoncombat: 10 },
+  Stamina: { fullRest: 2, catchingBreath: 3 },
+  Reserve: { deepSleep: 4, meditation: 5 },
+} as const;
 
 // ── Safe-low curve defaults — formula lock §4 ──
 export const DEFAULT_REGEN_CURVE_PARAMS: RegenCurveParams = {

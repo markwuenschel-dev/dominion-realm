@@ -1,11 +1,16 @@
 import { afterEach, describe, it, expect, vi } from 'vitest';
 import {
   resolveImage,
+  contentImage,
   getCodexEntries,
   getJournalEntries,
   getReadingEntries,
   CODEX_COLLECTIONS,
 } from './content';
+// `applyDraftPolicy` is the pure draft filter behind every getter; imported from
+// contentCore (no `server-only`) so the fixture tests below can exercise all
+// three DraftPolicy branches without touching the real content tree.
+import { applyDraftPolicy, type Entry } from './contentCore';
 
 /**
  * Content-engine tests. These run against the REAL `src/content/` corpus, so
@@ -87,6 +92,93 @@ describe('resolveImage', () => {
         expect(entry.data.image).toMatch(new RegExp(`^/content-media/${entry.collection}/`));
       }
     }
+  });
+});
+
+describe('contentImage — one seam: URL + disk source + existence', () => {
+  it('returns nothing for an absent image', () => {
+    expect(contentImage('characters', undefined)).toEqual({
+      url: undefined,
+      diskPath: undefined,
+      exists: false,
+    });
+  });
+
+  it('maps the URL via resolveImage yet reports a missing file as non-existent', () => {
+    const img = contentImage('characters', '/content-media/characters/nope-missing-xyz.png');
+    expect(img.url).toBe('/content-media/characters/nope-missing-xyz.png'); // passthrough URL
+    expect(img.exists).toBe(false);
+    expect(img.diskPath).toBeUndefined();
+  });
+
+  it('resolves a real entry image to an existing on-disk source', () => {
+    const withImage = getCodexEntries().find((e) => e.data.image);
+    // The corpus has entries with images (see the resolveImage test above); guard
+    // anyway so the suite never fails on an empty corpus.
+    if (withImage?.data.image) {
+      const img = contentImage(withImage.collection, withImage.data.image);
+      expect(img.url).toBe(withImage.data.image);
+      expect(img.exists).toBe(true);
+      expect(img.diskPath).toBeDefined();
+    }
+  });
+});
+
+describe('applyDraftPolicy — the three DraftPolicy branches (fixture corpus)', () => {
+  // A minimal in-memory corpus with BOTH a draft and a non-draft entry, so every
+  // assertion below is non-vacuous: it can only pass because the filter treated
+  // the two entries differently, and it flips if the branch under test inverts.
+  function makeCorpus(): Entry<'reading'>[] {
+    const entry = (id: string, draft: boolean): Entry<'reading'> => ({
+      collection: 'reading',
+      id,
+      data: { title: id, kind: 'chapter', order: 1, summary: 's', draft },
+      body: '',
+    });
+    return [entry('published', false), entry('wip-draft', true)];
+  }
+
+  const ids = (entries: Entry<'reading'>[]) => entries.map((e) => e.id).sort();
+
+  it("'exclude' drops the draft even outside production (policy, not env, does the drop)", () => {
+    // Dev context: the `env` branch would KEEP the draft here, so a surviving
+    // draft would prove env — not exclude — was responsible. It does not survive.
+    vi.stubEnv('NODE_ENV', 'development');
+    const kept = applyDraftPolicy(makeCorpus(), 'exclude');
+    expect(ids(kept)).toEqual(['published']);
+    expect(kept.some((e) => e.data.draft)).toBe(false);
+    // Non-vacuous: the corpus contains a draft, so if `exclude` were inverted to
+    // keep drafts, `kept` would include 'wip-draft' and both assertions fail.
+  });
+
+  it("'include' keeps the draft in production (policy overrides the env gate)", () => {
+    // Production context: the `env` branch would DROP the draft here, so keeping
+    // it can only mean `include` overrode the env gate.
+    vi.stubEnv('NODE_ENV', 'production');
+    const kept = applyDraftPolicy(makeCorpus(), 'include');
+    expect(ids(kept)).toEqual(['published', 'wip-draft']);
+    expect(kept.some((e) => e.data.draft)).toBe(true);
+    // Non-vacuous: if `include` were inverted to drop drafts, 'wip-draft' would be
+    // gone and both assertions fail — despite the draft being present in input.
+  });
+
+  it("'env' keeps drafts outside production", () => {
+    vi.stubEnv('NODE_ENV', 'development');
+    const kept = applyDraftPolicy(makeCorpus(), 'env');
+    expect(ids(kept)).toEqual(['published', 'wip-draft']);
+    expect(kept.some((e) => e.data.draft)).toBe(true);
+    // Non-vacuous: the input carries a draft; if the dev branch dropped drafts,
+    // 'wip-draft' would be missing and this fails.
+  });
+
+  it("'env' drops drafts in production but keeps published entries", () => {
+    vi.stubEnv('NODE_ENV', 'production');
+    const kept = applyDraftPolicy(makeCorpus(), 'env');
+    expect(ids(kept)).toEqual(['published']);
+    expect(kept.some((e) => e.data.draft)).toBe(false);
+    // Non-vacuous both ways: a draft is present (so a no-op prod branch would
+    // leak 'wip-draft' and fail) and a non-draft is present (so over-dropping
+    // would lose 'published' and also fail).
   });
 });
 

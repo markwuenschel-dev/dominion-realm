@@ -25,11 +25,17 @@ at call sites.
   returns it unchanged even for classes that list LUCK as Prime/Core/Secondary
   (Gambler, Fatewright, …).
 
-- **Resource chain.** `computeResourceChain(input)` in `formulas/resourceChain.ts`
-  runs the whole §1 → final pipeline: effective attributes → §1 maxima → base
-  maxima × race mod × condition mod (Reserve additionally × soul multiplier),
-  rounded. `useCharacterSheet` calls it once; class influence enters only through
-  the effective-attribute seam, never as a resource-level multiplier.
+- **Resource core (shared pipeline).** `resourceCore(effectiveAttrs, mods, soulMult)`
+  in `formulas/resourceChain.ts` is the one derivation **both** surfaces run through:
+  it rounds the §1 base **once**, then applies per-resource mods (Reserve additionally
+  × soul), rounding the final. Two adapters supply its inputs — `computeSheetResources`
+  (the character sheet: real class profile via the effective-attribute seam + race +
+  condition mods, returns the full chain with breakdowns) and `computeCalculatorResources`
+  (the standalone calculator: `NEUTRAL_PROFILE` + identity mods, returns just the maxima).
+  The calculator no longer reaches around the pipeline to raw `computeResourceMaxima`, so
+  the two surfaces agree above the §1 leaves, not only at them; its Reserve maximum is now
+  a rounded integer like every other maximum. Class influence still enters only through the
+  effective-attribute seam, never as a resource-level multiplier.
 
 - **Final resources.** The sheet's rendered maxima, produced by the resource chain
   above: base maxima × race mod × condition mod (Reserve additionally × soul
@@ -118,8 +124,11 @@ served live, without a commit or redeploy. See [ADR-0011](docs/adr/0011-media-la
   like a Subject's: a `beatRef` matching no beat simply renders nothing, and no
   Asset is auto-deleted on a words-side rename. Its first image is the beat's hero
   **plate**; on reading it renders once, at the top of the chapter's first page,
-  and also feeds that chapter's social (OG) image. A separate association from the
-  entity-owned images above. See [ADR-0014](docs/adr/0014-scene-art-beat-scoped.md).
+  and also feeds that chapter's social (OG) image. The timeline fast-follow has
+  now shipped: `/timeline` renders each beat's Scene art inline within its reveal
+  gate (via the same `getSceneMedia('timeline', id)` reader), so an Event beat
+  shows its art on the thread too. A separate association from the entity-owned
+  images above. See [ADR-0014](docs/adr/0014-scene-art-beat-scoped.md).
   _Avoid_: illustration, moment (ambiguous), scene index.
 
 - **Plate** — the first, hero image of a beat's Scene art, shown large at the

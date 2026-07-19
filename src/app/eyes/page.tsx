@@ -3,7 +3,7 @@ import Link from 'next/link';
 import '@/styles/eyes.css';
 import { EyesClient } from '@/components/EyesClient';
 import { getSubjectMedia } from '@/sanity/media';
-import { urlFor } from '@/sanity/image';
+import { imageUrl } from '@/sanity/image';
 
 const desc =
   'The Neurochromatic Eyes — six stages of ocular progression onto the spectral substrate. Select a stage to read what the walker sees.';
@@ -25,7 +25,7 @@ export default async function EyesPage() {
       ? [media.primary.source]
       : [];
   const stageImages = sources.map((s) =>
-    urlFor(s).width(900).height(900).fit('crop').auto('format').url(),
+    imageUrl(s, { width: 900, height: 900, fit: 'crop', auto: 'format' }),
   );
 
   return (

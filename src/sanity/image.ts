@@ -18,6 +18,33 @@ export function urlFor(source: SanityImageSource) {
   return builder.image(source);
 }
 
+/** Options for a single fixed-crop image URL. */
+export interface ImageUrlOptions {
+  width: number;
+  height?: number;
+  fit?: 'clip' | 'crop' | 'fill' | 'fillmax' | 'max' | 'min' | 'scale';
+  format?: 'jpg' | 'pjpg' | 'png' | 'webp';
+  auto?: 'format';
+  quality?: number;
+}
+
+/**
+ * A single fixed-crop Sanity CDN URL — the one-shot counterpart to
+ * `SubjectImage`'s responsive `next/image` loader (which is a width→url function
+ * and stays separate). Owns the crop/format chain so pages and the OG builder
+ * stop hand-assembling `.width().height().fit('crop')…`, and nothing (e.g. the
+ * `/eyes` page) bypasses the focal-point crop with its own inline chain.
+ */
+export function imageUrl(source: SanityImageSource, opts: ImageUrlOptions): string {
+  let b = urlFor(source).width(opts.width);
+  if (opts.height !== undefined) b = b.height(opts.height);
+  if (opts.fit) b = b.fit(opts.fit);
+  if (opts.format) b = b.format(opts.format);
+  if (opts.auto) b = b.auto(opts.auto);
+  if (opts.quality !== undefined) b = b.quality(opts.quality);
+  return b.url();
+}
+
 export type { SanityImageSource };
 
 /**

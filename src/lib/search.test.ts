@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { getSearchDocuments } from './search';
-import { getCodexEntries, getJournalEntries, getReadingEntries } from './content';
+import {
+  getCodexEntries,
+  getJournalEntries,
+  getReadingEntries,
+  getTimelineEntries,
+} from './content';
 
 /**
  * Search-index tests. The load-bearing guarantee (inherited from the Pagefind
@@ -45,6 +50,20 @@ describe('spoiler safety', () => {
     }
   });
 
+  it('indexes a timeline body only when the beat is teaser-tier', () => {
+    for (const entry of getTimelineEntries()) {
+      const doc = byId.get(`timeline/${entry.id}`);
+      expect(doc, `missing search doc for timeline/${entry.id}`).toBeDefined();
+      expect(doc!.url).toBe(`/timeline#${entry.id}`);
+      expect(doc!.kind).toBe('timeline');
+      if (entry.data.reveal === 'teaser') {
+        expect(typeof doc!.body).toBe('string');
+      } else {
+        expect(doc!.body).toBeUndefined();
+      }
+    }
+  });
+
   it('strips in-body <RevealGate> spoiler sections from every indexed body', () => {
     // A teaser entry may wrap deeper prose in <RevealGate> blocks; those must be
     // stripped before indexing, so no indexed body may still contain a gate.
@@ -54,9 +73,12 @@ describe('spoiler safety', () => {
 });
 
 describe('document shape', () => {
-  it('covers every codex, journal, and reading entry exactly once', () => {
+  it('covers every codex, journal, reading, and timeline entry exactly once', () => {
     const expected =
-      getCodexEntries().length + getJournalEntries().length + getReadingEntries().length;
+      getCodexEntries().length +
+      getJournalEntries().length +
+      getReadingEntries().length +
+      getTimelineEntries().length;
     expect(docs.length).toBe(expected);
     expect(new Set(docs.map((d) => d.id)).size).toBe(docs.length);
   });

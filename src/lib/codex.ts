@@ -186,13 +186,14 @@ export function matchRelationship(
 }
 
 /**
- * Project a matched relationship + target into a `ResolvedLink`. The single
- * owner of the projection — including the tier-inheritance rule (a link's
- * effective tier is the higher of the relationship's own `reveal` and the
- * target's tier), which is a spoiler-safety invariant and must not be re-typed
- * at call sites. Shared by the codex entry pages and the timeline.
+ * Build a live link from a declared relationship and the entry it resolves to.
+ * The effective reveal tier is the higher of the link's own tier and the
+ * target's — a link pointing at a `deep` entry is itself a `deep` fact. The one
+ * place a (relationship, target) pair becomes a `ResolvedLink`, shared by the
+ * codex entry-page list and the timeline beat's cross-link so both build the
+ * link and merge the tier identically.
  */
-export function toResolvedLink(rel: Relationship, target: CodexEntry): ResolvedLink {
+export function resolveLink(rel: Relationship, target: CodexEntry): ResolvedLink {
   return {
     url: codexUrl(target.collection, target.id),
     name: target.data.name,
@@ -209,8 +210,7 @@ export function resolveRelationships(entry: CodexEntry, all: CodexEntry[]): Reso
   const links: ResolvedLink[] = [];
   for (const rel of entry.data.relationships) {
     const target = matchRelationship(rel, all);
-    if (!target) continue;
-    links.push(toResolvedLink(rel, target));
+    if (target) links.push(resolveLink(rel, target));
   }
   return links;
 }

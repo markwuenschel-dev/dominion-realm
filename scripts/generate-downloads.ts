@@ -6,18 +6,20 @@
 //
 // Pure logic (chapter assembly, Markdown→blocks parsing, XHTML rendering) lives
 // in `scripts/lib/sample-doc.mjs` and is unit-tested; this file is the I/O +
-// format shell (read content, drive JSZip for EPUB and PDFKit for PDF, write).
+// format shell (read content via contentCore, drive JSZip for EPUB and PDFKit
+// for PDF, write). Draft chapters are always excluded from the sample.
 //
 // Both libraries are pure JavaScript (no native deps) and only used here at
 // build time, so they never enter the Next.js client bundle. If either fails to
 // load (e.g. a stripped-down container), we fall back to writing a readable
 // HTML document with the same chapter content and a `.html` companion, and log
 // loudly — the UI still links the EPUB/PDF hrefs, which then 404 until a full
-// build runs. See README note in this file's header for what the author supplies.
+// build runs.
 import fs from 'node:fs';
 import path from 'node:path';
-import fg from 'fast-glob';
-import matter from 'gray-matter';
+import type { default as JSZipType } from 'jszip';
+import type PDFDocument from 'pdfkit';
+import { getReadingEntries } from '../src/lib/contentCore';
 import {
   BOOK,
   DOWNLOAD_DIR,
@@ -29,33 +31,28 @@ import {
   kindLabel,
 } from './lib/sample-doc.mjs';
 
-const READING_DIR = path.join(process.cwd(), 'src', 'content', 'reading');
 const OUT_DIR = path.join(process.cwd(), 'public', DOWNLOAD_DIR);
 const FIXED_DATE = new Date(BOOK.modified);
 
-/** Read the reading-sample sources from disk (frontmatter + raw body). */
+type SampleChapter = ReturnType<typeof buildChapters>[number];
+type TextRun = { text: string; bold: boolean; italic: boolean };
+type Block = { type: 'paragraph'; runs: TextRun[] } | { type: 'scene-break' };
+type PdfCtor = typeof PDFDocument;
+
+/** Read reading-sample sources via the shared content engine (never drafts). */
 function readSources() {
-  if (!fs.existsSync(READING_DIR)) return [];
-  const files = fg.sync('**/*.{md,mdx}', { cwd: READING_DIR });
-  return files
-    .map((file) => {
-      const raw = fs.readFileSync(path.join(READING_DIR, file), 'utf8');
-      const { data, content } = matter(raw);
-      return {
-        id: file.replace(/\.mdx?$/, ''),
-        title: String(data.title ?? file),
-        kind: data.kind === 'prologue' ? 'prologue' : 'chapter',
-        order: typeof data.order === 'number' ? data.order : 0,
-        summary: String(data.summary ?? ''),
-        body: content,
-        draft: data.draft === true,
-      };
-    })
-    .filter((s) => !s.draft);
+  return getReadingEntries('exclude').map((e) => ({
+    id: e.id,
+    title: e.data.title,
+    kind: e.data.kind,
+    order: e.data.order,
+    summary: e.data.summary,
+    body: e.body,
+  }));
 }
 
 /** NCName-safe id for OPF manifest/spine references (XML ids can't start with a digit). */
-const itemId = (id) => `ch-${id}`;
+const itemId = (id: string) => `ch-${id}`;
 
 const STYLE_CSS = `body{font-family:Georgia,'Times New Roman',serif;line-height:1.6;margin:5% 6%;color:#1a1a1a;}
 h1{font-size:1.7em;margin:0.2em 0 0.1em;font-weight:normal;}
@@ -71,7 +68,7 @@ p.kicker,p.summary{text-indent:0;text-align:left;}
 .title-page .sub{font-style:italic;color:#555;margin-top:0.6em;}
 .title-page .series{font-variant:small-caps;letter-spacing:0.2em;color:#7a6a3a;margin-top:2em;}`;
 
-const xhtmlDoc = (title, bodyInner, extraNs = '') =>
+const xhtmlDoc = (title: string, bodyInner: string, extraNs = '') =>
   `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"${extraNs} lang="${BOOK.language}" xml:lang="${BOOK.language}">
@@ -85,7 +82,7 @@ ${bodyInner}
 </body>
 </html>`;
 
-function chapterXhtml(ch) {
+function chapterXhtml(ch: SampleChapter) {
   const inner = `<section epub:type="chapter">
 <p class="kicker">${escapeXml(kindLabel(ch.kind))}</p>
 <h1>${escapeXml(ch.title)}</h1>
@@ -105,7 +102,7 @@ function titleXhtml() {
   return xhtmlDoc(BOOK.title, inner, ' xmlns:epub="http://www.idpf.org/2007/ops"');
 }
 
-function navXhtml(chapters) {
+function navXhtml(chapters: SampleChapter[]) {
   const items = chapters
     .map(
       (ch) =>
@@ -121,7 +118,7 @@ ${items}
   return xhtmlDoc('Contents', inner, ' xmlns:epub="http://www.idpf.org/2007/ops"');
 }
 
-function contentOpf(chapters) {
+function contentOpf(chapters: SampleChapter[]) {
   const manifestItems = chapters
     .map(
       (ch) =>
@@ -153,7 +150,7 @@ function contentOpf(chapters) {
 }
 
 /** Build a valid EPUB 3 zip buffer with JSZip (deterministic: fixed file dates). */
-async function buildEpub(JSZip, chapters) {
+async function buildEpub(JSZip: typeof JSZipType, chapters: SampleChapter[]) {
   const zip = new JSZip();
   // `mimetype` MUST be the first entry and stored uncompressed (EPUB OCF spec).
   zip.file('mimetype', 'application/epub+zip', { compression: 'STORE', date: FIXED_DATE });
@@ -183,7 +180,7 @@ async function buildEpub(JSZip, chapters) {
 }
 
 /** Render the chapters to a PDF buffer with PDFKit (built-in Times fonts; no font files). */
-async function buildPdf(PDFDocument, chapters) {
+async function buildPdf(PDFDocument: PdfCtor, chapters: SampleChapter[]): Promise<Buffer> {
   const doc = new PDFDocument({
     size: 'A5',
     margins: { top: 56, bottom: 56, left: 50, right: 50 },
@@ -194,9 +191,11 @@ async function buildPdf(PDFDocument, chapters) {
       CreationDate: FIXED_DATE,
     },
   });
-  const chunks = [];
-  doc.on('data', (c) => chunks.push(c));
-  const done = new Promise((resolve) => doc.on('end', () => resolve(Buffer.concat(chunks))));
+  const chunks: Buffer[] = [];
+  doc.on('data', (c: Buffer) => chunks.push(c));
+  const done = new Promise<Buffer>((resolve) =>
+    doc.on('end', () => resolve(Buffer.concat(chunks))),
+  );
 
   // Title page.
   doc.moveDown(6);
@@ -220,7 +219,7 @@ async function buildPdf(PDFDocument, chapters) {
     doc.font('Times-Italic').fontSize(10.5).fillColor('#555').text(ch.summary, { align: 'center' });
     doc.fillColor('black').moveDown(1);
 
-    for (const block of ch.blocks) {
+    for (const block of ch.blocks as Block[]) {
       if (block.type === 'scene-break') {
         doc.moveDown(0.4);
         doc.font('Times-Roman').fontSize(13).fillColor('#9a8a5a').text('⁂', { align: 'center' });
@@ -250,7 +249,7 @@ async function buildPdf(PDFDocument, chapters) {
 }
 
 /** Documented fallback: a single readable HTML file when a generator lib is missing. */
-function writeHtmlFallback(format, chapters) {
+function writeHtmlFallback(format: string, chapters: SampleChapter[]) {
   const body = chapters
     .map(
       (ch) =>
@@ -289,7 +288,9 @@ async function main() {
     fs.writeFileSync(path.join(OUT_DIR, EPUB_FILENAME), epub);
     console.log(`[downloads] wrote ${DOWNLOAD_DIR}/${EPUB_FILENAME} (${epub.length} bytes)`);
   } catch (err) {
-    console.error(`[downloads] EPUB generation failed: ${err?.message ?? err}`);
+    console.error(
+      `[downloads] EPUB generation failed: ${err instanceof Error ? err.message : err}`,
+    );
     writeHtmlFallback('epub', chapters);
   }
 
@@ -300,12 +301,12 @@ async function main() {
     fs.writeFileSync(path.join(OUT_DIR, PDF_FILENAME), pdf);
     console.log(`[downloads] wrote ${DOWNLOAD_DIR}/${PDF_FILENAME} (${pdf.length} bytes)`);
   } catch (err) {
-    console.error(`[downloads] PDF generation failed: ${err?.message ?? err}`);
+    console.error(`[downloads] PDF generation failed: ${err instanceof Error ? err.message : err}`);
     writeHtmlFallback('pdf', chapters);
   }
 }
 
-main().catch((err) => {
+main().catch((err: unknown) => {
   console.error('[downloads] generation aborted:', err);
   process.exit(1);
 });

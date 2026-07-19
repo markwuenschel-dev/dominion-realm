@@ -1,6 +1,6 @@
 'use client';
 
-import { isRevealed, TIER_LABELS, type RevealTier } from '@/lib/reveal';
+import { isRevealed, sealedLabel, TIER_LABELS, type RevealTier } from '@/lib/reveal';
 import { useReveal } from './RevealContext';
 
 /**
@@ -20,9 +20,9 @@ export function GatedCard({ tier, children }: { tier: RevealTier; children: Reac
     <div
       className="codex-card codex-card--sealed"
       data-reveal-tier={tier}
-      aria-label={`Sealed · ${TIER_LABELS[tier]}`}
+      aria-label={sealedLabel(tier)}
     >
-      <span className="codex-card__tier">Sealed · {TIER_LABELS[tier]}</span>
+      <span className="codex-card__tier">{sealedLabel(tier)}</span>
       <p className="codex-card__sealed-msg">
         Raise your reveal level to {TIER_LABELS[tier]} to see this entry.
       </p>

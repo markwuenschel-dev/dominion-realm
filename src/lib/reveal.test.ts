@@ -9,6 +9,8 @@ import {
   parseTier,
   stripGatedSections,
   projectByReveal,
+  sealedLabel,
+  sealedPrompt,
 } from './reveal';
 
 /**
@@ -184,5 +186,16 @@ describe('projectByReveal', () => {
   it('a beyond reader sees everything', () => {
     const out = projectByReveal(items, 'beyond', show, seal);
     expect(out.every((o) => o.kind === 'shown')).toBe(true);
+  });
+});
+
+describe('sealedLabel / sealedPrompt — one home for the sealed-surface copy', () => {
+  it('formats the canonical "Sealed · <Tier>" chip with the display-cased tier', () => {
+    expect(sealedLabel('deep')).toBe('Sealed · Deep');
+    expect(sealedLabel('beyond')).toBe('Sealed · Beyond');
+  });
+
+  it('prompts the reader to raise their level to the display-cased tier', () => {
+    expect(sealedPrompt('reader')).toBe('Raise your reveal level to Reader to read this.');
   });
 });

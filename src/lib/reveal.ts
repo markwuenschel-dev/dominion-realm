@@ -73,6 +73,21 @@ export function isRevealed(required: RevealTier, level: RevealTier): boolean {
   return TIER_RANK[level] >= TIER_RANK[required];
 }
 
+/**
+ * The canonical "Sealed · <Tier>" chip text shown wherever a whole item or gate
+ * is withheld above the reader's level. One home for the string every gated
+ * surface renders (map markers, codex cards, journal list, relationships, and the
+ * in-body gates), so the sealed label can't drift between them.
+ */
+export function sealedLabel(tier: RevealTier): string {
+  return `Sealed · ${TIER_LABELS[tier]}`;
+}
+
+/** The default prompt inviting the reader to raise their level to reach `tier`. */
+export function sealedPrompt(tier: RevealTier): string {
+  return `Raise your reveal level to ${TIER_LABELS[tier]} to read this.`;
+}
+
 /** Type guard: is `value` one of the four canonical tiers? */
 export function isRevealTier(value: unknown): value is RevealTier {
   return typeof value === 'string' && (REVEAL_TIERS as readonly string[]).includes(value);
@@ -111,15 +126,18 @@ export function stripGatedSections(mdx: string): string {
 }
 
 /**
- * Project a list of tier-carrying items through show/seal transforms. Useful
- * when a surface wants one pass that both filters visibility and drops
- * sensitive fields from sealed items (map markers, relationship lists).
- *
- * Not the only gated-surface seam: whole-item gates that seal in-place
- * (codex cards, constellation nodes, journal rows) call `isRevealed` directly
- * and own their own placeholder markup. The decision rule is still shared —
- * everyone defers to `isRevealed` / `isUngated` — this helper is just the
- * list-projection shape. Pure; client callers own the `useReveal` read.
+ * Project a list of tier-carrying items to what a reader at `level` may see:
+ * each item at/below the level is passed through `show`, each one above it is
+ * replaced by `seal`. The seam behind the list-shaped whole-item gates that adopt
+ * it (map markers via `selectVisibleMarkers`, gated relationships) — the `seal`
+ * transform is where such a surface DROPS the sensitive fields (name/summary/href)
+ * so no spoiler survives into the rendered DOM. Surfaces that render per-element
+ * rather than over a list (e.g. the constellation SVG) or hand-roll their own
+ * placeholder still share the `sealedLabel` / `sealedPrompt` copy, not this
+ * projection. Note the honest limit shared by every gate here: because the reveal
+ * level is client-side (ADR-0004), sealed items still travel in the RSC/JS payload
+ * — the seal guards the rendered DOM against accidental spoilers, not view-source.
+ * Pure and dependency-free; the client callers own the `useReveal` read.
  */
 export function projectByReveal<T extends { reveal: RevealTier }, R, S>(
   items: readonly T[],

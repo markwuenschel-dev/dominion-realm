@@ -7,12 +7,7 @@
  * CAND-01: write-side option values cannot drift outside what the read side
  * accepts.
  */
-export const RELATIONSHIP_COLLECTIONS = [
-  'characters',
-  'concepts',
-  'factions',
-  'places',
-] as const;
+export const RELATIONSHIP_COLLECTIONS = ['characters', 'concepts', 'factions', 'places'] as const;
 
 export type RelationshipCollection = (typeof RELATIONSHIP_COLLECTIONS)[number];
 

@@ -11,7 +11,7 @@
 import { useMemo } from 'react';
 import { useCalculatorStore } from '@/store/calculatorStore';
 import {
-  computeResourceMaxima,
+  computeCalculatorResources,
   computeAllRatios,
   computeBaseRegen,
   computeAllRegenResults,
@@ -43,11 +43,14 @@ export interface DerivedResistances {
 // Leaf hooks — subscribe directly to store fields, no derived dependencies
 // ────────────────────────────────────────────────
 
-/** §1 resource maxima. Subscribes: attributes, soulLevelMod. */
+/** §1 resource maxima via the shared pipeline (neutral class). Subscribes: attributes, soulLevelMod. */
 export function useResourceMaxima(): ResourceMaxima {
   const attributes = useCalculatorStore((s) => s.attributes);
   const soulLevelMod = useCalculatorStore((s) => s.soulLevelMod);
-  return useMemo(() => computeResourceMaxima(attributes, soulLevelMod), [attributes, soulLevelMod]);
+  return useMemo(
+    () => computeCalculatorResources(attributes, soulLevelMod),
+    [attributes, soulLevelMod],
+  );
 }
 
 /** §3 base regen. Subscribes: attributes. */

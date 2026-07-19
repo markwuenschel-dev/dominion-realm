@@ -33,9 +33,13 @@ open: what a "scene" is scoped to, how it joins back to git, and where it render
   image (reusing the Phase 4 `og.ts` crop), falling back to the default. Reading
   is ungated, so there is no reveal-tier leak surface: a chapter with a page is
   already public, and its illustration is no more sensitive than its prose.
-- **Reading only this pass.** Timeline reuses the same `getSceneMedia(beat, ref)`
-  reader as a fast-follow; the reader already filters on `beat` so a chapter and
-  an Event that share a slug never claim each other's art.
+- **Reading first, timeline now shipped.** The reader landed on `/read` first;
+  the timeline fast-follow has since shipped too. `/timeline` (`src/app/timeline/page.tsx`)
+  calls the same `getSceneMedia(beat, ref)` reader per beat as
+  `getSceneMedia('timeline', entry.id)` and renders each beat's Scene art inline
+  inside its reveal gate (non-priority, below the beat summary) — not as a single
+  top-of-page plate. The reader filters on `beat`, so a chapter and an Event that
+  share a slug never claim each other's art.
 
 ## Consequences
 

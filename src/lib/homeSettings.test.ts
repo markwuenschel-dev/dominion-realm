@@ -22,7 +22,9 @@ describe('parseHomeSettings', () => {
   });
 
   it('accepts a document with only coverImage (alt falls back downstream)', () => {
-    expect(parseHomeSettings(JSON.stringify({ coverImage: '/covers/book.png' }), 'home.json')).toEqual({
+    expect(
+      parseHomeSettings(JSON.stringify({ coverImage: '/covers/book.png' }), 'home.json'),
+    ).toEqual({
       coverImage: '/covers/book.png',
     });
   });

@@ -18,7 +18,16 @@ const PLATE_ASPECT: [number, number] = [16, 9];
  * in place of the git hero when a Scene exists (Sanity → git → nothing); rendered
  * only on part 1, and only when `images` is non-empty.
  */
-export function SceneArt({ images, title }: { images: GalleryImage[]; title: string }) {
+export function SceneArt({
+  images,
+  title,
+  priority = true,
+}: {
+  images: GalleryImage[];
+  title: string;
+  /** LCP hint for the reading chapter plate; timeline beats leave this off. */
+  priority?: boolean;
+}) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const close = useCallback(() => setOpenIndex(null), []);
   const step = useCallback(
@@ -48,7 +57,7 @@ export function SceneArt({ images, title }: { images: GalleryImage[]; title: str
           alt={hero.alt || title}
           aspect={PLATE_ASPECT}
           sizes="(max-width: 760px) 100vw, 680px"
-          priority
+          priority={priority}
         />
       </button>
       {(hero.caption || many) && (

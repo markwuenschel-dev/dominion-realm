@@ -390,7 +390,8 @@ today, hand-edit the Markdown tomorrow.
 Two things protect the published site, so you can edit without fear:
 
 1. **Schema validation.** Every collection has a Zod schema (defined in
-   `src/lib/content.ts`). When the site builds (`next build`), the content loader
+   `src/lib/contentCore.ts`, re-exported by the `server-only` `src/lib/content.ts`
+   shim). When the site builds (`next build`), the content loader
    checks every entry against it. If something's wrong — a missing required field, a
    misspelled `reveal` tier, a malformed date — the **build fails** instead of
    shipping broken content. The
@@ -413,5 +414,5 @@ request — never a broken live site. Edit boldly.
 - [ADR-0004 — The reveal-tier model](adr/0004-reveal-tier-model.md) — the spoiler vocabulary in depth.
 - [ADR-0007 — Visual identity & tokens](adr/0007-evolve-not-reinvent-identity.md) — the design-token system.
 - [ADR-0009 — Keystatic CMS](adr/0009-cms-keystatic.md) — the form-based editor (added alongside this guide).
-- `src/lib/content.ts` — the authoritative schema for every field above.
+- `src/lib/contentCore.ts` — the authoritative schema for every field above (re-exported by the `server-only` `src/lib/content.ts` shim).
 - [ADR-0010 — Astro → Next.js migration](adr/0010-migrate-astro-to-nextjs.md) — the framework + original host move; hosting since moved to EC2 ([ADR-0012](adr/0012-host-on-aws-ec2.md)).

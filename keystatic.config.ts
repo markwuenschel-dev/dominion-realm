@@ -11,8 +11,9 @@ import {
  * main deploy and is served under `/keystatic`, backed by the GitHub-OAuth
  * route handler at `/api/keystatic`.
  *
- * Every field below mirrors the Zod content schema in `src/lib/content.ts` so
- * that existing entries load unchanged and anything authored here validates
+ * Every field below mirrors the Zod content schema in `src/lib/contentCore.ts`
+ * (re-exported by the `server-only` `src/lib/content.ts` shim) so that existing
+ * entries load unchanged and anything authored here validates
  * against the same schema. The Markdown *body* round-trips into the same
  * `src/content/<collection>/*.md` files via `format.contentField`.
  */
@@ -58,7 +59,7 @@ const relationshipsField = fields.array(
  * `src/content/<collection>/<slug>/<file>` (tracked in git) and stores the final
  * public URL `/content-media/<collection>/<slug>/<file>` — which the
  * subpath-preserving media copy (`scripts/copy-content-media.mjs`) serves
- * verbatim and `resolveImage` (`src/lib/content.ts`) passes straight through. So
+ * verbatim and `resolveImage` (`src/lib/contentCore.ts`) passes straight through. So
  * a browser upload Just Works with no code change per entry.
  */
 const codexImage = (collectionName: string) =>

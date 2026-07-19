@@ -110,6 +110,10 @@
   color: var(--ink-dim);
   text-wrap: pretty;
 }
+.timeline-beat__art {
+  margin-top: 16px;
+  max-width: 100%;
+}
 .timeline-beat__link {
   display: inline-flex;
   align-items: baseline;

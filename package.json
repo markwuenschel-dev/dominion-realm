@@ -9,13 +9,14 @@
     "pnpm": "9.15.9"
   },
   "scripts": {
-    "predev": "node scripts/copy-content-media.mjs && node scripts/generate-downloads.mjs && node scripts/generate-content-manifest.mjs",
+    "predev": "node scripts/copy-content-media.mjs && tsx scripts/generate-downloads.ts && tsx scripts/generate-content-manifest.ts",
     "dev": "next dev",
-    "prebuild": "node scripts/copy-content-media.mjs && node scripts/generate-downloads.mjs && node scripts/generate-content-manifest.mjs",
+    "prebuild": "node scripts/copy-content-media.mjs && tsx scripts/generate-downloads.ts && tsx scripts/generate-content-manifest.ts",
     "build": "next build",
     "start": "next start",
-    "lint": "oxlint -D correctness -D suspicious -A react-in-jsx-scope -A vitest/no-conditional-expect --react-plugin --nextjs-plugin --react-perf-plugin --vitest-plugin src",
+    "lint": "oxlint -D correctness -D suspicious -A react-in-jsx-scope -A vitest/no-conditional-expect --react-plugin --nextjs-plugin --react-perf-plugin --vitest-plugin src scripts",
     "check": "tsc --noEmit",
+    "scene:check": "tsx scripts/check-scene-joins.ts",
     "format": "oxfmt --write",
     "format:check": "oxfmt --check",
     "test": "vitest run",
@@ -63,6 +64,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/mdx": "^2.0.13",
     "@types/node": "^22.10.7",
+    "@types/pdfkit": "^0.17.6",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
@@ -73,6 +75,7 @@
     "pa11y-ci": "^4.0.0",
     "pdfkit": "^0.15.2",
     "tailwindcss": "^4.1.8",
+    "tsx": "4",
     "typescript": "^5.7.3",
     "vitest": "^4.1.9",
     "wait-on": "^8.0.3"

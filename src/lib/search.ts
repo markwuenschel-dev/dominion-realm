@@ -1,5 +1,5 @@
 import 'server-only';
-import { getCodexEntries } from './content';
+import { getCodexEntries, getTimelineEntries } from './content';
 import { getJournalPosts } from './journal';
 import { getReadingEntries } from './reading';
 import { codexUrl } from './codex';
@@ -15,9 +15,12 @@ export type { SearchDoc } from './searchSchema';
 /**
  * Build-time search corpus (replaces Pagefind — ADR-0010). Each document is
  * spoiler-safe: title + summary for every non-draft entry, plus the body ONLY
- * when the entry is ungated (codex/journal `reveal === 'teaser'`, or any reading
- * piece). Above-teaser bodies never enter the index, preserving the Pagefind-era
- * `data-pagefind-ignore` guarantee that spoilers stay out of search.
+ * when the entry is ungated (codex/journal/timeline `reveal === 'teaser'`, or any
+ * reading piece). Above-teaser bodies never enter the index, preserving the
+ * Pagefind-era `data-pagefind-ignore` guarantee that spoilers stay out of search.
+ *
+ * Collections indexed: codex, journal, reading, and timeline (chronology beats
+ * on `/timeline#<id>` — same reveal rules as journal).
  *
  * A teaser entry can still wrap spoilers in in-body `<RevealGate>` sections, so
  * its body is run through `stripGatedSections` before indexing — the gated prose
@@ -60,6 +63,18 @@ export function getSearchDocuments(): SearchDoc[] {
       summary: r.data.summary,
       reveal: DEFAULT_TIER,
       body: r.body,
+    });
+  }
+
+  for (const t of getTimelineEntries()) {
+    docs.push({
+      id: `timeline/${t.id}`,
+      url: `/timeline#${t.id}`,
+      title: t.data.title,
+      kind: 'timeline',
+      summary: t.data.summary,
+      reveal: t.data.reveal,
+      body: isUngated(t.data.reveal) ? stripGatedSections(t.body) : undefined,
     });
   }
 

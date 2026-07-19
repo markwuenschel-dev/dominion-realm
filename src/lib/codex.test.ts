@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   matchRelationship,
   resolveRelationships,
-  toResolvedLink,
+  resolveLink,
   entryKicker,
   dossierFields,
   type Relationship,
@@ -64,37 +64,6 @@ describe('matchRelationship', () => {
     expect(matchRelationship({ entry: 'marcus', collection: 'characters' }, candidates)).toBe(
       marcus,
     );
-  });
-});
-
-describe('toResolvedLink', () => {
-  // The single owner of the relationship→link projection, shared by the codex
-  // entry pages and the timeline (audit CAND-15). The tier-inheritance rule —
-  // a link's effective tier is the higher of the relationship's own reveal and
-  // the target's tier — is a spoiler-safety invariant, pinned here once.
-  const deepTarget = {
-    ...entry('concepts', 'eyes', 'The Eyes'),
-    data: { ...eyes.data, reveal: 'deep' },
-  } as CodexEntry;
-
-  it('projects url, name, and label from the target and relationship', () => {
-    const link = toResolvedLink({ entry: 'astria', label: 'founder of' }, astria);
-    expect(link).toEqual({
-      url: '/codex/factions/astria',
-      name: 'Astria',
-      label: 'founder of',
-      reveal: 'teaser',
-    });
-  });
-
-  it('inherits the target tier when it is higher than the relationship tier', () => {
-    const link = toResolvedLink({ entry: 'eyes' }, deepTarget);
-    expect(link.reveal).toBe('deep');
-  });
-
-  it('keeps the relationship tier when it is higher than the target tier', () => {
-    const link = toResolvedLink({ entry: 'astria', reveal: 'beyond' }, astria);
-    expect(link.reveal).toBe('beyond');
   });
 });
 
@@ -200,6 +169,22 @@ describe('dossierFields', () => {
 
   it('produces no dossier for a faction', () => {
     expect(fieldsFor('factions', { kind: 'threat' })).toHaveLength(0);
+  });
+});
+
+describe('resolveLink — one (relationship, target) → ResolvedLink builder', () => {
+  it('builds the link and inherits the higher of the link and target tiers', () => {
+    const deepAstria = entry('factions', 'astria', 'Astria');
+    (deepAstria.data as { reveal: string }).reveal = 'deep';
+    const link = resolveLink({ entry: 'astria', label: 'allied' } as Relationship, deepAstria);
+    expect(link).toMatchObject({ name: 'Astria', label: 'allied', reveal: 'deep' });
+  });
+
+  it("takes the link's own tier when it is higher than the target's", () => {
+    // astria is teaser; an explicit reader tier on the link wins.
+    expect(resolveLink({ entry: 'astria', reveal: 'reader' } as Relationship, astria).reveal).toBe(
+      'reader',
+    );
   });
 });
 

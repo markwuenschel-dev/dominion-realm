@@ -1,6 +1,6 @@
 'use client';
 
-import { isRevealed, isUngated, TIER_LABELS, type RevealTier } from '@/lib/reveal';
+import { isRevealed, isUngated, sealedLabel, sealedPrompt, type RevealTier } from '@/lib/reveal';
 import { useReveal } from './RevealContext';
 
 /**
@@ -42,16 +42,16 @@ export function RevealInline({
     );
   }
 
-  const message = label ?? `Raise your reveal level to ${TIER_LABELS[tier]} to read this.`;
+  const message = label ?? sealedPrompt(tier);
   return (
     <span
       className="reveal-inline is-sealed"
       data-reveal-tier={tier}
       role="img"
-      aria-label={`Sealed · ${TIER_LABELS[tier]} — ${message}`}
+      aria-label={`${sealedLabel(tier)} — ${message}`}
       title={message}
     >
-      <span aria-hidden="true">Sealed · {TIER_LABELS[tier]}</span>
+      <span aria-hidden="true">{sealedLabel(tier)}</span>
     </span>
   );
 }

@@ -2,6 +2,9 @@
   "plugins": ["react"],
   "rules": {
     // React 17+ automatic JSX transform — no import needed
-    "react/react-in-jsx-scope": "off"
+    "react/react-in-jsx-scope": "off",
+    // Sanity system fields (_id/_type/_ref/_rev) are external names we cannot rename;
+    // allow them so the rule stays live for genuine dangling underscores in scripts/ + src/.
+    "no-underscore-dangle": ["error", { "allow": ["_id", "_type", "_ref", "_rev"] }]
   }
 }

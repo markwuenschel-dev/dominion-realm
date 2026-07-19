@@ -23,7 +23,7 @@ import {
   RECOVERY_STATE_MOD_DEFAULT,
   SPEAR_WOUND_PULSE,
 } from '@/lib/constants';
-import { computeResourceMaxima } from '@/lib/formulas';
+import { computeCalculatorResources } from '@/lib/formulas';
 
 // ────────────────────────────────────────────────
 // Store interface
@@ -70,7 +70,7 @@ export type CalculatorStore = CalculatorState & CalculatorActions;
 // ────────────────────────────────────────────────
 
 function makeDefaultCurrentResources(attrs: Attributes): CurrentResources {
-  const maxima = computeResourceMaxima(attrs);
+  const maxima = computeCalculatorResources(attrs, SOUL_LEVEL_MOD_DEFAULT);
   // Start at 75% of max for a more interesting default calculator state
   return {
     HP: Math.floor(maxima.HP * 0.75),

@@ -21,7 +21,7 @@ import {
 } from './useCalculator';
 import { useCalculatorStore } from '@/store/calculatorStore';
 import {
-  computeResourceMaxima,
+  computeCalculatorResources,
   computeAllRatios,
   computeBaseRegen,
   computeAllRegenResults,
@@ -38,16 +38,16 @@ afterEach(() => {
 });
 
 describe('useCalculator slice hooks — each wires the right formula to the right store fields', () => {
-  it('useResourceMaxima = computeResourceMaxima(attributes, soulLevelMod)', () => {
+  it('useResourceMaxima = computeCalculatorResources(attributes, soulLevelMod)', () => {
     const { result } = renderHook(() => useResourceMaxima());
     const s = useCalculatorStore.getState();
-    expect(result.current).toEqual(computeResourceMaxima(s.attributes, s.soulLevelMod));
+    expect(result.current).toEqual(computeCalculatorResources(s.attributes, s.soulLevelMod));
   });
 
   it('useResourceRatios = computeAllRatios(currentResources, maxima)', () => {
     const { result } = renderHook(() => useResourceRatios());
     const s = useCalculatorStore.getState();
-    const maxima = computeResourceMaxima(s.attributes, s.soulLevelMod);
+    const maxima = computeCalculatorResources(s.attributes, s.soulLevelMod);
     expect(result.current).toEqual(computeAllRatios(s.currentResources, maxima));
   });
 
@@ -59,7 +59,7 @@ describe('useCalculator slice hooks — each wires the right formula to the righ
   it('useRegenResults = computeAllRegenResults(attributes, ratios, recoveryStateMod, params)', () => {
     const { result } = renderHook(() => useRegenResults());
     const s = useCalculatorStore.getState();
-    const maxima = computeResourceMaxima(s.attributes, s.soulLevelMod);
+    const maxima = computeCalculatorResources(s.attributes, s.soulLevelMod);
     const ratios = computeAllRatios(s.currentResources, maxima);
     expect(result.current).toEqual(
       computeAllRegenResults(s.attributes, ratios, s.recoveryStateMod, s.regenCurveParams),
@@ -126,7 +126,7 @@ describe('useCalculator slice hooks — isolation (the deepening payoff)', () =>
     });
 
     const s = useCalculatorStore.getState();
-    const maxima = computeResourceMaxima(s.attributes, s.soulLevelMod);
+    const maxima = computeCalculatorResources(s.attributes, s.soulLevelMod);
     const ratios = computeAllRatios(s.currentResources, maxima);
     expect(result.current).toEqual(
       computeAllRegenResults(s.attributes, ratios, s.recoveryStateMod, s.regenCurveParams),
