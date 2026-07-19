@@ -141,22 +141,60 @@ export function resolveImage(collection: string, image: string | undefined): str
 }
 
 /**
- * Absolute path on disk for a resolved `/content-media/...` (or other public)
- * image URL. Prefers `src/content` (Keystatic source), then `public/`.
+ * Absolute path on disk for a declared frontmatter image, or `undefined` if the
+ * file isn't there. One rule for the three path shapes:
+ *   - `/content-media/<rest>` → `src/content/<rest>` (Keystatic source), falling
+ *     back to `public/<…>` (the media-copy output) if the source isn't present;
+ *   - other absolute `/…` → `public/<…>`;
+ *   - a relative `./X.png` → resolved beside the entry file (`entryDir`).
+ * The single home for the content-media/public/relative disambiguation that was
+ * spelled three subtly different ways (resolveImage, imageSourcePath, the loader).
  */
-export function imageSourcePath(image: string | undefined): string | undefined {
-  if (!image) return undefined;
-  if (image.startsWith('/content-media/')) {
-    const underContent = path.join(CONTENT_DIR, image.slice('/content-media/'.length));
+function declaredDiskPath(declared: string, entryDir?: string): string | undefined {
+  if (declared.startsWith('/content-media/')) {
+    const underContent = path.join(CONTENT_DIR, declared.slice('/content-media/'.length));
     if (fs.existsSync(underContent)) return underContent;
-    const underPublic = path.join(process.cwd(), 'public', image.slice(1));
+    const underPublic = path.join(process.cwd(), 'public', declared.slice(1));
     return fs.existsSync(underPublic) ? underPublic : undefined;
   }
-  if (image.startsWith('/')) {
-    const underPublic = path.join(process.cwd(), 'public', image.slice(1));
+  if (declared.startsWith('/')) {
+    const underPublic = path.join(process.cwd(), 'public', declared.slice(1));
     return fs.existsSync(underPublic) ? underPublic : undefined;
+  }
+  if (entryDir) {
+    const abs = path.resolve(entryDir, declared);
+    return fs.existsSync(abs) ? abs : undefined;
   }
   return undefined;
+}
+
+/**
+ * Absolute path on disk for a resolved `/content-media/...` (or other public)
+ * image URL. Prefers `src/content` (Keystatic source), then `public/`. A resolved
+ * URL never has a relative shape, so it needs no `entryDir`.
+ */
+export function imageSourcePath(image: string | undefined): string | undefined {
+  return image ? declaredDiskPath(image) : undefined;
+}
+
+/** A declared frontmatter image resolved once to its public URL, its on-disk
+ *  source, and whether that source exists. The one seam for "how a frontmatter
+ *  image maps to a URL and a file"; the loader reads `exists` to drop an image
+ *  wired ahead of its art. */
+export interface ContentImage {
+  url: string | undefined;
+  diskPath: string | undefined;
+  exists: boolean;
+}
+
+export function contentImage(
+  collection: string,
+  declared: string | undefined,
+  entryDir?: string,
+): ContentImage {
+  if (!declared) return { url: undefined, diskPath: undefined, exists: false };
+  const diskPath = declaredDiskPath(declared, entryDir);
+  return { url: resolveImage(collection, declared), diskPath, exists: diskPath !== undefined };
 }
 
 function applyDraftPolicy<C extends CollectionName>(
@@ -199,18 +237,16 @@ export function loadCollection<C extends CollectionName>(
       // Guard: only keep the image if its source file actually exists. A
       // declared-but-missing path (frontmatter wired ahead of the art) otherwise
       // resolves to a URL that 404s at runtime, since the media-copy step silently
-      // skips files that aren't there. Keystatic paths
-      // (`/content-media/<collection>/<slug>/<file>`) live under src/content; a
-      // bare relative path lives beside the `.md`.
-      const declared = parsed.image as string;
-      const src = declared.startsWith('/content-media/')
-        ? path.join(CONTENT_DIR, declared.slice('/content-media/'.length))
-        : declared.startsWith('/')
-          ? path.join(process.cwd(), 'public', declared.slice(1))
-          : path.resolve(path.dirname(path.join(dir, file)), declared);
-      (parsed as { image?: string }).image = fs.existsSync(src)
-        ? resolveImage(collection, declared)
-        : undefined;
+      // skips files that aren't there. `contentImage` owns the
+      // content-media/public/relative resolution (Keystatic paths live under
+      // src/content, a bare relative path beside the `.md`); a content-media path
+      // absent from src/content is now also honored from public/ (the copy output).
+      const img = contentImage(
+        collection,
+        parsed.image as string,
+        path.dirname(path.join(dir, file)),
+      );
+      (parsed as { image?: string }).image = img.exists ? img.url : undefined;
     }
     return {
       collection,

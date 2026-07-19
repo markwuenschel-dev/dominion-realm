@@ -19,6 +19,7 @@ import 'server-only';
 
 export {
   CODEX_COLLECTIONS,
+  contentImage,
   getCodexEntries,
   getCodexEntry,
   getJournalEntries,
@@ -32,6 +33,7 @@ export {
   type CodexCollection,
   type CodexEntry,
   type CollectionName,
+  type ContentImage,
   type DraftPolicy,
   type Entry,
   type JournalEntry,
