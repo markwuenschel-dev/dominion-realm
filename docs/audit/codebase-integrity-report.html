@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dominion Realm — Codebase Integrity Report (run 2)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;font-family:"Public Sans",system-ui,sans-serif;color:#141821;background:#F4F5F7;line-height:1.55;
+    background-image:radial-gradient(1200px 420px at 50% -160px, rgba(37,64,232,0.10), rgba(37,64,232,0) 70%);
+    background-repeat:no-repeat}
+  a{color:#2540E8;text-decoration:none}
+  a:hover{text-decoration:underline}
+  code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:0.86em;background:#F2F3F7;padding:1px 5px;border-radius:5px}
+  h1,h2,h3{font-family:"Space Grotesk","Public Sans",sans-serif;margin:0}
+  summary{cursor:pointer;list-style:none}
+  summary::-webkit-details-marker{display:none}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  ::-webkit-scrollbar{height:10px;width:10px}
+  ::-webkit-scrollbar-thumb{background:#D6DAE4;border-radius:8px}
+  ::-webkit-scrollbar-track{background:#EEF0F4}
+</style>
+</head>
+<body>
+<main style="max-width:1060px;margin:0 auto;padding:56px 28px 120px;animation:rise .5s ease both">
+
+  <header style="animation:rise .5s ease both">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#2540E8">Repo Audit Swarm · parallel-report · run 2</div>
+    <h1 style="font-size:40px;line-height:1.08;margin:12px 0 8px;letter-spacing:-.01em">Codebase Integrity Report</h1>
+    <div style="font-size:17px;color:#4B5563;max-width:760px">Second parallel-report for <strong>dominion-realm</strong> after integrity queues 1–2. Baseline still green; nine candidates shipped since run 1; new debt clusters at draft-policy tests, lint-gate residual, and cross-branch merge collision with PR #106.</div>
+
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin:26px 0 18px">
+      <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:12px;padding:14px 20px;min-width:120px">
+        <div style="font-family:'Space Grotesk';font-size:30px;font-weight:700;color:#141821">27</div>
+        <div style="font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#8A93A3">Active candidates</div>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:12px;padding:14px 20px;min-width:120px">
+        <div style="font-family:'Space Grotesk';font-size:30px;font-weight:700;color:#141821">4</div>
+        <div style="font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#8A93A3">Lanes</div>
+      </div>
+      <div style="background:#EAEDFD;border:1px solid #C9D2FB;border-radius:12px;padding:14px 20px;min-width:120px">
+        <div style="font-family:'Space Grotesk';font-size:30px;font-weight:700;color:#26327A">B</div>
+        <div style="font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#26327A">Overall grade</div>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:12px;padding:14px 20px;min-width:120px">
+        <div style="font-family:'Space Grotesk';font-size:30px;font-weight:700;color:#C0342B">5</div>
+        <div style="font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#8A93A3">Blocked</div>
+      </div>
+      <div style="background:#E6F3EB;border:1px solid #C6E3D1;border-radius:12px;padding:14px 20px;min-width:120px">
+        <div style="font-family:'Space Grotesk';font-size:30px;font-weight:700;color:#15803D">9</div>
+        <div style="font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#15803D">Resolved since run 1</div>
+      </div>
+    </div>
+
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#4B5563;border-top:1px solid #E6E8EE;border-bottom:1px solid #E6E8EE;padding:10px 0;display:flex;gap:18px;flex-wrap:wrap">
+      <span>date <strong style="color:#141821">2026-07-18</strong></span>
+      <span>branch <strong style="color:#141821">chore/integrity-queue-2</strong></span>
+      <span>commit <strong style="color:#141821">416ba40</strong></span>
+      <span>prior <strong style="color:#141821">a77b19f</strong></span>
+      <span>baseline <strong style="color:#15803D">green · 428 tests</strong></span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px" id="mastChips"></div>
+    <div id="diffNote" style="margin-top:14px"></div>
+  </header>
+
+  <section style="margin-top:34px;background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px;padding:22px 24px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px">
+      <div>
+        <div style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#8A93A3;margin-bottom:10px">By action</div>
+        <div style="display:flex;height:26px;border-radius:7px;overflow:hidden;border:1px solid #EEF0F4">
+          <div title="direct-fix · 14" style="flex:14;background:#2540E8"></div>
+          <div title="triage · 6" style="flex:6;background:#516079"></div>
+          <div title="fitness-check · 5" style="flex:5;background:#15803D"></div>
+          <div title="design · 2" style="flex:2;background:#6D3BD1"></div>
+        </div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:#4B5563">
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#2540E8;margin-right:6px"></span>direct-fix 14</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#516079;margin-right:6px"></span>triage 6</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#15803D;margin-right:6px"></span>fitness-check 5</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#6D3BD1;margin-right:6px"></span>design 2</span>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#8A93A3;margin-bottom:10px">By priority band</div>
+        <div style="display:flex;gap:12px">
+          <div style="flex:1;background:#FBEAE8;border:1px solid #F2C9C4;border-radius:10px;padding:10px 12px">
+            <div style="font-family:'Space Grotesk';font-size:24px;font-weight:700;color:#C0342B">12</div>
+            <div style="font-size:12px;color:#C0342B">High ≥ 12</div>
+          </div>
+          <div style="flex:1;background:#E6F3EB;border:1px solid #C6E3D1;border-radius:10px;padding:10px 12px">
+            <div style="font-family:'Space Grotesk';font-size:24px;font-weight:700;color:#15803D">14</div>
+            <div style="font-size:12px;color:#15803D">Mid 6–11</div>
+          </div>
+          <div style="flex:1;background:#EDF0F5;border:1px solid #DCE1EB;border-radius:10px;padding:10px 12px">
+            <div style="font-family:'Space Grotesk';font-size:24px;font-weight:700;color:#516079">1</div>
+            <div style="font-size:12px;color:#516079">Low ≤ 5</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;font-size:13px;color:#4B5563">Needs human decision: <strong style="color:#C0342B">5</strong> · Carried on open PR #106: <strong>9</strong></div>
+      </div>
+    </div>
+  </section>
+
+  <nav aria-label="Contents" style="margin-top:34px;background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px;padding:20px 24px">
+    <div style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#8A93A3;margin-bottom:12px">Contents</div>
+    <div style="columns:2;column-gap:40px;font-size:14px">
+      <a style="display:block;padding:3px 0" href="#s01">01 · Executive summary</a>
+      <a style="display:block;padding:3px 0" href="#s02">02 · Overall repo grade</a>
+      <a style="display:block;padding:3px 0" href="#s03">03 · Lane scorecards</a>
+      <a style="display:block;padding:3px 0" href="#s04">04 · Top merged candidates</a>
+      <a style="display:block;padding:3px 0" href="#s05">05 · Candidate ledger</a>
+      <a style="display:block;padding:3px 0" href="#s06">06 · Lane findings</a>
+      <a style="display:block;padding:3px 0" href="#s07">07 · Cross-lane duplicate groups</a>
+      <a style="display:block;padding:3px 0" href="#s08">08 · Human-decision blockers</a>
+      <a style="display:block;padding:3px 0" href="#s09">09 · Quick wins</a>
+      <a style="display:block;padding:3px 0" href="#s10">10 · High-leverage deep work</a>
+      <a style="display:block;padding:3px 0" href="#s11">11 · Unsafe to auto-execute</a>
+      <a style="display:block;padding:3px 0" href="#s12">12 · Verification readiness</a>
+      <a style="display:block;padding:3px 0" href="#s13">13 · Recommended queue</a>
+    </div>
+  </nav>
+
+  <section id="s01" style="margin-top:44px">
+    <h2 style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#2540E8">01 · Executive summary</h2>
+    <p style="font-size:16px;color:#141821;max-width:820px;margin:14px 0">
+      Captain baseline is <strong>green</strong>: <code>pnpm test</code> → 40 files / 428 tests, <code>tsc</code> clean, <code>oxlint src</code> clean, <code>oxfmt --check</code> clean across 193 files. Since run 1 (<code>a77b19f</code>), queue 2 on this branch shipped nine candidates (CAND-03/05/07/08/11/16/18/20/22); queue 1 (#106) remains unmerged and carries nine more. This run surfaces <strong>27 active candidates</strong> (13 new), with the sharpest new items being vacuous draft-policy tests (CAND-24), the scripts lint residual (CAND-25), and the #106 merge collision (CAND-26).
+    </p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px">
+      <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:12px;padding:18px 20px">
+        <div style="font-family:'Space Grotesk';font-weight:600;font-size:15px;margin-bottom:12px">Health map</div>
+        <div style="display:grid;gap:8px;font-size:13.5px">
+          <div style="display:flex;justify-content:space-between"><span>Formula / reveal / Zod core</span><span style="color:#15803D;font-weight:600">Strong</span></div>
+          <div style="display:flex;justify-content:space-between"><span>contentCore shared engine (queue 2)</span><span style="color:#15803D;font-weight:600">Deepened</span></div>
+          <div style="display:flex;justify-content:space-between"><span>CI push-to-main + scene-join detector</span><span style="color:#15803D;font-weight:600">Closed</span></div>
+          <div style="display:flex;justify-content:space-between"><span>Write↔read contract (Keystatic/Zod)</span><span style="color:#B45309;font-weight:600">On #106</span></div>
+          <div style="display:flex;justify-content:space-between"><span>DraftPolicy / scripts lint residual</span><span style="color:#B45309;font-weight:600">New</span></div>
+          <div style="display:flex;justify-content:space-between"><span>Cross-branch merge with #106</span><span style="color:#C0342B;font-weight:600">Collision</span></div>
+        </div>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:12px;padding:18px 20px">
+        <div style="font-family:'Space Grotesk';font-weight:600;font-size:15px;margin-bottom:10px">Resolved since last run</div>
+        <ul style="margin:0;padding-left:18px;font-size:13.5px;color:#4B5563" id="resolvedList"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="s02" style="margin-top:44px">
+    <h2 style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#2540E8">02 · Overall repo grade</h2>
+    <div style="display:flex;gap:22px;align-items:center;margin-top:16px;background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px;padding:22px 24px">
+      <div style="width:96px;height:96px;flex:none;border-radius:16px;background:#EAEDFD;border:1px solid #C9D2FB;display:flex;align-items:center;justify-content:center">
+        <span style="font-family:'Space Grotesk';font-size:52px;font-weight:700;color:#26327A">B</span>
+      </div>
+      <p style="margin:0;font-size:15.5px;color:#4B5563">
+        Held at <strong style="color:#141821">B</strong> — not B+ — because the highest-severity remaining items (RSS contract, timeline CMS, Keystatic <code>unset</code>, #106 merge collision) are still open or blocked, even though queue 2 closed the CI/scripts/timeline/join gaps that capped run 1. Lane grades all improved or held (deepening/graded/verification at B+, blast at B).
+      </p>
+    </div>
+  </section>
+
+  <section id="s03" style="margin-top:44px">
+    <h2 style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#2540E8">03 · Lane scorecards</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px" id="laneCards"></div>
+  </section>
+
+  <section id="s04" style="margin-top:44px">
+    <h2 style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#2540E8">04 · Top merged candidates</h2>
+    <p style="font-size:14px;color:#4B5563;max-width:820px;margin:12px 0">Candidates fused from two or more lane findings this run — highest-signal items.</p>
+    <div id="mergedCards" style="display:grid;gap:12px;margin-top:8px"></div>
+  </section>
+
+  <section id="s05" style="margin-top:44px">
+    <h2 style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#2540E8">05 · Candidate ledger</h2>
+    <p style="font-size:14px;color:#4B5563;max-width:820px;margin:12px 0">Interactive score matrix — filter by action, blocked, new, or carried. Click headers to sort.</p>
+    <div id="filterChips" style="display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 14px"></div>
+    <div style="overflow-x:auto;background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px">
+      <table style="border-collapse:collapse;width:100%;font-size:13px;min-width:820px" id="matrix">
+        <thead id="matrixHead"></thead>
+        <tbody id="matrixBody"></tbody>
+      </table>
+    </div>
+    <div id="ledgerCards" style="margin-top:26px;display:grid;gap:12px"></div>
+  </section>
+
+  <section id="s06" style="margin-top:44px">
+    <h2 style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#2540E8">06 · Lane findings</h2>
+    <div style="display:grid;gap:14px;margin-top:16px">
+      <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:12px;padding:18px 20px">
+        <div style="font-family:'Space Grotesk';font-weight:600">deepening_seams — B+ / 4</div>
+        <p style="font-size:14px;color:#4B5563;margin:8px 0 0">contentCore deepened the content seam; residual mirrored domain language (join-key, image-path), missing batched Scene reader, and content.ts doc drift. Five new candidates.</p>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:12px;padding:18px 20px">
+        <div style="font-family:'Space Grotesk';font-weight:600">graded_integrity — B+ / 4</div>
+        <p style="font-size:14px;color:#4B5563;margin:8px 0 0">Raised from B−. Sharpest new: vacuous DraftPolicy tests (CAND-24), timeline N+1, oxlint scripts residual, SceneBeat duplication, pdfkit ambient types.</p>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:12px;padding:18px 20px">
+        <div style="font-family:'Space Grotesk';font-weight:600">blast_radius_lane — B / 4</div>
+        <p style="font-size:14px;color:#4B5563;margin:8px 0 0">Raised from C+. Main new risk: cross-branch collision with PR #106 (manifest generator, contentCore split, ci.yml). Also ADR-0014/CONTEXT reading-only drift and expanded resource_system.md citations.</p>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:12px;padding:18px 20px">
+        <div style="font-family:'Space Grotesk';font-weight:600">verification_readiness — B+ / 4</div>
+        <p style="font-size:14px;color:#4B5563;margin:8px 0 0">Held. CI push gate + scene-join detector shipped; remaining: scripts outside oxlint, timeline/Studio untested, live scene-joins not triggered, tautological manifest sync test.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="s07" style="margin-top:44px">
+    <h2 style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#2540E8">07 · Cross-lane duplicate groups</h2>
+    <div style="overflow-x:auto;background:#FFFFFF;border:1px solid #E6E8EE;border-radius:14px;margin-top:12px">
+      <table style="border-collapse:collapse;width:100%;font-size:13px;min-width:640px">
+        <thead><tr style="text-align:left;background:#F2F3F7">
+          <th style="padding:10px 14px;border-bottom:1px solid #E6E8EE">Candidate</th>
+          <th style="padding:10px 14px;border-bottom:1px solid #E6E8EE">Group</th>
+          <th style="padding:10px 14px;border-bottom:1px solid #E6E8EE">Merged from</th>
+          <th style="padding:10px 14px;border-bottom:1px solid #E6E8EE">Lanes</th>
+        </tr></thead>
+        <tbody id="dupBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="s08" style="margin-top:44px">
+    <h2 style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#2540E8">08 · Human-decision blockers</h2>
+    <p style="font-size:14px;color:#4B5563;max-width:820px;margin:12px 0">Still the five deferred decisions from run 1 (CAND-02, 06, 09, 19, 23). Named against connected-impact-sweep human-decision categories.</p>
+    <div id="blockerCards" style="display:grid;gap:12px"></div>
+  </section>
+
+  <section id="s09" style="margin-top:44px">
+    <h2 style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#2540E8">09 · Quick wins</h2>
+    <p style="font-size:14px;color:#4B5563;max-width:820px;margin:12px 0">Unblocked <code>direct-fix</code> with blast ≤ 2, regression ≤ 3, human ≤ 2 — preferring items already on this branch (not carried-on-open-PR).</p>
+    <div id="quickWins" style="display:grid;gap:10px"></div>
+  </section>
+
+  <section id="s10" style="margin-top:44px">
+    <h2 style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#2540E8">10 · High-leverage deep work</h2>
+    <div id="deepWork" style="display:grid;gap:10px;margin-top:12px"></div>
+  </section>
+
+  <section id="s11" style="margin-top:44px">
+    <h2 style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#2540E8">11 · Unsafe to auto-execute</h2>
+    <div id="unsafe" style="display:grid;gap:10px;margin-top:12px"></div>
+  </section>
+
+  <section id="s12" style="margin-top:44px">
+    <h2 style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#2540E8">12 · Verification readiness</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
+      <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:12px;padding:18px 20px">
+        <div style="font-family:'Space Grotesk';font-weight:600;margin-bottom:10px">What holds</div>
+        <ul style="margin:0;padding-left:18px;font-size:13.5px;color:#4B5563">
+          <li><strong>40 files / 428 tests</strong> pass, including new <code>sceneJoins.test.ts</code>.</li>
+          <li>CI now fires on <strong>push to main</strong> (CAND-03 shipped).</li>
+          <li><code>tsc</code> covers <code>scripts/*.ts</code>; <code>oxfmt</code> is repo-wide.</li>
+          <li>Scene beatRef detector is red-capable with fixtures.</li>
+        </ul>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:12px;padding:18px 20px">
+        <div style="font-family:'Space Grotesk';font-weight:600;margin-bottom:10px">Coverage gaps</div>
+        <ul style="margin:0;padding-left:18px;font-size:13.5px;color:#4B5563">
+          <li><code>oxlint</code> still scoped to <strong>src</strong> (CAND-25).</li>
+          <li>DraftPolicy <code>include</code>/<code>exclude</code> untested (CAND-24).</li>
+          <li>Manifest freshness still ungated; sync test tautological (CAND-04).</li>
+          <li>Timeline render + Studio structure untested (CAND-28).</li>
+          <li>Live scene-joins check has no automated trigger (CAND-36).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="s13" style="margin-top:44px">
+    <h2 style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#2540E8">13 · Recommended queue</h2>
+    <p style="font-size:14px;color:#4B5563;max-width:820px;margin:12px 0">Unblocked first (preferring status=open over carried-on-open-PR), then carried #106 items, blocked parked at the tail. This report selects nothing.</p>
+    <ol id="queue" style="margin:0;padding-left:22px;font-size:14px;display:grid;gap:6px"></ol>
+  </section>
+
+  <footer style="margin-top:56px;border-top:1px solid #E6E8EE;padding-top:16px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A93A3">
+    Repo Audit Swarm · parallel-report run 2 · dominion-realm @ 416ba40 · prior a77b19f · generated 2026-07-18 · ledger only — no candidate selected
+  </footer>
+</main>
+
+<script>
+const CANDS = [
+  {id:"CAND-01",title:"Keystatic relationship collection default unset outside Zod enum",cat:"Data / Schema / Contract",action:"direct-fix",lanes:["deepening_seams","blast_radius_lane"],from:["SEAM-2A","BLAST-2"],group:"keystatic-zod-relationship-unset",
+   s:{sev:4,conf:5,lev:5,loc:3,test:5,blast:4,regr:4,human:2},blocked:false,blocked_by:[],status:"carried-on-open-PR",
+   summary:"Keystatic defaults a relationship collection to unset, a value the read-side Zod enum rejects, so a CMS save with the default turns the next build red.",
+   root:"Write-side option values are not constrained to be a subset of the read-side schema; Keystatic and Zod are hand-mirrored.",
+   check:"Fitness test asserting option values subset of Zod enum, or remove unset.",
+   ev:["keystatic.config.ts:34,40 — unset default","src/lib/contentCore.ts:20 — enum omits unset","src/lib/contentCore.ts:190-197 — parse throws"],
+   extra:{"Note":"Fix lives on unmerged PR #106; still present in this worktree.","Status":"carried-on-open-PR"}},
+
+  {id:"CAND-02",title:"RSS emits title+summary for every journal post vs ADR-0004",cat:"Bug",action:"fitness-check",lanes:["blast_radius_lane","verification_readiness"],from:["BLAST-3","VERIF-5"],group:"rss-adr0004-sealed-metadata",
+   s:{sev:4,conf:5,lev:4,loc:4,test:5,blast:3,regr:4,human:5},blocked:true,blocked_by:["A public/external contract"],status:"needs-human-decision",
+   summary:"RSS publishes title and summary for every journal post including sealed ones, contradicting ADR-0004; OG path is correct; zero route tests.",
+   root:"RSS was never gated through the reveal-tier projection; a comment claims spoiler-safety the code does not enforce.",
+   check:"Decide the external RSS contract, then unit-test GET() and gate sealed metadata.",
+   ev:["src/app/rss.xml/route.ts:25-40 — emits title+summary unconditionally","src/app/rss.xml/route.ts:5-7 — spoiler-safe claim","no rss test file"],
+   extra:{"Status":"needs-human-decision"}},
+
+  {id:"CAND-04",title:"Committed content-manifest is an ungated golden (TIMELINE_BEATS now)",cat:"Testing / Fixture / Golden",action:"fitness-check",lanes:["verification_readiness","blast_radius_lane"],from:["VERIF-2","L4-New-4","L3-New-1"],group:"content-manifest-golden",
+   s:{sev:3,conf:5,lev:4,loc:5,test:5,blast:3,regr:3,human:1},blocked:false,blocked_by:[],status:"open",
+   summary:"The committed content-manifest golden has no regen/diff gate on this branch, and the sceneJoins sync test is tautological (feeds the manifest back into itself).",
+   root:"Generator output is treated as a static source; the one test that looks like a freshness guard never compares against the content tree.",
+   check:"Vitest: re-derive beat ids from contentCore and expect equal to READING_BEATS/TIMELINE_BEATS; or regenerate + git diff --exit-code in CI.",
+   ev:["src/sanity/sceneJoins.test.ts:63-71 — tautological sync","scripts/generate-content-manifest.ts:22-27,48 — committed output","ci.yml:40-54 — no regen/diff step"],
+   extra:{"Note":"PR #106 adds a staleness gate against the old reading-only .mjs shape; this branch emits TIMELINE_BEATS via .ts — coordinate merge (see CAND-26)."}},
+
+  {id:"CAND-06",title:"Timeline in Zod + files but absent from Keystatic / CONTENT.md",cat:"Data / Schema / Contract",action:"design",lanes:["deepening_seams","blast_radius_lane"],from:["SEAM-2B","BLAST-1"],group:"timeline-keystatic-gap",
+   s:{sev:4,conf:5,lev:4,loc:2,test:4,blast:4,regr:3,human:4},blocked:true,blocked_by:["Data schema or architecture direction"],status:"needs-human-decision",
+   summary:"Timeline is Zod-validated and file-backed but has no Keystatic collection and is undocumented in CONTENT.md.",
+   root:"Write-side and docs never extended when timeline was added to the read schema.",
+   check:"Decide CMS ownership, then add Keystatic collection + docs.",
+   ev:["src/lib/contentCore.ts:81-92 — timeline Zod schema","keystatic.config.ts — no timeline collection","docs/CONTENT.md:86-91 — timeline omitted"],
+   extra:{"Status":"needs-human-decision"}},
+
+  {id:"CAND-09",title:"resource_system.md missing; Faith/Occult vs CVN/MYS (citations proliferated)",cat:"Maintainability",action:"triage",lanes:["blast_radius_lane"],from:["BLAST-4","L3-New-5"],group:"resource-system-doc-drift",
+   s:{sev:3,conf:5,lev:3,loc:2,test:3,blast:3,regr:4,human:4},blocked:true,blocked_by:["A numerical correctness expectation"],status:"needs-human-decision",
+   summary:"CONTEXT cites a missing resource_system.md and names Faith/Occult while code uses CVN/MYS; citations now reach a rendered footer and formula modules.",
+   root:"Terminology and a referenced SoT were never reconciled after a rename; the missing file kept being cited.",
+   check:"Decide canonical naming and whether to add the doc or rewrite citations/footer.",
+   ev:["CONTEXT.md:54,67 — Faith/Occult + missing doc cite","src/types/index.ts:24-25 — CVN/MYS","src/components/sheet/CharacterSheetShell.tsx:12 — user-facing footer cite"],
+   extra:{"Note":"Blast expanded: user-facing footer and multiple formula modules cite the missing doc.","Status":"needs-human-decision"}},
+
+  {id:"CAND-10",title:"Sheet JSON import bypasses schema",cat:"Data / Schema / Contract",action:"fitness-check",lanes:["graded_integrity"],from:["QUAL-6"],group:"sheet-import-schema",
+   s:{sev:3,conf:5,lev:4,loc:4,test:5,blast:2,regr:3,human:1},blocked:false,blocked_by:[],status:"carried-on-open-PR",
+   summary:"Character sheet JSON import writes into the store without Zod, so malformed JSON can corrupt sheet state.",
+   root:"Import parses JSON and spreads into state instead of the Zod path used elsewhere.",
+   check:"Reject invalid import JSON; add Zod parse + unit test.",
+   ev:["src/components/sheet/StatSheetTable.tsx:275-276 — JSON.parse + loadState","src/store/characterSheetStore.ts:96-105 — unvalidated spread"],
+   extra:{"Status":"carried-on-open-PR"}},
+
+  {id:"CAND-12",title:"Content loaders re-scan the filesystem every call (no React.cache)",cat:"Maintainability",action:"direct-fix",lanes:["graded_integrity"],from:["QUAL-1"],group:"content-loader-cache",
+   s:{sev:3,conf:5,lev:4,loc:3,test:4,blast:2,regr:3,human:1},blocked:false,blocked_by:[],status:"carried-on-open-PR",
+   summary:"loadCollection still does fg.sync + readFileSync every call with no request-level memoization; amplified by timeline fan-out.",
+   root:"Content loaders were never wrapped in React.cache() the way media.ts was.",
+   check:"Wrap contentCore getters in cache() at the server boundary; assert single FS scan per request.",
+   ev:["src/lib/contentCore.ts:177-224 — uncached loadCollection","src/sanity/media.ts:118+ — cache() pattern","src/app/timeline/page.tsx:23-30 — N beat fetches amplify cost"],
+   extra:{"Note":"PR #106 wraps cache() in content.ts; this branch moved loaders to contentCore.ts — merge must re-apply cache onto contentCore (see CAND-26).","Status":"carried-on-open-PR"}},
+
+  {id:"CAND-13",title:"next.config ignores TS/ESLint errors during builds",cat:"Build / CI",action:"triage",lanes:["graded_integrity"],from:["QUAL-10"],group:"next-ignore-build-errors",
+   s:{sev:3,conf:5,lev:3,loc:4,test:2,blast:3,regr:4,human:3},blocked:false,blocked_by:[],status:"carried-on-open-PR",
+   summary:"next.config still disables TypeScript and ESLint build errors.",
+   root:"ignoreBuildErrors / ignoreDuringBuilds remain enabled.",
+   check:"Remove ignore flags or keep the justifying comment with explicit deploy-gate ownership.",
+   ev:["next.config.mjs:41-46 — ignore flags + justifying comment"],
+   extra:{"Note":"Mitigated by CAND-03 (push-to-main CI) but flags still present.","Status":"carried-on-open-PR"}},
+
+  {id:"CAND-14",title:"projectByReveal doc overclaims; most callers hand-roll",cat:"Maintainability",action:"direct-fix",lanes:["deepening_seams"],from:["SEAM-3"],group:"projectByReveal-doc-drift",
+   s:{sev:2,conf:5,lev:3,loc:4,test:4,blast:2,regr:2,human:2},blocked:false,blocked_by:[],status:"carried-on-open-PR",
+   summary:"projectByReveal docs claim it is the single reveal projection, but callers still hand-roll tier checks.",
+   root:"Helper documented as canonical before call sites migrated.",
+   check:"Migrate hand-rolled callers; align the doc.",
+   ev:["src/lib/reveal.ts:118-121 — overclaim","src/components/CodexCard.tsx:42 — bare tier !== teaser"],
+   extra:{"Status":"carried-on-open-PR"}},
+
+  {id:"CAND-15",title:"Relationship to ResolvedLink projection duplicated",cat:"Maintainability",action:"direct-fix",lanes:["deepening_seams"],from:["SEAM-4"],group:"resolved-link-projection",
+   s:{sev:2,conf:5,lev:2,loc:5,test:5,blast:2,regr:3,human:1},blocked:false,blocked_by:[],status:"carried-on-open-PR",
+   summary:"Relationship to ResolvedLink projection (reveal inheritance) is duplicated across codex and timeline.",
+   root:"No shared helper owns the projection.",
+   check:"Extract toResolvedLink; assert both callers match.",
+   ev:["src/lib/codex.ts:197-204 — copy A","src/lib/timeline.ts:25-30 — copy B"],
+   extra:{"Status":"carried-on-open-PR"}},
+
+  {id:"CAND-17",title:"homeSettings JSON.parse without Zod",cat:"Data / Schema / Contract",action:"direct-fix",lanes:["graded_integrity"],from:["QUAL-5"],group:"home-settings-zod",
+   s:{sev:2,conf:5,lev:3,loc:5,test:5,blast:1,regr:2,human:1},blocked:false,blocked_by:[],status:"carried-on-open-PR",
+   summary:"homeSettings is JSON.parsed without Zod, so malformed settings flow unchecked.",
+   root:"Read path never brought under the Zod gate.",
+   check:"Add Zod schema + parse; unit-test rejection.",
+   ev:["src/lib/homeSettings.ts:32-35 — JSON.parse without Zod"],
+   extra:{"Status":"carried-on-open-PR"}},
+
+  {id:"CAND-19",title:"Dual cover source-of-truth: Keystatic vs Sanity",cat:"Architecture Fitness",action:"design",lanes:["blast_radius_lane"],from:["BLAST-9"],group:"dual-cover-sot",
+   s:{sev:2,conf:4,lev:3,loc:3,test:3,blast:3,regr:2,human:4},blocked:true,blocked_by:["Deleting or retiring code that is still reachable","Data schema or architecture direction"],status:"needs-human-decision",
+   summary:"Cover image still has two reachable sources (Sanity siteSettings and Keystatic/git homeSettings).",
+   root:"Two systems model the cover without retiring the older path.",
+   check:"Pick a single SoT; retire or hard-gate the other.",
+   ev:["src/app/page.tsx:61-67 — Sanity preferred, git fallback","src/lib/homeSettings.ts:28-42 — git cover still live"],
+   extra:{"Note":"Precedence now documented (Sanity then git) but both paths remain reachable.","Status":"needs-human-decision"}},
+
+  {id:"CAND-21",title:"ADR-0011 still claims Railway (CI half already fixed)",cat:"Build / CI",action:"direct-fix",lanes:["graded_integrity","blast_radius_lane"],from:["QUAL-8"],group:"hosting-doc-drift",
+   s:{sev:2,conf:5,lev:2,loc:5,test:1,blast:1,regr:1,human:1},blocked:false,blocked_by:[],status:"carried-on-open-PR",
+   summary:"ADR-0011 still references Railway hosting after the deploy reality moved to EC2.",
+   root:"Hosting docs were not fully updated after the hosting change.",
+   check:"Update ADR-0011 Railway mentions to the current host.",
+   ev:["docs/adr/0011-media-layer-sanity.md:114-117 — Railway claim","ci.yml:3-6 — already EC2 on this branch"],
+   extra:{"Note":"CI comment already ADR-0012/EC2 on this branch; ADR-0011 Railway claims remain.","Status":"carried-on-open-PR"}},
+
+  {id:"CAND-23",title:"Keystatic trusts x-forwarded-host",cat:"Other",action:"triage",lanes:["graded_integrity"],from:["QUAL-12"],group:"keystatic-forwarded-host",
+   s:{sev:3,conf:3,lev:3,loc:4,test:3,blast:3,regr:3,human:4},blocked:true,blocked_by:["Security or production safety"],status:"needs-human-decision",
+   summary:"Keystatic OAuth origin still reads x-forwarded-host, which can be attacker-controlled behind a misconfigured proxy.",
+   root:"Host resolution trusts a forwarded header without a pinned allowlist.",
+   check:"Security triage: allowlist host or pin trusted proxy config.",
+   ev:["src/app/api/keystatic/[[...params]]/route.ts:34,41-44 — x-forwarded-host + isInternalHost"],
+   extra:{"Note":"Now gated on NEXT_PUBLIC_KEYSTATIC_GITHUB + isInternalHost, which narrows but does not close the trust boundary.","Status":"needs-human-decision"}},
+
+  {id:"CAND-24",title:"DraftPolicy tests are vacuous; include/exclude branches untested",cat:"Testing",action:"direct-fix",lanes:["graded_integrity"],from:["L2-NEW-2"],group:"draft-policy-test-gap",
+   s:{sev:3,conf:5,lev:4,loc:4,test:5,blast:2,regr:1,human:1},blocked:false,blocked_by:[],status:"open",
+   summary:"DraftPolicy (env/include/exclude) is plumbed through every getter, but only the env branch is weakly tested against the live corpus; exclude (downloads) and include (manifest) have no coverage.",
+   root:"Tests exercise real corpus rather than fixtures, so a corpus with zero drafts makes the production-drop assertion vacuous.",
+   check:"Fixture-based unit tests: exclude drops drafts in dev; include keeps drafts in production; env follows NODE_ENV.",
+   ev:["src/lib/contentCore.ts:162-175 — three draft branches","src/lib/content.test.ts:93-113 — corpus-dependent vacuous loop","scripts/generate-downloads.ts:44 — exclude untested","scripts/generate-content-manifest.ts:22-27 — include untested"],
+   extra:{}},
+
+  {id:"CAND-25",title:"oxlint still scoped to src; TypeScript build scripts unlinted",cat:"Build / CI",action:"direct-fix",lanes:["graded_integrity","verification_readiness","blast_radius_lane","deepening_seams"],from:["L2-NEW-3","L4-New-1","L3-New-6","CAND-05-residual"],group:"scripts-lint-gate",
+   s:{sev:2,conf:5,lev:4,loc:5,test:4,blast:2,regr:2,human:2},blocked:false,blocked_by:[],status:"open",
+   summary:"Queue-2 moved real logic into scripts/*.ts under tsc+oxfmt, but oxlint still ends at src, so correctness/suspicious rules never see build scripts.",
+   root:"lint script path arg was not widened when scripts became first-class TypeScript.",
+   check:"Change package.json lint to oxlint … src scripts.",
+   ev:["package.json:17 — oxlint … src","scripts/check-scene-joins.ts — network script unlinted","scripts/sanity-migrate.ts — credential-bearing script unlinted"],
+   extra:{"Note":"Residual half of shipped CAND-05 (engine dedup done; gate half remains)."}},
+
+  {id:"CAND-26",title:"Cross-branch collision with PR #106 (manifest, contentCore, ci.yml)",cat:"Build / CI",action:"triage",lanes:["blast_radius_lane"],from:["L3-New-1","L3-New-2","L3-New-3"],group:"pr106-merge-collision",
+   s:{sev:4,conf:5,lev:4,loc:2,test:3,blast:5,regr:4,human:3},blocked:false,blocked_by:[],status:"open",
+   summary:"This branch renamed the manifest generator .mjs→.ts and added TIMELINE_BEATS while #106 modified the old .mjs and adds a reading-only staleness gate; content.ts was gutted to a barrel while #106 wraps cache()/wiring there; both edit ci.yml.",
+   root:"Two branches independently evolved the same seams from a77b19f with incompatible shapes.",
+   check:"Triage merge order: keep .ts generator + TIMELINE_BEATS; re-apply #106 cache() onto contentCore; keep push trigger + any #106 gate step.",
+   ev:["scripts/generate-content-manifest.ts — .ts + TIMELINE_BEATS","src/lib/content.ts:20-40 — re-export barrel only","src/lib/contentCore.ts:177-266 — loaders live here","ci.yml:3-11 — push trigger + EC2 comment"],
+   extra:{}},
+
+  {id:"CAND-27",title:"Timeline Scene media is an N+1 Sanity fan-out",cat:"Architecture Fitness",action:"direct-fix",lanes:["deepening_seams","graded_integrity"],from:["L1-NC-1","L2-NEW-1"],group:"scene-media-batch-reader",
+   s:{sev:2,conf:5,lev:3,loc:4,test:3,blast:2,regr:2,human:2},blocked:false,blocked_by:[],status:"open",
+   summary:"Timeline fetches getSceneMedia once per beat (including sealed beats), while Subjects already have a one-query map reader.",
+   root:"getSceneMedia is a single-item reader shipped for reading detail pages and reused for N-beat timeline without a batch shape.",
+   check:"Add getSceneMediaMap(beat); timeline reads from it; spy that render issues ≤1 Sanity fetch per beat-kind.",
+   ev:["src/app/timeline/page.tsx:23-30 — Promise.all per beat","src/sanity/media.ts:245-261 — single-item getSceneMedia","src/sanity/media.ts:156-172 — getSubjectPrimaryMap batch pattern"],
+   extra:{}},
+
+  {id:"CAND-28",title:"Timeline Scene-art render path and Studio structure have no tests",cat:"Testing",action:"fitness-check",lanes:["verification_readiness"],from:["L4-New-2"],group:"timeline-scene-test-gap",
+   s:{sev:2,conf:5,lev:3,loc:4,test:3,blast:3,regr:3,human:2},blocked:false,blocked_by:[],status:"open",
+   summary:"CAND-07 wired timeline Scene art and manifest-driven Studio panes, but coverage stops at the lib getSceneMedia seam.",
+   root:"RSC page and Studio structure were added without a render/structure test.",
+   check:"Render test: SceneArt present with media, absent on miss; structure smoke: each READING/TIMELINE beat yields a filtered list item.",
+   ev:["src/app/timeline/page.tsx:64-72 — SceneArt wiring untested","src/sanity/structure.ts:41-90 — beat panes untested"],
+   extra:{}},
+
+  {id:"CAND-29",title:"Subject join-key format kind:slug expressed three times",cat:"Maintainability",action:"direct-fix",lanes:["deepening_seams"],from:["L1-NC-2"],group:"subject-key-format",
+   s:{sev:2,conf:5,lev:3,loc:5,test:5,blast:3,regr:2,human:1},blocked:false,blocked_by:[],status:"open",
+   summary:"subjectKey() builds kind:slug for consumers while two map producers rebuild the identical string inline — a format drift becomes a silent graceful miss.",
+   root:"No keyOf(kind,slug) primitive; producers have kind not collection so they cannot reuse subjectKey.",
+   check:"Extract keyOf; have subjectKey and both map builders call it; round-trip test.",
+   ev:["src/sanity/media.ts:89-91 — subjectKey","src/sanity/media.ts:169 — producer inline","src/sanity/media.ts:195 — second producer inline"],
+   extra:{}},
+
+  {id:"CAND-30",title:"Frontmatter image-path resolution implemented twice with latent divergence",cat:"Maintainability",action:"direct-fix",lanes:["deepening_seams"],from:["L1-NC-3"],group:"image-path-resolver",
+   s:{sev:2,conf:4,lev:3,loc:4,test:4,blast:2,regr:2,human:1},blocked:false,blocked_by:[],status:"open",
+   summary:"loadCollection inlines image-path resolution while imageSourcePath exports a near-copy that returns undefined for bare relative paths.",
+   root:"Pre-resolution guard was added to loadCollection without routing through imageSourcePath.",
+   check:"One resolver for all three path shapes; table test across call sites.",
+   ev:["src/lib/contentCore.ts:206-210 — relative path branch in loader","src/lib/contentCore.ts:147-160 — imageSourcePath has no relative branch","scripts/sanity-migrate.ts:89 — calls imageSourcePath post-normalize"],
+   extra:{}},
+
+  {id:"CAND-31",title:"Post-split doc drift still names content.ts as the schema home",cat:"Maintainability",action:"direct-fix",lanes:["deepening_seams"],from:["L1-NC-4"],group:"contentcore-doc-drift",
+   s:{sev:1,conf:5,lev:2,loc:4,test:1,blast:1,regr:1,human:1},blocked:false,blocked_by:[],status:"open",
+   summary:"After content.ts became a re-export shim, CONTENT.md, keystatic.config.ts, and ci.yml still point readers at it for schemas/loaders that live in contentCore.ts.",
+   root:"Engine extraction did not repoint human-facing references.",
+   check:"Repoint the three references to contentCore.ts (or note the shim).",
+   ev:["docs/CONTENT.md:392,416 — cites content.ts as schema home","keystatic.config.ts:11,55 — mirrors content.ts","ci.yml:64 — Zod loader comment cites content.ts"],
+   extra:{}},
+
+  {id:"CAND-32",title:"ADR-0014 and CONTEXT.md still say scene art is reading-only",cat:"Maintainability",action:"direct-fix",lanes:["blast_radius_lane"],from:["L3-New-4"],group:"scene-art-doc-drift",
+   s:{sev:2,conf:5,lev:3,loc:4,test:2,blast:2,regr:1,human:2},blocked:false,blocked_by:[],status:"open",
+   summary:"Timeline now renders Scene art, but ADR-0014 and CONTEXT.md still describe it as reading-only with timeline as an unshipped fast-follow.",
+   root:"CAND-07 shipped the render surface without updating the governing docs.",
+   check:"Update ADR-0014 status note and CONTEXT § Scene art / § Plate to include timeline.",
+   ev:["src/app/timeline/page.tsx:64-72 — SceneArt on timeline","docs/adr/0014-scene-art-beat-scoped.md:36-38 — Reading only this pass","CONTEXT.md:120-127 — reading-doorway-only"],
+   extra:{}},
+
+  {id:"CAND-33",title:"check-scene-joins has no package.json alias (scene:check)",cat:"Build / CI",action:"direct-fix",lanes:["deepening_seams"],from:["L1-NC-5"],group:"scene-check-alias",
+   s:{sev:1,conf:5,lev:2,loc:5,test:2,blast:1,regr:1,human:2},blocked:false,blocked_by:[],status:"open",
+   summary:"The CAND-16 live detector exists but is only runnable via a hand-typed pnpm exec tsx path; ADR-0014 anticipated a scene:check script.",
+   root:"Detector landed without a package.json surface.",
+   check:"Add \"scene:check\": \"tsx scripts/check-scene-joins.ts\".",
+   ev:["package.json:11-23 — no scene:check","scripts/check-scene-joins.ts:14 — hand-typed invocation","docs/adr/0014-scene-art-beat-scoped.md:49 — names scene:check"],
+   extra:{}},
+
+  {id:"CAND-34",title:"Scene beat-kind literals duplicated (GROQ reader vs detector)",cat:"Architecture Fitness",action:"fitness-check",lanes:["graded_integrity"],from:["L2-NEW-5"],group:"scene-beat-shared-constant",
+   s:{sev:2,conf:4,lev:2,loc:4,test:4,blast:2,regr:2,human:2},blocked:false,blocked_by:[],status:"open",
+   summary:"The join rule beat in {reading,timeline} lives independently in the GROQ reader and the pure detector; parity is hand-mirrored by one test.",
+   root:"Detector re-hardcodes beat-kind literals instead of importing a shared SceneBeat set.",
+   check:"Export SCENE_BEATS / SceneBeat from one module; consume in detector and reader construction.",
+   ev:["src/sanity/media.ts:248 — reader filter","src/sanity/sceneJoins.ts:49-53 — detector re-hardcodes kinds","src/sanity/sceneJoins.test.ts:42-47 — hand-mirrored parity"],
+   extra:{}},
+
+  {id:"CAND-35",title:"Hand-rolled pdfkit.d.ts types text() options as object",cat:"Static",action:"triage",lanes:["graded_integrity"],from:["L2-NEW-4"],group:"pdfkit-ambient-types",
+   s:{sev:1,conf:4,lev:2,loc:5,test:2,blast:1,regr:2,human:2},blocked:false,blocked_by:[],status:"open",
+   summary:"Ambient pdfkit types declare text() options as object, so option-key typos are unchecked and the shim can drift from pdfkit@0.15.2.",
+   root:"declare module fully replaces the package typing surface with a lossy approximation; @types/pdfkit not installed.",
+   check:"Install @types/pdfkit and delete the shim, or tighten PDFTextOptions.",
+   ev:["scripts/pdfkit.d.ts:10 — options?: object","scripts/generate-downloads.ts:236-241 — untyped option keys","package.json — pdfkit without @types"],
+   extra:{}},
+
+  {id:"CAND-36",title:"Live scene-joins check has no automated trigger",cat:"Build / CI",action:"triage",lanes:["verification_readiness"],from:["L4-New-3"],group:"scene-joins-ci-trigger",
+   s:{sev:2,conf:5,lev:3,loc:4,test:3,blast:3,regr:2,human:3},blocked:false,blocked_by:[],status:"open",
+   summary:"The red-capable live scene-joins check is local/ops only; an orphaned Scene is caught only if a human remembers to run it.",
+   root:"Deliberate network-free default CI left the live check with no optional/nightly home.",
+   check:"Triage: workflow_dispatch/nightly job (public dataset, no token) or documented pre-release gate.",
+   ev:["scripts/check-scene-joins.ts:9-16 — LOCAL/OPS only","ci.yml — no scene-joins job"],
+   extra:{}}
+];
+const RESOLVED = [{"id":"CAND-03","title":"CI never runs on push to main","how":"push: branches:[main] + workflow_dispatch"},{"id":"CAND-05","title":"Build scripts re-implement content engine","how":"contentCore shared; residual lint → CAND-25"},{"id":"CAND-07","title":"Scene art timeline inert","how":"timeline page + TIMELINE_BEATS + Studio panes"},{"id":"CAND-08","title":"check-links.mjs Astro-era dead","how":"script deleted"},{"id":"CAND-11","title":"Env vars undocumented","how":".env.example documents KEYSTATIC_URL + Sanity API version"},{"id":"CAND-16","title":"Slug/beatRef join has no detection harness","how":"sceneJoins detector + tests + live script"},{"id":"CAND-18","title":"Timeline excluded from search","how":"search corpus indexes timeline"},{"id":"CAND-20","title":"README overstates pnpm check","how":"README now says type-check only"},{"id":"CAND-22","title":"Scene-part reject vs clamp dual semantics","how":"parseLaterScenePart owns HTTP reject"}];
+
+const POS=["sev","conf","lev","loc","test"], NEG=["blast","regr","human"];
+function pri(c){let p=0;POS.forEach(k=>p+=c.s[k]);NEG.forEach(k=>p-=c.s[k]);return p;}
+function band(p){return p>=12?"High":p>=6?"Mid":"Low";}
+CANDS.forEach(c=>{c.pri=pri(c);c.band=band(c.pri);c.isNew=String(c.id).replace('CAND-','')*1>=24;c.carried=c.status==='carried-on-open-PR';});
+
+const ACTION_COLOR={"direct-fix":"#2540E8","fitness-check":"#15803D","design":"#6D3BD1","triage":"#516079"};
+const ACTION_BG={"direct-fix":"#EAEDFD","fitness-check":"#E6F3EB","design":"#F0E9FB","triage":"#EDF0F5"};
+function heat(p){if(p>=15)return{bg:"#FBEAE8",fg:"#C0342B"};if(p>=12)return{bg:"#FAEFE0",fg:"#B45309"};if(p>=6)return{bg:"#E6F3EB",fg:"#15803D"};return{bg:"#EDF0F5",fg:"#516079"};}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function priPill(p){const h=heat(p);return `<span style="font-family:'IBM Plex Mono',monospace;font-weight:600;background:${h.bg};color:${h.fg};padding:2px 9px;border-radius:20px;font-size:12px">${p}</span>`;}
+function actionTag(a){return `<span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:${ACTION_COLOR[a]};background:${ACTION_BG[a]};padding:2px 8px;border-radius:6px">${a}</span>`;}
+function blockedTag(){return `<span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#C0342B;background:#FBEAE8;padding:2px 8px;border-radius:6px;margin-left:6px">BLOCKED</span>`;}
+function newTag(){return `<span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#B45309;background:#FAEFE0;padding:2px 8px;border-radius:6px;margin-left:6px">NEW</span>`;}
+function carriedTag(){return `<span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#516079;background:#EDF0F5;padding:2px 8px;border-radius:6px;margin-left:6px">ON #106</span>`;}
+
+document.getElementById("resolvedList").innerHTML=RESOLVED.map(r=>`<li><code>${r.id}</code> — ${esc(r.title)} <span style="color:#8A93A3">(${esc(r.how)})</span></li>`).join("");
+
+(function(){
+  const chips=[["High-band","12","#C0342B","#FBEAE8"],["Mid-band","14","#B45309","#FAEFE0"],["Low-band","1","#516079","#EDF0F5"],["New this run",String(CANDS.filter(c=>c.isNew).length),"#B45309","#FAEFE0"],["Resolved",String(RESOLVED.length),"#15803D","#E6F3EB"]];
+  document.getElementById("mastChips").innerHTML=chips.map(([l,v,fg,bg])=>`<span style="font-size:12.5px;background:${bg};color:${fg};padding:5px 12px;border-radius:20px;font-weight:600">${l} · ${v}</span>`).join("");
+})();
+
+document.getElementById("diffNote").innerHTML=`<div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#26327A;background:#EAEDFD;border:1px solid #C9D2FB;border-radius:8px;padding:8px 12px">Run-to-run diff · prior a77b19f (2026-07-17, 23 cands) → 416ba40 · +${CANDS.filter(c=>c.isNew).length} new · −${RESOLVED.length} resolved · ${CANDS.filter(c=>c.carried).length} carried on PR #106 · ${CANDS.filter(c=>c.blocked).length} still blocked</div>`;
+
+(function(){
+  const lanes=[{name:"deepening_seams",grade:"B+",score:4,accent:"#2540E8"},{name:"graded_integrity",grade:"B+",score:4,accent:"#15803D"},{name:"blast_radius_lane",grade:"B",score:4,accent:"#B45309"},{name:"verification_readiness",grade:"B+",score:4,accent:"#6D3BD1"}];
+  document.getElementById("laneCards").innerHTML=lanes.map(l=>{
+    const n=CANDS.filter(c=>c.lanes.includes(l.name)).length;
+    const dots=[1,2,3,4,5].map(i=>`<span style="width:14px;height:6px;border-radius:3px;background:${i<=l.score?l.accent:'#EEF0F4'};display:inline-block"></span>`).join("");
+    return `<div style="background:#FFFFFF;border:1px solid #E6E8EE;border-left:4px solid ${l.accent};border-radius:12px;padding:18px 20px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#141821">${l.name}</div>
+        <div style="font-family:'Space Grotesk';font-size:24px;font-weight:700;color:${l.accent}">${l.grade}</div>
+      </div>
+      <div style="display:flex;gap:5px;margin:12px 0 8px">${dots}</div>
+      <div style="font-size:12.5px;color:#8A93A3">score ${l.score}/5 · ${n} candidate${n===1?"":"s"}</div>
+    </div>`;
+  }).join("");
+})();
+
+(function(){
+  const merged=CANDS.filter(c=>c.from.length>1).sort((a,b)=>b.pri-a.pri).slice(0,12);
+  document.getElementById("mergedCards").innerHTML=merged.map(c=>
+    `<div style="background:#FFFFFF;border:1px solid #E6E8EE;border-radius:10px;padding:14px 16px;display:flex;gap:14px;align-items:flex-start">
+      <div>${priPill(c.pri)}</div>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:14px">${esc(c.id)} · ${esc(c.title)} ${c.blocked?blockedTag():""}${c.isNew?newTag():""}${c.carried?carriedTag():""}</div>
+        <div style="font-size:12.5px;color:#8A93A3;margin-top:4px">${actionTag(c.action)} · merged from <code>${c.from.join("</code> <code>")}</code> · <code>${esc(c.group)}</code></div>
+      </div>
+    </div>`).join("");
+})();
+
+const COLS=[{k:"id",label:"ID"},{k:"title",label:"Title"},{k:"action",label:"Action"},{k:"pri",label:"Pri",num:true},{k:"sev",label:"Sev",num:true},{k:"conf",label:"Conf",num:true},{k:"lev",label:"Lev",num:true},{k:"loc",label:"Loc",num:true},{k:"test",label:"Test",num:true},{k:"blast",label:"Blast",num:true},{k:"regr",label:"Regr",num:true},{k:"human",label:"Human",num:true},{k:"band",label:"Band"}];
+let sortKey="pri", sortDir=-1, filter="All";
+function val(c,k){return c.s&&["sev","conf","lev","loc","test","blast","regr","human"].includes(k)?c.s[k]:c[k];}
+function renderMatrix(){
+  document.getElementById("matrixHead").innerHTML=`<tr>${COLS.map(col=>{const arrow=sortKey===col.k?(sortDir===-1?" ▼":" ▲"):"";return `<th data-k="${col.k}" style="padding:9px 10px;text-align:${col.num?'center':'left'};border-bottom:1px solid #E6E8EE;cursor:pointer;user-select:none;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.04em;color:#4B5563;white-space:nowrap;background:#F2F3F7">${col.label}${arrow}</th>`;}).join("")}</tr>`;
+  let rows=CANDS.slice();
+  if(filter==="Blocked") rows=rows.filter(c=>c.blocked);
+  else if(filter==="New") rows=rows.filter(c=>c.isNew);
+  else if(filter==="On #106") rows=rows.filter(c=>c.carried);
+  else if(filter!=="All") rows=rows.filter(c=>c.action===filter);
+  rows.sort((a,b)=>{let x=val(a,sortKey),y=val(b,sortKey);if(typeof x==="string")return x.localeCompare(y)*sortDir;return (x-y)*sortDir;});
+  document.getElementById("matrixBody").innerHTML=rows.map(c=>{
+    const cells=COLS.map(col=>{
+      if(col.k==="id") return `<td style="padding:8px 10px;border-bottom:1px solid #EEF0F4;font-family:'IBM Plex Mono',monospace;font-size:12px"><a href="#${c.id}" style="color:#2540E8">${c.id}</a></td>`;
+      if(col.k==="title") return `<td style="padding:8px 10px;border-bottom:1px solid #EEF0F4;max-width:300px">${esc(c.title)}${c.blocked?blockedTag():""}${c.isNew?newTag():""}${c.carried?carriedTag():""}</td>`;
+      if(col.k==="action") return `<td style="padding:8px 10px;border-bottom:1px solid #EEF0F4">${actionTag(c.action)}</td>`;
+      if(col.k==="pri") return `<td style="padding:8px 10px;border-bottom:1px solid #EEF0F4;text-align:center">${priPill(c.pri)}</td>`;
+      if(col.k==="band") return `<td style="padding:8px 10px;border-bottom:1px solid #EEF0F4;font-size:12px;color:#4B5563">${c.band}</td>`;
+      const v=c.s[col.k]; const neg=["blast","regr","human"].includes(col.k);
+      const shade=neg?(v>=4?"#FBEAE8":v>=3?"#FAEFE0":"transparent"):(v>=5?"#E6F3EB":v>=4?"#EDF0F5":"transparent");
+      return `<td style="padding:8px 10px;border-bottom:1px solid #EEF0F4;text-align:center;font-family:'IBM Plex Mono',monospace;background:${shade}">${v}</td>`;
+    }).join("");
+    return `<tr>${cells}</tr>`;
+  }).join("");
+  document.querySelectorAll("#matrixHead th").forEach(th=>{th.onclick=()=>{const k=th.getAttribute("data-k");if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=(k==="id"||k==="title"||k==="action"||k==="band")?1:-1;}renderMatrix();};});
+}
+(function(){
+  const opts=["All","direct-fix","fitness-check","design","triage","Blocked","New","On #106"];
+  const wrap=document.getElementById("filterChips");
+  function paint(){
+    wrap.innerHTML=opts.map(o=>{const active=filter===o;const c=o==="Blocked"?"#C0342B":o==="New"?"#B45309":(ACTION_COLOR[o]||"#26327A");
+      return `<button data-f="${o}" style="cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid ${active?c:'#E6E8EE'};background:${active?c:'#FFFFFF'};color:${active?'#FFFFFF':'#4B5563'}">${o}</button>`;}).join("");
+    wrap.querySelectorAll("button").forEach(b=>b.onclick=()=>{filter=b.getAttribute("data-f");paint();renderMatrix();});
+  }
+  paint();
+})();
+renderMatrix();
+
+function scoreGrid(c){
+  const rows=[["severity",c.s.sev,0],["confidence",c.s.conf,0],["leverage",c.s.lev,0],["locality",c.s.loc,0],["testability",c.s.test,0],["blast_radius",c.s.blast,1],["regression_risk",c.s.regr,1],["human_decision_risk",c.s.human,1]];
+  return `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px">`+rows.map(([k,v,neg])=>`<div style="background:${neg?'#FAF4F4':'#F5F8F6'};border:1px solid ${neg?'#F1DEDD':'#DEEBE3'};border-radius:8px;padding:7px 9px"><div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8A93A3">${k}${neg?' (−)':' (+)'}</div><div style="font-family:'Space Grotesk';font-weight:700;font-size:17px;color:${neg?'#B45309':'#15803D'}">${v}</div></div>`).join("")+`</div>`;
+}
+function ledgerCard(c){
+  const col=ACTION_COLOR[c.action];
+  const extras=Object.entries(c.extra||{}).map(([k,v])=>`<div style="font-size:13px;margin-top:4px"><strong style="color:#26327A">${k}:</strong> <span style="color:#4B5563">${esc(v)}</span></div>`).join("");
+  const bb=c.blocked_by.length?`<div style="font-size:13px;margin-top:8px;background:#FBEAE8;border:1px solid #F2C9C4;border-radius:8px;padding:8px 10px;color:#C0342B"><strong>blocked_by:</strong> ${c.blocked_by.map(esc).join(" · ")}</div>`:"";
+  return `<details id="${c.id}" style="background:#FFFFFF;border:1px solid #E6E8EE;border-left:4px solid ${col};border-radius:12px;padding:0">
+    <summary style="padding:16px 18px;display:flex;gap:14px;align-items:center">
+      <span>${priPill(c.pri)}</span>
+      <span style="flex:1"><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8A93A3">${c.id}</span>
+        <span style="font-weight:600;font-size:14.5px;display:block">${esc(c.title)} ${c.blocked?blockedTag():""}${c.isNew?newTag():""}${c.carried?carriedTag():""}</span></span>
+      <span style="text-align:right">${actionTag(c.action)}<div style="font-size:11px;color:#8A93A3;margin-top:4px">${c.band} band</div></span>
+    </summary>
+    <div style="padding:0 18px 18px">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:11.5px;color:#8A93A3;font-family:'IBM Plex Mono',monospace;margin-bottom:10px">
+        <span>category: <span style="color:#4B5563">${esc(c.cat)}</span></span>
+        <span>lanes: <span style="color:#4B5563">${c.lanes.join(", ")}</span></span>
+        <span>group: <span style="color:#4B5563">${esc(c.group)}</span></span>
+        <span>status: <span style="color:#4B5563">${esc(c.status)}</span></span>
+      </div>
+      <p style="font-size:14px;color:#141821;margin:0 0 8px">${esc(c.summary)}</p>
+      <div style="font-size:13.5px;color:#4B5563"><strong style="color:#141821">Root cause.</strong> ${esc(c.root)}</div>
+      ${extras}
+      <div style="font-size:13.5px;color:#4B5563;margin-top:8px"><strong style="color:#141821">Check.</strong> ${esc(c.check)}</div>
+      <div style="margin-top:10px"><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8A93A3;margin-bottom:4px">EVIDENCE</div>
+        <ul style="margin:0;padding-left:18px;font-size:12.5px;color:#4B5563;font-family:'IBM Plex Mono',monospace">${c.ev.map(e=>`<li style="margin:2px 0">${esc(e)}</li>`).join("")}</ul></div>
+      ${scoreGrid(c)}${bb}
+      <div style="font-size:11.5px;color:#8A93A3;font-family:'IBM Plex Mono',monospace;margin-top:10px">priority_score ${c.pri} · execution_mode ${c.blocked?"blocked-needs-human-decision":"auto"}</div>
+    </div>
+  </details>`;
+}
+document.getElementById("ledgerCards").innerHTML=CANDS.slice().sort((a,b)=>b.pri-a.pri).map(ledgerCard).join("");
+
+document.getElementById("dupBody").innerHTML=CANDS.slice().sort((a,b)=>b.from.length-a.from.length||b.pri-a.pri).map(c=>
+  `<tr><td style="padding:9px 14px;border-bottom:1px solid #EEF0F4;font-family:'IBM Plex Mono',monospace;font-size:12px"><a href="#${c.id}">${c.id}</a></td>
+    <td style="padding:9px 14px;border-bottom:1px solid #EEF0F4;font-size:12.5px"><code>${esc(c.group)}</code></td>
+    <td style="padding:9px 14px;border-bottom:1px solid #EEF0F4;font-size:12px">${c.from.map(f=>`<code>${f}</code>`).join(" ")}</td>
+    <td style="padding:9px 14px;border-bottom:1px solid #EEF0F4;font-size:12px;color:#4B5563">${c.lanes.length}</td></tr>`).join("");
+
+function miniCard(c,extraLine){
+  return `<div style="background:#FFFFFF;border:1px solid #E6E8EE;border-left:4px solid ${ACTION_COLOR[c.action]};border-radius:10px;padding:14px 16px">
+    <div style="display:flex;gap:12px;align-items:center">${priPill(c.pri)}
+      <div style="flex:1"><a href="#${c.id}" style="font-weight:600;font-size:14px;color:#141821">${c.id} · ${esc(c.title)}</a> ${c.blocked?blockedTag():""}${c.isNew?newTag():""}${c.carried?carriedTag():""}</div>
+      ${actionTag(c.action)}</div>
+    ${extraLine?`<div style="font-size:12.5px;color:#4B5563;margin-top:8px">${extraLine}</div>`:""}</div>`;
+}
+document.getElementById("blockerCards").innerHTML=CANDS.filter(c=>c.blocked).sort((a,b)=>b.pri-a.pri).map(c=>miniCard(c,`<strong style="color:#C0342B">blocked_by:</strong> ${c.blocked_by.map(esc).join(" · ")} — ${esc(c.check)}`)).join("");
+
+const quick=CANDS.filter(c=>!c.blocked&&c.action==="direct-fix"&&c.s.blast<=2&&c.s.regr<=3&&c.s.human<=2&&c.status==="open").sort((a,b)=>b.pri-a.pri);
+document.getElementById("quickWins").innerHTML=quick.map(c=>miniCard(c,esc(c.check))).join("")||`<div style="color:#8A93A3;font-size:13px">No open quick wins matching the filter (carried #106 items excluded).</div>`;
+
+const deep=CANDS.filter(c=>c.s.lev>=4).sort((a,b)=>b.s.lev-a.s.lev||b.pri-a.pri);
+document.getElementById("deepWork").innerHTML=deep.map(c=>miniCard(c,`leverage ${c.s.lev} · ${esc(c.check)}`)).join("");
+
+const unsafe=CANDS.filter(c=>c.blocked||c.action==="design"||c.id==="CAND-26").sort((a,b)=>b.pri-a.pri);
+document.getElementById("unsafe").innerHTML=unsafe.map(c=>{
+  const reason=c.blocked?`blocked — ${c.blocked_by.map(esc).join(" · ")}`:c.id==="CAND-26"?"merge triage with PR #106 — do not auto-execute":`design — needs a scoped design pass`;
+  return miniCard(c,reason);
+}).join("");
+
+const statusRank={open:0,"carried-on-open-PR":1,"needs-human-decision":2};
+const rank={"direct-fix":0,"fitness-check":1,"triage":2,"design":3};
+const queue=CANDS.slice().sort((a,b)=>{
+  if(a.blocked!==b.blocked) return a.blocked?1:-1;
+  const sa=statusRank[a.status]??1, sb=statusRank[b.status]??1;
+  if(sa!==sb) return sa-sb;
+  if(b.pri!==a.pri) return b.pri-a.pri;
+  return (rank[a.action]-rank[b.action]);
+});
+document.getElementById("queue").innerHTML=queue.map(c=>
+  `<li><a href="#${c.id}">${c.id}</a> — ${esc(c.title)} ${priPill(c.pri)} ${actionTag(c.action)} ${c.blocked?blockedTag():""}${c.isNew?newTag():""}${c.carried?carriedTag():""}</li>`).join("");
+
+try{
+  const KEY="report:dominion-realm:lastRun";
+  const now={commit:"416ba40",date:"2026-07-18",count:CANDS.length,blocked:CANDS.filter(c=>c.blocked).length,pri:Object.fromEntries(CANDS.map(c=>[c.id,c.pri])),resolved:RESOLVED.map(r=>r.id)};
+  localStorage.setItem(KEY,JSON.stringify(now));
+}catch(e){}
+</script>
+</body>
+</html>
