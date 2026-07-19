@@ -5,7 +5,7 @@ import { getCodexEntries } from '@/lib/codex';
 import { CodexChrome } from '@/components/CodexChrome';
 import { RevealGate } from '@/components/reveal/RevealGate';
 import { SceneArt } from '@/components/reading/SceneArt';
-import { getSceneMedia } from '@/sanity/media';
+import { getSceneMediaMap, sceneKey } from '@/sanity/media';
 import '@/styles/reading.css';
 import '@/styles/timeline.css';
 
@@ -18,15 +18,11 @@ export const metadata: Metadata = {
 export default async function TimelinePage() {
   const entries = getTimelineEntries();
   const codex = getCodexEntries();
-  // Parallel fetch: each beat's Scene art (Sanity → null). Graceful miss by
-  // design — a missing or mistyped beatRef simply leaves the beat text-only.
-  const sceneById = new Map(
-    await Promise.all(
-      entries.map(async (entry) => {
-        const media = await getSceneMedia('timeline', entry.id);
-        return [entry.id, media] as const;
-      }),
-    ),
+  // One batched read for every beat's Scene art (Sanity → absent). Graceful miss
+  // by design — a missing or mistyped beatRef simply leaves the beat text-only —
+  // and a single query instead of one per beat (the former N+1 fan-out).
+  const sceneMap = await getSceneMediaMap(
+    entries.map((entry) => ({ beat: 'timeline' as const, beatRef: entry.id })),
   );
 
   return (
@@ -49,7 +45,7 @@ export default async function TimelinePage() {
         <ol className="timeline-track">
           {entries.map((entry) => {
             const link = resolveTimelineLink(entry, codex);
-            const sceneMedia = sceneById.get(entry.id);
+            const sceneMedia = sceneMap.get(sceneKey('timeline', entry.id));
             return (
               <li className="timeline-beat" key={entry.id} id={entry.id}>
                 <span className="timeline-beat__node" aria-hidden="true" />

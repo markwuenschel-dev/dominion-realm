@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { findOrphanScenes, describeOrphan, type SceneJoinDoc } from './sceneJoins';
+import { findOrphanScenes, describeOrphan, SCENE_BEATS, type SceneJoinDoc } from './sceneJoins';
 import { READING_BEATS, TIMELINE_BEATS } from './content-manifest';
 
 /**
@@ -68,6 +68,29 @@ describe('findOrphanScenes', () => {
     expect(findOrphanScenes(scenes, { reading: READING_BEATS, timeline: TIMELINE_BEATS })).toEqual(
       [],
     );
+  });
+});
+
+describe('SCENE_BEATS parity (shared beat-kind set)', () => {
+  // The detector's known-beat set is no longer a hand-copied `!== 'reading' &&
+  // !== 'timeline'` literal — it reads SCENE_BEATS, the same constant the runtime
+  // reader consumes. Asserting against SCENE_BEATS (not a literal) means adding a
+  // beat kind updates this test automatically, so the two sides can't drift.
+  it('exposes exactly the reading + timeline kinds', () => {
+    expect([...SCENE_BEATS]).toEqual(['reading', 'timeline']);
+  });
+
+  it('accepts every kind in SCENE_BEATS and flags any kind outside it', () => {
+    const beatSets = Object.fromEntries(
+      SCENE_BEATS.map((b) => [b, ['known-ref']]),
+    ) as unknown as Record<(typeof SCENE_BEATS)[number], readonly string[]>;
+    // Each shared kind, with a matching ref, is a valid (non-orphan) join.
+    for (const beat of SCENE_BEATS) {
+      expect(findOrphanScenes([doc({ beat, beatRef: 'known-ref' })], beatSets)).toEqual([]);
+    }
+    // A kind absent from SCENE_BEATS is an unknown-beat orphan.
+    const [orphan] = findOrphanScenes([doc({ beat: 'codex', beatRef: 'known-ref' })], beatSets);
+    expect(orphan.reason).toBe('unknown-beat');
   });
 });
 
