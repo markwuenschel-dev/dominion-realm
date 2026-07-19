@@ -4,7 +4,7 @@ import { Fragment } from 'react';
 import { SITE, liveSocials, NAV_SECTIONS, liveNavPages, navPageReady } from '@/lib/site';
 import { getHomeSettings } from '@/lib/homeSettings';
 import { getCodexEntry } from '@/lib/codex';
-import { getSiteCover, getSubjectCardMap } from '@/sanity/media';
+import { getSiteCover, getSubjectCardMap, subjectKey } from '@/sanity/media';
 import { HomeClient } from '@/components/HomeClient';
 import { BuyCta } from '@/components/BuyCta';
 import { MediaPlaceholder } from '@/components/MediaPlaceholder';
@@ -67,7 +67,7 @@ export default async function Home() {
   const gitCover = sanityCover ? null : getHomeSettings().cover;
   const hasCover = Boolean(sanityCover || gitCover);
   const cast = FEATURED_CAST.map((c) => {
-    const sanity = portraits.get(`character:${c.slug}`);
+    const sanity = portraits.get(subjectKey('characters', c.slug));
     return {
       ...c,
       sanity,

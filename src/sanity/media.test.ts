@@ -30,13 +30,21 @@ beforeEach(() => {
   fetch.mockReset();
 });
 
-describe('subjectKey / subjectKindFor', () => {
+describe('subjectKey / subjectKeyForKind / subjectKindFor', () => {
   it('maps each codex collection to its Subject kind', async () => {
     const { subjectKey, subjectKindFor } = await loadMedia();
     expect(subjectKey('characters', 'marcus')).toBe('character:marcus');
     expect(subjectKey('places', 'eriadne')).toBe('place:eriadne');
     expect(subjectKindFor('factions')).toBe('faction');
     expect(subjectKindFor('concepts')).toBe('concept');
+  });
+
+  it('subjectKeyForKind builds the same key from the producer side (a Sanity kind)', async () => {
+    const { subjectKey, subjectKeyForKind } = await loadMedia();
+    // The two doors agree: the git/consumer side and the Sanity/producer side
+    // produce one format, so a map keyed by producers is read by consumers.
+    expect(subjectKeyForKind('character', 'marcus')).toBe('character:marcus');
+    expect(subjectKeyForKind('character', 'marcus')).toBe(subjectKey('characters', 'marcus'));
   });
 });
 

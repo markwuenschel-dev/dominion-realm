@@ -29,6 +29,11 @@ export { subjectKindFor };
 /** Cache tag every Sanity read carries; the revalidation webhook busts it. */
 const SANITY_TAG = 'sanity';
 
+/** The published-only GROQ guard, interpolated into every read so draft docs
+ *  never leak to production. One home instead of the same clause hand-copied
+ *  into each query (forget it once and unpublished art ships). */
+const PUBLISHED_FILTER = '!(_id in path("drafts.**"))';
+
 /** A public artist credit lifted off an Asset. Private licence notes are never
  *  part of this — see `resolve`. */
 export interface Credit {
@@ -84,10 +89,23 @@ type RawImage =
   | null
   | undefined;
 
-/** The `kind:slug` key both readers use — kind disambiguates cross-collection
- *  slug collisions. */
+/**
+ * The `kind:slug` join key from the Sanity/PRODUCER side, where a GROQ row already
+ * carries `kind` (the `Subject.kind` field). `kind` disambiguates cross-collection
+ * slug collisions. One format, two doors: use this where you hold a `kind`, and
+ * `subjectKey` where you hold a git `collection`.
+ */
+export function subjectKeyForKind(kind: string, slug: string): string {
+  return `${kind}:${slug}`;
+}
+
+/**
+ * The `kind:slug` key from the git/CONSUMER side — maps the codex `collection` to
+ * its Sanity `kind` via `COLLECTION_KIND`, so a caller holding a collection never
+ * has to spell the kind literal (which is what `page.tsx` used to do).
+ */
 export function subjectKey(collection: CodexCollection, slug: string): string {
-  return `${COLLECTION_KIND[collection]}:${slug}`;
+  return subjectKeyForKind(COLLECTION_KIND[collection], slug);
 }
 
 /** Coerce a raw GROQ image field into a ResolvedImage, or null when unset.
@@ -157,7 +175,7 @@ export const getSubjectPrimaryMap = cache(async (): Promise<Map<string, Resolved
   const rows = await sanityClient.fetch<
     Array<{ kind: string | null; slug: string | null; primary: RawImage }>
   >(
-    `*[_type == "subject" && defined(primary.asset) && !(_id in path("drafts.**"))]{
+    `*[_type == "subject" && defined(primary.asset) && ${PUBLISHED_FILTER}]{
       kind, "slug": slug.current, primary
     }`,
     {},
@@ -166,7 +184,7 @@ export const getSubjectPrimaryMap = cache(async (): Promise<Map<string, Resolved
   const map = new Map<string, ResolvedImage>();
   for (const r of rows) {
     const resolved = resolve(r.primary);
-    if (r.kind && r.slug && resolved) map.set(`${r.kind}:${r.slug}`, resolved);
+    if (r.kind && r.slug && resolved) map.set(subjectKeyForKind(r.kind, r.slug), resolved);
   }
   return map;
 });
@@ -183,7 +201,7 @@ export const getSubjectCardMap = cache(async (): Promise<Map<string, ResolvedIma
   const rows = await sanityClient.fetch<
     Array<{ kind: string | null; slug: string | null; image: RawImage }>
   >(
-    `*[_type == "subject" && defined(coalesce(card.asset, primary.asset)) && !(_id in path("drafts.**"))]{
+    `*[_type == "subject" && defined(coalesce(card.asset, primary.asset)) && ${PUBLISHED_FILTER}]{
       kind, "slug": slug.current, "image": coalesce(card, primary)
     }`,
     {},
@@ -192,7 +210,7 @@ export const getSubjectCardMap = cache(async (): Promise<Map<string, ResolvedIma
   const map = new Map<string, ResolvedImage>();
   for (const r of rows) {
     const resolved = resolve(r.image);
-    if (r.kind && r.slug && resolved) map.set(`${r.kind}:${r.slug}`, resolved);
+    if (r.kind && r.slug && resolved) map.set(subjectKeyForKind(r.kind, r.slug), resolved);
   }
   return map;
 });
@@ -211,7 +229,7 @@ export const getSubjectMedia = cache(
       map: RawImage;
       sigil: RawImage;
     } | null>(
-      `*[_type == "subject" && kind == $kind && slug.current == $slug && !(_id in path("drafts.**"))][0]{
+      `*[_type == "subject" && kind == $kind && slug.current == $slug && ${PUBLISHED_FILTER}][0]{
         primary, gallery, banner, map, sigil
       }`,
       { kind, slug },
@@ -245,7 +263,7 @@ export const getSubjectMedia = cache(
 export const getSceneMedia = cache(
   async (beat: SceneBeat, beatRef: string): Promise<SceneMedia | null> => {
     const doc = await sanityClient.fetch<{ images: RawImage[] | null } | null>(
-      `*[_type == "scene" && beat == $beat && beatRef == $beatRef && !(_id in path("drafts.**"))][0]{
+      `*[_type == "scene" && beat == $beat && beatRef == $beatRef && ${PUBLISHED_FILTER}][0]{
         images
       }`,
       { beat, beatRef },
