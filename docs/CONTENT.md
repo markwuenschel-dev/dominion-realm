@@ -100,6 +100,28 @@ Two things to note:
   the `order` number, not by filename. The Prologue is `order: 0`, Chapter One is
   `order: 1`, and so on.
 
+### Timeline (file-backed, not in the CMS)
+
+Timeline beats live in `src/content/timeline/*.md` and are Zod-validated like the
+other collections, but they are **deliberately not in Keystatic** — so you won't
+see them in `/keystatic`. They're a seed **chronology spine**: a small set of
+example beats you edit directly in the files until the manuscript's real beats
+land. This is intentional, not an oversight; Keystatic mirrors the other
+collections, and timeline is the documented exception.
+
+Two things to know before you add or rename a beat:
+
+- **The filename slug is a join key.** A beat's `id` (its filename without `.md`)
+  is what Sanity Scene art joins to (`beatRef`) and what the on-page `#anchor` and
+  search use. Renaming a file silently orphans its Scene art and breaks links.
+- **Regenerate after any add/rename.** Run the content-manifest regen (so Studio
+  panes and `TIMELINE_BEATS` stay in sync) and `pnpm scene:check` (so an orphaned
+  Scene join goes red) before committing.
+
+If a non-developer ever needs to edit beat copy or ordering, that's the trigger to
+add a frontmatter-only Keystatic collection for timeline (no body field, with the
+filename-is-a-join-key caveat surfaced) — see audit CAND-06.
+
 ---
 
 ## 3. Worked examples (copy-paste these)

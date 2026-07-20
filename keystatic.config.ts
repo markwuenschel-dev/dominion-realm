@@ -107,6 +107,13 @@ export default config({
   ui: {
     brand: { name: 'The Dominion Realm' },
   },
+  // NOTE: `timeline` (src/content/timeline/*.md) is Zod-validated in
+  // contentCore.ts but is INTENTIONALLY absent here — it's a seed chronology
+  // spine edited directly in the files, and its filename slug is a Scene
+  // `beatRef` / search join key that a CMS slug field would make too easy to
+  // rename. So "Keystatic mirrors the Zod schema" holds for everything except
+  // this documented exception. Add a frontmatter-only collection (no body) only
+  // when a non-dev needs to edit beats — see docs/CONTENT.md and audit CAND-06.
   collections: {
     characters: collection({
       label: 'Characters',
