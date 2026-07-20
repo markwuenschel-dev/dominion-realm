@@ -8,7 +8,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
  * importing the route needs no GitHub credentials.
  */
 vi.mock('@keystatic/next/route-handler', () => ({
-  makeRouteHandler: () => ({ GET: vi.fn(), POST: vi.fn() }),
+  makeRouteHandler: () => ({ GET: vi.fn<() => void>(), POST: vi.fn<() => void>() }),
 }));
 
 import { withPublicOrigin } from './route';

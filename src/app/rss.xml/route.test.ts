@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
  * the assertion is fixture-driven, not dependent on live content (which happens
  * to be all-teaser today).
  */
-const { getJournalPosts } = vi.hoisted(() => ({ getJournalPosts: vi.fn() }));
+const { getJournalPosts } = vi.hoisted(() => ({ getJournalPosts: vi.fn<() => unknown[]>() }));
 vi.mock('@/lib/journal', async (importActual) => ({
   ...(await importActual<typeof import('@/lib/journal')>()),
   getJournalPosts,
