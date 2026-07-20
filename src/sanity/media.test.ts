@@ -231,6 +231,14 @@ describe('getSiteCover', () => {
     const { getSiteCover } = await loadMedia();
     expect((await getSiteCover())?.alt).toBe('The Dominion Realm');
   });
+
+  it('soft-fails to null when Sanity throws (call site uses the static fallback)', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    fetch.mockRejectedValue(new Error('sanity unreachable'));
+    const { getSiteCover } = await loadMedia();
+    await expect(getSiteCover()).resolves.toBeNull();
+    warn.mockRestore();
+  });
 });
 
 describe('getRealmMap', () => {

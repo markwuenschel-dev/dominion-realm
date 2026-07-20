@@ -1,8 +1,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Fragment } from 'react';
-import { SITE, liveSocials, NAV_SECTIONS, liveNavPages, navPageReady } from '@/lib/site';
-import { getHomeSettings } from '@/lib/homeSettings';
+import {
+  SITE,
+  FALLBACK_COVER,
+  liveSocials,
+  NAV_SECTIONS,
+  liveNavPages,
+  navPageReady,
+} from '@/lib/site';
 import { getCodexEntry } from '@/lib/codex';
 import { getSiteCover, getSubjectCardMap, subjectKey } from '@/sanity/media';
 import { HomeClient } from '@/components/HomeClient';
@@ -58,14 +64,14 @@ export default async function Home() {
   const socials = liveSocials();
   const navPages = liveNavPages();
   const { axioms, comps, pubMilestones } = SITE;
-  // Media reads follow the Sanity → git → placeholder order (ADR-0011). The cover
-  // prefers the Sanity `siteSettings` singleton, falling back to the Keystatic
-  // home singleton; each cast portrait prefers its Subject's dedicated homepage
-  // `card` slot (coalescing to Primary), falling back to the character's Codex
-  // entry image — so these cards can differ from the Codex portraits.
+  // Cover source of truth is the Sanity `siteSettings` singleton (ADR-0011);
+  // `FALLBACK_COVER` (a committed static asset) is the code-owned last resort so
+  // the hero always has a cover even when Sanity is unset or unreachable
+  // (getSiteCover soft-fails to null). There is no CMS fallback — the old
+  // Keystatic `home` cover was retired to end the dual source-of-truth (CAND-19).
+  // Each cast portrait prefers its Subject's homepage `card` slot (coalescing to
+  // Primary), falling back to the character's Codex entry image.
   const [sanityCover, portraits] = await Promise.all([getSiteCover(), getSubjectCardMap()]);
-  const gitCover = sanityCover ? null : getHomeSettings().cover;
-  const hasCover = Boolean(sanityCover || gitCover);
   const cast = FEATURED_CAST.map((c) => {
     const sanity = portraits.get(subjectKey('characters', c.slug));
     return {
@@ -140,7 +146,7 @@ export default async function Home() {
 
         <main className="main">
           {/* HERO */}
-          <section className={`hero${hasCover ? ' has-cover' : ''}`} id="hero">
+          <section className="hero has-cover" id="hero">
             <div className="hero-glow a" />
             <div className="hero-glow b" />
             <div className="hero-glow c" />
@@ -167,30 +173,28 @@ export default async function Home() {
                   <BuyCta className="buy-cta--hero" newsletterHref="#join" />
                 </div>
               </div>
-              {hasCover && (
-                <figure className="hero-cover reveal">
-                  {sanityCover ? (
-                    <SubjectImage
-                      source={sanityCover.source}
-                      alt={sanityCover.alt}
-                      fill
-                      objectFit="contain"
-                      sizes="(max-width: 980px) 60vw, 340px"
-                      priority
-                    />
-                  ) : (
-                    <Image
-                      src={gitCover!.src}
-                      alt={gitCover!.alt}
-                      fill
-                      sizes="(max-width: 980px) 60vw, 340px"
-                      style={{ objectFit: 'contain' }}
-                      priority
-                    />
-                  )}
-                  {sanityCover && <ImageCredit credit={sanityCover.credit} />}
-                </figure>
-              )}
+              <figure className="hero-cover reveal">
+                {sanityCover ? (
+                  <SubjectImage
+                    source={sanityCover.source}
+                    alt={sanityCover.alt}
+                    fill
+                    objectFit="contain"
+                    sizes="(max-width: 980px) 60vw, 340px"
+                    priority
+                  />
+                ) : (
+                  <Image
+                    src={FALLBACK_COVER.src}
+                    alt={FALLBACK_COVER.alt}
+                    fill
+                    sizes="(max-width: 980px) 60vw, 340px"
+                    style={{ objectFit: 'contain' }}
+                    priority
+                  />
+                )}
+                {sanityCover && <ImageCredit credit={sanityCover.credit} />}
+              </figure>
             </div>
             <div className="scroll-cue">
               <span>Scroll</span>

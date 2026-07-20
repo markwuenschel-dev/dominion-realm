@@ -159,18 +159,20 @@ and shown when a subject has no Sanity media.)*
 **Day-to-day (once the one-time setup below is done):**
 
 1. Go to `https://<your-domain>/keystatic` and sign in with GitHub.
-2. Open an entry — a character, faction, the Homepage cover, etc.
+2. Open an entry — a character, faction, a journal post, etc.
 3. Drag a picture onto its **Image** field (or edit any text).
 4. **Save.** Keystatic commits to `main`; the change goes live on the next deploy
    (a container rebuild on the host — currently manual, see [Deployment](#deployment)).
 
 Notes:
 - A character's **Image** feeds both its Codex page **and** its homepage cast card.
-- Recommended sizes: **portraits 3:4** (e.g. 900×1200), **book cover 2:3** (e.g.
-  800×1200). Entries with no image show a placeholder until you add one.
-- Uploads are stored in the repo under `src/content/<collection>/<slug>/` (the
-  cover under `public/covers/`) and served from `/content-media/…` after build —
-  all handled for you.
+- Recommended size: **portraits 3:4** (e.g. 900×1200). Entries with no image
+  show a placeholder until you add one.
+- Uploads are stored in the repo under `src/content/<collection>/<slug>/` and
+  served from `/content-media/…` after build — all handled for you.
+- The **homepage book cover** is not edited here: its source of truth is the
+  Sanity `siteSettings` singleton (ADR-0011), with a committed static fallback
+  (`public/covers/cover.png`, `FALLBACK_COVER` in `src/lib/site.ts`).
 
 **Local editing (no setup):** run `pnpm run dev` and open
 `http://localhost:3000/keystatic`. Same drag-drop editor, but it writes to your
