@@ -34,8 +34,8 @@ meta:
     content-loader cache, build type-gate, and the #106 cross-branch collision
     are all landed on this branch. The five formerly-blocked items (RSS contract,
     x-forwarded-host trust, timeline CMS hole, dual cover SoT, resource-doc naming)
-    are now decided (2026-07-20) with an option + implementation bar recorded inline;
-    they hold the grade only until implemented — nothing is left blocked on a human call.
+    were decided (2026-07-20) and then implemented on this branch (see `implemented`),
+    so all 27 candidates are shipped and nothing is blocked on a human call.
   lane_grades:
     deepening_seams: { grade: "B+", score: 4 }
     graded_integrity: { grade: "B+", score: 4 }
@@ -56,12 +56,12 @@ meta:
       mid_6_11: 14
       low_le_5: 1
     needs_decision: 0
-    # by_status reflects the 2026-07-20 reconciliation + decision pass on
-    # chore/integrity-queue-1. The 5 formerly-blocked items are now decided
-    # (option chosen + rationale recorded inline) but not yet implemented.
+    # by_status reflects the 2026-07-20 reconciliation + decision + implementation
+    # pass on chore/integrity-queue-1. All 27 candidates are shipped; the 5
+    # formerly-blocked items were decided and then implemented (see `implemented`).
     by_status:
-      shipped: 22
-      decided_pending_implementation: 5
+      shipped: 27
+      decided_pending_implementation: 0
       needs_human_decision: 0
 
 resolved_since_last_run:
@@ -132,6 +132,29 @@ reconciled_shipped:
   - candidate_id: CAND-26
     was: open
     verified: "resolved by merge df30944 — loaders kept in contentCore.ts (React-free), cache() re-applied in content.ts, ci.yml reconciled"
+
+# The 5 formerly needs-human-decision candidates, implemented on
+# chore/integrity-queue-1 after the 2026-07-20 decisions (see each candidate's
+# decision: block). Baseline green at implementation: pnpm check clean, lint
+# clean, 48 files / 485 tests pass, format clean.
+implemented:
+  - candidate_id: CAND-23
+    commit: 0616bdb
+    landed: "withPublicOrigin drops the x-forwarded-host origin branch (base = KEYSTATIC_URL || SITE_URL); route tests incl. spoofed-header ignored"
+  - candidate_id: CAND-02
+    commit: 71725d1
+    landed: "GET() filters to isUngated(post.data.reveal); false 'safe regardless of tier' comment removed; tests: teaser present, sealed absent, all-sealed => empty feed (mock type params: 2e003e2)"
+  - candidate_id: CAND-09
+    commit: 181c077
+    landed: "CONTEXT.md/footer/characterTemplates/pointBudget/useCharacterSheet.test repointed off the ghost resource_system.md to the real formula lock (src/lib/formulas); glossary -> CVN/MYS; no stub doc created"
+  - candidate_id: CAND-06
+    commit: a3b1cf6
+    landed: "CONTENT.md Timeline subsection (file-backed, filename slug is a join key, regen + scene:check after add/rename) + keystatic.config.ts exception comment"
+  - candidate_id: CAND-19
+    commit: 2b91dbb
+    landed: "Keystatic home singleton + homeSettings.ts/.test + home.json removed; FALLBACK_COVER static asset; getSiteCover soft-fails to null on Sanity error; page.tsx uses sanityCover ?? FALLBACK_COVER; README/site.ts copy fixed"
+    supersedes: "CAND-17 — retires the homeSettings read path that CAND-17 had Zod-gated"
+    residual: "full homepage Sanity-outage resilience still depends on getSubjectCardMap in the same Promise.all (portraits) — out of scope, tracked separately"
 
 candidates:
   - candidate_id: CAND-01
@@ -216,7 +239,7 @@ candidates:
         - "Filter GET() with isUngated(post.data.reveal) — same predicate as journal OG"
         - "Delete/rewrite the false 'spoiler-safe regardless of tier' comment (route.ts:5-7)"
         - "Route tests: teaser present, sealed absent, no sealed title/summary substrings in XML; add a fixture sealed post"
-    status: decided
+    status: shipped
 
   - candidate_id: CAND-04
     title: "Committed content-manifest is an ungated golden (TIMELINE_BEATS now)"
@@ -300,7 +323,7 @@ candidates:
       implementation:
         - "CONTENT.md: timeline is a file-backed chronology spine, not in Keystatic; filename slug is the Scene beatRef / search anchor; regenerate manifest + check-scene-joins after add/rename"
         - "keystatic.config.ts: comment that timeline is intentionally omitted (seed/spine + join-key), so 'mirrors Zod' isn't a silent lie"
-    status: decided
+    status: shipped
 
   - candidate_id: CAND-09
     title: "resource_system.md missing; Faith/Occult vs CVN/MYS (citations proliferated)"
@@ -351,7 +374,7 @@ candidates:
         - "Footer (CharacterSheetShell.tsx:12): stop citing resource_system.md; point at src/lib/formulas (formula lock) or drop the cite"
         - "Code comments/templates citing resource_system.md / classes.md: repoint to real in-repo modules or delete the path"
         - "Do NOT add an empty/stub resource_system.md"
-    status: decided
+    status: shipped
 
   - candidate_id: CAND-10
     title: "Sheet JSON import bypasses schema"
@@ -551,6 +574,7 @@ candidates:
     dedup:
       merged_from: [QUAL-5]
       group: home-settings-zod
+    note: "Shipped (Zod gate on homeSettings), then SUPERSEDED by CAND-19 (2b91dbb), which retired the Keystatic home cover path entirely — homeSettings.ts and home.json are removed, so the gated read no longer exists."
     status: shipped
 
   - candidate_id: CAND-19
@@ -602,7 +626,7 @@ candidates:
         - "Fallback to a code-owned constant path (/covers/cover.png + fixed alt), or drop the cover entirely (E)"
         - "Test: Sanity hit -> Sanity image; Sanity null -> static/none; never prefer a stale Keystatic value over Sanity"
         - "Update CoverArt / README copy that implies Keystatic edits the live cover"
-    status: decided
+    status: shipped
 
   - candidate_id: CAND-21
     title: "ADR-0011 still claims Railway (CI half already fixed)"
@@ -685,7 +709,7 @@ candidates:
         - "Keep rewriting forwarded headers OUTBOUND to the pinned base (route.ts:66-67) so Keystatic sees a consistent request"
         - "Tests: internal host -> SITE_URL; KEYSTATIC_URL wins; spoofed x-forwarded-host: evil.com ignored; GitHub mode off -> no rewrite"
         - "Prod: set KEYSTATIC_URL (or NEXT_PUBLIC_SITE_URL) to the exact GitHub App callback origin; optional runbook note that Caddy should overwrite XF-Host (defense in depth, not the control)"
-    status: decided
+    status: shipped
 
   - candidate_id: CAND-24
     title: "DraftPolicy tests are vacuous; include/exclude branches untested"
