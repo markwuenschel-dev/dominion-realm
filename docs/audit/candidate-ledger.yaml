@@ -11,6 +11,16 @@ meta:
     branch: main
     commit: a77b19f
     candidate_count: 23
+  reconciled:
+    date: 2026-07-20
+    branch: chore/integrity-queue-1
+    commit: df30944
+    note: >-
+      Status pass, not a new report. The report meta above (queue-2 @ 416ba40)
+      is the audit run that produced these candidates and is left as-is for
+      provenance. The 7 carried-on-open-PR + 2 open candidates were verified
+      landed on this branch's working tree (see `reconciled_shipped`) and
+      flipped to shipped; the 5 needs-human-decision remain open.
   captain_baseline:
     verified: true
     format: "pnpm format:check clean (193 files)"
@@ -20,9 +30,12 @@ meta:
   overall_grade: B
   overall_rationale: >-
     Green baseline (428 tests) after queue-2 closed CI/scripts/timeline/join
-    gaps; held at B by remaining Keystatic↔Zod drift (on #106), RSS contract,
-    timeline CMS hole, and new residual (draft-policy tests, lint scripts,
-    cross-branch merge collision with #106).
+    gaps. As reconciled on queue-1 (2026-07-20), the Keystatic↔Zod drift,
+    content-loader cache, build type-gate, and the #106 cross-branch collision
+    are all landed on this branch. The five formerly-blocked items (RSS contract,
+    x-forwarded-host trust, timeline CMS hole, dual cover SoT, resource-doc naming)
+    are now decided (2026-07-20) with an option + implementation bar recorded inline;
+    they hold the grade only until implemented — nothing is left blocked on a human call.
   lane_grades:
     deepening_seams: { grade: "B+", score: 4 }
     graded_integrity: { grade: "B+", score: 4 }
@@ -42,7 +55,14 @@ meta:
       high_ge_12: 12
       mid_6_11: 14
       low_le_5: 1
-    needs_decision: 5
+    needs_decision: 0
+    # by_status reflects the 2026-07-20 reconciliation + decision pass on
+    # chore/integrity-queue-1. The 5 formerly-blocked items are now decided
+    # (option chosen + rationale recorded inline) but not yet implemented.
+    by_status:
+      shipped: 22
+      decided_pending_implementation: 5
+      needs_human_decision: 0
 
 resolved_since_last_run:
   - candidate_id: CAND-03
@@ -82,6 +102,37 @@ resolved_since_last_run:
     how: "parseLaterScenePart owns HTTP reject"
     status: shipped
 
+# Candidates that were carried-on-open-PR / open at report time and are now
+# verified landed on chore/integrity-queue-1 @ df30944 (2026-07-20 status pass).
+reconciled_shipped:
+  - candidate_id: CAND-01
+    was: carried-on-open-PR
+    verified: "relationshipCollectionSchema preprocesses unset→undefined; options sourced from relationshipCollections.ts (contentCore.ts:25, keystatic.config.ts:39-41)"
+  - candidate_id: CAND-04
+    was: open
+    verified: "src/sanity/content-manifest.test.ts recomputes the beat list from the content tree (non-tautological golden gate)"
+  - candidate_id: CAND-10
+    was: carried-on-open-PR
+    verified: "sheet JSON import routed through sheetImport.ts Zod gate before loadState (StatSheetTable.tsx:278-283)"
+  - candidate_id: CAND-12
+    was: carried-on-open-PR
+    verified: "getters wrapped in React cache() at the server-only seam (content.ts:39-45); contentCore.ts stays React-free by design"
+  - candidate_id: CAND-13
+    was: carried-on-open-PR
+    verified: "ignoreBuildErrors / ignoreDuringBuilds removed from next.config.mjs"
+  - candidate_id: CAND-14
+    was: carried-on-open-PR
+    verified: "reveal.ts:10 documents single SoT; CodexCard consumes TIER_LABELS/isUngated instead of a bare tier check"
+  - candidate_id: CAND-17
+    was: carried-on-open-PR
+    verified: "homeSettingsSchema Zod gate; parseHomeSettings calls homeSettingsSchema.parse (homeSettings.ts:27-46)"
+  - candidate_id: CAND-21
+    was: carried-on-open-PR
+    verified: "ADR-0011:10 now cites AWS EC2 / ADR-0012; Railway named only as the former host"
+  - candidate_id: CAND-26
+    was: open
+    verified: "resolved by merge df30944 — loaders kept in contentCore.ts (React-free), cache() re-applied in content.ts, ci.yml reconciled"
+
 candidates:
   - candidate_id: CAND-01
     title: "Keystatic relationship collection default unset outside Zod enum"
@@ -92,7 +143,7 @@ candidates:
     root_cause: >-
       Write-side option values are not constrained to be a subset of the read-side schema; Keystatic and Zod are hand-mirrored.
     check: "Fitness test asserting option values subset of Zod enum, or remove unset."
-    note: "Fix lives on unmerged PR #106; still present in this worktree."
+    note: "Landed on chore/integrity-queue-1 (ex-PR #106); relationshipCollectionSchema pins write ⊆ read."
     evidence:
       - "keystatic.config.ts:34,40 — unset default"
       - "src/lib/contentCore.ts:20 — enum omits unset"
@@ -116,7 +167,7 @@ candidates:
     dedup:
       merged_from: [SEAM-2A, BLAST-2]
       group: keystatic-zod-relationship-unset
-    status: carried-on-open-PR
+    status: shipped
 
   - candidate_id: CAND-02
     title: "RSS emits title+summary for every journal post vs ADR-0004"
@@ -150,7 +201,22 @@ candidates:
     dedup:
       merged_from: [BLAST-3, VERIF-5]
       group: rss-adr0004-sealed-metadata
-    status: needs-human-decision
+    decision:
+      date: 2026-07-20
+      by: human
+      chose: "B — exclude non-teaser (reveal != teaser) journal posts from /rss.xml"
+      alt: "D (generic 'Sealed · <Tier>' placeholders) only if existence-signal parity with the journal list UI is wanted; never a real title"
+      rejected: "A (title-only) — still publishes the sealed title, which OG/list/search already treat as a spoiler; ADR-0004 requires generic metadata for non-teaser. C (accept + rewrite ADR) — abandons cross-surface coherence."
+      rationale: >-
+        Public /rss.xml is force-static with no per-reader reveal; a sealed title in an
+        anonymous firehose is a leak, not discovery. B matches ADR-0004's public-metadata
+        rule and the site's own sealed-everywhere-else precedent.
+      verified: "route.ts GET() emits title+summary for all posts; header comment 'safe regardless of reveal tier' is false; journal [id]/page.tsx:26 returns {} for sealed via isUngated; all 5 journal posts are teaser today (latent contract debt, no live leak)."
+      implementation:
+        - "Filter GET() with isUngated(post.data.reveal) — same predicate as journal OG"
+        - "Delete/rewrite the false 'spoiler-safe regardless of tier' comment (route.ts:5-7)"
+        - "Route tests: teaser present, sealed absent, no sealed title/summary substrings in XML; add a fixture sealed post"
+    status: decided
 
   - candidate_id: CAND-04
     title: "Committed content-manifest is an ungated golden (TIMELINE_BEATS now)"
@@ -161,7 +227,7 @@ candidates:
     root_cause: >-
       Generator output is treated as a static source; the one test that looks like a freshness guard never compares against the content tree.
     check: "Vitest: re-derive beat ids from contentCore and expect equal to READING_BEATS/TIMELINE_BEATS; or regenerate + git diff --exit-code in CI."
-    note: "PR #106 adds a staleness gate against the old reading-only .mjs shape; this branch emits TIMELINE_BEATS via .ts — coordinate merge (see CAND-26)."
+    note: "Landed: content-manifest.test.ts recomputes beats from the content tree (not from the manifest); merge with #106 reconciled via CAND-26."
     evidence:
       - "src/sanity/sceneJoins.test.ts:63-71 — tautological sync"
       - "scripts/generate-content-manifest.ts:22-27,48 — committed output"
@@ -185,7 +251,7 @@ candidates:
     dedup:
       merged_from: [VERIF-2, L4-New-4, L3-New-1]
       group: content-manifest-golden
-    status: open
+    status: shipped
 
   - candidate_id: CAND-06
     title: "Timeline in Zod + files but absent from Keystatic / CONTENT.md"
@@ -219,7 +285,22 @@ candidates:
     dedup:
       merged_from: [SEAM-2B, BLAST-1]
       group: timeline-keystatic-gap
-    status: needs-human-decision
+    decision:
+      date: 2026-07-20
+      by: human
+      chose: "B (narrow) — keep timeline git-owned as a seed/spine; document the exception now. NOT full-A."
+      reframe: "Justify B as 'seed spine, not ready for authors' — NOT 'developers own chronology forever'. Reading is also structural + in Keystatic, so 'structural => no CMS' is not the reason."
+      upgrade_trigger: "D (frontmatter-only Keystatic collection, no body, filename-slug flagged as the Scene beatRef join key) when any holds: a non-dev edits beat copy/order more than rarely; seed replacement becomes an editorial task; timeline stops being labeled seed/placeholder."
+      rejected: "A now ('collection like the others') — wrong shape: cards are frontmatter-only, an unused body field would lie, and slug renames are load-bearing joins. C (defer) — leaves Keystatic silently claiming to mirror Zod. E (generate from reading) / F (Sanity-owned) — different narrative object / fights git canon."
+      rationale: >-
+        The defect is accidental write/read asymmetry, not missing CMS. Four empty-body seed
+        beats with no editorial churn don't warrant a CMS surface yet; a docs+comment note closes
+        the lie cheaply and reserves the frontmatter-only upgrade for when real beats + a non-dev editor appear.
+      verified: "contentCore.ts timeline Zod schema exists; keystatic.config.ts has no timeline collection; 4 empty-body seed files in src/content/timeline; site.ts:145 'Seeded with example beats for now; replace src/content/timeline/'; reading is CMS-managed despite the same slug-join class."
+      implementation:
+        - "CONTENT.md: timeline is a file-backed chronology spine, not in Keystatic; filename slug is the Scene beatRef / search anchor; regenerate manifest + check-scene-joins after add/rename"
+        - "keystatic.config.ts: comment that timeline is intentionally omitted (seed/spine + join-key), so 'mirrors Zod' isn't a silent lie"
+    status: decided
 
   - candidate_id: CAND-09
     title: "resource_system.md missing; Faith/Occult vs CVN/MYS (citations proliferated)"
@@ -254,7 +335,23 @@ candidates:
     dedup:
       merged_from: [BLAST-4, L3-New-5]
       group: resource-system-doc-drift
-    status: needs-human-decision
+    decision:
+      date: 2026-07-20
+      by: human
+      chose: "A + E — code names (CVN/MYS) are the live SoT; rewrite CONTEXT.md + the user-facing footer to match; cite in-repo code (formula lock / src/lib/formulas), not a markdown path. Do NOT ship a stub resource_system.md."
+      rejected: "C (rename code -> Faith/Occult) — reverses an intentional rename with no in-repo canon to justify it; largest blast radius. F/stub-B (mapping-only resource_system.md) — recreates the ghost: the footer cites §§4-19, so a stub without those sections is still wrong. Full B (real rules bible) — deferred; only when you intend to maintain an external rules SoT."
+      rationale: >-
+        Neither pair is established novel-domain language in-repo; the live player-facing keys are the
+        three-letter attribute grid (CVN/MYS), Faith/Occult are retired keys, and the cited doc never existed.
+        Fix the glossary and kill the ghost citations; treat 'what do CVN/MYS stand for?' as a separate author decision.
+      verified: "resource_system.md never tracked in git history; rename commit 2fe196e 'sync calculator to classes/XP/luck canon'; live keys CVN/MYS (types/index.ts:24-25,37-38,47 Soul group); footer CharacterSheetShell.tsx:12 cites 'resource_system.md §§4-19'; CONTEXT.md:60 still Faith/Occult, :73 cites resource_system.md §18/§19."
+      open_followup: "G — if bare codes shouldn't face players, add display names (tooltips), but pick them deliberately; do not silently restore Faith/Occult. Not blocking."
+      implementation:
+        - "CONTEXT.md: attributes list CVN, MYS (Soul group); remove Faith/Occult; drop resource_system.md §§ cites"
+        - "Footer (CharacterSheetShell.tsx:12): stop citing resource_system.md; point at src/lib/formulas (formula lock) or drop the cite"
+        - "Code comments/templates citing resource_system.md / classes.md: repoint to real in-repo modules or delete the path"
+        - "Do NOT add an empty/stub resource_system.md"
+    status: decided
 
   - candidate_id: CAND-10
     title: "Sheet JSON import bypasses schema"
@@ -287,7 +384,7 @@ candidates:
     dedup:
       merged_from: [QUAL-6]
       group: sheet-import-schema
-    status: carried-on-open-PR
+    status: shipped
 
   - candidate_id: CAND-12
     title: "Content loaders re-scan the filesystem every call (no React.cache)"
@@ -298,7 +395,7 @@ candidates:
     root_cause: >-
       Content loaders were never wrapped in React.cache() the way media.ts was.
     check: "Wrap contentCore getters in cache() at the server boundary; assert single FS scan per request."
-    note: "PR #106 wraps cache() in content.ts; this branch moved loaders to contentCore.ts — merge must re-apply cache onto contentCore (see CAND-26)."
+    note: "Landed: getters wrapped in cache() at the content.ts server-only seam; loaders stay in React-free contentCore.ts (merge reconciled via CAND-26)."
     evidence:
       - "src/lib/contentCore.ts:177-224 — uncached loadCollection"
       - "src/sanity/media.ts:118+ — cache() pattern"
@@ -322,7 +419,7 @@ candidates:
     dedup:
       merged_from: [QUAL-1]
       group: content-loader-cache
-    status: carried-on-open-PR
+    status: shipped
 
   - candidate_id: CAND-13
     title: "next.config ignores TS/ESLint errors during builds"
@@ -355,7 +452,7 @@ candidates:
     dedup:
       merged_from: [QUAL-10]
       group: next-ignore-build-errors
-    status: carried-on-open-PR
+    status: shipped
 
   - candidate_id: CAND-14
     title: "projectByReveal doc overclaims; most callers hand-roll"
@@ -388,7 +485,7 @@ candidates:
     dedup:
       merged_from: [SEAM-3]
       group: projectByReveal-doc-drift
-    status: carried-on-open-PR
+    status: shipped
 
   - candidate_id: CAND-15
     title: "Relationship to ResolvedLink projection duplicated"
@@ -454,7 +551,7 @@ candidates:
     dedup:
       merged_from: [QUAL-5]
       group: home-settings-zod
-    status: carried-on-open-PR
+    status: shipped
 
   - candidate_id: CAND-19
     title: "Dual cover source-of-truth: Keystatic vs Sanity"
@@ -488,7 +585,24 @@ candidates:
     dedup:
       merged_from: [BLAST-9]
       group: dual-cover-sot
-    status: needs-human-decision
+    decision:
+      date: 2026-07-20
+      by: human
+      chose: "D (refined A) — Sanity is the only authoring SoT; retire the Keystatic 'home' cover; keep a code-owned static file (/covers/cover.png) as last resort, plus soft-fail getSiteCover. Optionally E (bare hero, no static fallback)."
+      rejected: "A as tabled (delete git path, leave Sanity throw un-caught) — underspecified. B (git SoT) — fights ADR-0011 media-in-Sanity. C (keep both + document precedence) — freezes migration debt and documents a null-only chain that gives false resilience; leaves authors two knobs, one usually inert."
+      rationale: >-
+        The audit smell is two authoring SoTs; retiring Keystatic 'home' removes the drift where an
+        author sets a cover runtime ignores. This is the overdue PRD Phase 5 retirement, not a designed
+        offline path. Any last-resort asset should be a dumb static file, not a second CMS.
+      corrects_prior_lean: "Assistant's 'losing git fallback is a small availability regression' was wrong: getSiteCover has no try/catch, so a Sanity throw already 500s the homepage — git only rescues a null cover. Real availability needs soft-fail, not a live Keystatic SoT."
+      verified: "page.tsx precedence Sanity -> git -> placeholder; getSiteCover (media.ts:135) has no try/catch (returns null only when the doc is null); keystatic 'home' singleton is cover-only (coverImage + coverAlt); projectId hardcoded fallback (env.ts:10) so no-Sanity-env doesn't disable reads."
+      implementation:
+        - "Delete/empty the Keystatic 'home' singleton; stop treating home.json as an editor surface"
+        - "Keep getSiteCover primary; soft-fail it (and ideally the homepage media Promise.all) so 'Sanity down' doesn't 500 the marketing page"
+        - "Fallback to a code-owned constant path (/covers/cover.png + fixed alt), or drop the cover entirely (E)"
+        - "Test: Sanity hit -> Sanity image; Sanity null -> static/none; never prefer a stale Keystatic value over Sanity"
+        - "Update CoverArt / README copy that implies Keystatic edits the live cover"
+    status: decided
 
   - candidate_id: CAND-21
     title: "ADR-0011 still claims Railway (CI half already fixed)"
@@ -522,7 +636,7 @@ candidates:
     dedup:
       merged_from: [QUAL-8]
       group: hosting-doc-drift
-    status: carried-on-open-PR
+    status: shipped
 
   - candidate_id: CAND-23
     title: "Keystatic trusts x-forwarded-host"
@@ -555,7 +669,23 @@ candidates:
     dedup:
       merged_from: [QUAL-12]
       group: keystatic-forwarded-host
-    status: needs-human-decision
+    decision:
+      date: 2026-07-20
+      by: human
+      chose: "D — pin OAuth origin to KEYSTATIC_URL || SITE_URL; never read x-forwarded-host for origin (optionally E: fail-closed require KEYSTATIC_URL when NEXT_PUBLIC_KEYSTATIC_GITHUB=true)"
+      rejected: "A (allowlist XF-Host) — still derives origin from a client-influenced header and adds a host-list to drift; the canonical host already lives in env. B (trust Caddy + document) — unverifiable in-repo, not an app control. C — leaves the boundary open."
+      rationale: >-
+        The bug worth fixing is Next's internal 127.0.0.1 bind leaking into redirect_uri;
+        the fix is to source origin from deploy-time env, not the proxy. ADR-0012 already makes
+        public origin env-driven (NEXT_PUBLIC_SITE_URL) and KEYSTATIC_URL exists for overrides.
+      corrects_prior_lean: "Assistant leaned A (allowlist); rejected — an allowlist still reads XF-Host. D removes the header from the trust path entirely."
+      verified: "route.ts:39-47 precedence KEYSTATIC_URL -> x-forwarded-host (when host internal) -> SITE_URL; comment calls XF-Host 'the host the browser actually used'; no Caddyfile tracked in repo (cannot CI-enforce proxy behavior)."
+      implementation:
+        - "Remove the x-forwarded-host / x-forwarded-proto origin branch in withPublicOrigin; base = KEYSTATIC_URL || SITE_URL"
+        - "Keep rewriting forwarded headers OUTBOUND to the pinned base (route.ts:66-67) so Keystatic sees a consistent request"
+        - "Tests: internal host -> SITE_URL; KEYSTATIC_URL wins; spoofed x-forwarded-host: evil.com ignored; GitHub mode off -> no rewrite"
+        - "Prod: set KEYSTATIC_URL (or NEXT_PUBLIC_SITE_URL) to the exact GitHub App callback origin; optional runbook note that Caddy should overwrite XF-Host (defense in depth, not the control)"
+    status: decided
 
   - candidate_id: CAND-24
     title: "DraftPolicy tests are vacuous; include/exclude branches untested"
@@ -662,7 +792,7 @@ candidates:
     dedup:
       merged_from: [L3-New-1, L3-New-2, L3-New-3]
       group: pr106-merge-collision
-    status: open
+    status: shipped
 
   - candidate_id: CAND-27
     title: "Timeline Scene media is an N+1 Sanity fan-out"
