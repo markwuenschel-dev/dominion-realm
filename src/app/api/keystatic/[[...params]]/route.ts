@@ -24,13 +24,18 @@ const isInternalHost = (host: string) => /^(127\.|0\.0\.0\.0|localhost|\[?::1\]?
  * header-only check (the previous bug) saw "public", skipped the rewrite, and let
  * Keystatic emit the internal `redirect_uri` anyway.
  *
- * Public-origin precedence: an explicit `KEYSTATIC_URL` override → the proxy's
- * `x-forwarded-host` (the host the browser actually used, so it matches the GitHub
- * App callback) → the canonical `SITE_URL`. Gated on GitHub
- * storage mode — the only mode that does OAuth — so local dev (local storage) is
- * untouched even without a production build.
+ * Public-origin precedence is deploy-time env ONLY, never a request header
+ * (audit CAND-23): an explicit `KEYSTATIC_URL` override → the canonical
+ * `SITE_URL`. The proxy's `x-forwarded-host` is deliberately NOT consulted for
+ * the OAuth origin — it is client-influenceable behind a misconfigured proxy, so
+ * sourcing `redirect_uri` from it puts an attacker-settable value on the auth
+ * path. The GitHub App callback maps to one canonical host anyway (ADR-0012,
+ * where a host cutover updates `NEXT_PUBLIC_SITE_URL`); serving OAuth on a second
+ * live host means setting `KEYSTATIC_URL`, not trusting the browser's `Host`.
+ * Gated on GitHub storage mode — the only mode that does OAuth — so local dev
+ * (local storage) is untouched even without a production build.
  */
-function withPublicOrigin(req: Request): Request {
+export function withPublicOrigin(req: Request): Request {
   if (process.env.NEXT_PUBLIC_KEYSTATIC_GITHUB !== 'true') return req;
 
   const url = new URL(req.url);
@@ -39,13 +44,9 @@ function withPublicOrigin(req: Request): Request {
   if (process.env.KEYSTATIC_URL) {
     base = new URL(process.env.KEYSTATIC_URL);
   } else if (isInternalHost(url.host)) {
-    const xfHost = req.headers.get('x-forwarded-host');
-    const xfProto = req.headers.get('x-forwarded-proto') ?? 'https';
-    if (xfHost && !isInternalHost(xfHost)) {
-      base = new URL(`${xfProto}://${xfHost}`);
-    } else {
-      base = new URL(SITE_URL);
-    }
+    // No public override and Next echoed its internal bind address: pin to the
+    // canonical public origin. We do NOT read x-forwarded-host here (CAND-23).
+    base = new URL(SITE_URL);
   } else {
     return req; // request already carries a reachable public origin
   }

@@ -57,7 +57,9 @@ at call sites.
 ## Attributes
 
 - **Attributes** — the ten formula-bearing attributes (CON, END, STR, AGI, DEX,
-  INT, WIS, CHA, Faith, Occult). Type `Attributes` in `src/types`.
+  INT, WIS, CHA, CVN, MYS — CVN/MYS are the Soul pair). Type `Attributes` in
+  `src/types`. (The keys are the live names; `Faith`/`Occult` were the pre-rename
+  keys, retired in the calculator→canon sync — see `characterSheetStore.ts`.)
 - **CharacterSheetAttributes** — `Attributes` plus **LUCK**, which is tracked on
   the sheet but has no resource-formula effect in the current lock.
 
@@ -70,7 +72,7 @@ at call sites.
   ladder the sheet's class-mods badge renders. All in `lib/classTaxonomy.ts`.
 
 - **Point budget.** Every attribute starts at the all-5s point-buy baseline
-  (`ATTRIBUTE_BASELINE`, resource_system.md §18/§19). Points *spent* = each
+  (`ATTRIBUTE_BASELINE` in `src/lib/formulas/pointBudget.ts`). Points *spent* = each
   attribute's deviation above baseline, summed across **all** sheet attributes —
   **LUCK included** (it is a raisable attribute drawing from the same pool; the
   resource-formula firewall governs formulas, not the point economy). The pool is

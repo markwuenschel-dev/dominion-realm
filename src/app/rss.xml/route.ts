@@ -1,10 +1,18 @@
 import { getJournalPosts, journalUrl, CATEGORY_LABELS } from '@/lib/journal';
+import { isUngated } from '@/lib/reveal';
 import { SITE_URL as SITE } from '@/lib/site';
 
 /**
  * RSS 2.0 feed for the Author Journal (ADR-0003/0010). Replaces @astrojs/rss
- * with a hand-built feed. Carries only spoiler-safe summaries (never the gated
- * body), so it is safe regardless of a post's reveal tier. Served at /rss.xml.
+ * with a hand-built feed. Served at /rss.xml.
+ *
+ * This is a public, unauthenticated, `force-static` feed with no per-reader
+ * reveal level, so it emits only what is safe at the default Teaser tier:
+ * ungated posts (`isUngated`). ADR-0004 requires generic metadata for
+ * Reader/Deep/Beyond entries — a sealed post's title/summary is itself a
+ * spoiler surface (post OG, the journal list, and search already seal it), so
+ * sealed posts are excluded entirely rather than leaked into a firehose no
+ * subscriber opted into for spoilers (audit CAND-02).
  */
 
 const TITLE = 'The Dominion Realm — Author Journal';
@@ -23,7 +31,7 @@ function escapeXml(value: string): string {
 export const dynamic = 'force-static';
 
 export function GET() {
-  const posts = getJournalPosts();
+  const posts = getJournalPosts().filter((post) => isUngated(post.data.reveal));
 
   const items = posts
     .map((post) => {

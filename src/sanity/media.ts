@@ -131,13 +131,25 @@ function resolve(img: RawImage): ResolvedImage | null {
   };
 }
 
-/** The homepage book cover from the `siteSettings` singleton, or null if unset. */
+/**
+ * The homepage book cover from the `siteSettings` singleton, or null if unset —
+ * the call site then falls back to the code-owned `FALLBACK_COVER` static asset.
+ * Soft-fails to null on a Sanity error too (a fetch reject would otherwise 500
+ * the homepage): the cover is not worth taking the marketing page down for, and
+ * a committed fallback exists (audit CAND-19).
+ */
 export const getSiteCover = cache(async (): Promise<ResolvedImage | null> => {
-  const cover = await sanityClient.fetch<RawImage>(
-    `*[_id == "siteSettings"][0].cover`,
-    {},
-    { next: { tags: [SANITY_TAG] } },
-  );
+  let cover: RawImage;
+  try {
+    cover = await sanityClient.fetch<RawImage>(
+      `*[_id == "siteSettings"][0].cover`,
+      {},
+      { next: { tags: [SANITY_TAG] } },
+    );
+  } catch (err) {
+    console.warn('[media] getSiteCover: Sanity fetch failed, using static fallback', err);
+    return null;
+  }
   const resolved = resolve(cover);
   if (!resolved) return null;
   return { ...resolved, alt: resolved.alt || 'The Dominion Realm' };

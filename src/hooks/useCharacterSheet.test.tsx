@@ -14,8 +14,8 @@ import { computeResourceMaxima } from '@/lib/formulas/resources';
 import type { CharacterSheetAttributes } from '@/types/characterSheet';
 
 /**
- * The §1 resource-maxima formula is the project's "formula lock" (resource_system.md §1).
- * It is owned and tested in `formulas/resources.ts`. The character sheet must derive its
+ * The resource-maxima formula is the project's "formula lock". It is owned and
+ * tested in `formulas/resources.ts`. The character sheet must derive its
  * per-attribute resource values from that same seam — not re-encode the arithmetic — so the
  * sheet and the calculator provably agree. These tests pin that equivalence: the sheet's
  * `breakdown.attributeValue` must equal `computeResourceMaxima(attrs, 1.0)` for every resource.

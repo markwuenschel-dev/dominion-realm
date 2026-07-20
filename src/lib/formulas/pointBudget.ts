@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // lib/formulas/pointBudget.ts
 // Character-sheet point-buy budget. Attributes start at the all-5s baseline
-// (resource_system.md §18/§19); points "spent" is each attribute's deviation
+// (the `ATTRIBUTE_BASELINE` floor); points "spent" is each attribute's deviation
 // above that floor, summed over the attribute values passed in. On the sheet
 // LUCK's value IS included — it is a raisable attribute with ± controls drawing
 // from the same visible pool; the resource-formula firewall governs formulas,

@@ -1,4 +1,4 @@
-import { config, fields, collection, singleton } from '@keystatic/core';
+import { config, fields, collection } from '@keystatic/core';
 import { REVEAL_TIERS, TIER_LABELS } from './src/lib/reveal';
 import {
   RELATIONSHIP_COLLECTIONS,
@@ -107,6 +107,13 @@ export default config({
   ui: {
     brand: { name: 'The Dominion Realm' },
   },
+  // NOTE: `timeline` (src/content/timeline/*.md) is Zod-validated in
+  // contentCore.ts but is INTENTIONALLY absent here — it's a seed chronology
+  // spine edited directly in the files, and its filename slug is a Scene
+  // `beatRef` / search join key that a CMS slug field would make too easy to
+  // rename. So "Keystatic mirrors the Zod schema" holds for everything except
+  // this documented exception. Add a frontmatter-only collection (no body) only
+  // when a non-dev needs to edit beats — see docs/CONTENT.md and audit CAND-06.
   collections: {
     characters: collection({
       label: 'Characters',
@@ -278,25 +285,8 @@ export default config({
       },
     }),
   },
-  singletons: {
-    home: singleton({
-      label: 'Homepage',
-      path: 'src/content/settings/home',
-      format: { data: 'json' },
-      schema: {
-        coverImage: fields.image({
-          label: 'Book cover',
-          description: 'Shown on the homepage hero. Recommended 2:3 (e.g. 800×1200).',
-          directory: 'public/covers',
-          publicPath: '/covers/',
-          validation: { isRequired: false },
-        }),
-        coverAlt: fields.text({
-          label: 'Cover alt text',
-          description: 'Describes the cover for screen readers — usually the title treatment.',
-          validation: { isRequired: false },
-        }),
-      },
-    }),
-  },
+  // No singletons. The homepage cover's source of truth is the Sanity
+  // `siteSettings` singleton (ADR-0011), with a code-owned static fallback
+  // (`FALLBACK_COVER` in src/lib/site.ts). The former Keystatic `home` cover was
+  // retired to end the dual source-of-truth — see audit CAND-19.
 });

@@ -52,12 +52,25 @@ export interface Axiom {
 
 export interface CoverArt {
   /** Public path to the cover image (a file under `public/`), e.g.
-   *  `/covers/cover.png`. Edited in the browser via Keystatic's Homepage
-   *  singleton and read by `getHomeSettings()` (`src/lib/homeSettings.ts`). */
+   *  `/covers/cover.png`. */
   src: string;
   /** Alt text for the cover — the book's title treatment. */
   alt: string;
 }
+
+/**
+ * Code-owned last-resort homepage cover. The cover's single source of truth is
+ * the Sanity `siteSettings` singleton (`getSiteCover`, ADR-0011); this committed
+ * static asset is the fallback the hero shows when Sanity has no cover or is
+ * unreachable, so the homepage never renders coverless. It is deliberately NOT a
+ * second CMS surface — retiring the old Keystatic `home` cover closed that dual
+ * source-of-truth (audit CAND-19). Update it by replacing the file in
+ * `public/covers/` and this constant, not through an editor.
+ */
+export const FALLBACK_COVER: CoverArt = {
+  src: '/covers/cover.png',
+  alt: 'The Dominion Realm — Book One',
+};
 
 export interface SiteConfig {
   /** Author display name. Placeholder until Mark supplies it — surfaces in the
