@@ -9,7 +9,7 @@ export function CharacterSheetShell() {
         <StatSheetTable />
       </main>
       <footer className="border-t border-rim px-6 py-3 text-center text-xs text-muted-foreground/40">
-        Dominion Realm · Stat Sheet · formula lock + resource_system.md §§4–19
+        Dominion Realm · Stat Sheet · formula lock (src/lib/formulas)
       </footer>
     </div>
   );

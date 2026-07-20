@@ -1,9 +1,10 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // lib/characterTemplates.ts
-// Canonical data from resource_system.md §§4–19.
-// Where resource_system.md conflicts with the formula lock doc, the lock wins.
-// All species/class multipliers are derived from §18/§19 tables at baseline
-// human all-5s (HP=50, Mana=50, Stamina=50, Reserve=40).
+// Canonical multipliers mirroring the formula lock in `src/lib/formulas`
+// (`resources.ts` owns the resource-maxima formula; these tables reproduce it).
+// The lock — the code, not any doc — is the source of truth. All species/class
+// multipliers are pinned to baseline human all-5s (HP=50, Mana=50, Stamina=50,
+// Reserve=40).
 // ─────────────────────────────────────────────────────────────────────────────
 
 // ────────────────────────────────────────────────
