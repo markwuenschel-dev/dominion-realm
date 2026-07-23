@@ -17,9 +17,9 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      # No version pin: action-setup reads `packageManager` from package.json
+      # (single source of truth — same field corepack uses in the prod Dockerfile).
       - uses: pnpm/action-setup@v4
-        with:
-          version: 9.15.9
       - uses: actions/setup-node@v4
         with:
           node-version: 22

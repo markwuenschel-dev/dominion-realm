@@ -1,0 +1,11 @@
+# pnpm settings live here as of pnpm v11 (non-auth/registry config moved out of
+# .npmrc). Single-package repo — no `packages:` globs needed.
+sideEffectsCache: true
+
+# pnpm v11 blocks dependency build scripts by default (supply-chain hardening).
+# Declaring them explicitly keeps `pnpm install --frozen-lockfile` in CI and the
+# prod Dockerfile non-interactive and deterministic (no ERR_PNPM_IGNORED_BUILDS).
+allowBuilds:
+  esbuild: true # bundler behind vitest/tsx/tailwind — links its native binary
+  sharp: true # Next.js image optimization — native image codec
+  puppeteer: false # only a transitive dep of the advisory pa11y a11y job; skip its ~150MB Chromium download

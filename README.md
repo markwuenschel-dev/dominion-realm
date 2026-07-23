@@ -59,7 +59,7 @@ change is an ordinary Git commit.
 
 ## Quick start
 
-> Requires **Node 22+** (`.nvmrc` pins 22) and **pnpm 9** (`corepack enable`).
+> Requires **Node 22+** (`.nvmrc` pins 22) and **pnpm 11** (`corepack enable` reads the pinned version from `packageManager`).
 
 ```bash
 git clone https://github.com/markwuenschel-dev/dominion-realm.git
