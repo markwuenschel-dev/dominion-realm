@@ -11,7 +11,6 @@ import {
   getClassProfile,
   getClassAttrMultiplier,
   getAttrRole,
-  describeClassAttrRoles,
   ATTR_ROLE_MULTIPLIERS,
 } from './classTaxonomy';
 
@@ -56,20 +55,5 @@ describe('getAttrRole — the role each attribute plays for a class', () => {
 
   it('reports Neutral for every attribute of an Unclassed profile', () => {
     expect(getAttrRole(getClassProfile('None'), 'STR')).toBe('Neutral');
-  });
-});
-
-describe('describeClassAttrRoles — the labelled ladder the sheet badge renders', () => {
-  it('returns Prime, Core and Secondary groups with their multipliers', () => {
-    const warrior = getClassProfile('Warrior');
-    expect(describeClassAttrRoles(warrior)).toEqual([
-      { role: 'Prime', attrs: ['STR', 'END'], multiplier: 1.15 },
-      { role: 'Core', attrs: ['CON', 'AGI', 'DEX'], multiplier: 1.08 },
-      { role: 'Secondary', attrs: ['WIS', 'CVN'], multiplier: 1.03 },
-    ]);
-  });
-
-  it('omits empty role groups (Unclassed has none)', () => {
-    expect(describeClassAttrRoles(getClassProfile('None'))).toEqual([]);
   });
 });

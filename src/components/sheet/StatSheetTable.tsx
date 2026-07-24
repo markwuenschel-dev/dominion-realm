@@ -11,16 +11,14 @@ import {
 } from '@/lib/characterTemplates';
 import {
   getClassProfile,
-  describeClassAttrRoles,
   classesByRarity,
   PICKER_RARITIES,
   type ClassKey,
-  type AttrKey,
 } from '@/lib/classTaxonomy';
 import { getSoulMultiplier } from '@/lib/formulas/progression';
 import { parseSheetImport } from '@/lib/sheetImport';
 import { formatResourceFormula } from '@/lib/formulas/resources';
-import { describeEffectiveAttribute } from '@/lib/formulas/resourceChain';
+import { describeSheetRoleGroups } from '@/lib/formulas/resourceChain';
 import {
   Select,
   SelectContent,
@@ -37,7 +35,7 @@ import {
   SOUL_LEVEL_TEXT_COLORS,
 } from '@/lib/palette';
 import { cn } from '@/lib/utils';
-import type { SheetAttributeKey } from '@/types/characterSheet';
+import type { SheetAttributeKey, AttrView } from '@/types/characterSheet';
 import { CAST_PROFILES } from '@/lib/castProfiles';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -100,20 +98,21 @@ function ScaffoldTD({ label, colSpan = 1 }: { label: string; colSpan?: number })
 // Attribute cell with ± controls
 // ─────────────────────────────────────────────────────────────────────────────
 
-function AttrCell({ attrKey, dimmed = false }: { attrKey: SheetAttributeKey; dimmed?: boolean }) {
-  const rawValue = useCharacterSheetStore((s) => s.attributes[attrKey]);
-  const classKey = useCharacterSheetStore((s) => s.className);
+function AttrCell({
+  attrKey,
+  view,
+  dimmed = false,
+}: {
+  attrKey: SheetAttributeKey;
+  view: AttrView;
+  dimmed?: boolean;
+}) {
   const setAttribute = useCharacterSheetStore((s) => s.setAttribute);
 
-  const profile = getClassProfile(classKey);
-  // Multiplier badge AND effective value come from one seam call, so the LUCK
-  // firewall (LUCK → ×1.0, never scaled) lives once and cell can't disagree with
-  // the formula that consumes the same seam.
-  const { multiplier: mod, effective } = describeEffectiveAttribute(
-    rawValue,
-    profile,
-    attrKey as AttrKey,
-  );
+  // Effective value AND multiplier come from the authoritative per-attribute
+  // record (computed once in the hook), not a per-cell firewall call — so the
+  // cell, the class-mods badge, and the resource formula cannot disagree.
+  const { raw: rawValue, effective, multiplier: mod } = view;
 
   return (
     <TD>
@@ -210,6 +209,7 @@ export function StatSheetTable() {
   const {
     finalResources,
     breakdowns,
+    attributeViews,
     totalFreePoints,
     totalPointsAvailable,
     spentPoints,
@@ -516,38 +516,55 @@ export function StatSheetTable() {
           {/* ── ATTRIBUTES ── */}
           <SectionHeaderRow title="Attributes" />
           <tr>
-            <AttrCell attrKey="STR" />
-            <AttrCell attrKey="AGI" />
-            <AttrCell attrKey="DEX" />
+            <AttrCell attrKey="STR" view={attributeViews.STR} />
+            <AttrCell attrKey="AGI" view={attributeViews.AGI} />
+            <AttrCell attrKey="DEX" view={attributeViews.DEX} />
           </tr>
           <tr>
-            <AttrCell attrKey="CON" />
-            <AttrCell attrKey="END" />
-            <AttrCell attrKey="INT" />
+            <AttrCell attrKey="CON" view={attributeViews.CON} />
+            <AttrCell attrKey="END" view={attributeViews.END} />
+            <AttrCell attrKey="INT" view={attributeViews.INT} />
           </tr>
           <tr>
-            <AttrCell attrKey="WIS" />
-            <AttrCell attrKey="CHA" />
-            <AttrCell attrKey="LUCK" dimmed />
+            <AttrCell attrKey="WIS" view={attributeViews.WIS} />
+            <AttrCell attrKey="CHA" view={attributeViews.CHA} />
+            <AttrCell attrKey="LUCK" view={attributeViews.LUCK} dimmed />
           </tr>
           <tr>
-            <AttrCell attrKey="CVN" />
-            <AttrCell attrKey="MYS" />
+            <AttrCell attrKey="CVN" view={attributeViews.CVN} />
+            <AttrCell attrKey="MYS" view={attributeViews.MYS} />
             <TD className="bg-panel/30">
               {className !== 'None' && (
                 <>
                   <FieldLabel>Class attr mods ({classProfile.rarity})</FieldLabel>
-                  {describeClassAttrRoles(classProfile).map((group, i) => (
-                    <p
-                      key={group.role}
-                      className={cn('text-[9px] text-muted-foreground/40', i > 0 && 'mt-0.5')}
-                    >
-                      {group.role}{' '}
-                      <span className="text-primary/70">
-                        {group.attrs.join(', ')} ×{group.multiplier.toFixed(2)}
-                      </span>
-                    </p>
-                  ))}
+                  {describeSheetRoleGroups(attributeViews).map((group, i) => {
+                    const scaled = group.entries.filter((e) => !e.carried);
+                    const carried = group.entries.filter((e) => e.carried);
+                    return (
+                      <p
+                        key={group.role}
+                        className={cn('text-[9px] text-muted-foreground/40', i > 0 && 'mt-0.5')}
+                      >
+                        {group.role}{' '}
+                        <span className="text-primary/70">
+                          {scaled.length > 0 && (
+                            <>
+                              {scaled.map((e) => e.key).join(', ')} ×{group.rung.toFixed(2)}
+                            </>
+                          )}
+                          {carried.map((e, j) => (
+                            <span
+                              key={e.key}
+                              title={`LUCK is ${group.role} to ${classProfile.label}, but class-role scaling does not increase LUCK or any resource maximum. Its class expression occurs through Fortune mechanics, not resource formulas.`}
+                            >
+                              {scaled.length > 0 || j > 0 ? ', ' : ''}
+                              {e.key} ×1.00 · Carried
+                            </span>
+                          ))}
+                        </span>
+                      </p>
+                    );
+                  })}
                 </>
               )}
             </TD>

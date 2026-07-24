@@ -25,6 +25,21 @@ at call sites.
   returns it unchanged even for classes that list LUCK as Prime/Core/Secondary
   (Gambler, Fatewright, …).
 
+- **Attribute view (sheet source of truth).** `describeSheetAttributes(attrs,
+  profile)` in `formulas/resourceChain.ts` resolves all 11 sheet attributes to an
+  `AttrView` (`{ raw, effective, multiplier, role, carried }`) **once**. It is the
+  sole producer the character sheet reads: the attribute cells, the class-mods badge
+  (`describeSheetRoleGroups`), and the resource formula (a projection of the 10
+  formula keys' `effective`) all read this one record, so they cannot disagree —
+  agreement is structural, not incidental.
+
+- **Carried attribute.** An attribute that remains in its declared class-role group
+  for identity and feature routing, but is exempt from that group's numeric attribute
+  multiplier. **LUCK** is the only carried attribute today: for a class that lists it
+  Prime (Gambler, Fatewright), the badge shows `LUCK ×1.00 · Carried` while the group
+  rung (×1.15) still renders as a fact about the *role*. The rule lives in one place,
+  `isScaleExempt(attr)`.
+
 - **Resource core (shared pipeline).** `resourceCore(effectiveAttrs, mods, soulMult)`
   in `formulas/resourceChain.ts` is the one derivation **both** surfaces run through:
   it rounds the §1 base **once**, then applies per-resource mods (Reserve additionally

@@ -17,17 +17,22 @@
 
 import {
   getClassAttrMultiplier,
+  getAttrRole,
+  ATTR_ROLE_MULTIPLIERS,
   NEUTRAL_PROFILE,
   type ClassProfile,
   type AttrKey,
+  type AttrRole,
 } from '@/lib/classTaxonomy';
 import { computeResourceMaxima } from './resources';
-import { FORMULA_ATTRIBUTE_KEYS } from '@/types/characterSheet';
+import { FORMULA_ATTRIBUTE_KEYS, SHEET_ATTRIBUTE_KEYS } from '@/types/characterSheet';
 import type { Attributes, ResourceMaxima } from '@/types';
 import type {
   CharacterSheetAttributes,
   FinalResources,
   ResourceBreakdown,
+  AttrView,
+  SheetAttributeKey,
 } from '@/types/characterSheet';
 
 const RESOURCE_KEYS = ['HP', 'Mana', 'Stamina', 'Reserve'] as const;
@@ -49,8 +54,10 @@ export interface ResourceChainInput {
 }
 
 export interface ResourceChain {
-  /** The 10 rounded, class-scaled formula attributes — the same values the UI shows. */
+  /** The 10 rounded, class-scaled formula attributes — projected from `attributeViews`. */
   effectiveAttributes: Attributes;
+  /** The authoritative per-attribute record (all 11 keys) the sheet's UI reads from. */
+  attributeViews: Record<SheetAttributeKey, AttrView>;
   /** Rounded §1 base maxima from the effective attributes (soulLevelMod = 1.0). */
   maxima: ResourceMaxima;
   /** Rendered maxima: maxima × race × condition (Reserve additionally × soul), rounded. */
@@ -73,19 +80,27 @@ export interface EffectiveAttributeParts {
 }
 
 /**
+ * The LUCK firewall rule, in one place: an attribute exempt from class-role
+ * scaling. LUCK is the sole member today — never scaled, even for classes that
+ * list it Prime/Core/Secondary (Gambler, Fatewright, …). Both the effective-value
+ * seam and the per-attribute record consult this, so the rule lives exactly once.
+ */
+export function isScaleExempt(attr: AttrKey): boolean {
+  return attr === 'LUCK';
+}
+
+/**
  * Resolve a raw attribute to its class multiplier AND effective value in one
- * place. The single home for the LUCK firewall: LUCK carries a ×1.0 multiplier
- * and is never scaled, even for classes that list it as Prime/Core/Secondary
- * (Gambler, Fatewright, …). Consumed by `effectiveAttribute` (the formula path)
- * and the sheet's per-attribute badge (the display path), so the multiplier the
- * cell shows and the value the formula uses can never disagree on the LUCK rule.
+ * place — the effective-value seam that both the formula path (`effectiveAttribute`)
+ * and the authoritative per-attribute record (`describeSheetAttributes`) call, so
+ * they can never disagree on the LUCK rule.
  */
 export function describeEffectiveAttribute(
   raw: number,
   profile: ClassProfile,
   attr: AttrKey,
 ): EffectiveAttributeParts {
-  if (attr === 'LUCK') return { multiplier: 1, effective: raw };
+  if (isScaleExempt(attr)) return { multiplier: 1, effective: raw };
   const multiplier = getClassAttrMultiplier(profile, attr);
   return { multiplier, effective: Math.round(raw * multiplier) };
 }
@@ -110,6 +125,73 @@ export function effectiveAttributes(raw: Attributes, profile: ClassProfile): Att
     out[key] = effectiveAttribute(raw[key], profile, key);
   }
   return out;
+}
+
+/**
+ * The sole producer of per-attribute truth for the character sheet. Resolves all
+ * 11 sheet attributes (incl. LUCK) to their authoritative {@link AttrView} once,
+ * so the cells, the class-role badge, and the resource formula (via its projection
+ * below) all read the same record — divergence is structurally impossible, not
+ * merely "currently equal". `carried` marks an attribute that sits in a declared
+ * role group for identity but is firewalled out of its multiplier (LUCK today).
+ */
+export function describeSheetAttributes(
+  attrs: CharacterSheetAttributes,
+  profile: ClassProfile,
+): Record<SheetAttributeKey, AttrView> {
+  const out = {} as Record<SheetAttributeKey, AttrView>;
+  for (const key of SHEET_ATTRIBUTE_KEYS) {
+    const { multiplier, effective } = describeEffectiveAttribute(attrs[key], profile, key);
+    const role = getAttrRole(profile, key);
+    out[key] = {
+      raw: attrs[key],
+      effective,
+      multiplier,
+      role,
+      carried: isScaleExempt(key) && role !== 'Neutral',
+    };
+  }
+  return out;
+}
+
+/** The 10-key formula attribute map, projected from the authoritative record. */
+function projectFormulaAttributes(views: Record<SheetAttributeKey, AttrView>): Attributes {
+  const out = {} as Attributes;
+  for (const key of FORMULA_ATTRIBUTE_KEYS) {
+    out[key] = views[key].effective;
+  }
+  return out;
+}
+
+/** One labelled rung of the class-mods badge, projected from the record. */
+export interface SheetRoleGroup {
+  role: Extract<AttrRole, 'Prime' | 'Core' | 'Secondary'>;
+  /** The role's ladder rung — a fact about the role, not about any one attribute. */
+  rung: number;
+  entries: { key: SheetAttributeKey; multiplier: number; carried: boolean }[];
+}
+
+const BADGE_ROLES = ['Prime', 'Core', 'Secondary'] as const;
+
+/**
+ * Group the authoritative record by role for the class-mods badge. Reads the same
+ * views the cells do, so the badge cannot re-derive a multiplier the cell disagrees
+ * with — the class-role display and the per-attribute display share one source.
+ * Neutral and empty groups are omitted.
+ */
+export function describeSheetRoleGroups(
+  views: Record<SheetAttributeKey, AttrView>,
+): SheetRoleGroup[] {
+  const groups: SheetRoleGroup[] = [];
+  for (const role of BADGE_ROLES) {
+    const entries = SHEET_ATTRIBUTE_KEYS.filter((k) => views[k].role === role).map((k) => ({
+      key: k,
+      multiplier: views[k].multiplier,
+      carried: views[k].carried,
+    }));
+    if (entries.length > 0) groups.push({ role, rung: ATTR_ROLE_MULTIPLIERS[role], entries });
+  }
+  return groups;
 }
 
 /**
@@ -144,7 +226,11 @@ export function resourceCore(
 export function computeSheetResources(input: ResourceChainInput): ResourceChain {
   const { attributes, profile, raceMod, conditionMods, soulMult } = input;
 
-  const effective = effectiveAttributes(attributes, profile);
+  // The single source: build the authoritative per-attribute record ONCE, then
+  // project the 10-key formula map from it. Display and formula share this record,
+  // so they cannot diverge.
+  const attributeViews = describeSheetAttributes(attributes, profile);
+  const effective = projectFormulaAttributes(attributeViews);
 
   const mods = {} as ResourceModifiers;
   for (const r of RESOURCE_KEYS) {
@@ -162,7 +248,7 @@ export function computeSheetResources(input: ResourceChainInput): ResourceChain 
     final: finalResources[r],
   }));
 
-  return { effectiveAttributes: effective, maxima, finalResources, breakdowns };
+  return { effectiveAttributes: effective, attributeViews, maxima, finalResources, breakdowns };
 }
 
 /**

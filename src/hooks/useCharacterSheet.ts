@@ -30,7 +30,7 @@ export function useCharacterSheet(): CharacterSheetDerived {
   // via the effective-attribute seam — the same rounded values the sheet's
   // attribute cells display — so display and formula can never disagree. The seam
   // owns the round-once rule and the LUCK firewall; Reserve alone × soul multiplier.
-  const { finalResources, breakdowns } = useMemo(
+  const { finalResources, breakdowns, attributeViews } = useMemo(
     () =>
       computeSheetResources({
         attributes,
@@ -87,6 +87,7 @@ export function useCharacterSheet(): CharacterSheetDerived {
   return {
     breakdowns,
     finalResources,
+    attributeViews,
     totalFreePoints,
     totalPointsAvailable,
     spentPoints,
