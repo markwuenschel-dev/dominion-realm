@@ -7,7 +7,7 @@
 import { ATTRIBUTE_KEYS } from '@/types';
 import type { Attributes } from '@/types';
 import type { SpeciesKey, SoulLevelKey } from '@/lib/characterTemplates';
-import type { ClassKey } from '@/lib/classTaxonomy';
+import type { ClassKey, AttrRole } from '@/lib/classTaxonomy';
 
 // ────────────────────────────────────────────────
 // Extended attribute set (adds LUCK)
@@ -114,9 +114,33 @@ export interface RegenRates {
   };
 }
 
+/**
+ * The single authoritative per-attribute view — computed once and read by every
+ * sheet consumer (attribute cells, the class-role badge, and the resource formula
+ * via its projection). Two consumers can never disagree because there is only one
+ * record: agreement is structural, not "currently equal".
+ */
+export interface AttrView {
+  /** Raw store value — what the ± buttons step. */
+  raw: number;
+  /** Class-scaled, rounded-once value. LUCK stays = raw (the firewall). */
+  effective: number;
+  /** The class multiplier actually applied. LUCK is always 1.0, even when Prime. */
+  multiplier: number;
+  /** The attribute's declared role for this class — identity, independent of the firewall. */
+  role: AttrRole;
+  /**
+   * Carried attribute: in a declared class-role group for identity/feature routing,
+   * but exempt from that group's numeric multiplier (LUCK today). See CONTEXT.md.
+   */
+  carried: boolean;
+}
+
 export interface CharacterSheetDerived {
   breakdowns: ResourceBreakdown[];
   finalResources: FinalResources;
+  /** Every sheet attribute (all 11 keys) resolved to its authoritative view. */
+  attributeViews: Record<SheetAttributeKey, AttrView>;
   totalFreePoints: number;
   totalPointsAvailable: number;
   spentPoints: number;

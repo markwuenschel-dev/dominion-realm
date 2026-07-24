@@ -921,28 +921,7 @@ export function getClassAttrMultiplier(profile: ClassProfile, attr: AttrKey): nu
   return ATTR_ROLE_MULTIPLIERS[getAttrRole(profile, attr)];
 }
 
-/** One labelled rung of a class's attribute-multiplier ladder. */
-export interface ClassAttrRoleGroup {
-  role: AttrRole;
-  attrs: AttrKey[];
-  multiplier: number;
-}
-
-/**
- * The class's Prime/Core/Secondary attribute groups, each with the multiplier its
- * role carries — the single source the sheet's class-mods badge renders from, so
- * the display can never drift from the firewall. Empty groups (e.g. every group
- * for Unclassed) are omitted.
- */
-export function describeClassAttrRoles(profile: ClassProfile): ClassAttrRoleGroup[] {
-  const groups: ClassAttrRoleGroup[] = [
-    { role: 'Prime', attrs: profile.primeAttrs, multiplier: ATTR_ROLE_MULTIPLIERS.Prime },
-    { role: 'Core', attrs: profile.coreAttrs, multiplier: ATTR_ROLE_MULTIPLIERS.Core },
-    {
-      role: 'Secondary',
-      attrs: profile.secondaryAttrs,
-      multiplier: ATTR_ROLE_MULTIPLIERS.Secondary,
-    },
-  ];
-  return groups.filter((g) => g.attrs.length > 0);
-}
+// The sheet's class-mods badge is now projected from the authoritative
+// per-attribute record — see `describeSheetRoleGroups` in `formulas/resourceChain`.
+// It groups the same views the cells read, so the badge can never re-derive a
+// multiplier the cell disagrees with (this is what the LUCK drift used to be).

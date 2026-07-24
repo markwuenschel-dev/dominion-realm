@@ -9,6 +9,9 @@ import { describe, it, expect } from 'vitest';
 import {
   effectiveAttribute,
   describeEffectiveAttribute,
+  isScaleExempt,
+  describeSheetAttributes,
+  describeSheetRoleGroups,
   computeSheetResources,
   computeCalculatorResources,
 } from './resourceChain';
@@ -150,5 +153,90 @@ describe('computeCalculatorResources — the calculator shares the pipeline, neu
     expect(Number.isInteger(out.Reserve)).toBe(true);
     // HP/Mana/Stamina are unaffected by soul and already integers.
     expect(out.HP).toBe(computeResourceMaxima(oddReserve).HP);
+  });
+});
+
+describe('isScaleExempt — the LUCK firewall rule lives in one place', () => {
+  it('exempts LUCK and nothing else', () => {
+    expect(isScaleExempt('LUCK')).toBe(true);
+    for (const attr of FORMULA_ATTRIBUTE_KEYS) {
+      expect(isScaleExempt(attr)).toBe(false);
+    }
+  });
+});
+
+describe('describeSheetAttributes — the one authoritative per-attribute record', () => {
+  const gambler = getClassProfile('Gambler'); // Prime LUCK/WIS, Core DEX/CHA, Secondary MYS/INT
+
+  it('marks LUCK a carried Prime attribute — declared role kept, multiplier firewalled to 1.0', () => {
+    const views = describeSheetAttributes(attrs(10), gambler);
+    expect(views.LUCK).toEqual({
+      raw: 10,
+      effective: 10, // never scaled
+      multiplier: 1,
+      role: 'Prime',
+      carried: true,
+    });
+  });
+
+  it('scales a non-exempt Prime attribute normally (WIS ×1.15) and never marks it carried', () => {
+    const views = describeSheetAttributes(attrs(10), gambler);
+    expect(views.WIS).toEqual({
+      raw: 10,
+      effective: 12, // round(10 × 1.15)
+      multiplier: 1.15,
+      role: 'Prime',
+      carried: false,
+    });
+  });
+
+  it('does NOT mark LUCK carried when the class never lists it (Neutral, not a claimed role)', () => {
+    const warrior = getClassProfile('Warrior'); // LUCK unlisted → Neutral
+    const views = describeSheetAttributes(attrs(10), warrior);
+    expect(views.LUCK.role).toBe('Neutral');
+    expect(views.LUCK.carried).toBe(false);
+    expect(views.LUCK.multiplier).toBe(1);
+  });
+});
+
+describe('object-level agreement — display and formula read ONE record', () => {
+  const gambler = getClassProfile('Gambler');
+
+  it('the formula effective map is a projection of the authoritative record, not a parallel compute', () => {
+    const chain = computeSheetResources({
+      attributes: attrs(10),
+      profile: gambler,
+      raceMod: NO_MOD,
+      conditionMods: NO_MOD,
+      soulMult: 1,
+    });
+    // Every attribute the resources are built from is the SAME number the record
+    // hands the cells — structural agreement, not "these two happen to be equal".
+    for (const key of FORMULA_ATTRIBUTE_KEYS) {
+      expect(chain.effectiveAttributes[key]).toBe(chain.attributeViews[key].effective);
+    }
+    // The record the chain carries is exactly what the sole producer builds.
+    expect(chain.attributeViews).toEqual(describeSheetAttributes(attrs(10), gambler));
+  });
+});
+
+describe('describeSheetRoleGroups — the class-mods badge, projected from the record', () => {
+  const gambler = getClassProfile('Gambler');
+
+  it('renders a Luck-Prime class with LUCK carried beside its scaled Prime peer', () => {
+    const groups = describeSheetRoleGroups(describeSheetAttributes(attrs(10), gambler));
+    const prime = groups.find((g) => g.role === 'Prime')!;
+    expect(prime.rung).toBe(1.15); // the role rung stays a fact about the role
+    expect(prime.entries).toEqual([
+      { key: 'WIS', multiplier: 1.15, carried: false },
+      { key: 'LUCK', multiplier: 1, carried: true },
+    ]);
+  });
+
+  it('omits Neutral and empty groups (Unclassed renders nothing)', () => {
+    const groups = describeSheetRoleGroups(
+      describeSheetAttributes(attrs(10), getClassProfile('None')),
+    );
+    expect(groups).toEqual([]);
   });
 });
