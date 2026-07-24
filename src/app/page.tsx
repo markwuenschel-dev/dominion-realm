@@ -10,7 +10,7 @@ import {
   navPageReady,
 } from '@/lib/site';
 import { getCodexEntry } from '@/lib/codex';
-import { getSiteCover, getSubjectCardMap, subjectKey } from '@/sanity/media';
+import { getSiteCover, getSubjectCardMap, resolveSubjectMedia, subjectKey } from '@/sanity/media';
 import { HomeClient } from '@/components/HomeClient';
 import { BuyCta } from '@/components/BuyCta';
 import { MediaPlaceholder } from '@/components/MediaPlaceholder';
@@ -74,11 +74,18 @@ export default async function Home() {
   const [sanityCover, portraits] = await Promise.all([getSiteCover(), getSubjectCardMap()]);
   const cast = FEATURED_CAST.map((c) => {
     const sanity = portraits.get(subjectKey('characters', c.slug));
+    // Sanity card → git Codex image → placeholder rung + alt from the shared
+    // resolver; the portrait below keeps its own render per rung (SubjectImage /
+    // raw next/image top-crop / placeholder). `imageAlt` mirrors the old
+    // `sanity?.alt || c.name` field so the git rung alt stays the character name.
     return {
       ...c,
-      sanity,
-      gitImage: getCodexEntry('characters', c.slug)?.data.image,
-      imageAlt: sanity?.alt || c.name,
+      media: resolveSubjectMedia({
+        sanity,
+        git: getCodexEntry('characters', c.slug)?.data.image,
+        name: c.name,
+        imageAlt: sanity?.alt || c.name,
+      }),
     };
   });
   const mapReady = navPageReady('map');
@@ -281,17 +288,17 @@ export default async function Home() {
                     href={`/codex/characters/${c.slug}`}
                   >
                     <div className="char-portrait">
-                      {c.sanity ? (
+                      {c.media.kind === 'sanity' ? (
                         <SubjectImage
-                          source={c.sanity.source}
-                          alt={c.imageAlt}
+                          source={c.media.source}
+                          alt={c.media.alt}
                           aspect={[3, 4]}
                           sizes="(max-width:980px) 100vw, 300px"
                         />
-                      ) : c.gitImage ? (
+                      ) : c.media.kind === 'git' ? (
                         <Image
-                          src={c.gitImage}
-                          alt={c.imageAlt}
+                          src={c.media.src}
+                          alt={c.media.alt}
                           fill
                           sizes="(max-width:980px) 100vw, 300px"
                           style={{ objectFit: 'cover', objectPosition: 'top' }}

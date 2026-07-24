@@ -131,6 +131,69 @@ function resolve(img: RawImage): ResolvedImage | null {
   };
 }
 
+/** Resolve a raw GROQ gallery array into ordered {@link GalleryImage}s: each raw
+ *  image is resolved, assetless items are dropped, and the optional caption is
+ *  attached (defaulting to `''`). The single home for the resolve+caption+drop
+ *  flatMap that `getSubjectMedia`, `getSceneMedia`, and `getSceneMediaMap` share.
+ *  Any per-row dedup guard stays in the caller — this covers only the flatMap. */
+function resolveGallery(items: RawImage[] | null | undefined): GalleryImage[] {
+  return (items ?? []).flatMap((g) => {
+    const r = resolve(g);
+    return r ? [{ ...r, caption: (g as { caption?: string })?.caption ?? '' }] : [];
+  });
+}
+
+/** Build a `${kind}:${slug}` → ResolvedImage map from GROQ subject rows: resolve
+ *  the picked image field, and key it only when kind, slug, and a resolved image
+ *  are all present (an unresolved/keyless row is skipped so the call site falls
+ *  back to git). `pick` selects the row's image field, the only thing the primary
+ *  and card maps differ by. */
+function buildSubjectMap<R extends { kind: string | null; slug: string | null }>(
+  rows: R[],
+  pick: (row: R) => RawImage,
+): Map<string, ResolvedImage> {
+  const map = new Map<string, ResolvedImage>();
+  for (const r of rows) {
+    const resolved = resolve(pick(r));
+    if (r.kind && r.slug && resolved) map.set(subjectKeyForKind(r.kind, r.slug), resolved);
+  }
+  return map;
+}
+
+/** A tagged decision for which media rung a Subject surface should render:
+ *  the Sanity source (with its resolved alt), the git `/content-media` src (with
+ *  its resolved alt), or nothing. It owns the Sanity → git → terminal rung choice
+ *  and the alt precedence; each call site still renders its own components and
+ *  terminal (a placeholder, an anchored git image, or null). */
+export type SubjectMediaDescriptor =
+  | { kind: 'sanity'; source: SanityImageSource; alt: string }
+  | { kind: 'git'; src: string; alt: string }
+  | { kind: 'none' };
+
+/** Pick the media rung + alt for a Subject surface, extracting the 3-rung ladder
+ *  (Sanity source → git image → terminal) that was hand-inlined per surface.
+ *
+ *  - `sanity` present → the Sanity rung, alt = `sanity.alt || name`.
+ *  - else git `src` present → the git rung, alt = `imageAlt ?? name`.
+ *  - else → `none` (the caller renders its own terminal).
+ *
+ *  The descriptor decides the rung and alt only; the caller keeps its bespoke
+ *  rendering and terminal (SubjectGallery vs a single image, placeholder vs null). */
+export function resolveSubjectMedia(input: {
+  sanity: ResolvedImage | null | undefined;
+  git: string | null | undefined;
+  name: string;
+  imageAlt?: string | null;
+}): SubjectMediaDescriptor {
+  if (input.sanity) {
+    return { kind: 'sanity', source: input.sanity.source, alt: input.sanity.alt || input.name };
+  }
+  if (input.git) {
+    return { kind: 'git', src: input.git, alt: input.imageAlt ?? input.name };
+  }
+  return { kind: 'none' };
+}
+
 /**
  * The homepage book cover from the `siteSettings` singleton, or null if unset —
  * the call site then falls back to the code-owned `FALLBACK_COVER` static asset.
@@ -192,12 +255,7 @@ export const getSubjectPrimaryMap = cache(async (): Promise<Map<string, Resolved
     {},
     { next: { tags: [SANITY_TAG] } },
   );
-  const map = new Map<string, ResolvedImage>();
-  for (const r of rows) {
-    const resolved = resolve(r.primary);
-    if (r.kind && r.slug && resolved) map.set(subjectKeyForKind(r.kind, r.slug), resolved);
-  }
-  return map;
+  return buildSubjectMap(rows, (r) => r.primary);
 });
 
 /**
@@ -218,12 +276,7 @@ export const getSubjectCardMap = cache(async (): Promise<Map<string, ResolvedIma
     {},
     { next: { tags: [SANITY_TAG] } },
   );
-  const map = new Map<string, ResolvedImage>();
-  for (const r of rows) {
-    const resolved = resolve(r.image);
-    if (r.kind && r.slug && resolved) map.set(subjectKeyForKind(r.kind, r.slug), resolved);
-  }
-  return map;
+  return buildSubjectMap(rows, (r) => r.image);
 });
 
 /**
@@ -252,10 +305,7 @@ export const getSubjectMedia = cache(
       banner: resolve(doc.banner),
       map: resolve(doc.map),
       sigil: resolve(doc.sigil),
-      gallery: (doc.gallery ?? []).flatMap((g) => {
-        const r = resolve(g);
-        return r ? [{ ...r, caption: (g as { caption?: string })?.caption ?? '' }] : [];
-      }),
+      gallery: resolveGallery(doc.gallery),
     };
   },
 );
@@ -281,10 +331,7 @@ export const getSceneMedia = cache(
       { next: { tags: [SANITY_TAG] } },
     );
     if (!doc) return null;
-    const images = (doc.images ?? []).flatMap((g) => {
-      const r = resolve(g);
-      return r ? [{ ...r, caption: (g as { caption?: string })?.caption ?? '' }] : [];
-    });
+    const images = resolveGallery(doc.images);
     return images.length ? { images } : null;
   },
 );
@@ -331,12 +378,7 @@ export const getSceneMediaMap = cache(
       );
       for (const r of rows) {
         if (!r.beatRef || map.has(sceneKey(beat, r.beatRef))) continue;
-        const images = (r.images ?? []).flatMap((g) => {
-          const resolved = resolve(g);
-          return resolved
-            ? [{ ...resolved, caption: (g as { caption?: string })?.caption ?? '' }]
-            : [];
-        });
+        const images = resolveGallery(r.images);
         if (images.length) map.set(sceneKey(beat, r.beatRef), { images });
       }
     }

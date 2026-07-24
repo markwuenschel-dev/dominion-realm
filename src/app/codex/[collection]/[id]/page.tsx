@@ -19,7 +19,7 @@ import { ImageCredit } from '@/components/ImageCredit';
 import { RevealGate } from '@/components/reveal/RevealGate';
 import { GatedRelationships } from '@/components/reveal/GatedRelationships';
 import { isUngated, TIER_LABELS } from '@/lib/reveal';
-import { getSubjectMedia, subjectKindFor } from '@/sanity/media';
+import { getSubjectMedia, resolveSubjectMedia, subjectKindFor } from '@/sanity/media';
 import { entrySocialImage, previewMetadata } from '@/sanity/og';
 
 type Params = { collection: string; id: string };
@@ -69,6 +69,17 @@ export default async function CodexEntryPage({ params }: { params: Promise<Param
   // joined by kind:slug. null when no Subject exists → git image fallback below.
   const media = await getSubjectMedia(subjectKindFor(entry.collection), id);
   const hasSanityMedia = Boolean(media && (media.primary || media.gallery.length > 0));
+  // The Sanity → git → terminal rung choice + git alt come from the shared
+  // resolver. Sanity presence here is `hasSanityMedia` (primary OR gallery), which
+  // is broader than a single primary source, so pass a representative Sanity image
+  // only to signal the rung — the Sanity rung below renders the full gallery, not
+  // this source. Terminal is null (this surface has no placeholder).
+  const subjectMedia = resolveSubjectMedia({
+    sanity: hasSanityMedia ? (media!.primary ?? media!.gallery[0]) : null,
+    git: image,
+    name: entry.data.name,
+    imageAlt: entry.data.imageAlt,
+  });
 
   return (
     <article className="codex-entry">
@@ -161,22 +172,22 @@ export default async function CodexEntryPage({ params }: { params: Promise<Param
 
         {/* Primary + gallery + lightbox come from Sanity; a git image is the
             fallback (its old "open raw in a new tab" behavior, unchanged). */}
-        {hasSanityMedia ? (
+        {subjectMedia.kind === 'sanity' ? (
           <SubjectGallery
             primary={media!.primary}
             gallery={media!.gallery}
             name={entry.data.name}
           />
-        ) : image ? (
+        ) : subjectMedia.kind === 'git' ? (
           <figure className="codex-entry__media">
             {/* Full-size view opens the raw asset in a new tab — stays a plain <a>. */}
             <a
-              href={image}
+              href={subjectMedia.src}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`Open the full-size character file for ${entry.data.name}`}
             >
-              <ContentImage src={image} alt={entry.data.imageAlt ?? entry.data.name} />
+              <ContentImage src={subjectMedia.src} alt={subjectMedia.alt} />
             </a>
             <figcaption className="codex-entry__media-hint">Click to view full size</figcaption>
           </figure>

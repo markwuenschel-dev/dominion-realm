@@ -5,7 +5,7 @@ import { isUngated, TIER_LABELS } from '@/lib/reveal';
 import { ContentImage } from '@/components/ContentImage';
 import { MediaPlaceholder } from '@/components/MediaPlaceholder';
 import { SubjectImage } from '@/components/SubjectImage';
-import type { ResolvedImage } from '@/sanity/media';
+import { resolveSubjectMedia, type ResolvedImage } from '@/sanity/media';
 
 /**
  * A single codex entry as a browse card. The summary is always shown — it's
@@ -18,20 +18,27 @@ export function CodexCard({ entry, sanity }: { entry: CodexEntry; sanity?: Resol
   const url = codexUrl(entry.collection, entry.id);
   const kicker = entryKicker(entry);
   const tier = entry.data.reveal;
-  const image = entry.data.image;
+  // Sanity → git → placeholder rung + alt come from the shared resolver; this
+  // card keeps its own render per rung (SubjectImage / ContentImage / placeholder).
+  const media = resolveSubjectMedia({
+    sanity,
+    git: entry.data.image,
+    name: entry.data.name,
+    imageAlt: entry.data.imageAlt,
+  });
 
   return (
     <Link className="codex-card" href={url}>
       <figure className="codex-card__media">
-        {sanity ? (
+        {media.kind === 'sanity' ? (
           <SubjectImage
-            source={sanity.source}
-            alt={sanity.alt || entry.data.name}
+            source={media.source}
+            alt={media.alt}
             aspect={[16, 9]}
             sizes="(max-width: 620px) 100vw, 360px"
           />
-        ) : image ? (
-          <ContentImage src={image} alt={entry.data.imageAlt ?? entry.data.name} loading="lazy" />
+        ) : media.kind === 'git' ? (
+          <ContentImage src={media.src} alt={media.alt} loading="lazy" />
         ) : (
           <MediaPlaceholder label={entry.data.name} />
         )}
