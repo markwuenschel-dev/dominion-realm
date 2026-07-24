@@ -2,11 +2,14 @@ import { describe, it, expect } from 'vitest';
 import {
   clampScroll,
   clampPrefs,
+  isResumable,
   parseProgress,
   parsePrefs,
   DEFAULT_PREFS,
   FONT_SCALE,
   LINE_HEIGHT,
+  RESUME_MIN_PCT,
+  RESUME_MAX_PCT,
 } from './readingProgress';
 
 /**
@@ -46,6 +49,26 @@ describe('clampPrefs', () => {
       fontScale: 1.1,
       lineHeight: 1.9,
     });
+  });
+});
+
+describe('isResumable', () => {
+  it('is true only for genuine mid-chapter progress', () => {
+    expect(isResumable({ chapterId: 'x', scrollPct: 0.5 })).toBe(true);
+    expect(isResumable({ chapterId: 'x', scrollPct: RESUME_MIN_PCT + 0.001 })).toBe(true);
+    expect(isResumable({ chapterId: 'x', scrollPct: RESUME_MAX_PCT - 0.001 })).toBe(true);
+  });
+
+  it('is false at or below the lower bound (barely started)', () => {
+    expect(isResumable({ chapterId: 'x', scrollPct: RESUME_MIN_PCT })).toBe(false);
+    expect(isResumable({ chapterId: 'x', scrollPct: 0.01 })).toBe(false);
+    expect(isResumable({ chapterId: 'x', scrollPct: 0 })).toBe(false);
+  });
+
+  it('is false at or above the upper bound (effectively finished)', () => {
+    expect(isResumable({ chapterId: 'x', scrollPct: RESUME_MAX_PCT })).toBe(false);
+    expect(isResumable({ chapterId: 'x', scrollPct: 0.97 })).toBe(false);
+    expect(isResumable({ chapterId: 'x', scrollPct: 1 })).toBe(false);
   });
 });
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { readProgress } from '@/lib/readingProgress';
+import { isResumable, readProgress } from '@/lib/readingProgress';
 
 /** The chapters the index knows about, so the island can resolve a saved id. */
 export interface ContinueChapter {
@@ -22,7 +22,7 @@ export function ContinueReading({ chapters }: { chapters: ContinueChapter[] }) {
 
   useEffect(() => {
     const saved = readProgress();
-    if (!saved || saved.scrollPct <= 0.02) return;
+    if (!saved || !isResumable(saved)) return;
     const match = chapters.find((c) => c.id === saved.chapterId);
     // Resume the exact scene-page they left on (part 1 stays the base URL).
     if (match)

@@ -42,6 +42,15 @@ describe('ContinueReading', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
+  it('renders nothing when the chapter is finished (scroll ≥ 95%)', () => {
+    localStorage.setItem(
+      READING_PROGRESS_KEY,
+      JSON.stringify({ chapterId: '01-chapter-one', scrollPct: 0.97 }),
+    );
+    const { container } = render(<ContinueReading chapters={chapters} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it('renders nothing when the saved chapter is unknown', () => {
     localStorage.setItem(
       READING_PROGRESS_KEY,
