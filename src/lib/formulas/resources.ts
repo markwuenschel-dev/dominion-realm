@@ -32,10 +32,7 @@ import {
  * Only the keys present in `coeffs` contribute — extra attribute fields are
  * ignored, matching the hand-written term-by-term sums this replaces.
  */
-function sumCoefficients(
-  coeffs: Partial<Record<AttributeKey, number>>,
-  attrs: Attributes,
-): number {
+function sumCoefficients(coeffs: Partial<Record<AttributeKey, number>>, attrs: Attributes): number {
   return Object.entries(coeffs).reduce(
     (sum, [key, coeff]) => sum + coeff * attrs[key as AttributeKey],
     0,
