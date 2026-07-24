@@ -7,6 +7,7 @@ import {
   LINE_HEIGHT,
   clampScroll,
   clampTo,
+  isResumable,
   readPrefs,
   readProgress,
   writePrefs,
@@ -85,12 +86,7 @@ export function Reader({
 
     // Resume: if this is the chapter we left mid-way, scroll back to it.
     const saved = readProgress();
-    if (
-      saved &&
-      saved.chapterId === chapterId &&
-      saved.scrollPct > 0.02 &&
-      saved.scrollPct < 0.95
-    ) {
+    if (saved && saved.chapterId === chapterId && isResumable(saved)) {
       const rect = prose.getBoundingClientRect();
       const proseTop = rect.top + window.scrollY;
       const target = proseTop + saved.scrollPct * rect.height - window.innerHeight;

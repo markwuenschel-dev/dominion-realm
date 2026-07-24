@@ -28,6 +28,20 @@ export interface ReadingPrefs {
   lineHeight: number;
 }
 
+/** Below this fraction the reader has barely started — not worth resuming. */
+export const RESUME_MIN_PCT = 0.02;
+/** At/above this fraction the chapter is effectively finished — nothing left to resume. */
+export const RESUME_MAX_PCT = 0.95;
+
+/**
+ * Whether a saved position represents genuine mid-chapter progress worth resuming:
+ * past the opening skim, but short of the end. Both the /read "Continue" link and
+ * the reader's auto-scroll-restore gate on this same rule.
+ */
+export function isResumable(progress: ReadingProgress): boolean {
+  return progress.scrollPct > RESUME_MIN_PCT && progress.scrollPct < RESUME_MAX_PCT;
+}
+
 /** Bounds + step for the font-scale control. */
 export const FONT_SCALE = { min: 0.85, max: 1.4, step: 0.05, default: 1 } as const;
 /** Bounds + step for the line-height control. */
