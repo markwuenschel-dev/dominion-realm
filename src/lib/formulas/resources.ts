@@ -5,7 +5,13 @@
 // §6  Reserve Accounting and Overdraw
 // ─────────────────────────────────────────────────────────────────────────────
 
-import type { Attributes, ResourceMaxima, ResourceRatios, CurrentResources } from '@/types';
+import type {
+  Attributes,
+  AttributeKey,
+  ResourceMaxima,
+  ResourceRatios,
+  CurrentResources,
+} from '@/types';
 import {
   HP_COEFFICIENTS,
   MANA_COEFFICIENTS,
@@ -21,44 +27,39 @@ import {
 // §1.1  Resource Maxima
 // ────────────────────────────────────────────────
 
+/**
+ * Sum a coefficient record against attribute values: Σ coeff · attrs[key].
+ * Only the keys present in `coeffs` contribute — extra attribute fields are
+ * ignored, matching the hand-written term-by-term sums this replaces.
+ */
+function sumCoefficients(
+  coeffs: Partial<Record<AttributeKey, number>>,
+  attrs: Attributes,
+): number {
+  return Object.entries(coeffs).reduce(
+    (sum, [key, coeff]) => sum + coeff * attrs[key as AttributeKey],
+    0,
+  );
+}
+
 /** HP_max = 6·CON + 2·END + 2·STR */
 export function computeHPMax(attrs: Attributes): number {
-  return (
-    HP_COEFFICIENTS.CON * attrs.CON +
-    HP_COEFFICIENTS.END * attrs.END +
-    HP_COEFFICIENTS.STR * attrs.STR
-  );
+  return sumCoefficients(HP_COEFFICIENTS, attrs);
 }
 
 /** Mana_max = 6·INT + 3·WIS + CHA */
 export function computeManaMax(attrs: Attributes): number {
-  return (
-    MANA_COEFFICIENTS.INT * attrs.INT +
-    MANA_COEFFICIENTS.WIS * attrs.WIS +
-    MANA_COEFFICIENTS.CHA * attrs.CHA
-  );
+  return sumCoefficients(MANA_COEFFICIENTS, attrs);
 }
 
 /** Stamina_max = 5·END + 2·CON + STR + AGI + DEX */
 export function computeStaminaMax(attrs: Attributes): number {
-  return (
-    STAMINA_COEFFICIENTS.END * attrs.END +
-    STAMINA_COEFFICIENTS.CON * attrs.CON +
-    STAMINA_COEFFICIENTS.STR * attrs.STR +
-    STAMINA_COEFFICIENTS.AGI * attrs.AGI +
-    STAMINA_COEFFICIENTS.DEX * attrs.DEX
-  );
+  return sumCoefficients(STAMINA_COEFFICIENTS, attrs);
 }
 
 /** Reserve_max = (2·CON + 2·END + 2·WIS + CVN + MYS) × SoulLevelMod */
 export function computeReserveMax(attrs: Attributes, soulLevelMod = 1.0): number {
-  const base =
-    RESERVE_COEFFICIENTS.CON * attrs.CON +
-    RESERVE_COEFFICIENTS.END * attrs.END +
-    RESERVE_COEFFICIENTS.WIS * attrs.WIS +
-    RESERVE_COEFFICIENTS.CVN * attrs.CVN +
-    RESERVE_COEFFICIENTS.MYS * attrs.MYS;
-  return base * soulLevelMod;
+  return sumCoefficients(RESERVE_COEFFICIENTS, attrs) * soulLevelMod;
 }
 
 /** Compute all four resource maxima at once. */
