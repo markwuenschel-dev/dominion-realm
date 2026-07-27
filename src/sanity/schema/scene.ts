@@ -1,10 +1,15 @@
 import { defineType, defineField } from 'sanity';
+import { SCENE_BEAT_META } from '../sceneJoins';
 import { galleryField } from './mediaImage';
 
 /**
  * Scene art (ADR-0011, CONTEXT.md § Media) — images bound to a *story beat*
  * (a reading chapter or a timeline event) rather than to a Subject. `beat` says
  * which kind of beat, `beatRef` is the slug/id of that chapter or event in git.
+ *
+ * The `beat` choices are projected from `SCENE_BEAT_META` (the same record the
+ * reader and the orphan detector consume), so the author can never be offered a
+ * kind the runtime cannot read — the pattern `subject.kind` already follows.
  */
 export const scene = defineType({
   name: 'scene',
@@ -22,10 +27,7 @@ export const scene = defineType({
       title: 'Belongs to',
       type: 'string',
       options: {
-        list: [
-          { title: 'Reading chapter', value: 'reading' },
-          { title: 'Timeline event', value: 'timeline' },
-        ],
+        list: SCENE_BEAT_META.map((b) => ({ title: b.title, value: b.value })),
         layout: 'radio',
       },
       validation: (rule) => rule.required(),

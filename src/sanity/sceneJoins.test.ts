@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { findOrphanScenes, describeOrphan, SCENE_BEATS, type SceneJoinDoc } from './sceneJoins';
+import {
+  findOrphanScenes,
+  describeOrphan,
+  SCENE_BEATS,
+  SCENE_BEAT_META,
+  type SceneJoinDoc,
+} from './sceneJoins';
 import { READING_BEATS, TIMELINE_BEATS } from './content-manifest';
 
 /**
@@ -78,6 +84,19 @@ describe('SCENE_BEATS parity (shared beat-kind set)', () => {
   // beat kind updates this test automatically, so the two sides can't drift.
   it('exposes exactly the reading + timeline kinds', () => {
     expect([...SCENE_BEATS]).toEqual(['reading', 'timeline']);
+  });
+
+  // SCENE_BEATS is now a projection of SCENE_BEAT_META, the one record that also
+  // labels each kind for the Studio dropdown (schema/scene.ts). Pinning the pair
+  // here keeps the value list and the label list from being edited apart: a kind
+  // added without a label is a type error, and one added without a projection
+  // fails this test.
+  it('projects the kinds from the canonical beat record, in order', () => {
+    expect(SCENE_BEAT_META.map((b) => b.value)).toEqual([...SCENE_BEATS]);
+  });
+
+  it('labels every kind for the Studio', () => {
+    expect(SCENE_BEAT_META.map((b) => b.title)).toEqual(['Reading chapter', 'Timeline event']);
   });
 
   it('accepts every kind in SCENE_BEATS and flags any kind outside it', () => {
