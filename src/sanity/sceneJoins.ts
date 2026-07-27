@@ -14,15 +14,26 @@
  */
 
 /**
- * The kinds of story beat a Scene may bind to — the single source of truth for
- * the `scene.beat` enum. Shared so the runtime reader (`media.ts`), this
- * detector, and their tests all reference one list; the set can no longer drift
- * between a hand-copied GROQ filter and a hand-copied `!== 'reading' && …` guard.
+ * The kinds of story beat a Scene may bind to, each with the label the Studio
+ * shows for it — the single source of truth for the `scene.beat` enum. One
+ * record per kind, mirroring `SUBJECT_KINDS` in `slotMap.ts`, so the runtime
+ * reader (`media.ts`), this detector, the Studio dropdown (`schema/scene.ts`),
+ * and their tests all read one list; the set can no longer drift between a
+ * hand-copied GROQ filter, a hand-copied `!== 'reading' && …` guard, and a
+ * hand-typed dropdown. Adding a kind here offers it to the author, batches it
+ * in the reader, and admits it to the detector in one edit.
  */
-export const SCENE_BEATS = ['reading', 'timeline'] as const;
+export const SCENE_BEAT_META = [
+  { value: 'reading', title: 'Reading chapter' },
+  { value: 'timeline', title: 'Timeline event' },
+] as const;
 
-/** One story-beat kind (`scene.beat`), derived from {@link SCENE_BEATS}. */
-export type SceneBeat = (typeof SCENE_BEATS)[number];
+/** One story-beat kind (`scene.beat`), derived from {@link SCENE_BEAT_META}. */
+export type SceneBeat = (typeof SCENE_BEAT_META)[number]['value'];
+
+/** The beat kinds alone, projected from {@link SCENE_BEAT_META} — what the
+ *  label-blind consumers (GROQ batching, orphan detection) iterate. */
+export const SCENE_BEATS: readonly SceneBeat[] = SCENE_BEAT_META.map((b) => b.value);
 
 /** The join-relevant slice of a Sanity `scene` document. */
 export interface SceneJoinDoc {
