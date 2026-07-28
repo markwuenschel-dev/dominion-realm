@@ -63,6 +63,25 @@ export function clampScroll(pct: number): number {
   return clampTo(pct, 0, 1, 0);
 }
 
+/**
+ * Soft-clamp a 1-based scene part into a piece's CURRENT range.
+ *
+ * A stored part is historical: it says where the reader was, not what the chapter
+ * looks like now. Shorten a chapter, de-paginate it, or move its scene breaks and
+ * the saved part can name a page that no longer exists. HTTP routes deliberately
+ * **reject** an out-of-range part with a 404 (`parseLaterScenePart`, audit
+ * CAND-22) — so any non-HTTP caller resolving stored progress into a link must
+ * clamp first, or it hands the reader a dead URL.
+ *
+ * Lives here rather than in `lib/reading.ts` because the only caller is a client
+ * island: `lib/reading.ts` pulls in the server-only content engine and cannot be
+ * imported from `'use client'` code.
+ */
+export function clampPart(part: number, count: number): number {
+  if (!Number.isFinite(part)) return 1;
+  return Math.min(Math.max(1, Math.floor(part)), Math.max(1, count));
+}
+
 /** Snap a preference value to its control's bounds, defaulting bad input. */
 export function clampPrefs(prefs: Partial<ReadingPrefs> | null | undefined): ReadingPrefs {
   return {

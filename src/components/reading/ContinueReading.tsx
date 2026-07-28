@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { isResumable, readProgress } from '@/lib/readingProgress';
+import { clampPart, isResumable, readProgress } from '@/lib/readingProgress';
 
 /** The chapters the index knows about, so the island can resolve a saved id. */
 export interface ContinueChapter {
   id: string;
   title: string;
   url: string;
+  /** The chapter's CURRENT scene-page count (1 when it doesn't paginate). */
+  parts: number;
 }
 
 /**
@@ -24,11 +26,12 @@ export function ContinueReading({ chapters }: { chapters: ContinueChapter[] }) {
     const saved = readProgress();
     if (!saved || !isResumable(saved)) return;
     const match = chapters.find((c) => c.id === saved.chapterId);
-    // Resume the exact scene-page they left on (part 1 stays the base URL).
-    if (match)
-      setResume(
-        saved.part && saved.part >= 2 ? { ...match, url: `${match.url}/${saved.part}` } : match,
-      );
+    if (!match) return;
+    // Resume the exact scene-page they left on (part 1 stays the base URL). The
+    // saved part is historical, so clamp it into the chapter's CURRENT range —
+    // the route 404s an out-of-range part rather than clamping it itself.
+    const part = clampPart(saved.part ?? 1, match.parts);
+    setResume(part >= 2 ? { ...match, url: `${match.url}/${part}` } : match);
   }, [chapters]);
 
   if (!resume) return null;

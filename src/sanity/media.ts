@@ -170,6 +170,20 @@ export type SubjectMediaDescriptor =
   | { kind: 'git'; src: string; alt: string }
   | { kind: 'none' };
 
+/**
+ * Alt precedence for a Sanity-sourced Subject image: the authored alt when it
+ * says something, otherwise the surface's fallback.
+ *
+ * Deliberately `||`, not `??` — an authored-but-empty Sanity alt means "nobody
+ * filled this in", so it falls back. The git rung is the opposite case and keeps
+ * `imageAlt ?? name`: an explicitly empty frontmatter alt marks a decorative
+ * image and must survive. Do not "unify" the two operators; they encode
+ * different intents.
+ */
+export function subjectAlt(image: { alt: string } | null | undefined, fallback: string): string {
+  return image?.alt || fallback;
+}
+
 /** Pick the media rung + alt for a Subject surface, extracting the 3-rung ladder
  *  (Sanity source → git image → terminal) that was hand-inlined per surface.
  *
@@ -186,7 +200,11 @@ export function resolveSubjectMedia(input: {
   imageAlt?: string | null;
 }): SubjectMediaDescriptor {
   if (input.sanity) {
-    return { kind: 'sanity', source: input.sanity.source, alt: input.sanity.alt || input.name };
+    return {
+      kind: 'sanity',
+      source: input.sanity.source,
+      alt: subjectAlt(input.sanity, input.name),
+    };
   }
   if (input.git) {
     return { kind: 'git', src: input.git, alt: input.imageAlt ?? input.name };

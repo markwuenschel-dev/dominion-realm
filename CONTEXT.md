@@ -34,7 +34,9 @@ at call sites.
   one record, so they cannot disagree — agreement is structural, not incidental.
   §7 regen was the last holdout, reading raw store values until it was routed through
   the same projection; a classed sheet displayed one attribute and regenerated from
-  another. Any new consumer of a sheet attribute reads `AttrView`, never the store.
+  another. New consumers of a sheet attribute should read `AttrView`, not the store
+  — note this is a convention, not an enforced one: no lint rule or fitness test
+  currently blocks a direct store read, so it holds only as long as reviews catch it.
 
 - **Carried attribute.** An attribute that remains in its declared class-role group
   for identity and feature routing, but is exempt from that group's numeric attribute
@@ -86,8 +88,12 @@ at call sites.
   Core ×1.08, Secondary ×1.03, Neutral ×1.0. `getAttrRole(profile, attr)` is the
   primitive that reports the role; `getClassAttrMultiplier` is just
   `ATTR_ROLE_MULTIPLIERS[role]`, so the ladder value lives once in
-  `ATTR_ROLE_MULTIPLIERS`. `describeClassAttrRoles(profile)` is the labelled
-  ladder the sheet's class-mods badge renders. All in `lib/classTaxonomy.ts`.
+  `ATTR_ROLE_MULTIPLIERS`. Both live in `lib/classTaxonomy.ts`. The sheet's
+  class-mods badge does **not** re-derive this ladder: it renders
+  `describeSheetRoleGroups(attributeViews)` (`formulas/resourceChain.ts`), which
+  groups the same `AttrView` records the attribute cells read — so the badge can
+  never show a multiplier the cell disagrees with. (Wave 1 deleted the former
+  third source, `describeClassAttrRoles`, for exactly that reason.)
 
 - **Point budget.** Every attribute starts at the all-5s point-buy baseline
   (`ATTRIBUTE_BASELINE` in `src/lib/formulas/pointBudget.ts`). Points *spent* = each

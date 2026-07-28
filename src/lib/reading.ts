@@ -57,12 +57,17 @@ export function shouldPaginate(entry: ReadingEntry): boolean {
   return entry.body.trim().split(/\s+/).filter(Boolean).length >= PAGINATE_WORD_THRESHOLD;
 }
 
-/** Soft-clamp a 1-based scene part into the piece's range. For non-HTTP callers
- *  that want a nearest-valid index. HTTP routes do **not** use this — they
- *  reject out-of-range parts with 404 via `parseLaterScenePart` (audit CAND-22). */
-export function clampPart(part: number, count: number): number {
-  if (!Number.isFinite(part)) return 1;
-  return Math.min(Math.max(1, Math.floor(part)), Math.max(1, count));
+/**
+ * How many scene-pages a piece actually serves: its scene count when it
+ * paginates, otherwise 1. Distinct from `sceneCount`, which counts scene breaks
+ * in the prose whether or not the piece is paged — a short multi-scene piece has
+ * scene breaks but only ONE page, and `/read/<id>/2` 404s for it.
+ *
+ * This is the number any caller resolving a stored scene-part must clamp against,
+ * so it lives here once rather than being re-derived at each call site.
+ */
+export function scenePageCount(entry: ReadingEntry): number {
+  return shouldPaginate(entry) ? sceneCount(entry) : 1;
 }
 
 /**

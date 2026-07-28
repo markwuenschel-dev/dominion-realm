@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
+  clampPart,
   clampScroll,
   clampPrefs,
   isResumable,
@@ -17,6 +18,17 @@ import {
  * and exercised end-to-end; here we pin the clamp/parse contract that keeps a
  * corrupt or hostile stored value from ever reaching the UI.
  */
+describe('clampPart', () => {
+  it('clamps a 1-based part into range and floors/guards bad input', () => {
+    expect(clampPart(2, 3)).toBe(2);
+    expect(clampPart(0, 3)).toBe(1);
+    expect(clampPart(9, 3)).toBe(3);
+    expect(clampPart(2.7, 3)).toBe(2);
+    expect(clampPart(NaN, 3)).toBe(1);
+    expect(clampPart(2, 0)).toBe(1);
+  });
+});
+
 describe('clampScroll', () => {
   it('clamps into [0, 1] and treats non-finite as 0', () => {
     expect(clampScroll(-0.5)).toBe(0);
