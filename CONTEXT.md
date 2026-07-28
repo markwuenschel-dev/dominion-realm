@@ -29,9 +29,12 @@ at call sites.
   profile)` in `formulas/resourceChain.ts` resolves all 11 sheet attributes to an
   `AttrView` (`{ raw, effective, multiplier, role, carried }`) **once**. It is the
   sole producer the character sheet reads: the attribute cells, the class-mods badge
-  (`describeSheetRoleGroups`), and the resource formula (a projection of the 10
-  formula keys' `effective`) all read this one record, so they cannot disagree —
-  agreement is structural, not incidental.
+  (`describeSheetRoleGroups`), the resource formula (a projection of the 10
+  formula keys' `effective`), and the §7 activity-regen attribute term all read this
+  one record, so they cannot disagree — agreement is structural, not incidental.
+  §7 regen was the last holdout, reading raw store values until it was routed through
+  the same projection; a classed sheet displayed one attribute and regenerated from
+  another. Any new consumer of a sheet attribute reads `AttrView`, never the store.
 
 - **Carried attribute.** An attribute that remains in its declared class-role group
   for identity and feature routing, but is exempt from that group's numeric attribute

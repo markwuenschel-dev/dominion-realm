@@ -30,7 +30,7 @@ export function useCharacterSheet(): CharacterSheetDerived {
   // via the effective-attribute seam — the same rounded values the sheet's
   // attribute cells display — so display and formula can never disagree. The seam
   // owns the round-once rule and the LUCK firewall; Reserve alone × soul multiplier.
-  const { finalResources, breakdowns, attributeViews } = useMemo(
+  const { finalResources, breakdowns, attributeViews, effectiveAttributes } = useMemo(
     () =>
       computeSheetResources({
         attributes,
@@ -73,15 +73,19 @@ export function useCharacterSheet(): CharacterSheetDerived {
     [currentXP, xpToNextLevel],
   );
 
-  // §7 activity-based regen — delegated to the tested formulas seam.
+  // §7 activity-based regen — delegated to the tested formulas seam. The flat
+  // attribute term reads EFFECTIVE attributes, not raw store values: the maxima it
+  // scales off are already class-scaled, and these are the same rounded numbers the
+  // attribute cells display. Passing raw here made a Warrior sheet show END 12 and
+  // regen from 10 — display and formula disagreeing at the last unconverted seam.
   const regenRates = useMemo(
     () =>
       computeActivityRegenRates(finalResources, {
-        CON: attributes.CON,
-        END: attributes.END,
-        WIS: attributes.WIS,
+        CON: effectiveAttributes.CON,
+        END: effectiveAttributes.END,
+        WIS: effectiveAttributes.WIS,
       }),
-    [finalResources, attributes.CON, attributes.END, attributes.WIS],
+    [finalResources, effectiveAttributes.CON, effectiveAttributes.END, effectiveAttributes.WIS],
   );
 
   return {
