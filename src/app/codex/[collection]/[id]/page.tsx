@@ -19,7 +19,7 @@ import { ImageCredit } from '@/components/ImageCredit';
 import { RevealGate } from '@/components/reveal/RevealGate';
 import { GatedRelationships } from '@/components/reveal/GatedRelationships';
 import { isUngated, TIER_LABELS } from '@/lib/reveal';
-import { getSubjectMedia, resolveSubjectMedia, subjectKindFor } from '@/sanity/media';
+import { getSubjectMedia, resolveSubjectMedia, subjectAlt, subjectKindFor } from '@/sanity/media';
 import { entrySocialImage, previewMetadata } from '@/sanity/og';
 
 type Params = { collection: string; id: string };
@@ -97,7 +97,7 @@ export default async function CodexEntryPage({ params }: { params: Promise<Param
             <div className="codex-entry__banner">
               <SubjectImage
                 source={media.banner.source}
-                alt={media.banner.alt || entry.data.name}
+                alt={subjectAlt(media.banner, entry.data.name)}
                 aspect={[16, 6]}
                 sizes="(max-width: 820px) 100vw, 760px"
                 priority
@@ -147,7 +147,7 @@ export default async function CodexEntryPage({ params }: { params: Promise<Param
               <figure className="codex-entry__slot codex-entry__slot--map">
                 <SubjectImage
                   source={media.map.source}
-                  alt={media.map.alt || `Map of ${entry.data.name}`}
+                  alt={subjectAlt(media.map, `Map of ${entry.data.name}`)}
                   fill={false}
                   sizes="(max-width: 760px) 100vw, 680px"
                 />
@@ -159,7 +159,7 @@ export default async function CodexEntryPage({ params }: { params: Promise<Param
               <figure className="codex-entry__slot codex-entry__slot--sigil">
                 <SubjectImage
                   source={media.sigil.source}
-                  alt={media.sigil.alt || `Sigil of ${entry.data.name}`}
+                  alt={subjectAlt(media.sigil, `Sigil of ${entry.data.name}`)}
                   fill={false}
                   sizes="220px"
                 />

@@ -60,6 +60,32 @@ describe('subjectKey / subjectKeyForKind / subjectKindFor', () => {
  * rather than a hand-built literal, so the GROQ → resolve → descriptor seam is
  * crossed rather than assumed.
  */
+/**
+ * The alt-precedence rule, owned once. The three type slots on the codex entry
+ * page (banner / map / sigil) call this rather than each re-writing `alt || name`
+ * with their own fallback string.
+ */
+describe('subjectAlt', () => {
+  it('keeps an authored alt and falls back per surface when it is empty or absent', async () => {
+    const { subjectAlt } = await loadMedia();
+    expect(subjectAlt({ alt: 'Marcus Vye' }, 'Marcus')).toBe('Marcus Vye');
+    expect(subjectAlt({ alt: '' }, 'Map of Eriadne')).toBe('Map of Eriadne');
+    expect(subjectAlt(null, 'Sigil of the Choir')).toBe('Sigil of the Choir');
+    expect(subjectAlt(undefined, 'Marcus')).toBe('Marcus');
+  });
+
+  it('falls back on an empty Sanity alt — the opposite of the git rung', async () => {
+    const { subjectAlt, resolveSubjectMedia } = await loadMedia();
+    // Sanity: empty means "unfilled" → fall back to the surface's name.
+    expect(subjectAlt({ alt: '' }, 'Marcus')).toBe('Marcus');
+    // Git: an explicitly empty frontmatter alt marks a DECORATIVE image and must
+    // survive, so that rung uses `??`. If someone unifies the two operators, this
+    // goes red rather than silently relabelling decorative art.
+    const git = resolveSubjectMedia({ sanity: null, git: '/x.png', name: 'Marcus', imageAlt: '' });
+    expect(git).toEqual({ kind: 'git', src: '/x.png', alt: '' });
+  });
+});
+
 describe('resolveSubjectMedia', () => {
   async function realResolved(alt?: string) {
     const { getSubjectPrimaryMap, subjectKeyForKind } = await loadMedia();
