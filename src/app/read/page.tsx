@@ -1,6 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getReadingEntries, readingUrl, readingKicker, readingMinutes } from '@/lib/reading';
+import {
+  getReadingEntries,
+  readingUrl,
+  readingKicker,
+  readingMinutes,
+  sceneCount,
+  shouldPaginate,
+} from '@/lib/reading';
 import { getSampleDownloads } from '@/lib/downloads';
 import { ReadingChrome } from '@/components/reading/ReadingChrome';
 import { ContentImage } from '@/components/ContentImage';
@@ -17,7 +24,14 @@ export default function ReadIndex() {
   const entries = getReadingEntries();
   const first = entries[0];
   const downloads = getSampleDownloads();
-  const chapters = entries.map((e) => ({ id: e.id, title: e.data.title, url: readingUrl(e.id) }));
+  // `parts` lets the resume island clamp a stale saved scene-page into the
+  // chapter's current range instead of linking at a part the route would 404.
+  const chapters = entries.map((e) => ({
+    id: e.id,
+    title: e.data.title,
+    url: readingUrl(e.id),
+    parts: shouldPaginate(e) ? sceneCount(e) : 1,
+  }));
 
   return (
     <ReadingChrome showIndexLink={false}>

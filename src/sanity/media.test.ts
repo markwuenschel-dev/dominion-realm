@@ -48,6 +48,89 @@ describe('subjectKey / subjectKeyForKind / subjectKindFor', () => {
   });
 });
 
+/**
+ * The Wave 3 subject-media primitive. It owns exactly two decisions — which rung
+ * (Sanity → git → nothing) and which alt — and deliberately owns NEITHER the
+ * rendering nor the terminal, because the surfaces disagree on both: the codex
+ * entry page ends in `null`, cards and the homepage end in a `MediaPlaceholder`.
+ * That is why it returns a tagged descriptor; collapsing the terminal here would
+ * regress the layouts (see .out-of-scope/entry-metadata-resolver.md).
+ *
+ * The Sanity-rung cases feed a REAL `ResolvedImage` taken from `getSubjectPrimaryMap`
+ * rather than a hand-built literal, so the GROQ → resolve → descriptor seam is
+ * crossed rather than assumed.
+ */
+describe('resolveSubjectMedia', () => {
+  async function realResolved(alt?: string) {
+    const { getSubjectPrimaryMap, subjectKeyForKind } = await loadMedia();
+    fetch.mockResolvedValueOnce([{ kind: 'character', slug: 'marcus', primary: img(alt) }]);
+    const map = await getSubjectPrimaryMap();
+    const resolved = map.get(subjectKeyForKind('character', 'marcus'));
+    expect(resolved, 'fixture reachability: the primary map must resolve').toBeDefined();
+    return resolved!;
+  }
+
+  it('prefers the Sanity rung and keeps its alt', async () => {
+    const { resolveSubjectMedia } = await loadMedia();
+    const sanity = await realResolved('Marcus, mid-translation');
+    const out = resolveSubjectMedia({
+      sanity,
+      git: '/content-media/marcus.png',
+      name: 'Marcus',
+      imageAlt: 'git alt',
+    });
+    expect(out.kind).toBe('sanity');
+    // Sanity wins even though a git image exists — one rung, not a merge.
+    if (out.kind === 'sanity') {
+      expect(out.alt).toBe('Marcus, mid-translation');
+      expect(out.source).toBe(sanity.source);
+    }
+  });
+
+  it('falls back to the subject name when the Sanity alt is empty', async () => {
+    const { resolveSubjectMedia } = await loadMedia();
+    const sanity = await realResolved(); // no alt in the payload
+    const out = resolveSubjectMedia({ sanity, git: null, name: 'Marcus' });
+    expect(out).toEqual({ kind: 'sanity', source: sanity.source, alt: 'Marcus' });
+  });
+
+  it('drops to the git rung only when Sanity is absent', async () => {
+    const { resolveSubjectMedia } = await loadMedia();
+    const out = resolveSubjectMedia({
+      sanity: null,
+      git: '/content-media/marcus.png',
+      name: 'Marcus',
+      imageAlt: 'Marcus in the atrium',
+    });
+    expect(out).toEqual({
+      kind: 'git',
+      src: '/content-media/marcus.png',
+      alt: 'Marcus in the atrium',
+    });
+  });
+
+  it('uses the name when the git image declares no alt', async () => {
+    const { resolveSubjectMedia } = await loadMedia();
+    const out = resolveSubjectMedia({ sanity: undefined, git: '/x.png', name: 'Marcus' });
+    expect(out).toEqual({ kind: 'git', src: '/x.png', alt: 'Marcus' });
+  });
+
+  it('signals `none` without choosing a terminal, so each surface keeps its own', async () => {
+    const { resolveSubjectMedia } = await loadMedia();
+    const out = resolveSubjectMedia({ sanity: null, git: null, name: 'Marcus' });
+    // No `src`, no `alt`, no placeholder decision — the caller renders null or a
+    // MediaPlaceholder as that surface requires.
+    expect(out).toEqual({ kind: 'none' });
+  });
+
+  it('treats an empty-string git path as absent, not as a renderable src', async () => {
+    const { resolveSubjectMedia } = await loadMedia();
+    expect(resolveSubjectMedia({ sanity: null, git: '', name: 'Marcus' })).toEqual({
+      kind: 'none',
+    });
+  });
+});
+
 describe('getSubjectPrimaryMap', () => {
   it('keys resolved primaries by kind:slug and carries alt', async () => {
     fetch.mockResolvedValue([

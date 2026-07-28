@@ -6,7 +6,6 @@ import {
   sceneCount,
   shouldPaginate,
   PAGINATE_WORD_THRESHOLD,
-  clampPart,
   parseLaterScenePart,
   readingSceneUrl,
   type ReadingEntry,
@@ -92,17 +91,6 @@ describe('shouldPaginate', () => {
 
   it('never paginates a single-scene piece however long', () => {
     expect(shouldPaginate(entry(words(PAGINATE_WORD_THRESHOLD * 2)))).toBe(false);
-  });
-});
-
-describe('clampPart', () => {
-  it('clamps a 1-based part into range and floors/guards bad input', () => {
-    expect(clampPart(2, 3)).toBe(2);
-    expect(clampPart(0, 3)).toBe(1);
-    expect(clampPart(9, 3)).toBe(3);
-    expect(clampPart(2.7, 3)).toBe(2);
-    expect(clampPart(NaN, 3)).toBe(1);
-    expect(clampPart(2, 0)).toBe(1);
   });
 });
 
