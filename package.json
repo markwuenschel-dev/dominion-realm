@@ -17,6 +17,7 @@
     "lint": "oxlint -D correctness -D suspicious -A react-in-jsx-scope -A vitest/no-conditional-expect --react-plugin --nextjs-plugin --react-perf-plugin --vitest-plugin src scripts",
     "check": "tsc --noEmit",
     "scene:check": "tsx scripts/check-scene-joins.ts",
+    "launch:check": "tsx scripts/launch-readiness.ts",
     "format": "oxfmt --write",
     "format:check": "oxfmt --check",
     "test": "vitest run",

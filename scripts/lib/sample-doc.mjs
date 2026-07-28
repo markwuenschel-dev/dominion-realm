@@ -16,6 +16,18 @@
  * the downloads are generated FROM this content at build time — never hardcoded.
  */
 
+/**
+ * Whether the reading sample is still stand-in prose rather than the manuscript.
+ *
+ * This was a comment. A comment is not checkable, and the launch board needs to
+ * answer "is the sample real yet?" without a human re-reading this file — two
+ * planning passes have already drawn wrong conclusions from prose in this repo.
+ *
+ * When the real Prologue and Chapter One land in `src/content/reading/`, flip
+ * this to `false` in the same commit. `pnpm run launch:check` reads it.
+ */
+export const SAMPLE_PROSE_IS_PLACEHOLDER = true;
+
 /** Public download metadata. The author can rename the files here; the prebuild
  *  generator writes to `public/${DOWNLOAD_DIR}/` and the UI links to the hrefs. */
 export const DOWNLOAD_DIR = 'downloads';
