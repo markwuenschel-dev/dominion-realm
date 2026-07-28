@@ -4,7 +4,7 @@ import '@/styles/global.css';
 import { RevealProvider } from '@/components/reveal/RevealContext';
 import { Analytics } from '@/components/Analytics';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher';
-import { SITE_URL } from '@/lib/site';
+import { SITE, SITE_URL, authorIsNamed } from '@/lib/site';
 import { defaultSocialImage } from '@/sanity/og';
 
 /**
@@ -56,6 +56,13 @@ export async function generateMetadata(): Promise<Metadata> {
       template: '%s — The Dominion Realm',
     },
     description: DESCRIPTION,
+    // The byline renders in the footer and on /about but was absent from the
+    // document metadata entirely, so nothing machine-readable attributed the
+    // book to its author. Emitted only when the name is real (see
+    // `authorIsNamed`) — a bracketed stand-in must not reach a meta tag.
+    ...(authorIsNamed()
+      ? { authors: [{ name: SITE.author }], creator: SITE.author, publisher: SITE.author }
+      : {}),
     icons: { icon: '/favicon.png' },
     openGraph: {
       type: 'website',

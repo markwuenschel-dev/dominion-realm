@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import '@/styles/reading.css';
-import { SITE } from '@/lib/site';
+import { SITE, authorIsNamed } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'About the Author',
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default function AboutPage() {
-  const named = SITE.author && !SITE.author.startsWith('[');
+  const named = authorIsNamed();
 
   return (
     <>
