@@ -73,8 +73,9 @@ export const FALLBACK_COVER: CoverArt = {
 };
 
 export interface SiteConfig {
-  /** Author display name. Placeholder until Mark supplies it — surfaces in the
-   *  footer, the About page, and meta. */
+  /** Author display name. Surfaces in the footer, the About page, and the
+   *  document metadata. A bracketed value (e.g. "[Author Name]") marks it as
+   *  not yet supplied — see `authorIsNamed`, which every consumer gates on. */
   author: string;
   /** Social links. URL-less entries are intentionally hidden (see `Social`). */
   socials: Social[];
@@ -111,6 +112,16 @@ export const SITE: SiteConfig = {
 
 /** Socials that actually have a URL — the only ones we render. */
 export const liveSocials = (): Social[] => SITE.socials.filter((s) => Boolean(s.url));
+
+/**
+ * Whether the author name is a real byline rather than a bracketed stand-in.
+ *
+ * The About page originated this convention inline; it now has one owner so the
+ * footer, the About heading and the document metadata cannot disagree about
+ * whether the site has an author. A stand-in must never reach a meta tag.
+ */
+export const authorIsNamed = (): boolean =>
+  Boolean(SITE.author) && !SITE.author.trim().startsWith('[');
 
 /** A homepage section anchor (scrollspy target on the home route `/`). */
 export interface NavSection {

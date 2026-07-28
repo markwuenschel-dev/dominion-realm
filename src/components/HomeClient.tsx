@@ -89,15 +89,15 @@ export function HomeClient() {
     const form = document.getElementById('signupForm') as HTMLFormElement | null;
     const note = document.getElementById('signupNote');
     const onSubmit = async (e: Event) => {
-      e.preventDefault();
       if (!form || !note) return;
       const action = form.getAttribute('action');
-      if (!action) {
-        note.textContent = 'You are on the list. Welcome, walker.';
-        note.style.color = 'var(--gold-bright)';
-        form.reset();
-        return;
-      }
+      // An action-less form is never rendered (src/lib/signup.ts decides that,
+      // and the page shows a notice instead). If one somehow appears, hand it
+      // back to the browser rather than reporting a subscription that never
+      // happened — this branch used to claim success for an email that went
+      // nowhere, which is the one outcome worse than a visible failure.
+      if (!action) return;
+      e.preventDefault();
       note.textContent = 'Joining the Realmwalkers…';
       note.style.color = 'var(--ink-dim)';
       try {
