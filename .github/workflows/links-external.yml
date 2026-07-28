@@ -35,9 +35,10 @@ jobs:
             ${{ runner.os }}-nextjs-
       - run: pnpm run build
         env:
-          NEXT_PUBLIC_KIT_FORM_ID: ${{ vars.NEXT_PUBLIC_KIT_FORM_ID }}
-          NEXT_PUBLIC_GA4_ID: ${{ vars.NEXT_PUBLIC_GA4_ID }}
-          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+          # Astro-era Variable names mapped to the Next-era env names (see ci.yml).
+          NEXT_PUBLIC_KIT_FORM_ID: ${{ vars.PUBLIC_KIT_FORM_ID }}
+          NEXT_PUBLIC_GA4_ID: ${{ vars.PUBLIC_GA4_ID }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
       - name: Start the site
         run: |
           pnpm exec next start &

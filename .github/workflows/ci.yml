@@ -30,11 +30,32 @@ jobs:
     timeout-minutes: 10
     env:
       # Non-secret public IDs (repo Variables) so the build matches production.
-      NEXT_PUBLIC_KIT_FORM_ID: ${{ vars.NEXT_PUBLIC_KIT_FORM_ID }}
-      NEXT_PUBLIC_GA4_ID: ${{ vars.NEXT_PUBLIC_GA4_ID }}
-      NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+      # The Variables keep their Astro-era names (PUBLIC_*); the app reads the
+      # Next-era names (NEXT_PUBLIC_*), so the mapping happens here. Reading
+      # `vars.NEXT_PUBLIC_*` silently yielded empty strings — see `id-wiring`.
+      NEXT_PUBLIC_KIT_FORM_ID: ${{ vars.PUBLIC_KIT_FORM_ID }}
+      NEXT_PUBLIC_GA4_ID: ${{ vars.PUBLIC_GA4_ID }}
+      # No Variable exists yet: unset until the domain cutover (ADR-0012
+      # follow-up). `src/lib/site.ts` falls back to the canonical URL.
+      NEXT_PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
     steps:
       - uses: actions/checkout@v4
+      - name: Assert the public IDs resolved
+        # A misnamed repo Variable resolves to an empty string rather than
+        # failing, so every build silently shipped without analytics or a
+        # working signup action. Fail loudly instead. Skipped for fork PRs,
+        # which do not receive repository variables.
+        if: github.event.pull_request.head.repo.fork != true
+        run: |
+          missing=()
+          [ -n "${NEXT_PUBLIC_GA4_ID}" ] || missing+=("PUBLIC_GA4_ID")
+          [ -n "${NEXT_PUBLIC_KIT_FORM_ID}" ] || missing+=("PUBLIC_KIT_FORM_ID")
+          if [ ${#missing[@]} -ne 0 ]; then
+            echo "::error::Repository Variable(s) missing or empty: ${missing[*]}."
+            echo "Set them under Settings → Secrets and variables → Actions → Variables."
+            exit 1
+          fi
+          echo "Public IDs resolved: GA4=${NEXT_PUBLIC_GA4_ID}, Kit form=${NEXT_PUBLIC_KIT_FORM_ID}"
       # No version pin: action-setup reads `packageManager` from package.json
       # (single source of truth — same field corepack uses in the prod Dockerfile).
       - uses: pnpm/action-setup@v4
@@ -88,9 +109,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      NEXT_PUBLIC_KIT_FORM_ID: ${{ vars.NEXT_PUBLIC_KIT_FORM_ID }}
-      NEXT_PUBLIC_GA4_ID: ${{ vars.NEXT_PUBLIC_GA4_ID }}
-      NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+      # Astro-era Variable names mapped to the Next-era env names (see `verify`).
+      NEXT_PUBLIC_KIT_FORM_ID: ${{ vars.PUBLIC_KIT_FORM_ID }}
+      NEXT_PUBLIC_GA4_ID: ${{ vars.PUBLIC_GA4_ID }}
+      NEXT_PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
     steps:
       - uses: actions/checkout@v4
       # No version pin: action-setup reads `packageManager` from package.json

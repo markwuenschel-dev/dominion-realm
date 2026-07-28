@@ -10,6 +10,7 @@ import {
   navPageReady,
 } from '@/lib/site';
 import { getCodexEntry } from '@/lib/codex';
+import { signupFromEnv } from '@/lib/signup';
 import { getSiteCover, getSubjectCardMap, resolveSubjectMedia, subjectKey } from '@/sanity/media';
 import { HomeClient } from '@/components/HomeClient';
 import { BuyCta } from '@/components/BuyCta';
@@ -90,8 +91,10 @@ export default async function Home() {
   });
   const mapReady = navPageReady('map');
 
-  const kitFormId = process.env.NEXT_PUBLIC_KIT_FORM_ID;
-  const kitAction = kitFormId ? `https://app.kit.com/forms/${kitFormId}/subscriptions` : undefined;
+  // Never render a live form without an action: a form with no `action` posts to
+  // the current URL, which would swallow the visitor's email silently. `signup.ts`
+  // owns that decision (mirrors the buy CTA's no-dead-controls rule).
+  const signup = signupFromEnv();
 
   return (
     <>
@@ -585,19 +588,32 @@ export default async function Home() {
                 </div>
                 <div className="reveal">
                   <span className="signup-label">Join the Realmwalkers</span>
-                  <form className="signup-form" id="signupForm" action={kitAction} method="post">
-                    <input
-                      type="email"
-                      name="email_address"
-                      placeholder="your@email.com"
-                      aria-label="Email"
-                      required
-                    />
-                    <button type="submit">Enter</button>
-                  </form>
-                  <p className="signup-note" id="signupNote">
-                    Early chapters · field notes · new codex entries
-                  </p>
+                  {signup.mode === 'live' ? (
+                    <>
+                      <form
+                        className="signup-form"
+                        id="signupForm"
+                        action={signup.action}
+                        method="post"
+                      >
+                        <input
+                          type="email"
+                          name="email_address"
+                          placeholder="your@email.com"
+                          aria-label="Email"
+                          required
+                        />
+                        <button type="submit">Enter</button>
+                      </form>
+                      <p className="signup-note" id="signupNote">
+                        Early chapters · field notes · new codex entries
+                      </p>
+                    </>
+                  ) : (
+                    <p className="signup-note" id="signupNote" role="status">
+                      {signup.note}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="foot-base">
