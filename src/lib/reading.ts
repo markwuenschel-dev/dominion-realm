@@ -58,6 +58,19 @@ export function shouldPaginate(entry: ReadingEntry): boolean {
 }
 
 /**
+ * How many scene-pages a piece actually serves: its scene count when it
+ * paginates, otherwise 1. Distinct from `sceneCount`, which counts scene breaks
+ * in the prose whether or not the piece is paged — a short multi-scene piece has
+ * scene breaks but only ONE page, and `/read/<id>/2` 404s for it.
+ *
+ * This is the number any caller resolving a stored scene-part must clamp against,
+ * so it lives here once rather than being re-derived at each call site.
+ */
+export function scenePageCount(entry: ReadingEntry): number {
+  return shouldPaginate(entry) ? sceneCount(entry) : 1;
+}
+
+/**
  * Parse a `/read/<id>/[part]` segment into a valid **later-scene** index
  * (part ≥ 2), or `null` to 404. Part 1 lives at the canonical `/read/<id>`
  * route. This is the HTTP ownership of scene-part validity — reject, don't clamp.

@@ -5,8 +5,7 @@ import {
   readingUrl,
   readingKicker,
   readingMinutes,
-  sceneCount,
-  shouldPaginate,
+  scenePageCount,
 } from '@/lib/reading';
 import { getSampleDownloads } from '@/lib/downloads';
 import { ReadingChrome } from '@/components/reading/ReadingChrome';
@@ -30,7 +29,7 @@ export default function ReadIndex() {
     id: e.id,
     title: e.data.title,
     url: readingUrl(e.id),
-    parts: shouldPaginate(e) ? sceneCount(e) : 1,
+    parts: scenePageCount(e),
   }));
 
   return (

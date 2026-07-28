@@ -2,13 +2,7 @@ import { describe, it, expect, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { ContinueReading } from './ContinueReading';
 import { READING_PROGRESS_KEY } from '@/lib/readingProgress';
-import {
-  getReadingEntries,
-  parseLaterScenePart,
-  sceneCount,
-  shouldPaginate,
-  readingUrl,
-} from '@/lib/reading';
+import { getReadingEntries, parseLaterScenePart, scenePageCount, readingUrl } from '@/lib/reading';
 
 /**
  * The "Continue where you left off" island: server-silent, then after mount it
@@ -125,7 +119,9 @@ describe('ContinueReading — a stale saved part must not outlive the chapter', 
       id: e.id,
       title: e.data.title,
       url: readingUrl(e.id),
-      parts: shouldPaginate(e) ? sceneCount(e) : 1,
+      // Same seam `/read` uses — re-deriving the rule here would let the page and
+      // this test drift apart while both stayed green.
+      parts: scenePageCount(e),
     }));
     const paginated = real.find((c) => c.parts > 1);
     expect(paginated, 'fixture reachability: need one paginated chapter').toBeDefined();

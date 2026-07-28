@@ -34,7 +34,9 @@ at call sites.
   one record, so they cannot disagree — agreement is structural, not incidental.
   §7 regen was the last holdout, reading raw store values until it was routed through
   the same projection; a classed sheet displayed one attribute and regenerated from
-  another. Any new consumer of a sheet attribute reads `AttrView`, never the store.
+  another. New consumers of a sheet attribute should read `AttrView`, not the store
+  — note this is a convention, not an enforced one: no lint rule or fitness test
+  currently blocks a direct store read, so it holds only as long as reviews catch it.
 
 - **Carried attribute.** An attribute that remains in its declared class-role group
   for identity and feature routing, but is exempt from that group's numeric attribute

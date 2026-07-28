@@ -4,6 +4,7 @@ import {
   getNeighbors,
   splitScenes,
   sceneCount,
+  scenePageCount,
   shouldPaginate,
   PAGINATE_WORD_THRESHOLD,
   parseLaterScenePart,
@@ -91,6 +92,36 @@ describe('shouldPaginate', () => {
 
   it('never paginates a single-scene piece however long', () => {
     expect(shouldPaginate(entry(words(PAGINATE_WORD_THRESHOLD * 2)))).toBe(false);
+  });
+});
+
+/**
+ * `scenePageCount` is what a stored scene-part gets clamped against, so it must
+ * report pages actually served — not scene breaks in the prose. The two diverge
+ * exactly where it matters: a short multi-scene piece has breaks but serves ONE
+ * page, and `/read/<id>/2` 404s for it. Reporting `sceneCount` here instead would
+ * hand a returning reader a dead resume link.
+ */
+describe('scenePageCount', () => {
+  const words = (n: number) => Array.from({ length: n }, () => 'word').join(' ');
+  const entry = (body: string): ReadingEntry =>
+    ({ collection: 'reading', id: 'x', body, data: {} }) as unknown as ReadingEntry;
+
+  it('reports 1 for a short multi-scene piece, even though it has scene breaks', () => {
+    const shortMultiScene = entry('scene one\n---\nscene two\n---\nscene three');
+    // The distinction this function exists for: 3 breaks, 1 served page.
+    expect(sceneCount(shortMultiScene)).toBe(3);
+    expect(scenePageCount(shortMultiScene)).toBe(1);
+  });
+
+  it('reports the scene count for a piece that genuinely paginates', () => {
+    const long = entry(`${words(PAGINATE_WORD_THRESHOLD)}\n---\nmore\n---\nmore still`);
+    expect(scenePageCount(long)).toBe(sceneCount(long));
+    expect(scenePageCount(long)).toBe(3);
+  });
+
+  it('reports 1 for a single-scene piece however long', () => {
+    expect(scenePageCount(entry(words(PAGINATE_WORD_THRESHOLD * 2)))).toBe(1);
   });
 });
 
