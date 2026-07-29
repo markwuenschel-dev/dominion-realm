@@ -11,7 +11,7 @@ const CLOSED: ReadinessInput = {
   ga4Id: 'G-TEST',
   kitFormId: '9590915',
   authorNamed: true,
-  sampleProseIsPlaceholder: false,
+  placeholderProseIds: [],
   siteHttpStatus: 200,
 };
 
@@ -30,11 +30,32 @@ describe('evaluateLaunchReadiness', () => {
     expect(byId(CLOSED, 'conversion').outcome).toBe('pass');
   });
 
-  it('never claims conversion passes while the sample is a placeholder', () => {
-    const input = { ...CLOSED, sampleProseIsPlaceholder: true };
+  it('never claims conversion passes while any entry is a placeholder', () => {
+    const input = { ...CLOSED, placeholderProseIds: ['00-prologue'] };
     expect(byId(input, 'sample-prose').outcome).toBe('fail');
     expect(byId(input, 'conversion').outcome).toBe('fail');
     expect(evaluateLaunchReadiness(input).ready).toBe(false);
+  });
+
+  it('names which entry is stand-in, and does not condemn the others', () => {
+    // The whole point of splitting the flag: one placeholder entry must not read
+    // as "the sample is fake". Chapter One spent seventeen days misreported.
+    const check = byId({ ...CLOSED, placeholderProseIds: ['00-prologue'] }, 'sample-prose');
+    expect(check.detail).toContain('00-prologue');
+    expect(check.detail).not.toContain('01-chapter-one');
+  });
+
+  it('names every stand-in entry when more than one is pending', () => {
+    const check = byId(
+      { ...CLOSED, placeholderProseIds: ['00-prologue', '01-chapter-one'] },
+      'sample-prose',
+    );
+    expect(check.detail).toContain('00-prologue');
+    expect(check.detail).toContain('01-chapter-one');
+  });
+
+  it('passes the sample check only when no entry is pending', () => {
+    expect(byId({ ...CLOSED, placeholderProseIds: [] }, 'sample-prose').outcome).toBe('pass');
   });
 
   it('never claims conversion passes while the site is unreachable', () => {
@@ -92,7 +113,7 @@ describe('evaluateLaunchReadiness', () => {
       ga4Id: '',
       kitFormId: '',
       authorNamed: true,
-      sampleProseIsPlaceholder: true,
+      placeholderProseIds: ['00-prologue', '01-chapter-one'],
       siteHttpStatus: null,
     });
     expect(today.ready).toBe(false);

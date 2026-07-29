@@ -12,7 +12,7 @@
  */
 import { SITE_URL, authorIsNamed } from '../src/lib/site';
 import { evaluateLaunchReadiness, type CheckOutcome } from '../src/lib/launchReadiness';
-import { SAMPLE_PROSE_IS_PLACEHOLDER } from './lib/sample-doc.mjs';
+import { placeholderProseIds } from './lib/sample-doc.mjs';
 
 const args = new Set(process.argv.slice(2));
 const withNet = args.has('--net');
@@ -47,7 +47,7 @@ async function main(): Promise<void> {
     ga4Id: process.env.NEXT_PUBLIC_GA4_ID,
     kitFormId: process.env.NEXT_PUBLIC_KIT_FORM_ID,
     authorNamed: authorIsNamed(),
-    sampleProseIsPlaceholder: SAMPLE_PROSE_IS_PLACEHOLDER,
+    placeholderProseIds: placeholderProseIds(),
     siteHttpStatus,
   });
 

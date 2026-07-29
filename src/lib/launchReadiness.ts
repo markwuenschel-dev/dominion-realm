@@ -41,8 +41,12 @@ export interface ReadinessInput {
   kitFormId?: string | null;
   /** Whether `SITE.author` is a real byline rather than a bracketed stand-in. */
   authorNamed: boolean;
-  /** Whether the reading sample still runs on stand-in prose. */
-  sampleProseIsPlaceholder: boolean;
+  /**
+   * Reading-sample entry ids still running on stand-in prose. Empty means every
+   * entry is the real manuscript. A list rather than a boolean so the report can
+   * name the offending entry instead of condemning the whole sample.
+   */
+  placeholderProseIds: string[];
   /**
    * HTTP status from probing the public site. `null` means the probe ran and
    * the connection failed; `undefined` means no probe was attempted.
@@ -71,14 +75,16 @@ function reachable(input: ReadinessInput): CheckResult {
 }
 
 function sampleProse(input: ReadinessInput): CheckResult {
+  const pending = input.placeholderProseIds;
   return {
     id: 'sample-prose',
     label: 'Sample is the real manuscript',
     owner: 'author',
-    outcome: input.sampleProseIsPlaceholder ? 'fail' : 'pass',
-    detail: input.sampleProseIsPlaceholder
-      ? 'SAMPLE_PROSE_IS_PLACEHOLDER is true — the sample and both downloads are stand-in prose.'
-      : 'Flagged as the real manuscript.',
+    outcome: pending.length > 0 ? 'fail' : 'pass',
+    detail:
+      pending.length > 0
+        ? `Stand-in prose in ${pending.join(', ')} — the sample and both downloads carry it.`
+        : 'Every reading-sample entry is flagged as the real manuscript.',
   };
 }
 
