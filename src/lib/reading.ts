@@ -48,8 +48,10 @@ export function sceneCount(entry: ReadingEntry): number {
 }
 
 /** Below this whole-body word count a piece stays one page even if it has scene
- *  breaks — so a short Prologue isn't chopped into tiny pages, only a long
- *  chapter is (Chapter 1 is ~9.5k words; the Prologue ~750). */
+ *  breaks — so a short piece isn't chopped into tiny pages, only a long chapter
+ *  is (Chapter 1 is ~9.5k words; the Prologue ~2.8k). The Prologue clears this
+ *  threshold but has no scene breaks, so `shouldPaginate`'s scene guard keeps it
+ *  one page anyway — do not read this constant as the only thing holding it. */
 export const PAGINATE_WORD_THRESHOLD = 2500;
 
 /** Whether a piece is long enough AND multi-scene to read as paged scenes. */
