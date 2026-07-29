@@ -30,14 +30,15 @@ jobs:
     timeout-minutes: 10
     env:
       # Non-secret public IDs (repo Variables) so the build matches production.
-      # The Variables keep their Astro-era names (PUBLIC_*); the app reads the
-      # Next-era names (NEXT_PUBLIC_*), so the mapping happens here. Reading
-      # `vars.NEXT_PUBLIC_*` silently yielded empty strings — see `id-wiring`.
-      NEXT_PUBLIC_KIT_FORM_ID: ${{ vars.PUBLIC_KIT_FORM_ID }}
-      NEXT_PUBLIC_GA4_ID: ${{ vars.PUBLIC_GA4_ID }}
+      # Passed through under their own Astro-era names — the rename to the
+      # Next-era spelling the app reads lives in `scripts/lib/public-env.mjs`,
+      # which `next.config.mjs` and the tsx scripts both import. Restating the
+      # mapping here is what let dev and CI disagree.
+      PUBLIC_KIT_FORM_ID: ${{ vars.PUBLIC_KIT_FORM_ID }}
+      PUBLIC_GA4_ID: ${{ vars.PUBLIC_GA4_ID }}
       # No Variable exists yet: unset until the domain cutover (ADR-0012
       # follow-up). `src/lib/site.ts` falls back to the canonical URL.
-      NEXT_PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+      PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
     steps:
       - uses: actions/checkout@v4
       - name: Assert the public IDs resolved
@@ -46,16 +47,21 @@ jobs:
         # working signup action. Fail loudly instead. Skipped for fork PRs,
         # which do not receive repository variables.
         if: github.event.pull_request.head.repo.fork != true
+        # Asks the alias rule itself rather than re-reading raw env, so this
+        # gate fails if the mapping breaks — not just if a Variable is unset.
+        # The module is dependency-free, so this runs before `pnpm install`.
         run: |
-          missing=()
-          [ -n "${NEXT_PUBLIC_GA4_ID}" ] || missing+=("PUBLIC_GA4_ID")
-          [ -n "${NEXT_PUBLIC_KIT_FORM_ID}" ] || missing+=("PUBLIC_KIT_FORM_ID")
-          if [ ${#missing[@]} -ne 0 ]; then
-            echo "::error::Repository Variable(s) missing or empty: ${missing[*]}."
-            echo "Set them under Settings → Secrets and variables → Actions → Variables."
-            exit 1
-          fi
-          echo "Public IDs resolved: GA4=${NEXT_PUBLIC_GA4_ID}, Kit form=${NEXT_PUBLIC_KIT_FORM_ID}"
+          node --input-type=module -e '
+            import { resolvePublicEnv, missingPublicIds } from "./scripts/lib/public-env.mjs";
+            const missing = missingPublicIds();
+            if (missing.length > 0) {
+              console.log(`::error::Repository Variable(s) missing or empty: ${missing.join(", ")}.`);
+              console.log("Set them under Settings → Secrets and variables → Actions → Variables.");
+              process.exit(1);
+            }
+            const env = resolvePublicEnv();
+            console.log(`Public IDs resolved: GA4=${env.NEXT_PUBLIC_GA4_ID}, Kit form=${env.NEXT_PUBLIC_KIT_FORM_ID}`);
+          '
       # No version pin: action-setup reads `packageManager` from package.json
       # (single source of truth — same field corepack uses in the prod Dockerfile).
       - uses: pnpm/action-setup@v4
@@ -109,10 +115,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      # Astro-era Variable names mapped to the Next-era env names (see `verify`).
-      NEXT_PUBLIC_KIT_FORM_ID: ${{ vars.PUBLIC_KIT_FORM_ID }}
-      NEXT_PUBLIC_GA4_ID: ${{ vars.PUBLIC_GA4_ID }}
-      NEXT_PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
+      # Passed through under their Astro-era names; the rename lives in
+      # `scripts/lib/public-env.mjs` (see `verify`).
+      PUBLIC_KIT_FORM_ID: ${{ vars.PUBLIC_KIT_FORM_ID }}
+      PUBLIC_GA4_ID: ${{ vars.PUBLIC_GA4_ID }}
+      PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
     steps:
       - uses: actions/checkout@v4
       # No version pin: action-setup reads `packageManager` from package.json

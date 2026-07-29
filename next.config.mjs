@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import createMDX from '@next/mdx';
+import { resolvePublicEnv } from './scripts/lib/public-env.mjs';
 
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
@@ -30,6 +31,11 @@ const withMDX = createMDX({
 const nextConfig = {
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
   reactStrictMode: true,
+  // Resolve the public ids through the one alias rule (scripts/lib/public-env.mjs)
+  // so a `.env` carrying the Astro-era `PUBLIC_*` spelling works in dev exactly
+  // as it does in CI. Next snapshots `NEXT_PUBLIC_*` out of the build env once,
+  // at build time, so declaring them here is what puts them in the client bundle.
+  env: resolvePublicEnv(),
   // Emit a self-contained server (.next/standalone) whose node_modules is traced
   // down to only what runtime needs — so the Docker image copies a few MB instead
   // of the whole dep tree, cutting deploy build time sharply. The Dockerfile then
