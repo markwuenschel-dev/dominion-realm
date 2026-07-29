@@ -10,6 +10,7 @@ import {
   navPageReady,
 } from '@/lib/site';
 import { getCodexEntry } from '@/lib/codex';
+import { getReadingEntries, readingContentsPhrase } from '@/lib/reading';
 import { signupFromEnv } from '@/lib/signup';
 import { getSiteCover, getSubjectCardMap, resolveSubjectMedia, subjectKey } from '@/sanity/media';
 import { HomeClient } from '@/components/HomeClient';
@@ -179,7 +180,13 @@ export default async function Home() {
                   <Link href="/codex" className="btn btn-ghost">
                     Explore the World <span className="arrow">→</span>
                   </Link>
-                  <span className="buy-note">Prologue &amp; Chapter One · free, no sign-up</span>
+                  <span className="buy-note">
+                    {readingContentsPhrase(getReadingEntries(), {
+                      article: false,
+                      conjunction: '&',
+                    })}{' '}
+                    · free, no sign-up
+                  </span>
                   <BuyCta className="buy-cta--hero" newsletterHref="#join" />
                 </div>
               </div>
