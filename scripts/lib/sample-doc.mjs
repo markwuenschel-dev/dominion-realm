@@ -17,16 +17,31 @@
  */
 
 /**
- * Whether the reading sample is still stand-in prose rather than the manuscript.
+ * Which reading-sample entries are still stand-in prose, keyed by content id
+ * (the filename stem under `src/content/reading/`).
  *
- * This was a comment. A comment is not checkable, and the launch board needs to
- * answer "is the sample real yet?" without a human re-reading this file — two
- * planning passes have already drawn wrong conclusions from prose in this repo.
+ * This started as a comment, became one boolean, and the boolean lied. Chapter
+ * One was replaced with the real manuscript on 2026-07-11 (`3b4deca`), but the
+ * flag landed on 2026-07-28 covering both entries at once — so a finished
+ * 9,583-word chapter reported as stand-in prose, and the board could not say
+ * which half was the problem. One entry, one flag.
  *
- * When the real Prologue and Chapter One land in `src/content/reading/`, flip
- * this to `false` in the same commit. `pnpm run launch:check` reads it.
+ * Flip an entry to `false` only in the commit that lands its real prose.
+ * `pnpm run launch:check` reads this.
  */
-export const SAMPLE_PROSE_IS_PLACEHOLDER = true;
+export const PLACEHOLDER_PROSE_BY_ID = {
+  '00-prologue': true,
+  '01-chapter-one': true,
+};
+
+/**
+ * Entry ids still running on stand-in prose, in declaration order. An empty
+ * array means every entry is the real manuscript.
+ */
+export const placeholderProseIds = () =>
+  Object.entries(PLACEHOLDER_PROSE_BY_ID)
+    .filter(([, isPlaceholder]) => isPlaceholder)
+    .map(([id]) => id);
 
 /** Public download metadata. The author can rename the files here; the prebuild
  *  generator writes to `public/${DOWNLOAD_DIR}/` and the UI links to the hrefs. */
