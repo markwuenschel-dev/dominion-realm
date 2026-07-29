@@ -31,8 +31,9 @@ reverse proxy, TLS, env management, deploys) that Railway did for us.
   served at the root of its own hostname** — *not* under a path prefix. This is
   load-bearing: the app pins itself to `/` (root-absolute `/_next/*` and `/api/*`),
   so serving it under a subpath (e.g. `/dominion/*`) breaks every asset and API URL.
-- **Domains.** Target public name is **`thedominionrealm.com`** (Route 53 registration
-  is pending). Until it resolves, the site is served at a **nip.io** wildcard-DNS
+- **Domains.** Target public name is **`thedominionrealm.com`** (~~Route 53 registration
+  is pending~~ — **superseded: the registration failed on 2026-07-09 and the domain is
+  still unregistered. See Amendments, below.**). Until it resolves, the site is served at a **nip.io** wildcard-DNS
   hostname against the Elastic IP (real Let's Encrypt cert). Swapping to the real
   domain is a DNS A-record + a Caddy hostname change — no code change, because the
   public origin is env-driven (`NEXT_PUBLIC_SITE_URL`, see `src/lib/site.ts`).
@@ -66,5 +67,45 @@ reverse proxy, TLS, env management, deploys) that Railway did for us.
 
 ## Follow-ups
 
-- Complete `thedominionrealm.com` registration and cut over DNS + Caddy + `NEXT_PUBLIC_SITE_URL`.
+- ~~Complete `thedominionrealm.com` registration~~ — **register the domain (the Route 53
+  attempt failed; see Amendments)**, then cut over DNS + Caddy + `NEXT_PUBLIC_SITE_URL`.
 - Add a CI/CD path so a push to `main` deploys (restores the Railway-era convenience).
+
+## Amendments
+
+### 2026-07-29 — the Route 53 registration failed; it was never pending
+
+This ADR was accepted on 2026-07-09 and recorded the domain registration as
+"pending." It was not pending. It had already failed, the same day.
+
+`[verified]` 2026-07-29 against account `468509502568`:
+
+| Fact | Value |
+|---|---|
+| Operation | `c853c6aa-de9d-4519-8934-dc5ff475e64f`, `REGISTER_DOMAIN` |
+| Submitted | `2026-07-09T19:36:39.977-04:00` |
+| Failed | `2026-07-09T19:36:40.862-04:00` — **885 ms later** |
+| Message | "We can't finish registering your domain. Contact AWS Support." No reason given. |
+| Domain today | `check-domain-availability` → `AVAILABLE`; RDAP → 404; DNS → NXDOMAIN |
+| Domains held | `route53domains list-domains` → `[]` |
+| Hosted zones | `route53 list-hosted-zones` → `[]` |
+
+Three consequences the "pending" wording hid:
+
+1. **The `reachable` gate cannot pass, whatever the operator does.**
+   `pnpm run launch:check --net` probes `SITE_URL`, which resolves to nothing.
+   Starting the box does not turn it green.
+2. **An 885 ms failure never reached the registry.** A registry rejection takes a
+   real round trip. This was an internal AWS rejection — cause unknown and not
+   determinable from this account, which has no billing visibility.
+3. **Nothing in this stack depends on Route 53.** Zero hosted zones; Caddy
+   terminates TLS via Let's Encrypt; `dominionrealm.com` already runs on
+   Namecheap nameservers. Registering elsewhere costs the architecture nothing.
+
+There is also no support path to wait on: `aws support describe-cases` returns
+`SubscriptionRequiredException` — the account is on Basic support, where a
+customer-service case carries no response-time commitment.
+
+**This amendment records the state. It does not change the decision** — the
+target public name is still `thedominionrealm.com`. Where it gets registered is
+the operator's call, and remains open.
