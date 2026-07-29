@@ -1,9 +1,10 @@
 import { getReadingEntries, getReadingEntry, type ReadingEntry } from './content';
+import { sampleContentsPhrase } from '../../scripts/lib/sample-doc.mjs';
 
 /**
- * Helpers for the Reading Sample (Track A): the open Prologue + Chapter One web
- * reader. Unlike the codex, this collection is ungated — no reveal tier — so the
- * loader only draft-filters (in prod) and sorts by `order`.
+ * Helpers for the Reading Sample (Track A): the open, ungated web reader.
+ * Unlike the codex, this collection has no reveal tier — so the loader only
+ * draft-filters (in prod) and sorts by `order`.
  */
 
 export { getReadingEntries, getReadingEntry };
@@ -84,6 +85,21 @@ export function parseLaterScenePart(raw: string, count: number): number | null {
 /** Short kicker line for a card / header, e.g. "Prologue" or "Chapter". */
 export function readingKicker(entry: ReadingEntry): string {
   return KIND_LABELS[entry.data.kind];
+}
+
+/**
+ * What the sample contains, as prose for a sentence — "the Prologue and
+ * Chapter One". Derived from the entries on disk, like page counts and routes
+ * already were, so adding a chapter does not strand a hardcoded literal.
+ */
+export function readingContentsPhrase(
+  entries: ReadingEntry[],
+  options?: { article?: boolean; conjunction?: string },
+): string {
+  return sampleContentsPhrase(
+    entries.map((e) => ({ kind: e.data.kind, order: e.data.order })),
+    options,
+  );
 }
 
 /**

@@ -5,6 +5,7 @@ import {
   readingUrl,
   readingKicker,
   readingMinutes,
+  readingContentsPhrase,
   scenePageCount,
 } from '@/lib/reading';
 import { getSampleDownloads } from '@/lib/downloads';
@@ -13,15 +14,20 @@ import { ContentImage } from '@/components/ContentImage';
 import { BuyCta } from '@/components/BuyCta';
 import { ContinueReading } from '@/components/reading/ContinueReading';
 
-export const metadata: Metadata = {
-  title: 'Read the Opening',
-  description:
-    'Read the Prologue and Chapter One of The Dominion Realm in full — no sign-up, no spoilers, just the opening of the book.',
-};
+// A function, not a const: the description names what the sample actually
+// contains, which is only knowable once the content files are read.
+export function generateMetadata(): Metadata {
+  const contents = readingContentsPhrase(getReadingEntries());
+  return {
+    title: 'Read the Opening',
+    description: `Read ${contents} of The Dominion Realm in full — no sign-up, no spoilers, just the opening of the book.`,
+  };
+}
 
 export default function ReadIndex() {
   const entries = getReadingEntries();
   const first = entries[0];
+  const contents = readingContentsPhrase(entries);
   const downloads = getSampleDownloads();
   // `parts` lets the resume island clamp a stale saved scene-page into the
   // chapter's current range instead of linking at a part the route would 404.
@@ -40,9 +46,9 @@ export default function ReadIndex() {
           Begin the <em>Realm</em>
         </h1>
         <p className="reading-head__intro">
-          The opening of the book, in full and unguarded — the Prologue and Chapter One. No sign-up,
-          no spoiler gate, no catch. Marcus wakes somewhere that isn&apos;t Earth, in a world his
-          implant insists on translating into a game. Read until the translation starts to fail.
+          The opening of the book, in full and unguarded — {contents}. No sign-up, no spoiler gate,
+          no catch. Marcus wakes somewhere that isn&apos;t Earth, in a world his implant insists on
+          translating into a game. Read until the translation starts to fail.
         </p>
         <div className="reading-rule" />
       </div>
@@ -82,8 +88,8 @@ export default function ReadIndex() {
           Take the sample with you
         </h2>
         <p className="reading-downloads__intro">
-          The same Prologue and Chapter One, generated from this site&apos;s text — for your
-          e-reader or to read offline.
+          The same {readingContentsPhrase(entries, { article: false })}, generated from this
+          site&apos;s text — for your e-reader or to read offline.
         </p>
         <div className="reading-downloads__row">
           {downloads.map((d) => (

@@ -22,6 +22,7 @@ import type PDFDocument from 'pdfkit';
 import { getReadingEntries } from '../src/lib/contentCore';
 import {
   BOOK,
+  sampleSubtitle,
   DOWNLOAD_DIR,
   EPUB_FILENAME,
   PDF_FILENAME,
@@ -93,10 +94,10 @@ ${blocksToXhtml(ch.blocks)}
   return xhtmlDoc(ch.title, inner, ' xmlns:epub="http://www.idpf.org/2007/ops"');
 }
 
-function titleXhtml() {
+function titleXhtml(subtitle: string) {
   const inner = `<section epub:type="titlepage" class="title-page">
 <h1>${escapeXml(BOOK.title)}</h1>
-<p class="sub">${escapeXml(BOOK.subtitle)}</p>
+<p class="sub">${escapeXml(subtitle)}</p>
 <p class="series">${escapeXml(BOOK.series)}</p>
 </section>`;
   return xhtmlDoc(BOOK.title, inner, ' xmlns:epub="http://www.idpf.org/2007/ops"');
@@ -130,7 +131,7 @@ function contentOpf(chapters: SampleChapter[]) {
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="bookid" xml:lang="${BOOK.language}">
   <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
     <dc:identifier id="bookid">${escapeXml(BOOK.identifier)}</dc:identifier>
-    <dc:title>${escapeXml(`${BOOK.title}: ${BOOK.subtitle}`)}</dc:title>
+    <dc:title>${escapeXml(`${BOOK.title}: ${sampleSubtitle(chapters)}`)}</dc:title>
     <dc:creator>${escapeXml(BOOK.author)}</dc:creator>
     <dc:language>${BOOK.language}</dc:language>
     <meta property="dcterms:modified">${BOOK.modified}</meta>
@@ -165,7 +166,7 @@ async function buildEpub(JSZip: typeof JSZipType, chapters: SampleChapter[]) {
     { date: FIXED_DATE },
   );
   zip.file('OEBPS/style.css', STYLE_CSS, { date: FIXED_DATE });
-  zip.file('OEBPS/title.xhtml', titleXhtml(), { date: FIXED_DATE });
+  zip.file('OEBPS/title.xhtml', titleXhtml(sampleSubtitle(chapters)), { date: FIXED_DATE });
   zip.file('OEBPS/nav.xhtml', navXhtml(chapters), { date: FIXED_DATE });
   for (const ch of chapters) {
     zip.file(`OEBPS/${ch.id}.xhtml`, chapterXhtml(ch), { date: FIXED_DATE });
@@ -185,7 +186,7 @@ async function buildPdf(PDFDocument: PdfCtor, chapters: SampleChapter[]): Promis
     size: 'A5',
     margins: { top: 56, bottom: 56, left: 50, right: 50 },
     info: {
-      Title: `${BOOK.title}: ${BOOK.subtitle}`,
+      Title: `${BOOK.title}: ${sampleSubtitle(chapters)}`,
       Author: BOOK.author,
       Subject: BOOK.series,
       CreationDate: FIXED_DATE,
@@ -201,7 +202,11 @@ async function buildPdf(PDFDocument: PdfCtor, chapters: SampleChapter[]): Promis
   doc.moveDown(6);
   doc.font('Times-Bold').fontSize(28).text(BOOK.title, { align: 'center' });
   doc.moveDown(0.6);
-  doc.font('Times-Italic').fontSize(13).fillColor('#555').text(BOOK.subtitle, { align: 'center' });
+  doc
+    .font('Times-Italic')
+    .fontSize(13)
+    .fillColor('#555')
+    .text(sampleSubtitle(chapters), { align: 'center' });
   doc.moveDown(2);
   doc.font('Times-Roman').fontSize(11).fillColor('#7a6a3a').text(BOOK.series, { align: 'center' });
   doc.fillColor('black');
@@ -264,7 +269,7 @@ function writeHtmlFallback(format: string, chapters: SampleChapter[]) {
     BOOK.title,
   )}</title><style>${STYLE_CSS}</style></head><body><section class="title-page"><h1>${escapeXml(
     BOOK.title,
-  )}</h1><p class="sub">${escapeXml(BOOK.subtitle)}</p></section>${body}</body></html>`;
+  )}</h1><p class="sub">${escapeXml(sampleSubtitle(chapters))}</p></section>${body}</body></html>`;
   const file = path.join(OUT_DIR, `${format}-fallback.html`);
   fs.writeFileSync(file, html, 'utf8');
   console.warn(`[downloads] FALLBACK: wrote ${path.relative(process.cwd(), file)} (HTML).`);

@@ -51,11 +51,75 @@ export const PDF_FILENAME = 'the-dominion-realm-sample.pdf';
 export const EPUB_HREF = `/${DOWNLOAD_DIR}/${EPUB_FILENAME}`;
 export const PDF_HREF = `/${DOWNLOAD_DIR}/${PDF_FILENAME}`;
 
+/** Chapter numbers as the prose spells them. Beyond this, fall back to digits. */
+const ORDINAL_WORDS = [
+  'Zero',
+  'One',
+  'Two',
+  'Three',
+  'Four',
+  'Five',
+  'Six',
+  'Seven',
+  'Eight',
+  'Nine',
+  'Ten',
+  'Eleven',
+  'Twelve',
+];
+
+/**
+ * How the sample names one entry in running prose: `Prologue`, `Chapter One`.
+ * @param {{ kind: string, order: number }} entry
+ * @returns {string}
+ */
+export function entryPhrase(entry) {
+  if (entry.kind === 'prologue') return 'Prologue';
+  return `Chapter ${ORDINAL_WORDS[entry.order] ?? String(entry.order)}`;
+}
+
+/**
+ * The sample's contents as a human phrase, derived from what is actually on
+ * disk — "the Prologue and Chapter One", "Prologue & Chapter One".
+ *
+ * Page counts, routes, and both downloads already derive from the content
+ * files; the sentences describing them did not, so adding a chapter used to
+ * mean hunting five hardcoded literals. Ordered by `order`, like everything
+ * else that reads this content.
+ *
+ * @param {{ kind: string, order: number }[]} entries
+ * @param {{ article?: boolean, conjunction?: string }} [options]
+ * @returns {string}
+ */
+export function sampleContentsPhrase(entries, options = {}) {
+  const { article = true, conjunction = 'and' } = options;
+  const sorted = [...entries].sort((a, b) => a.order - b.order);
+  const parts = sorted.map(entryPhrase);
+  if (parts.length === 0) return '';
+  const joined =
+    parts.length === 1
+      ? parts[0]
+      : `${parts.slice(0, -1).join(', ')} ${conjunction} ${parts[parts.length - 1]}`;
+  return article && sorted[0].kind === 'prologue' ? `the ${joined}` : joined;
+}
+
+/**
+ * Book subtitle for the EPUB/PDF metadata, derived from the chapters actually
+ * bundled. These strings are baked into files readers keep, so a stale literal
+ * here outlives any deploy.
+ * @param {{ kind: string, order: number }[]} entries
+ * @returns {string}
+ */
+export function sampleSubtitle(entries) {
+  const contents = sampleContentsPhrase(entries, { article: false, conjunction: '&' });
+  return contents ? `The Reading Sample — ${contents}` : 'The Reading Sample';
+}
+
 /** Book-level metadata baked into both formats. Placeholder author until the
- *  real byline lands (mirrors SITE.author in src/lib/site.ts). */
+ *  real byline lands (mirrors SITE.author in src/lib/site.ts). The subtitle is
+ *  not here: it depends on which chapters are bundled — see `sampleSubtitle`. */
 export const BOOK = {
   title: 'The Dominion Realm',
-  subtitle: 'The Reading Sample — Prologue & Chapter One',
   series: 'Realmwalkers · Book One',
   author: 'The Dominion Realm',
   language: 'en',
