@@ -12,8 +12,9 @@
  *   - `src/lib/downloads.ts` (the React UI) and the Vitest suite can import the
  *     same constants/functions for a single source of truth.
  *
- * The reading sample is placeholder AI-drafted prose the author will replace, so
- * the downloads are generated FROM this content at build time — never hardcoded.
+ * The reading sample's prose changes as the author lands real manuscript (the
+ * Prologue landed 2026-07-29), so the downloads are generated FROM this content
+ * at build time — never hardcoded.
  */
 
 /**
@@ -30,7 +31,7 @@
  * `pnpm run launch:check` reads this.
  */
 export const PLACEHOLDER_PROSE_BY_ID = {
-  '00-prologue': true,
+  '00-prologue': false,
   '01-chapter-one': true,
 };
 
