@@ -13,6 +13,7 @@
 import { SITE_URL, authorIsNamed } from '../src/lib/site';
 import { evaluateLaunchReadiness, type CheckOutcome } from '../src/lib/launchReadiness';
 import { placeholderProseIds } from './lib/sample-doc.mjs';
+import { resolvePublicEnv } from './lib/public-env.mjs';
 
 const args = new Set(process.argv.slice(2));
 const withNet = args.has('--net');
@@ -43,9 +44,13 @@ async function probe(url: string): Promise<number | null> {
 async function main(): Promise<void> {
   const siteHttpStatus = withNet ? await probe(SITE_URL) : undefined;
 
+  // Through the same alias rule the build uses, so the board and the bundle can
+  // never disagree about which ids resolved.
+  const publicEnv = resolvePublicEnv();
+
   const report = evaluateLaunchReadiness({
-    ga4Id: process.env.NEXT_PUBLIC_GA4_ID,
-    kitFormId: process.env.NEXT_PUBLIC_KIT_FORM_ID,
+    ga4Id: publicEnv.NEXT_PUBLIC_GA4_ID,
+    kitFormId: publicEnv.NEXT_PUBLIC_KIT_FORM_ID,
     authorNamed: authorIsNamed(),
     placeholderProseIds: placeholderProseIds(),
     siteHttpStatus,
