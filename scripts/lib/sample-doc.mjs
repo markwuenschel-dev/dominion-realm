@@ -29,10 +29,19 @@
  *
  * Flip an entry to `false` only in the commit that lands its real prose.
  * `pnpm run launch:check` reads this.
+ *
+ * Both entries are now real manuscript, so `placeholderProseIds()` is empty and
+ * the `sample-prose` gate passes. `00-prologue` was flipped when the real
+ * Prologue landed (2026-07-29, `e19f435`). `01-chapter-one` stayed `true` for
+ * one more commit only because "does the site's Chapter One count as landed"
+ * was the author's call, not the code's — the author closed it on 2026-07-30.
+ * The site copy remains a few revisions behind the manuscript repo by the
+ * owner's standing no-sync ruling; that drift is deliberate and is NOT what
+ * this flag tracks.
  */
 export const PLACEHOLDER_PROSE_BY_ID = {
   '00-prologue': false,
-  '01-chapter-one': true,
+  '01-chapter-one': false,
 };
 
 /**
