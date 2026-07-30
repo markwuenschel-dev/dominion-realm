@@ -215,7 +215,7 @@ required to run the public site.
 | `KEYSTATIC_GITHUB_CLIENT_ID` | `/keystatic` admin | From the Keystatic GitHub App (ADR-0009) |
 | `KEYSTATIC_GITHUB_CLIENT_SECRET` | `/keystatic` admin | From the same GitHub App |
 | `KEYSTATIC_SECRET` | `/keystatic` admin | Any random 32+ char string (`openssl rand -hex 32`) |
-| `NEXT_PUBLIC_SITE_URL` | Canonical/OG tags, RSS | e.g. `https://dominionrealm.com` |
+| `NEXT_PUBLIC_SITE_URL` | Canonical/OG tags, RSS | e.g. `https://dominionrealm.44-198-76-44.nip.io` |
 | `NEXT_PUBLIC_GA4_ID` | Analytics | Google Analytics 4 measurement ID |
 | `NEXT_PUBLIC_KIT_FORM_ID` | Newsletter | Kit (ConvertKit) form ID |
 | `NEXT_PUBLIC_BUY_URL` | Buy button | Real product/checkout URL; unset → "Coming soon" newsletter fallback |
@@ -240,7 +240,7 @@ docker compose build dominion-realm && docker compose up -d dominion-realm
    `NEXT_PUBLIC_*` into the client bundle when `next build` runs, so `env_file` is too
    late: it only reaches the running container. Putting them in the wrong file is why
    production once shipped with no analytics and a dead signup form.
-   `NEXT_PUBLIC_SITE_URL` falls back to `https://dominionrealm.com` if unset/empty.
+   `NEXT_PUBLIC_SITE_URL` falls back to `https://dominionrealm.44-198-76-44.nip.io` if unset/empty.
 3. Point the Keystatic GitHub App's OAuth **callback URL** at
    `https://<your-domain>/api/keystatic/github/oauth/callback`.
 4. Rebuild the container (above). Caddy issues/renews the TLS cert automatically.
