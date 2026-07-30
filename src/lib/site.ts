@@ -13,8 +13,10 @@
 /**
  * Canonical public origin — the single source of truth for absolute URLs
  * (OG/canonical metadata, the RSS feed, the Keystatic OAuth redirect). Set
- * `NEXT_PUBLIC_SITE_URL` in the deploy env (`env/dominion-realm.env`); it falls
- * back to the registered domain so a build without the var still emits sane URLs.
+ * `NEXT_PUBLIC_SITE_URL` as a build arg (`docker-compose.yml`, `dominion-realm`
+ * service) — Next inlines `NEXT_PUBLIC_*` at build time, so the runtime
+ * `env_file` cannot reach it. It falls back to the registered launch domain, so
+ * a build without the var still emits sane URLs.
  *
  * Uses `|| ` (not `??`) and trims, so an env var present-but-empty — e.g. a bare
  * `NEXT_PUBLIC_SITE_URL=` line — also falls back rather than yielding `''` and
@@ -22,7 +24,7 @@
  * is stripped so callers can append `/path` unconditionally.
  */
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://thedominionrealm.com'
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://dominionrealm.com'
 ).replace(/\/$/, '');
 
 export interface Social {
