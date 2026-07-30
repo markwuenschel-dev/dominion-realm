@@ -215,7 +215,7 @@ required to run the public site.
 | `KEYSTATIC_GITHUB_CLIENT_ID` | `/keystatic` admin | From the Keystatic GitHub App (ADR-0009) |
 | `KEYSTATIC_GITHUB_CLIENT_SECRET` | `/keystatic` admin | From the same GitHub App |
 | `KEYSTATIC_SECRET` | `/keystatic` admin | Any random 32+ char string (`openssl rand -hex 32`) |
-| `NEXT_PUBLIC_SITE_URL` | Canonical/OG tags, RSS | e.g. `https://thedominionrealm.com` |
+| `NEXT_PUBLIC_SITE_URL` | Canonical/OG tags, RSS | e.g. `https://dominionrealm.com` |
 | `NEXT_PUBLIC_GA4_ID` | Analytics | Google Analytics 4 measurement ID |
 | `NEXT_PUBLIC_KIT_FORM_ID` | Newsletter | Kit (ConvertKit) form ID |
 | `NEXT_PUBLIC_BUY_URL` | Buy button | Real product/checkout URL; unset → "Coming soon" newsletter fallback |
@@ -233,10 +233,14 @@ they are a container rebuild on the host:
 docker compose build dominion-realm && docker compose up -d dominion-realm
 ```
 
-1. Get the code onto the host (git pull) and set the environment variables above
-   in `env/dominion-realm.env` (not committed).
-2. Set `NEXT_PUBLIC_SITE_URL` to the site's public origin (correct canonical/OG/RSS
-   URLs). It falls back to `https://thedominionrealm.com` if unset/empty.
+1. Get the code onto the host (git pull) and set the **runtime** variables above in
+   `env/dominion-realm.env` (not committed).
+2. Set the **build-time** ids — every `NEXT_PUBLIC_*` — in `.env` next to
+   `docker-compose.yml`, which feeds them to the service's `build.args`. Next inlines
+   `NEXT_PUBLIC_*` into the client bundle when `next build` runs, so `env_file` is too
+   late: it only reaches the running container. Putting them in the wrong file is why
+   production once shipped with no analytics and a dead signup form.
+   `NEXT_PUBLIC_SITE_URL` falls back to `https://dominionrealm.com` if unset/empty.
 3. Point the Keystatic GitHub App's OAuth **callback URL** at
    `https://<your-domain>/api/keystatic/github/oauth/callback`.
 4. Rebuild the container (above). Caddy issues/renews the TLS cert automatically.
