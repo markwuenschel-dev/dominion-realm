@@ -21,6 +21,35 @@ export default defineConfig({
     environment: 'jsdom',
     include: ['src/**/*.test.{ts,tsx}'],
     setupFiles: ['test/setup-dom.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text-summary', 'json-summary', 'lcov'],
+      reportsDirectory: 'coverage',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: [
+        'src/**/*.test.{ts,tsx}',
+        'src/**/*.d.ts',
+        'src/content/**',
+        'src/styles/**',
+        'src/app/**/layout.tsx',
+        'src/sanity/schema/**',
+      ],
+      /**
+       * A ratchet, not an aspiration. These numbers are the coverage this repo
+       * actually had when instrumentation was added (45.27 / 37.41 / 41.13 /
+       * 46.61 on 2026-08-08), rounded down to the nearest point so a stray
+       * branch does not turn CI red on an unrelated change.
+       *
+       * The only correct edit to these numbers is upward. Raise them when a
+       * PR earns it; never lower them to make a red build green.
+       */
+      thresholds: {
+        statements: 45,
+        branches: 37,
+        functions: 41,
+        lines: 46,
+      },
+    },
   },
   resolve: {
     alias: {

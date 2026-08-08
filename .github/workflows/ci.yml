@@ -79,7 +79,7 @@ jobs:
           pnpm run format:check & pids+=($!)
           pnpm run lint & pids+=($!)
           pnpm run check & pids+=($!)
-          pnpm test & pids+=($!)
+          pnpm run test:coverage & pids+=($!)
           status=0
           for pid in "${pids[@]}"; do
             wait "$pid" || status=1

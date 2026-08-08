@@ -8,6 +8,8 @@ public/content-media/
 public/downloads/
 # dependencies
 node_modules/
+# test coverage output (v8 provider; thresholds live in vitest.config.ts)
+coverage/
 # stale build output from the pre-Next.js Astro/Netlify stack (ADR-0010)
 dist/
 .astro/
