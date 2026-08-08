@@ -1,11 +1,13 @@
 ---
 name: realm-ship
-description: Realm-ship Dominion Realm — Astro verify, token-safe push, PR, merge when green, scoped cleanup. Use when the user says ship, publish, PR, merge, yeet, or /realm-ship for this repo.
+description: Realm-ship Dominion Realm — Next.js verify, token-safe push, PR, merge when green, scoped cleanup. Use when the user says ship, publish, PR, merge, yeet, or /realm-ship for this repo.
 ---
 
 # realm-ship
 
-Dominion Realm Astro static site at `C:\Users\Nalakram\Documents\GitHub\dominion-realm`.
+Dominion Realm Next.js app at `C:\Users\Nalakram\Documents\GitHub\dominion-realm`.
+Package manager is **pnpm** (`packageManager` in `package.json` is the single source of truth);
+`next build` emits a standalone server that ships as a Docker container (ADR-0010, ADR-0012).
 
 Default merge method is `merge`. If the user explicitly says `squash` or `rebase`, use that instead.
 
@@ -16,15 +18,15 @@ Commands are PowerShell-first (PowerShell 7+, per the project README). Bash/WSL 
 ## Guardrails (read first — these override "just do it")
 
 Stop and report before pushing or merging when:
-- Verification is red or incomplete (`npm run build` fails, `astro check` errors, or content-collection schema validation fails).
+- Verification is red or incomplete (`pnpm run build` fails, `pnpm run check` errors, lint/format/tests fail, or content-schema validation fails during the build).
 - The diff contains unexpected unrelated files or user work that cannot be cleanly separated.
-- Branch protection or a required check (the `deploy.yml` workflow / Pages build) is failing or would require `--admin` to bypass.
+- Branch protection or the required check (the `Build & validate` job in the `CI` workflow) is failing or would require `--admin` to bypass.
 - A conflict cannot be cleanly resolved.
 - `.env` is missing `GH_TOKEN` / `GITHUB_TOKEN`, or a REST call proves the token cannot access the repo.
 
 Do not ask before ordinary PowerShell or bash commands. Do ask only for destructive operations outside this workflow or when tool policy requires escalation.
 
-- **Green gate:** never merge or clean up until verification and required checks (`deploy.yml` / Pages build) are **green**. If CI is red, fix the cause, push, and re-watch until **green** before merging.
+- **Green gate:** never merge or clean up until verification and the required `Build & validate` check are **green**. If CI is red, fix the cause, push, and re-watch until **green** before merging. `Accessibility (advisory)` is `continue-on-error` — it does not gate.
 - **Scoped** cleanup only — merged branches you own. When unsure, list and ask — don't delete.
 
 ---
@@ -39,10 +41,10 @@ Run:
 - `git remote -v`
 
 Read the diff before committing. Use explicit path scopes and protect user work:
-- Never stage `.env`, `.env.production`, `node_modules/`, `dist/`, `.astro/`, `.netlify/`, build products, caches, logs, or generated IDE files. (`.gitignore` already covers most of these.)
+- Never stage `.env`, `.env.production`, `node_modules/`, `.next/`, `next-env.d.ts`, `*.tsbuildinfo`, `coverage/`, the prebuild-generated `public/content-media/` and `public/downloads/`, logs, or generated IDE files. (`.gitignore` already covers these, plus the dead `dist/`, `.astro/`, `.netlify/` leftovers from the pre-Next.js stack.)
 - Never stage agent/tooling dirs — `.claude/`, `.agents/`, `.grok/`, `.neostack/` — or `skills-lock.json`, unless the user explicitly asked for them. These are currently untracked on purpose.
 - If junk is not ignored, add a narrow `.gitignore` rule instead of committing it.
-- `package-lock.json` IS tracked — commit lockfile changes whenever dependencies change.
+- `pnpm-lock.yaml` IS the tracked lockfile — commit lockfile changes whenever dependencies change. There is no `package-lock.json`.
 - Keep unrelated existing modifications out of the commit.
 
 ## Phase 1 — Branch
@@ -61,32 +63,32 @@ If already on a feature branch, stay on it.
 
 ## Phase 2 — Verify
 
-**Done when:** build/check oracle is **green** (or doc-only change with reason stated for PR).
+**Done when:** every gate below is **green** (or doc-only change with reason stated for PR).
 
-This is a static Astro site; the build IS the gate. For any code, content, or asset change:
+Use the Node version `.nvmrc` pins — the same one every CI job uses — not whatever `node` happens to be on PATH. A newer local runtime can pass tests that the pinned runtime gates. Check with `node --version` before trusting a green run.
 
-```powershell
-npm ci          # clean, lockfile-exact install (Node 22, per .nvmrc)
-npm run build   # astro build — the real gate
-```
-
-`astro build` validates **Content Collection schemas**, so it is the oracle for codex entries
-and the four-tier reveal model (`teaser | reader | deep | beyond`) — a malformed entry or a
-bad reveal tier fails the build (see `docs/adr/0004-reveal-tier-model.md`).
-
-When TypeScript is enabled (see `docs/adr/0008-stack-astro-typescript-vanilla-islands.md`) and
-`@astrojs/check` is installed, also run:
+Run the same gates CI runs, in the same order:
 
 ```powershell
-npx astro check   # type + content-schema check
+pnpm install --frozen-lockfile   # lockfile-exact install
+pnpm run format:check            # oxfmt --check
+pnpm run lint                    # oxlint
+pnpm run check                   # tsc --noEmit
+pnpm test                        # vitest run
+pnpm run build                   # next build — the real gate
 ```
 
-If a `test` script exists (e.g. Playwright for the reveal toggle / Interface Overlay per the PRD), run `npm test`.
+`next build` is the **content-schema gate**: the Zod content loader throws on malformed
+frontmatter, so it is the oracle for codex entries and the four-tier reveal model
+(`teaser | reader | deep | beyond`) — a bad entry or reveal tier fails the build
+(see `docs/adr/0004-reveal-tier-model.md`). `prebuild` also runs the media copy,
+downloads, and content-manifest generators, so a broken generator surfaces here.
 
 Notes:
-- A clean exit code AND a successful build/check are the oracle — never assume green from a partial run.
+- A clean exit code AND a successful build are the oracle — never assume green from a partial run.
 - Doc/config-only changes with no build impact (e.g. files under `docs/`, README) do not require a build; state why in the PR body.
-- Optional smoke: `npm run preview` and spot-check the affected route.
+- Optional smoke: `pnpm dev`, or `pnpm run build` then `pnpm start`, and spot-check the affected route.
+- `pnpm run launch:check` and `pnpm run scene:check` exist but are off the merge gate — run only when the change touches launch readiness or Sanity scene joins.
 
 ## Phase 3 — Commit
 
@@ -173,31 +175,43 @@ After creating the PR, verify the branch ref exists via REST or `git ls-remote` 
 
 ## Phase 6 — Green gate, then merge
 
-**Done when:** PR merged AND `deploy.yml` / Pages deploy workflow is **green**.
+**Done when:** the `CI` workflow's `Build & validate` check is **green** AND the PR is merged.
 
 Do not start Phase 7 until Phase 6 is done.
 
-CI policy: see **Green gate** in Guardrails.
+CI policy: see **Green gate** in Guardrails. `Build & validate` runs `format:check`, `lint`,
+`check`, and `test` in parallel, then `next build`. `Accessibility (advisory)` may go red
+without blocking; `Scene-art joins` is nightly/on-demand and never gates a merge.
 
 Merge via REST:
 - `PUT https://api.github.com/repos/markwuenschel-dev/dominion-realm/pulls/<number>/merge`
 - Payload includes `merge_method`: `merge`, `squash`, or `rebase`.
 
-Only merge when verification is **green** and required checks have passed. If red, fix in scope, push, re-watch until **green** (same loop as **babysit**).
+Only merge when local verification is **green** and the required check has passed. If red, fix in scope, push, re-watch until **green** (same loop as **babysit**).
 
 ## Phase 7 — Scoped cleanup
 
 **Done when:** cleanup report lists every removal or skip-with-reason.
 
-**Precondition:** Phase 6 merge complete AND deploy workflow **green**.
+**Precondition:** Phase 6 merge complete.
 
 Run the steps in [`CLEANUP.md`](CLEANUP.md) and report what was removed.
 
-## Phase 8 — Deploy confirmation
+## Phase 8 — Deploy (manual — merging does NOT deploy)
 
-**Done when:** deploy workflow status noted (Actions run / Pages URL).
+**Done when:** either the deploy ran and the public URL is confirmed, or the report states that production is still on the pre-merge revision.
 
-Merging to `main` triggers deployment automatically (GitHub Pages + Netlify, via `deploy.yml`; the build picks the right base path per environment). After merge, note where to confirm the live deploy — do not assume success until the deploy workflow is **green**.
+There is no deploy workflow. The site runs as a Docker container on AWS EC2 behind Caddy
+(`next start` on the standalone build, per `docs/adr/0012-host-on-aws-ec2.md`), and CI does
+not deploy — pushing to `main` leaves production untouched. Production is updated by hand:
+
+```powershell
+./scripts/deploy.ps1            # deploy latest main
+./scripts/deploy.ps1 -WhatIf    # print the remote script, run nothing
+```
+
+Only run it when the user asks to deploy. If you don't, say so explicitly in the report —
+a merged PR is **not** live.
 
 ## Phase 9 — Report
 
@@ -207,7 +221,7 @@ Report:
 - PR number and URL
 - Merge SHA
 - Commits made
-- Verification commands and results (build / check / tests)
-- Deploy status (workflow run / live URL)
+- Verification commands and results (format / lint / types / tests / build)
+- Deploy status (deployed via `scripts/deploy.ps1`, or explicitly not deployed)
 - Remote/local branches deleted
 - Any branches intentionally left alone
