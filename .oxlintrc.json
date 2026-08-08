@@ -6,5 +6,33 @@
     // Sanity system fields (_id/_type/_ref/_rev) are external names we cannot rename;
     // allow them so the rule stays live for genuine dangling underscores in scripts/ + src/.
     "no-underscore-dangle": ["error", { "allow": ["_id", "_type", "_ref", "_rev"] }]
-  }
+  },
+  "overrides": [
+    {
+      // Import direction, enforced rather than reviewed.
+      //
+      // The domain and data layers (lib/sanity/store/hooks/data) are consumed BY the
+      // UI; they must never reach back into it. That direction was already clean when
+      // this rule landed — zero violations — so this rule does not fix a bug, it stops
+      // one from arriving quietly. A React import inside src/lib is how a server-only
+      // content module starts dragging JSX into a build that should never see it.
+      //
+      // If you need a component and a lib module to share something, the shared thing
+      // belongs in the lib layer and the component imports it — not the reverse.
+      "files": ["src/lib/**", "src/sanity/**", "src/store/**", "src/hooks/**", "src/data/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@/components", "@/components/*", "**/components/*"],
+                "message": "Import direction violation: the lib/sanity/store/hooks/data layers must not import UI components. Move the shared code down into the lib layer and have the component import it instead. See CONTEXT.md."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
 }

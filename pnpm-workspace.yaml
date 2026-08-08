@@ -2,6 +2,16 @@
 # .npmrc). Single-package repo — no `packages:` globs needed.
 sideEffectsCache: true
 
+# Make `engines` in package.json binding instead of advisory. Without this, pnpm
+# only *warns* when the running Node is outside the declared range, so a declared
+# floor of Node 22 does nothing to stop an install on Node 20.
+#
+# Deliberately NOT paired with an upper bound on engines.node. A 2026-08-08 audit
+# claimed the suite dies on Node 25 at vite startup; that was tested in a clean
+# worktree at 8ce62ee and it does not reproduce — 55 files / 566 tests pass on
+# Node 25.2.0. Do not add a ceiling without a failing run to justify it.
+engineStrict: true
+
 # pnpm v11 blocks dependency build scripts by default (supply-chain hardening).
 # Declaring them explicitly keeps `pnpm install --frozen-lockfile` in CI and the
 # prod Dockerfile non-interactive and deterministic (no ERR_PNPM_IGNORED_BUILDS).
