@@ -2,6 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import createMDX from '@next/mdx';
 import { resolvePublicEnv } from './scripts/lib/public-env.mjs';
+import { securityHeaderRules } from './scripts/lib/security-headers.mjs';
 
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
@@ -56,6 +57,13 @@ const nextConfig = {
     // src/content) still resolves without a remote pattern.
     remotePatterns: [{ protocol: 'https', hostname: 'cdn.sanity.io' }],
   },
+  // Security response headers. The list itself lives in
+  // scripts/lib/security-headers.mjs so security-headers.test.ts can assert the
+  // same array this server sends — a header nothing can test is a header that
+  // quietly disappears. Note what is NOT there: a script-src CSP. That needs a
+  // per-request nonce, which in the App Router forces every page dynamic; see
+  // the module's own comment for why that is a separate decision.
+  headers: securityHeaderRules,
 };
 
 export default withMDX(nextConfig);
