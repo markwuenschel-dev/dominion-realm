@@ -20,8 +20,9 @@ import path from 'node:path';
 import type { default as JSZipType } from 'jszip';
 import type PDFDocument from 'pdfkit';
 import { getReadingEntries } from '../src/lib/contentCore';
+import { SITE } from '../src/lib/site';
 import {
-  BOOK,
+  bookWithAuthor,
   sampleSubtitle,
   DOWNLOAD_DIR,
   EPUB_FILENAME,
@@ -32,6 +33,7 @@ import {
   kindLabel,
 } from './lib/sample-doc.mjs';
 
+const BOOK = bookWithAuthor(SITE.author);
 const OUT_DIR = path.join(process.cwd(), 'public', DOWNLOAD_DIR);
 const FIXED_DATE = new Date(BOOK.modified);
 
