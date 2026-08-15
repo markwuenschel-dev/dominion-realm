@@ -152,7 +152,7 @@ served live, without a commit or redeploy. See [ADR-0011](docs/adr/0011-media-la
   **plate**; on reading it renders once, at the top of the chapter's first page,
   and also feeds that chapter's social (OG) image. The timeline fast-follow has
   now shipped: `/timeline` renders each beat's Scene art inline within its reveal
-  gate (via the same `getSceneMedia('timeline', id)` reader), so an Event beat
+  gate (via one batched `getSceneMediaMap` read), so an Event beat
   shows its art on the thread too. A separate association from the entity-owned
   images above. See [ADR-0014](docs/adr/0014-scene-art-beat-scoped.md).
   _Avoid_: illustration, moment (ambiguous), scene index.
