@@ -8,6 +8,7 @@ import type { CharacterSheetState, SheetAttributeKey } from '@/types/characterSh
 import { ATTRIBUTE_BASELINE } from '@/lib/formulas/pointBudget';
 import type { SpeciesKey, SoulLevelKey } from '@/lib/characterTemplates';
 import type { ClassKey } from '@/lib/classTaxonomy';
+import { parseSheetImport } from '@/lib/sheetImport';
 
 interface CharacterSheetActions {
   setName: (name: string) => void;
@@ -118,6 +119,13 @@ export const useCharacterSheetStore = create<CharacterSheetStore>()(
           conditionMods: state.conditionMods,
           currentXP: state.currentXP,
         }),
+        // Same-version blobs are schema-gated (CAND-38). Missing/invalid → keep current.
+        merge: (persistedState, currentState) => {
+          if (persistedState == null) return currentState;
+          const parsed = parseSheetImport(persistedState);
+          if (parsed == null) return currentState;
+          return { ...currentState, ...parsed };
+        },
       },
     ),
     { name: 'CharacterSheet' },
