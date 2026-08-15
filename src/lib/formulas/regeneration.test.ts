@@ -62,6 +62,23 @@ describe('computeBaseHPRegen', () => {
     expect(computeBaseHPRegen(NOMINAL)).toBeCloseTo(expected);
   });
 
+  it('equals the locked 0.50·CON + 0.30·END + 0.20·WIS expansion', () => {
+    const attrs: Attributes = {
+      CON: 12,
+      END: 8,
+      STR: 3,
+      AGI: 4,
+      DEX: 5,
+      INT: 20,
+      WIS: 15,
+      CHA: 7,
+      CVN: 9,
+      MYS: 11,
+    };
+    const expected = 0.5 * attrs.CON + 0.3 * attrs.END + 0.2 * attrs.WIS;
+    expect(computeBaseHPRegen(attrs)).toBeCloseTo(expected);
+  });
+
   it('returns 0 when all attributes are 0', () => {
     expect(computeBaseHPRegen(ZEROS)).toBe(0);
   });
