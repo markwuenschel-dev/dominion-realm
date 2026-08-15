@@ -14,6 +14,12 @@ import { type NextRequest, NextResponse } from 'next/server';
  * to leave a Sanity-fed page stale.
  */
 export async function POST(req: NextRequest) {
+  // Fail closed before parseBody: next-sanity treats a missing secret as
+  // "accept any signature". Unset / empty / whitespace must never revalidate.
+  if (!process.env.SANITY_REVALIDATE_SECRET?.trim()) {
+    return new NextResponse('Revalidation secret is not configured', { status: 401 });
+  }
+
   try {
     const { isValidSignature, body } = await parseBody<{ _type?: string }>(
       req,

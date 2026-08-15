@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // lib/classTaxonomy.ts
-// Full class taxonomy, transcribed from canon `classes.md`.
+// Full class taxonomy. This module is the live source of truth (see CONTEXT.md).
 // Owns: the rarity ladder, the Prime/Core/Secondary attribute-multiplier firewall,
 // and every class profile. Class influence enters the resource formulas ONLY
 // through these attribute multipliers — never through direct resource multipliers
@@ -27,7 +27,7 @@ export type AttrKey =
   | 'LUCK';
 
 // ────────────────────────────────────────────────
-// Class Attribute Multiplier Firewall (from classes.md)
+// Class Attribute Multiplier Firewall (this module / CONTEXT.md)
 // ────────────────────────────────────────────────
 
 export type AttrRole = 'Prime' | 'Core' | 'Secondary' | 'Neutral' | 'Dissonant';
@@ -77,7 +77,7 @@ export interface ClassProfile {
 
 // ────────────────────────────────────────────────
 // Class profiles, grouped by rarity tier
-// Transcribed from classes.md. LCK → LUCK.
+// Profiles in this module are the live SoT. LCK → LUCK.
 // ────────────────────────────────────────────────
 
 const UNCLASSED: ClassProfile = {
@@ -734,9 +734,9 @@ const MYTHIC: ClassProfile[] = [
 ];
 
 // Unique: one-of-one narrative titles. Kept for reference/lookup only — excluded
-// from the picker (see classesByRarity consumers). Canonical resource/method-shape
-// prose lives in classes.md; not surfaced in the UI, so a short marker is used here
-// rather than risk transcription drift on the long narrative one-liners.
+// from the picker (see classesByRarity consumers). Resource/method-shape prose
+// is not surfaced in the UI, so a short marker is used here rather than risk
+// transcription drift on the long narrative one-liners.
 const UNIQUE_SHAPE = 'Reserved / narrative-only — one-of-one title.';
 const UNIQUE: ClassProfile[] = [
   {

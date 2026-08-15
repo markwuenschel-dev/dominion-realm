@@ -46,9 +46,9 @@ const nextConfig = {
   // (also the root standalone traces from).
   outputFileTracingRoot: projectRoot,
   // Type-check inside the build. The Docker build on the box is the last gate
-  // before a deploy — CI runs only on pull requests, and there is no pre-commit
-  // hook — so a direct push to main followed by `deploy.ps1` must not be able to
-  // ship a type error. Lint stays out of the build by construction: Next 16
+  // before a deploy — CI runs on pull requests and on push to main, and there is
+  // no pre-commit hook — so a `deploy.ps1` that does not wait for CI must not be
+  // able to ship a type error. Lint stays out of the build by construction: Next 16
   // dropped in-build ESLint (the `eslint` config key is no longer recognized);
   // oxlint owns linting, in CI and locally.
   images: {

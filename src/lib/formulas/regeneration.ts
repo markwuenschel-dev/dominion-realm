@@ -13,6 +13,7 @@ import {
   RESERVE_REGEN_COEFFICIENTS,
   DEFAULT_REGEN_CURVE_PARAMS,
 } from '@/lib/constants';
+import { sumCoefficients } from './resources';
 
 // ────────────────────────────────────────────────
 // §3  Base Regen
@@ -22,47 +23,28 @@ import {
  * BaseHPRegen = 0.50·CON + 0.30·END + 0.20·WIS
  */
 export function computeBaseHPRegen(attrs: Attributes): number {
-  return (
-    HP_REGEN_COEFFICIENTS.CON * attrs.CON +
-    HP_REGEN_COEFFICIENTS.END * attrs.END +
-    HP_REGEN_COEFFICIENTS.WIS * attrs.WIS
-  );
+  return sumCoefficients(HP_REGEN_COEFFICIENTS, attrs);
 }
 
 /**
  * BaseManaRegen = 0.25·INT + 0.55·WIS + 0.20·CHA
  */
 export function computeBaseManaRegen(attrs: Attributes): number {
-  return (
-    MANA_REGEN_COEFFICIENTS.INT * attrs.INT +
-    MANA_REGEN_COEFFICIENTS.WIS * attrs.WIS +
-    MANA_REGEN_COEFFICIENTS.CHA * attrs.CHA
-  );
+  return sumCoefficients(MANA_REGEN_COEFFICIENTS, attrs);
 }
 
 /**
  * BaseStaminaRegen = 0.55·END + 0.25·CON + 0.10·AGI + 0.10·WIS
  */
 export function computeBaseStaminaRegen(attrs: Attributes): number {
-  return (
-    STAMINA_REGEN_COEFFICIENTS.END * attrs.END +
-    STAMINA_REGEN_COEFFICIENTS.CON * attrs.CON +
-    STAMINA_REGEN_COEFFICIENTS.AGI * attrs.AGI +
-    STAMINA_REGEN_COEFFICIENTS.WIS * attrs.WIS
-  );
+  return sumCoefficients(STAMINA_REGEN_COEFFICIENTS, attrs);
 }
 
 /**
  * BaseReserveRegen = 0.20·CON + 0.20·END + 0.30·WIS + 0.15·CVN + 0.15·MYS
  */
 export function computeBaseReserveRegen(attrs: Attributes): number {
-  return (
-    RESERVE_REGEN_COEFFICIENTS.CON * attrs.CON +
-    RESERVE_REGEN_COEFFICIENTS.END * attrs.END +
-    RESERVE_REGEN_COEFFICIENTS.WIS * attrs.WIS +
-    RESERVE_REGEN_COEFFICIENTS.CVN * attrs.CVN +
-    RESERVE_REGEN_COEFFICIENTS.MYS * attrs.MYS
-  );
+  return sumCoefficients(RESERVE_REGEN_COEFFICIENTS, attrs);
 }
 
 /**
