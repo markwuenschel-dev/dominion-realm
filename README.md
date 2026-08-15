@@ -81,7 +81,7 @@ matching variables are set — see [Environment variables](#environment-variable
 | `pnpm run build` | Production build (`next build`) |
 | `pnpm run start` | Serve the production build (reads `$PORT`) |
 | `pnpm run check` | Type-check only (`tsc --noEmit`) |
-| `pnpm test` | Run the Vitest suite once |
+| `pnpm test` | Run the Vitest suite once with the coverage ratchet (`vitest run --coverage`) |
 | `pnpm run test:watch` | Vitest in watch mode |
 | `pnpm run lint` | Lint (`oxlint` — correctness + suspicious, React/Next plugins) |
 | `pnpm run format` / `format:check` | Write / verify formatting (`oxfmt`) |
@@ -253,12 +253,13 @@ migration.
 
 ```bash
 pnpm run check   # types only (tsc --noEmit)
-pnpm test        # Vitest (lib + component coverage)
+pnpm test        # Vitest + coverage ratchet (same as CI: vitest run --coverage)
 pnpm run build   # the real content-schema gate (Zod throws on bad frontmatter)
 ```
 
 Every pull request runs the **CI** workflow — `format:check`, `lint`, `tsc`, and
-`vitest` in parallel, then `next build` — plus an advisory accessibility audit.
+`pnpm test` (the coverage ratchet; same as `test:coverage`) in parallel, then
+`next build` — plus an advisory accessibility audit.
 Branch protection should require the build job before merge.
 
 ## Documentation

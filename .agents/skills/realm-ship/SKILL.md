@@ -74,7 +74,7 @@ pnpm install --frozen-lockfile   # lockfile-exact install
 pnpm run format:check            # oxfmt --check
 pnpm run lint                    # oxlint
 pnpm run check                   # tsc --noEmit
-pnpm test                        # vitest run
+pnpm test                        # vitest run --coverage (same ratchet as CI)
 pnpm run build                   # next build — the real gate
 ```
 
@@ -180,7 +180,8 @@ After creating the PR, verify the branch ref exists via REST or `git ls-remote` 
 Do not start Phase 7 until Phase 6 is done.
 
 CI policy: see **Green gate** in Guardrails. `Build & validate` runs `format:check`, `lint`,
-`check`, and `test` in parallel, then `next build`. `Accessibility (advisory)` may go red
+`check`, and `test` (`vitest run --coverage`, same as `test:coverage`) in parallel, then
+`next build`. `Accessibility (advisory)` may go red
 without blocking; `Scene-art joins` is nightly/on-demand and never gates a merge.
 
 Merge via REST:

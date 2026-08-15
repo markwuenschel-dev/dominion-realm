@@ -20,7 +20,7 @@
     "launch:check": "tsx scripts/launch-readiness.ts",
     "format": "oxfmt --write",
     "format:check": "oxfmt --check",
-    "test": "vitest run",
+    "test": "vitest run --coverage",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
   },
