@@ -144,7 +144,7 @@ describe('parseCollectionFrontmatter — isolated Zod negatives (no live corpus)
         summary: 'y',
         role: 'z',
       }),
-    ).toThrow();
+    ).toThrow(/invalid/i);
   });
 
   it('rejects a character missing name', () => {
@@ -154,7 +154,7 @@ describe('parseCollectionFrontmatter — isolated Zod negatives (no live corpus)
         role: 'z',
         reveal: 'teaser',
       }),
-    ).toThrow();
+    ).toThrow(/invalid/i);
   });
 
   it('rejects a character with eyeStage: 7 (outside 1–6)', () => {
@@ -166,7 +166,7 @@ describe('parseCollectionFrontmatter — isolated Zod negatives (no live corpus)
         role: 'z',
         reveal: 'teaser',
       }),
-    ).toThrow();
+    ).toThrow(/too big|invalid/i);
   });
 
   it('rejects a journal entry with a bad category', () => {
@@ -178,7 +178,7 @@ describe('parseCollectionFrontmatter — isolated Zod negatives (no live corpus)
         pubDate: '2026-01-01',
         reveal: 'teaser',
       }),
-    ).toThrow();
+    ).toThrow(/invalid/i);
   });
 
   it('parses a valid minimal character (defaults applied)', () => {

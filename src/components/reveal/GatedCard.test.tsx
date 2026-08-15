@@ -26,7 +26,9 @@ describe('GatedCard', () => {
       </RevealProvider>,
     );
     expect(screen.queryByText('Illyristranthe')).not.toBeInTheDocument();
-    expect(screen.queryByText('The last Xyloryn who still remembers the pact.')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText('The last Xyloryn who still remembers the pact.'),
+    ).not.toBeInTheDocument();
     expect(screen.getByText('Sealed · Deep')).toBeInTheDocument();
   });
 

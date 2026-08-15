@@ -381,7 +381,11 @@ describe('Sanity fetch soft-fail', () => {
     { reader: 'getSocialImage', call: (m) => m.getSocialImage(), fallback: 'null' },
     { reader: 'getRealmMap', call: (m) => m.getRealmMap(), fallback: 'null' },
     { reader: 'getSubjectCardMap', call: (m) => m.getSubjectCardMap(), fallback: 'empty-map' },
-    { reader: 'getSubjectPrimaryMap', call: (m) => m.getSubjectPrimaryMap(), fallback: 'empty-map' },
+    {
+      reader: 'getSubjectPrimaryMap',
+      call: (m) => m.getSubjectPrimaryMap(),
+      fallback: 'empty-map',
+    },
     {
       reader: 'getSubjectMedia',
       call: (m) => m.getSubjectMedia('character', 'marcus'),

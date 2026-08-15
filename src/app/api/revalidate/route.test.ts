@@ -51,16 +51,34 @@ describe('POST /api/revalidate', () => {
   });
 
   it.each([
-    ['unset', () => { delete process.env.SANITY_REVALIDATE_SECRET; }],
-    ['empty', () => { vi.stubEnv('SANITY_REVALIDATE_SECRET', ''); }],
-    ['whitespace', () => { vi.stubEnv('SANITY_REVALIDATE_SECRET', '   '); }],
-  ])('rejects when SANITY_REVALIDATE_SECRET is %s and revalidates nothing', async (_label, unset) => {
-    unset();
-    // Even a mocked "valid" parse must not run — unset secret is not open-relay.
-    parseBody.mockResolvedValue({ isValidSignature: true, body: { _type: 'subject' } });
-    const res = await POST({} as never);
-    expect(res.status).toBe(401);
-    expect(parseBody).not.toHaveBeenCalled();
-    expect(revalidateTag).not.toHaveBeenCalled();
-  });
+    [
+      'unset',
+      () => {
+        delete process.env.SANITY_REVALIDATE_SECRET;
+      },
+    ],
+    [
+      'empty',
+      () => {
+        vi.stubEnv('SANITY_REVALIDATE_SECRET', '');
+      },
+    ],
+    [
+      'whitespace',
+      () => {
+        vi.stubEnv('SANITY_REVALIDATE_SECRET', '   ');
+      },
+    ],
+  ])(
+    'rejects when SANITY_REVALIDATE_SECRET is %s and revalidates nothing',
+    async (_label, unset) => {
+      unset();
+      // Even a mocked "valid" parse must not run — unset secret is not open-relay.
+      parseBody.mockResolvedValue({ isValidSignature: true, body: { _type: 'subject' } });
+      const res = await POST({} as never);
+      expect(res.status).toBe(401);
+      expect(parseBody).not.toHaveBeenCalled();
+      expect(revalidateTag).not.toHaveBeenCalled();
+    },
+  );
 });
