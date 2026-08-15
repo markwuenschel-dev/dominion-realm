@@ -10,7 +10,7 @@ import {
 // `applyDraftPolicy` is the pure draft filter behind every getter; imported from
 // contentCore (no `server-only`) so the fixture tests below can exercise all
 // three DraftPolicy branches without touching the real content tree.
-import { applyDraftPolicy, type Entry } from './contentCore';
+import { applyDraftPolicy, parseCollectionFrontmatter, type Entry } from './contentCore';
 
 /**
  * Content-engine tests. These run against the REAL `src/content/` corpus, so
@@ -121,6 +121,76 @@ describe('contentImage — one seam: URL + disk source + existence', () => {
       expect(img.exists).toBe(true);
       expect(img.diskPath).toBeDefined();
     }
+  });
+});
+
+describe('parseCollectionFrontmatter — isolated Zod negatives (no live corpus)', () => {
+  // In-memory fixtures only: a bad reveal / missing name / invalid eyeStage
+  // must fail here so the schema gate does not depend on next build or on
+  // planting a broken file under src/content/.
+
+  const minimalCharacter = {
+    name: 'x',
+    summary: 'y',
+    role: 'z',
+    reveal: 'teaser',
+  };
+
+  it("rejects a character with reveal: 'spoiler' (not a reveal tier)", () => {
+    expect(() =>
+      parseCollectionFrontmatter('characters', {
+        reveal: 'spoiler',
+        name: 'x',
+        summary: 'y',
+        role: 'z',
+      }),
+    ).toThrow();
+  });
+
+  it('rejects a character missing name', () => {
+    expect(() =>
+      parseCollectionFrontmatter('characters', {
+        summary: 'y',
+        role: 'z',
+        reveal: 'teaser',
+      }),
+    ).toThrow();
+  });
+
+  it('rejects a character with eyeStage: 7 (outside 1–6)', () => {
+    expect(() =>
+      parseCollectionFrontmatter('characters', {
+        eyeStage: 7,
+        name: 'x',
+        summary: 'y',
+        role: 'z',
+        reveal: 'teaser',
+      }),
+    ).toThrow();
+  });
+
+  it('rejects a journal entry with a bad category', () => {
+    expect(() =>
+      parseCollectionFrontmatter('journal', {
+        title: 't',
+        summary: 's',
+        category: 'blog',
+        pubDate: '2026-01-01',
+        reveal: 'teaser',
+      }),
+    ).toThrow();
+  });
+
+  it('parses a valid minimal character (defaults applied)', () => {
+    const parsed = parseCollectionFrontmatter('characters', minimalCharacter);
+    expect(parsed.name).toBe('x');
+    expect(parsed.summary).toBe('y');
+    expect(parsed.role).toBe('z');
+    expect(parsed.reveal).toBe('teaser');
+    expect(parsed.aliases).toEqual([]);
+    expect(parsed.relationships).toEqual([]);
+    expect(parsed.draft).toBe(false);
+    expect(parsed.status).toBe('unknown');
   });
 });
 

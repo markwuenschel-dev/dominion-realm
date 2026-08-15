@@ -4,10 +4,11 @@ import { SHEET_ATTRIBUTE_KEYS } from '@/types/characterSheet';
 import { SPECIES_TEMPLATES, SOUL_LEVELS } from '@/lib/characterTemplates';
 
 /**
- * Schema gate for the character sheet's JSON import — the one external-input
- * path into the persisted store (audit CAND-10). `loadState` spreads its
- * argument onto state and bypasses the setters' clamps, so everything crossing
- * this boundary is validated here first.
+ * Schema gate for untrusted sheet documents. Two external-input paths feed
+ * the persisted store: JSON import (audit CAND-10) and persist rehydration
+ * (audit CAND-38). `loadState` and persist merge both spread their argument
+ * onto state and bypass the setters' clamps, so everything crossing this
+ * boundary is validated here first.
  *
  * Semantics (grilled): wrong shapes/types reject the whole file; merely
  * out-of-range numbers clamp to the setters' ranges. Unknown top-level keys are

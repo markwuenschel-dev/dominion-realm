@@ -17,7 +17,9 @@ export type { SceneBeat };
  * hotspot + alt) so call sites can crop/size it via `urlFor` at render time
  * (`SubjectImage`). A reader returning `null`/absent means "no Sanity art", and
  * the call site falls back to the git `/content-media` path, then the monogram
- * placeholder — the Sanity → git → placeholder order the PRD mandates.
+ * placeholder — the Sanity → git → placeholder order the PRD mandates. A fetch
+ * reject is treated the same way (soft-fail to null / empty Map) so a down CMS
+ * cannot 500 the page (CAND-37; same policy as CAND-19's `getSiteCover`).
  *
  * Every read is stamped with the shared `sanity` cache tag and opts into the Next
  * Data Cache, so the `/api/revalidate` webhook can `revalidateTag('sanity')` to
@@ -131,6 +133,25 @@ function resolve(img: RawImage): ResolvedImage | null {
   };
 }
 
+/**
+ * Tagged Sanity fetch that never throws. A reject logs and returns `fallback`
+ * so a down CMS degrades to the call site's committed static/git path instead
+ * of 500ing the page (CAND-37; same policy as CAND-19's `getSiteCover`).
+ */
+async function safeFetch<T>(
+  reader: string,
+  query: string,
+  params: Record<string, unknown>,
+  fallback: T,
+): Promise<T> {
+  try {
+    return await sanityClient.fetch<T>(query, params, { next: { tags: [SANITY_TAG] } });
+  } catch (err) {
+    console.warn(`[media] ${reader}: Sanity fetch failed, using static fallback`, err);
+    return fallback;
+  }
+}
+
 /** Resolve a raw GROQ gallery array into ordered {@link GalleryImage}s: each raw
  *  image is resolved, assetless items are dropped, and the optional caption is
  *  attached (defaulting to `''`). The single home for the resolve+caption+drop
@@ -220,40 +241,40 @@ export function resolveSubjectMedia(input: {
  * a committed fallback exists (audit CAND-19).
  */
 export const getSiteCover = cache(async (): Promise<ResolvedImage | null> => {
-  let cover: RawImage;
-  try {
-    cover = await sanityClient.fetch<RawImage>(
-      `*[_id == "siteSettings"][0].cover`,
-      {},
-      { next: { tags: [SANITY_TAG] } },
-    );
-  } catch (err) {
-    console.warn('[media] getSiteCover: Sanity fetch failed, using static fallback', err);
-    return null;
-  }
+  const cover = await safeFetch<RawImage>(
+    'getSiteCover',
+    `*[_id == "siteSettings"][0].cover`,
+    {},
+    null,
+  );
   const resolved = resolve(cover);
   if (!resolved) return null;
   return { ...resolved, alt: resolved.alt || 'The Dominion Realm' };
 });
 
 /** The default social/OG image from the `siteSettings` singleton, or null if
- *  unset — the call site then falls back to the static `public/og-default.png`. */
+ *  unset — the call site then falls back to the static `public/og-default.png`.
+ *  Soft-fails to null on a Sanity error too (a fetch reject would otherwise 500
+ *  metadata): a committed fallback exists. */
 export const getSocialImage = cache(async (): Promise<ResolvedImage | null> => {
-  const social = await sanityClient.fetch<RawImage>(
+  const social = await safeFetch<RawImage>(
+    'getSocialImage',
     `*[_id == "siteSettings"][0].socialImage`,
     {},
-    { next: { tags: [SANITY_TAG] } },
+    null,
   );
   return resolve(social);
 });
 
 /** The `/map` page artwork from the `siteSettings` singleton, or null if unset —
- *  the page then falls back to the generated interactive ley-line diagram. */
+ *  the page then falls back to the generated interactive ley-line diagram.
+ *  Soft-fails to null on a Sanity error too so a fetch reject cannot 500 `/map`. */
 export const getRealmMap = cache(async (): Promise<ResolvedImage | null> => {
-  const map = await sanityClient.fetch<RawImage>(
+  const map = await safeFetch<RawImage>(
+    'getRealmMap',
     `*[_id == "siteSettings"][0].realmMap`,
     {},
-    { next: { tags: [SANITY_TAG] } },
+    null,
   );
   return resolve(map);
 });
@@ -261,17 +282,19 @@ export const getRealmMap = cache(async (): Promise<ResolvedImage | null> => {
 /**
  * Primary images for every non-draft Subject, keyed by `${kind}:${slug}` — the
  * join back to the git codex entry. A Subject with no Primary asset is simply
- * absent, so the call site falls back to its git image.
+ * absent, so the call site falls back to its git image. Soft-fails to an empty
+ * Map on a Sanity error (same git fallback).
  */
 export const getSubjectPrimaryMap = cache(async (): Promise<Map<string, ResolvedImage>> => {
-  const rows = await sanityClient.fetch<
+  const rows = await safeFetch<
     Array<{ kind: string | null; slug: string | null; primary: RawImage }>
   >(
+    'getSubjectPrimaryMap',
     `*[_type == "subject" && defined(primary.asset) && ${PUBLISHED_FILTER}]{
       kind, "slug": slug.current, primary
     }`,
     {},
-    { next: { tags: [SANITY_TAG] } },
+    [],
   );
   return buildSubjectMap(rows, (r) => r.primary);
 });
@@ -282,17 +305,19 @@ export const getSubjectPrimaryMap = cache(async (): Promise<Map<string, Resolved
  * the homepage "Dramatis Personae" cards can differ from the Codex (which reads
  * `primary` directly) yet degrade to the same portrait until a card is uploaded.
  * A Subject with neither asset is absent, so the call site falls back to its git
- * image (Sanity → git → placeholder).
+ * image (Sanity → git → placeholder). Soft-fails to an empty Map on a Sanity
+ * error (same git fallback).
  */
 export const getSubjectCardMap = cache(async (): Promise<Map<string, ResolvedImage>> => {
-  const rows = await sanityClient.fetch<
+  const rows = await safeFetch<
     Array<{ kind: string | null; slug: string | null; image: RawImage }>
   >(
+    'getSubjectCardMap',
     `*[_type == "subject" && defined(coalesce(card.asset, primary.asset)) && ${PUBLISHED_FILTER}]{
       kind, "slug": slug.current, "image": coalesce(card, primary)
     }`,
     {},
-    { next: { tags: [SANITY_TAG] } },
+    [],
   );
   return buildSubjectMap(rows, (r) => r.image);
 });
@@ -300,22 +325,24 @@ export const getSubjectCardMap = cache(async (): Promise<Map<string, ResolvedIma
 /**
  * Full media for one Subject (primary + gallery + type slots), or null when no
  * Subject exists for that `kind`/`slug`. Empty slots resolve to null / an empty
- * gallery, so a call site renders only what's present.
+ * gallery, so a call site renders only what's present. Soft-fails to null on a
+ * Sanity error (call site falls back to git).
  */
 export const getSubjectMedia = cache(
   async (kind: SubjectKind, slug: string): Promise<SubjectMedia | null> => {
-    const doc = await sanityClient.fetch<{
+    const doc = await safeFetch<{
       primary: RawImage;
       gallery: RawImage[] | null;
       banner: RawImage;
       map: RawImage;
       sigil: RawImage;
     } | null>(
+      'getSubjectMedia',
       `*[_type == "subject" && kind == $kind && slug.current == $slug && ${PUBLISHED_FILTER}][0]{
         primary, gallery, banner, map, sigil
       }`,
       { kind, slug },
-      { next: { tags: [SANITY_TAG] } },
+      null,
     );
     if (!doc) return null;
     return {
@@ -338,15 +365,17 @@ export const getSubjectMedia = cache(
  *
  * The join is intentionally unvalidated (CONTEXT.md § Scene art): a `beatRef`
  * that matches no beat simply renders nothing, and nothing is auto-deleted.
+ * Soft-fails to null on a Sanity error (same git fallback).
  */
 export const getSceneMedia = cache(
   async (beat: SceneBeat, beatRef: string): Promise<SceneMedia | null> => {
-    const doc = await sanityClient.fetch<{ images: RawImage[] | null } | null>(
+    const doc = await safeFetch<{ images: RawImage[] | null } | null>(
+      'getSceneMedia',
       `*[_type == "scene" && beat == $beat && beatRef == $beatRef && ${PUBLISHED_FILTER}][0]{
         images
       }`,
       { beat, beatRef },
-      { next: { tags: [SANITY_TAG] } },
+      null,
     );
     if (!doc) return null;
     const images = resolveGallery(doc.images);
@@ -377,7 +406,8 @@ export function sceneKey(beat: SceneBeat, beatRef: string): string {
  * for sealed beats). {@link SCENE_BEATS} is the single source of truth for which
  * kinds exist, so a new beat kind is batched automatically. A beat with no
  * non-draft Scene (or a Scene with no usable images) is simply absent from the
- * map, so the call site falls back to the git hero, then nothing.
+ * map, so the call site falls back to the git hero, then nothing. A fetch
+ * reject for one beat kind is treated as no rows for that kind (never throws).
  */
 export const getSceneMediaMap = cache(
   async (keys: readonly SceneBeatKey[]): Promise<Map<string, SceneMedia>> => {
@@ -385,14 +415,13 @@ export const getSceneMediaMap = cache(
     for (const beat of SCENE_BEATS) {
       const beatRefs = keys.filter((k) => k.beat === beat).map((k) => k.beatRef);
       if (beatRefs.length === 0) continue;
-      const rows = await sanityClient.fetch<
-        Array<{ beatRef: string | null; images: RawImage[] | null }>
-      >(
+      const rows = await safeFetch<Array<{ beatRef: string | null; images: RawImage[] | null }>>(
+        'getSceneMediaMap',
         `*[_type == "scene" && beat == $beat && beatRef in $beatRefs && ${PUBLISHED_FILTER}]{
           beatRef, images
         }`,
         { beat, beatRefs },
-        { next: { tags: [SANITY_TAG] } },
+        [],
       );
       for (const r of rows) {
         if (!r.beatRef || map.has(sceneKey(beat, r.beatRef))) continue;

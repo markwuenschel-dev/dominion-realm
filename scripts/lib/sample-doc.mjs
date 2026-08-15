@@ -125,18 +125,30 @@ export function sampleSubtitle(entries) {
   return contents ? `The Reading Sample — ${contents}` : 'The Reading Sample';
 }
 
-/** Book-level metadata baked into both formats. Placeholder author until the
- *  real byline lands (mirrors SITE.author in src/lib/site.ts). The subtitle is
- *  not here: it depends on which chapters are bundled — see `sampleSubtitle`. */
+/**
+ * Book-level metadata baked into both formats. Author is not a field here —
+ * it is supplied at generate time from SITE.author (the single source of
+ * truth in src/lib/site.ts) so a stale placeholder cannot outlive the live
+ * byline. The subtitle is not here either: it depends on which chapters are
+ * bundled — see `sampleSubtitle`.
+ */
 export const BOOK = {
   title: 'The Dominion Realm',
   series: 'Realmwalkers · Book One',
-  author: 'The Dominion Realm',
   language: 'en',
   /** Stable identifier + timestamp keep EPUB output deterministic across builds. */
   identifier: 'urn:dominion-realm:reading-sample',
   modified: '2024-01-01T00:00:00Z',
 };
+
+/**
+ * Bind the live byline onto book metadata for EPUB/PDF. The generator passes
+ * SITE.author so creator fields cannot drift from the site.
+ * @param {string} author
+ */
+export function bookWithAuthor(author) {
+  return { ...BOOK, author };
+}
 
 /**
  * @typedef {{ text: string, bold: boolean, italic: boolean }} TextRun
