@@ -23,7 +23,7 @@ import {
   STAMINA_FLOOR_FRACTION,
 } from '@/lib/constants';
 import type { Attributes, CurrentResources, ResourceMaxima } from '@/types';
-import { LOCKED_ATTRS_FIXTURE } from './lockedAttributesFixture';
+import { LOCKED_ATTRS_FIXTURE } from '../../../test/fixtures/formulas/lockedAttributes';
 
 // ── Fixtures ────────────────────────────────────────────────────────────────
 

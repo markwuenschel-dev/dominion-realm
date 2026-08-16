@@ -1,7 +1,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// lib/formulas/lockedAttributesFixture.ts — shared attribute fixture for
-// locked-expansion formula tests (audit RHA-11). Test-only: never imported by
-// production code.
+// test/fixtures/formulas/lockedAttributes.ts — shared attribute fixture for
+// locked-expansion formula tests (audit RHA-11). Test-only, and lives under
+// test/ (not src/lib/formulas/) so nothing in production code can import it
+// by accident — src/lib/formulas is production surface; test/ is not.
 //
 // Deliberately asymmetric — no two attributes share a value — so a swapped
 // coefficient-to-attribute mapping changes the expected result instead of

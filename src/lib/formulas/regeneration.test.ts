@@ -20,7 +20,7 @@ import {
   DEFAULT_REGEN_CURVE_PARAMS,
 } from '@/lib/constants';
 import type { Attributes } from '@/types';
-import { LOCKED_ATTRS_FIXTURE } from './lockedAttributesFixture';
+import { LOCKED_ATTRS_FIXTURE } from '../../../test/fixtures/formulas/lockedAttributes';
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 
