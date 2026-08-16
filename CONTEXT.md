@@ -9,7 +9,10 @@ seam, adapter, leverage, locality) lives in the `codebase-design` skill, not her
 The interactive character sheet and the standalone calculator both derive values
 from a locked set of formulas in `src/lib/formulas/`. Coefficients live once in
 `src/lib/constants.ts` and are consumed by the formula functions — never re-typed
-at call sites.
+at call sites. Coefficient records remain the runtime source of truth; every
+coefficient-driven compute function has an asymmetric, independently calculated
+numeric-oracle test whose expected value never derives from those records, and
+an intentional formula change updates both under review.
 
 - **Resource maxima (§1).** HP / Mana / Stamina / Reserve upper bounds computed
   from attributes: `computeResourceMaxima(attrs, soulLevelMod)` in

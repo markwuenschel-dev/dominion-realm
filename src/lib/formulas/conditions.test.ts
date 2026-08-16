@@ -19,6 +19,7 @@ import {
   MANA_CRASH_RESISTANCE_COEFFICIENTS,
 } from '@/lib/constants';
 import type { Attributes } from '@/types';
+import { LOCKED_ATTRS_FIXTURE } from './lockedAttributesFixture';
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -162,6 +163,11 @@ describe('computePoisonResistance', () => {
     // CON coefficient (1.0) > WIS coefficient (0.5)
     expect(computePoisonResistance(highCon)).toBeGreaterThan(computePoisonResistance(highWis));
   });
+
+  // Locked expansion (audit RHA-11): 1.0·CON+0.5·WIS = 1.0·12+0.5·15 = 19.5.
+  it('equals the locked 1.0·CON + 0.5·WIS expansion (19.5)', () => {
+    expect(computePoisonResistance(LOCKED_ATTRS_FIXTURE)).toBeCloseTo(19.5, 2);
+  });
 });
 
 describe('computeStaggerResistance', () => {
@@ -182,6 +188,11 @@ describe('computeStaggerResistance', () => {
     const withExtras = { ...ZEROS, STR: 10, WIS: 99, INT: 99 };
     expect(computeStaggerResistance(base)).toBeCloseTo(computeStaggerResistance(withExtras));
   });
+
+  // Locked expansion (audit RHA-11): 0.5·STR+0.3·END+0.2·AGI = 0.5·3+0.3·8+0.2·4 = 4.7.
+  it('equals the locked 0.5·STR + 0.3·END + 0.2·AGI expansion (4.7)', () => {
+    expect(computeStaggerResistance(LOCKED_ATTRS_FIXTURE)).toBeCloseTo(4.7, 2);
+  });
 });
 
 describe('computeManaCrashResistance', () => {
@@ -195,6 +206,11 @@ describe('computeManaCrashResistance', () => {
 
   it('returns 0 when all attributes are 0', () => {
     expect(computeManaCrashResistance(ZEROS)).toBe(0);
+  });
+
+  // Locked expansion (audit RHA-11): 0.5·WIS+0.3·INT+0.2·CON = 0.5·15+0.3·20+0.2·12 = 15.9.
+  it('equals the locked 0.5·WIS + 0.3·INT + 0.2·CON expansion (15.9)', () => {
+    expect(computeManaCrashResistance(LOCKED_ATTRS_FIXTURE)).toBeCloseTo(15.9, 2);
   });
 });
 
