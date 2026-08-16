@@ -204,6 +204,7 @@ export function StatSheetTable() {
   const loadState = useCharacterSheetStore((s) => s.loadState);
 
   const [selectedProfileId, setSelectedProfileId] = useState('');
+  const [importError, setImportError] = useState<string | null>(null);
   const importRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -272,17 +273,29 @@ export function StatSheetTable() {
   function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    setImportError(null);
     const reader = new FileReader();
+    reader.onerror = () => {
+      console.warn('Sheet import failed to read:', reader.error);
+      setImportError('Could not read that character sheet. Please try again.');
+    };
     reader.onload = (ev) => {
       try {
         const data = JSON.parse(ev.target?.result as string);
         // Schema gate (src/lib/sheetImport.ts): wrong shapes reject (warned to
         // the console), out-of-range numbers clamp — nothing unvalidated
-        // reaches the persisted store.
+        // reaches the persisted store. Both a JSON-parse failure and a
+        // schema rejection surface the same concise message below; neither
+        // is actionable-different from the user's side.
         const parsed = parseSheetImport(data);
-        if (parsed) loadState(parsed);
+        if (parsed) {
+          loadState(parsed);
+          setImportError(null);
+        } else {
+          setImportError('That file is not a valid character sheet.');
+        }
       } catch {
-        // ignore malformed JSON
+        setImportError('That file is not a valid character sheet.');
       }
     };
     reader.readAsText(file);
@@ -687,6 +700,14 @@ export function StatSheetTable() {
                   >
                     ↑ Import
                   </button>
+                  {importError && (
+                    <span
+                      role="alert"
+                      className="rounded border border-red-900/40 bg-red-950/20 px-2 py-1 text-[10px] text-red-400"
+                    >
+                      {importError}
+                    </span>
+                  )}
                   <button
                     onClick={handleExport}
                     className={cn(
