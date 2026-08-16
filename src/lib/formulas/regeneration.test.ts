@@ -20,6 +20,7 @@ import {
   DEFAULT_REGEN_CURVE_PARAMS,
 } from '@/lib/constants';
 import type { Attributes } from '@/types';
+import { LOCKED_ATTRS_FIXTURE } from '../../../test/fixtures/formulas/lockedAttributes';
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -62,21 +63,11 @@ describe('computeBaseHPRegen', () => {
     expect(computeBaseHPRegen(NOMINAL)).toBeCloseTo(expected);
   });
 
-  it('equals the locked 0.50·CON + 0.30·END + 0.20·WIS expansion', () => {
-    const attrs: Attributes = {
-      CON: 12,
-      END: 8,
-      STR: 3,
-      AGI: 4,
-      DEX: 5,
-      INT: 20,
-      WIS: 15,
-      CHA: 7,
-      CVN: 9,
-      MYS: 11,
-    };
-    const expected = 0.5 * attrs.CON + 0.3 * attrs.END + 0.2 * attrs.WIS;
-    expect(computeBaseHPRegen(attrs)).toBeCloseTo(expected);
+  // Locked expansion (audit RHA-11): 0.5·CON+0.3·END+0.2·WIS = 0.5·12+0.3·8+0.2·15
+  // = 11.4. Numeric literal, not re-derived from HP_REGEN_COEFFICIENTS, per the
+  // shared locked-attributes fixture convention (CONTEXT.md, formulas section).
+  it('equals the locked 0.50·CON + 0.30·END + 0.20·WIS expansion (11.4)', () => {
+    expect(computeBaseHPRegen(LOCKED_ATTRS_FIXTURE)).toBeCloseTo(11.4, 2);
   });
 
   it('returns 0 when all attributes are 0', () => {
@@ -109,6 +100,11 @@ describe('computeBaseManaRegen', () => {
     // WIS coefficient (0.55) > INT coefficient (0.25)
     expect(computeBaseManaRegen(highWis)).toBeGreaterThan(computeBaseManaRegen(highInt));
   });
+
+  // Locked expansion (audit RHA-11): 0.25·INT+0.55·WIS+0.2·CHA = 0.25·20+0.55·15+0.2·7 = 14.65.
+  it('equals the locked 0.25·INT + 0.55·WIS + 0.20·CHA expansion (14.65)', () => {
+    expect(computeBaseManaRegen(LOCKED_ATTRS_FIXTURE)).toBeCloseTo(14.65, 2);
+  });
 });
 
 describe('computeBaseStaminaRegen', () => {
@@ -123,6 +119,12 @@ describe('computeBaseStaminaRegen', () => {
 
   it('returns 0 when all attributes are 0', () => {
     expect(computeBaseStaminaRegen(ZEROS)).toBe(0);
+  });
+
+  // Locked expansion (audit RHA-11): 0.55·END+0.25·CON+0.1·AGI+0.1·WIS
+  // = 0.55·8+0.25·12+0.1·4+0.1·15 = 9.3.
+  it('equals the locked 0.55·END + 0.25·CON + 0.10·AGI + 0.10·WIS expansion (9.3)', () => {
+    expect(computeBaseStaminaRegen(LOCKED_ATTRS_FIXTURE)).toBeCloseTo(9.3, 2);
   });
 });
 
@@ -139,6 +141,12 @@ describe('computeBaseReserveRegen', () => {
 
   it('returns 0 when all attributes are 0', () => {
     expect(computeBaseReserveRegen(ZEROS)).toBe(0);
+  });
+
+  // Locked expansion (audit RHA-11): 0.2·CON+0.2·END+0.3·WIS+0.15·CVN+0.15·MYS
+  // = 0.2·12+0.2·8+0.3·15+0.15·9+0.15·11 = 11.5.
+  it('equals the locked 0.20·CON + 0.20·END + 0.30·WIS + 0.15·CVN + 0.15·MYS expansion (11.5)', () => {
+    expect(computeBaseReserveRegen(LOCKED_ATTRS_FIXTURE)).toBeCloseTo(11.5, 2);
   });
 });
 

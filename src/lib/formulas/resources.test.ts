@@ -23,6 +23,7 @@ import {
   STAMINA_FLOOR_FRACTION,
 } from '@/lib/constants';
 import type { Attributes, CurrentResources, ResourceMaxima } from '@/types';
+import { LOCKED_ATTRS_FIXTURE } from '../../../test/fixtures/formulas/lockedAttributes';
 
 // ── Fixtures ────────────────────────────────────────────────────────────────
 
@@ -90,6 +91,15 @@ describe('computeHPMax', () => {
     const withExtras = { ...ZEROS, CON: 10, INT: 99, CVN: 99 };
     expect(computeHPMax(base)).toBe(computeHPMax(withExtras));
   });
+
+  // Locked expansion (audit RHA-11): expected value is a plain numeric
+  // literal, independently computed against the live HP_COEFFICIENTS at the
+  // time this test was written (6·CON + 2·END + 2·STR = 6·12+2·8+2·3 = 94),
+  // not re-derived from the constant under test — a coefficient typo changes
+  // this number, unlike the "applies coefficients" test above.
+  it('equals the locked 6·CON + 2·END + 2·STR expansion (94)', () => {
+    expect(computeHPMax(LOCKED_ATTRS_FIXTURE)).toBe(94);
+  });
 });
 
 // ── §1  computeManaMax ───────────────────────────────────────────────────────
@@ -117,6 +127,11 @@ describe('computeManaMax', () => {
     const highInt = { ...ZEROS, INT: 10 };
     const highWis = { ...ZEROS, WIS: 10 };
     expect(computeManaMax(highInt)).toBeGreaterThan(computeManaMax(highWis));
+  });
+
+  // Locked expansion (audit RHA-11): 6·INT + 3·WIS + CHA = 6·20+3·15+7 = 172.
+  it('equals the locked 6·INT + 3·WIS + CHA expansion (172)', () => {
+    expect(computeManaMax(LOCKED_ATTRS_FIXTURE)).toBe(172);
   });
 });
 
@@ -152,6 +167,11 @@ describe('computeStaminaMax', () => {
     const highCon = { ...ZEROS, CON: 10 };
     expect(computeStaminaMax(highEnd)).toBeGreaterThan(computeStaminaMax(highCon));
   });
+
+  // Locked expansion (audit RHA-11): 5·END+2·CON+STR+AGI+DEX = 5·8+2·12+3+4+5 = 76.
+  it('equals the locked 5·END+2·CON+STR+AGI+DEX expansion (76)', () => {
+    expect(computeStaminaMax(LOCKED_ATTRS_FIXTURE)).toBe(76);
+  });
 });
 
 // ── §1  computeReserveMax ────────────────────────────────────────────────────
@@ -179,6 +199,12 @@ describe('computeReserveMax', () => {
 
   it('returns 0 when all attributes are 0 and soulLevelMod = 1', () => {
     expect(computeReserveMax(ZEROS, 1.0)).toBe(0);
+  });
+
+  // Locked expansion (audit RHA-11): 2·CON+2·END+2·WIS+CVN+MYS, modifier 1.0
+  // = 2·12+2·8+2·15+9+11 = 90.
+  it('equals the locked 2·CON+2·END+2·WIS+CVN+MYS expansion at modifier 1.0 (90)', () => {
+    expect(computeReserveMax(LOCKED_ATTRS_FIXTURE, 1.0)).toBe(90);
   });
 });
 
