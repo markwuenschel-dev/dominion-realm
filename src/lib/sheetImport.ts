@@ -59,7 +59,8 @@ const sheetImportSchema = z.object({
 /**
  * Validate an imported sheet document. Returns a clean partial state safe to
  * hand to `loadState`, or `null` (with a console.warn) when the document is
- * rejected — the caller keeps today's silent-ignore UX.
+ * rejected — the caller (StatSheetTable.handleImport, audit RHA-13) turns a
+ * `null` here into a visible, accessible import-error message.
  */
 export function parseSheetImport(data: unknown): Partial<CharacterSheetState> | null {
   const result = sheetImportSchema.safeParse(data);
