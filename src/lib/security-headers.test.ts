@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 // Plain ESM helper shared with next.config.mjs, which cannot import a .ts module
 // at config-load time. Its shape is declared with JSDoc, so tsc types it here.
 import { SECURITY_HEADERS, securityHeaderRules } from '../../scripts/lib/security-headers.mjs';
+// The wrapped default export (`withMDX(nextConfig)`) is what Next loads. Values
+// are pinned below; this import exists so deleting the attach fails the suite.
+import nextConfig from '../../next.config.mjs';
 
 /**
  * These headers were absent entirely until 2026-08-08 — no CSP, HSTS,
@@ -20,6 +23,16 @@ const byKey = (key: string): Header | undefined =>
   (SECURITY_HEADERS as Header[]).find((h) => h.key === key);
 
 describe('security headers', () => {
+  it('is the function next.config attaches, not a one-off copy of the values', async () => {
+    // Values are pinned by the cases below. This case is the attach: Next only
+    // sends these headers if `next.config.mjs` sets `headers: securityHeaderRules`.
+    // Deleting that line, or replacing it with a local list, must fail here.
+    expect(nextConfig.headers).toBe(securityHeaderRules);
+    const attached = nextConfig.headers;
+    expect(typeof attached).toBe('function');
+    expect(await (attached as typeof securityHeaderRules)()).toEqual(await securityHeaderRules());
+  });
+
   it('applies to every path, not just the home page', async () => {
     const rules = await securityHeaderRules();
     expect(rules).toHaveLength(1);

@@ -230,6 +230,20 @@ export function applyDraftPolicy<C extends CollectionName>(
   return isProd ? entries.filter((e) => !(e.data as { draft?: boolean }).draft) : entries;
 }
 
+/**
+ * Isolated Zod parse for one collection's frontmatter — no filesystem, no
+ * draft filter, no image rewrite. The live loader wraps the same schema in a
+ * file-path error; this seam lets tests (CAND-46) prove a bad reveal / missing
+ * name / invalid eyeStage fails without planting a broken file or running next
+ * build.
+ */
+export function parseCollectionFrontmatter<C extends CollectionName>(
+  collection: C,
+  data: unknown,
+): z.infer<(typeof schemas)[C]> {
+  return schemas[collection].parse(data) as z.infer<(typeof schemas)[C]>;
+}
+
 export function loadCollection<C extends CollectionName>(
   collection: C,
   drafts: DraftPolicy = 'env',

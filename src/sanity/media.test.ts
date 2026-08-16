@@ -365,3 +365,57 @@ describe('getRealmMap', () => {
     expect(map?.source).toBeTruthy();
   });
 });
+
+/**
+ * CAND-37: a Sanity fetch reject must degrade to the call site's committed
+ * fallback (null / empty Map), never throw. Copied from getSiteCover's
+ * throw-path so every reader with a static/git fallback shares one policy.
+ */
+describe('Sanity fetch soft-fail', () => {
+  type Media = Awaited<ReturnType<typeof loadMedia>>;
+  const cases: Array<{
+    reader: string;
+    call: (m: Media) => Promise<unknown>;
+    fallback: 'null' | 'empty-map';
+  }> = [
+    { reader: 'getSocialImage', call: (m) => m.getSocialImage(), fallback: 'null' },
+    { reader: 'getRealmMap', call: (m) => m.getRealmMap(), fallback: 'null' },
+    { reader: 'getSubjectCardMap', call: (m) => m.getSubjectCardMap(), fallback: 'empty-map' },
+    {
+      reader: 'getSubjectPrimaryMap',
+      call: (m) => m.getSubjectPrimaryMap(),
+      fallback: 'empty-map',
+    },
+    {
+      reader: 'getSubjectMedia',
+      call: (m) => m.getSubjectMedia('character', 'marcus'),
+      fallback: 'null',
+    },
+    {
+      reader: 'getSceneMedia',
+      call: (m) => m.getSceneMedia('reading', '01-chapter-one'),
+      fallback: 'null',
+    },
+    {
+      reader: 'getSceneMediaMap',
+      call: (m) => m.getSceneMediaMap([{ beat: 'reading', beatRef: '01-chapter-one' }]),
+      fallback: 'empty-map',
+    },
+  ];
+
+  it.each(cases)(
+    '$reader soft-fails when Sanity throws (call site uses the static fallback)',
+    async ({ call, fallback }) => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      fetch.mockRejectedValue(new Error('sanity unreachable'));
+      const media = await loadMedia();
+      const got = await call(media);
+      if (fallback === 'null') {
+        expect(got).toBeNull();
+      } else {
+        expect(got).toEqual(new Map());
+      }
+      warn.mockRestore();
+    },
+  );
+});

@@ -15,8 +15,9 @@ import type { ClassKey, AttrRole } from '@/lib/classTaxonomy';
 
 export interface CharacterSheetAttributes extends Attributes {
   /**
-   * Per luck_fortune.md: Luck is a cross-system probability-flow mechanic, not a
-   * resource weight. Never converted to a numeric resource/combat bonus here.
+   * LUCK/carried rule (`src/lib/classTaxonomy.ts` / CONTEXT.md): Luck is a
+   * cross-system probability-flow mechanic, not a resource weight. Never
+   * converted to a numeric resource/combat bonus here.
    */
   LUCK: number;
 }

@@ -11,7 +11,7 @@ This **amends [ADR-0001](0001-static-site-third-party-services.md)**: the *publi
 
 It also relaxes [ADR-0008](0008-stack-astro-typescript-vanilla-islands.md)'s "no React app-wide" stance for a single, build-scoped reason: Keystatic's editor is a React app. React ships **only** on the Netlify admin routes, never to public-site visitors on either target, so the vanilla-first island posture for the actual site is intact.
 
-Status: accepted.
+Status: superseded by [ADR-0010](0010-migrate-astro-to-nextjs.md).
 
 Considered and rejected: a hosted SaaS CMS (recurring cost, content leaves Git, conflicts with ADR-0001), a separate Decap/Netlify CMS (heavier OAuth proxy, less type-aligned with our Zod schema), and running the admin on GitHub Pages (impossible — it cannot execute server code).
 

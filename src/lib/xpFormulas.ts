@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // lib/xpFormulas.ts
-// Prevalence-derived exponential XP model. Reference implementation transcribed
-// from xp_progression_formulas.md §§19–20.
+// Prevalence-derived exponential XP model. This file (`src/lib/xpFormulas.ts`)
+// is the live source of truth for the progression implementation.
 //
 // Do NOT hand-edit D0 or BETA. If pacing changes, change the design anchors
 // (XP_Common(1)=100, XP_Common(20)≈5216, XP_Legendary(20)≈1.38·XP_Common(20))

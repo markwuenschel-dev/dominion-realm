@@ -7,9 +7,12 @@ import {
   escapeXml,
   buildChapters,
   kindLabel,
+  bookWithAuthor,
+  BOOK,
   EPUB_HREF,
   PDF_HREF,
 } from '../../scripts/lib/sample-doc.mjs';
+import { SITE } from './site';
 
 /**
  * Pure generator-core tests. This is the logic shared by the build-time EPUB
@@ -106,5 +109,18 @@ describe('metadata', () => {
   it('exposes download hrefs under /downloads', () => {
     expect(EPUB_HREF).toMatch(/^\/downloads\/.+\.epub$/);
     expect(PDF_HREF).toMatch(/^\/downloads\/.+\.pdf$/);
+  });
+
+  it('bakes SITE.author into EPUB/PDF metadata — one source of truth', () => {
+    const baked = bookWithAuthor(SITE.author);
+    expect(baked.author).toBe(SITE.author);
+    expect(baked.author.trim().length).toBeGreaterThan(0);
+    // The book title used to be shipped as a placeholder byline.
+    expect(baked.author).not.toBe(BOOK.title);
+  });
+
+  it('binds the supplied byline rather than a hardcoded placeholder', () => {
+    expect(bookWithAuthor('Ursula K. Le Guin').author).toBe('Ursula K. Le Guin');
+    expect(BOOK).not.toHaveProperty('author');
   });
 });

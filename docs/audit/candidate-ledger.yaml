@@ -21,6 +21,31 @@ meta:
       provenance. The 7 carried-on-open-PR + 2 open candidates were verified
       landed on this branch's working tree (see `reconciled_shipped`) and
       flipped to shipped; the 5 needs-human-decision remain open.
+  campaign_20260815:
+    date: 2026-08-15
+    branch: chore/integrity-campaign-20260815
+    commits: [f4bdcb9, 712e506, d2d84eb, eca9d07, 3c3e036, 75f8375, 0a5ed85, a20c2d4, 18f6b6d, d3c94fe, 2116deb, 2d249af, a8e9718, 0fae9ee]
+    note: >-
+      A later audit round produced CAND-37..55 and shipped 13 of them
+      (CAND-37,38,42,46,47,48,49,50,51,52,53,54,55) via 13 individual
+      feat/cand-* branches, merged into this integration branch on
+      2026-08-15 (merge commits d89634b, f9dadae) with a lint/format
+      follow-up (0fae9ee). CAND-39/40/41/43/44/45 were never landed on any
+      branch and have no report artifact in this repo to source titles/scores
+      from — six ids skipped between 38 and 46, presumably dropped or merged
+      during triage of that later round, but that triage was never captured
+      here. Ledger entries below (`campaign_20260815_shipped`) are
+      reconstructed from each commit's diff, not from an original
+      swarm-report scoring pass, so they omit the `scores`/`rollup` blocks
+      the CAND-01..36 entries carry — do not treat their absence as the
+      candidates being unscored-and-therefore-lower-priority; they were
+      simply never scored in this ledger's format.
+    captain_baseline_recheck:
+      date: 2026-08-16
+      format: "pnpm format:check clean (220 files)"
+      lint: "pnpm lint (oxlint -D correctness -D suspicious src scripts) clean"
+      check: "pnpm check (tsc --noEmit) clean"
+      test: "pnpm test (vitest run --coverage) -> 60 files / 601 tests passed"
   captain_baseline:
     verified: true
     format: "pnpm format:check clean (193 files)"
@@ -36,6 +61,9 @@ meta:
     x-forwarded-host trust, timeline CMS hole, dual cover SoT, resource-doc naming)
     were decided (2026-07-20) and then implemented on this branch (see `implemented`),
     so all 27 candidates are shipped and nothing is blocked on a human call.
+    (This grade/rationale predates the 2026-08-15 campaign round — see
+    `meta.campaign_20260815` and `campaign_20260815_shipped` for the 13
+    candidates landed since; it was not re-derived from a fresh lane pass.)
   lane_grades:
     deepening_seams: { grade: "B+", score: 4 }
     graded_integrity: { grade: "B+", score: 4 }
@@ -155,6 +183,243 @@ implemented:
     landed: "Keystatic home singleton + homeSettings.ts/.test + home.json removed; FALLBACK_COVER static asset; getSiteCover soft-fails to null on Sanity error; page.tsx uses sanityCover ?? FALLBACK_COVER; README/site.ts copy fixed"
     supersedes: "CAND-17 — retires the homeSettings read path that CAND-17 had Zod-gated"
     residual: "full homepage Sanity-outage resilience still depends on getSubjectCardMap in the same Promise.all (portraits) — out of scope, tracked separately"
+
+# CAND-37..55 from the 2026-08-15 campaign round (see meta.campaign_20260815).
+# No original report/scores for this round exist in this repo; entries below
+# are reconstructed from each commit's diff.
+campaign_20260815_shipped:
+  - candidate_id: CAND-37
+    title: "Sanity readers besides getSiteCover throw instead of soft-failing"
+    category: "Reliability"
+    commit: f4bdcb9
+    summary: >-
+      CAND-19 soft-failed getSiteCover to null on a Sanity fetch reject, but
+      getSocialImage/getRealmMap/getSubjectPrimaryMap/getSubjectCardMap still
+      called sanityClient.fetch directly, so a down CMS could 500 those pages.
+    landed: >-
+      Extracted safeFetch<T>(reader, query, params, fallback) that logs and
+      returns fallback on reject; all four remaining readers route through it
+      (null for single images, [] for the two map readers), same policy as
+      getSiteCover.
+    evidence:
+      - "src/sanity/media.ts:136-152 — safeFetch wrapper"
+      - "src/sanity/media.ts:244-321 — getSocialImage/getRealmMap/getSubjectPrimaryMap/getSubjectCardMap routed through it"
+      - "src/sanity/media.test.ts — reject-path coverage added"
+    status: shipped
+
+  - candidate_id: CAND-38
+    title: "Zustand persist rehydration bypasses the sheet-import Zod gate"
+    category: "Data / Schema / Contract"
+    commit: 712e506
+    summary: >-
+      CAND-10 Zod-gated the JSON-import path into the character sheet store,
+      but persist rehydration (localStorage -> store on load) merges its blob
+      directly, spreading onto state and bypassing the same setters' clamps.
+    landed: >-
+      Added a persist `merge` option that runs the persisted state through
+      parseSheetImport; a missing/invalid same-version blob keeps the current
+      (default) state instead of applying unvalidated fields.
+    evidence:
+      - "src/store/characterSheetStore.ts:122-128 — merge: parseSheetImport(persistedState)"
+      - "src/lib/sheetImport.ts:4-11 — doc comment names both external-input paths (CAND-10 + CAND-38)"
+      - "src/store/characterSheetStore.test.ts — invalid species rejected, valid partial hydrates"
+    status: shipped
+
+  - candidate_id: CAND-42
+    title: "pnpm test did not run with --coverage; ratchet unenforced"
+    category: "Build / CI"
+    commit: d2d84eb
+    summary: >-
+      package.json's `test` script ran `vitest run` (no coverage), so any
+      coverage-ratchet gate reachable only through `--coverage` was silently
+      unenforced whenever CI/devs ran the documented `pnpm test` command.
+    landed: >-
+      `test` now runs `vitest run --coverage` (same as `test:coverage`);
+      README's command table and CI description updated to match.
+    evidence:
+      - "package.json:19 — \"test\": \"vitest run --coverage\""
+      - "README.md:84,256-259 — docs repointed to the coverage-enforcing command"
+    status: shipped
+
+  - candidate_id: CAND-46
+    title: "No isolated negative-path tests for content-collection Zod schemas"
+    category: "Testing"
+    commit: eca9d07
+    summary: >-
+      Frontmatter validation is only exercised indirectly through the live
+      corpus via loadCollection (filesystem + draft filter + image rewrite
+      entangled), so there was no fixture-only way to prove a bad reveal /
+      missing name / invalid eyeStage actually fails Zod.
+    landed: >-
+      Exported parseCollectionFrontmatter(collection, data) — the same schema
+      map the loader uses, with no filesystem/draft/image-path coupling — and
+      added fixture tests asserting specific bad-shape rejections per collection.
+    evidence:
+      - "src/lib/contentCore.ts:233-243 — parseCollectionFrontmatter seam"
+      - "src/lib/content.test.ts — isolated negative-path cases added"
+    status: shipped
+
+  - candidate_id: CAND-47
+    title: "Code comments cite canon .md files that were never committed (ghost cites)"
+    category: "Maintainability"
+    commit: 3c3e036
+    summary: >-
+      classTaxonomy.ts, xpFormulas.ts, and characterSheet.ts cited classes.md,
+      xp_progression_formulas.md, and luck_fortune.md as the transcription
+      source, but (per CAND-09's prior finding) those files never existed in
+      this repo — the same ghost-citation pattern, in formula modules instead
+      of CONTEXT/footer.
+    landed: >-
+      Comments rewritten to name the module itself (or CONTEXT.md) as the live
+      source of truth instead of a nonexistent external doc; no behavior change.
+    evidence:
+      - "src/lib/classTaxonomy.ts:2-3,30,736-738 — ghost classes.md cites removed"
+      - "src/lib/xpFormulas.ts:2-3 — ghost xp_progression_formulas.md cite removed"
+      - "src/types/characterSheet.ts:17-19 — ghost luck_fortune.md cite removed"
+    status: shipped
+
+  - candidate_id: CAND-48
+    title: "Timeline scene-art docs still describe the pre-CAND-27 per-beat reader"
+    category: "Maintainability"
+    commit: 75f8375
+    summary: >-
+      CONTEXT.md and ADR-0014 described /timeline as calling getSceneMedia
+      once per beat, but CAND-27 (2026-07 batch) had already replaced that
+      with the batched getSceneMediaMap reader — the docs never caught up.
+    landed: >-
+      Both docs repointed to name getSceneMediaMap as the one batched read;
+      ADR-0014 clarifies reading still uses the single-item getSceneMedia.
+    evidence:
+      - "CONTEXT.md:155 — batched getSceneMediaMap read"
+      - "docs/adr/0014-scene-art-beat-scoped.md:37-42 — reader description corrected"
+    status: shipped
+
+  - candidate_id: CAND-49
+    title: "EPUB/PDF sample metadata ships a placeholder author"
+    category: "Bug"
+    commit: 0a5ed85
+    summary: >-
+      BOOK.author in sample-doc.mjs was hardcoded to the book title
+      ('The Dominion Realm') as a placeholder pending the real byline, but the
+      real byline (SITE.author) already existed in src/lib/site.ts and was
+      never wired to the downloadable EPUB/PDF metadata.
+    landed: >-
+      BOOK no longer carries an author field; bookWithAuthor(author) binds it
+      at generate time, and generate-downloads.ts calls it with SITE.author so
+      the byline has one source of truth.
+    evidence:
+      - "scripts/lib/sample-doc.mjs:126-153 — bookWithAuthor(author); BOOK has no author field"
+      - "scripts/generate-downloads.ts:23,29 — bookWithAuthor(SITE.author)"
+      - "src/lib/sample-doc.test.ts:113-125 — asserts baked author != BOOK.title placeholder"
+    status: shipped
+
+  - candidate_id: CAND-50
+    title: "tsconfig still includes the pdfkit.d.ts shim CAND-35 deleted"
+    category: "Static"
+    commit: a20c2d4
+    summary: >-
+      CAND-35 (2026-07 batch) deleted scripts/pdfkit.d.ts after installing
+      @types/pdfkit, but tsconfig.json's include array still listed the
+      deleted path — a dead include, not a functional break (tsc doesn't fail
+      on a missing glob match), but drift from the CAND-35 cleanup.
+    landed: "Removed the dead \"scripts/pdfkit.d.ts\" entry from tsconfig.json's include."
+    evidence:
+      - "tsconfig.json:29 (pre-fix) — scripts/pdfkit.d.ts include, file deleted by CAND-35"
+    status: shipped
+
+  - candidate_id: CAND-51
+    title: "Reveal DOM-seal components (Inline, GatedCard, GatedRelationships) untested"
+    category: "Testing"
+    commit: 18f6b6d
+    summary: >-
+      The reveal-tier gate's core guarantee is that sealed content is absent
+      from the live DOM (not just visually hidden), but RevealInline,
+      GatedCard, and GatedRelationships had no tests proving that seal holds
+      or that it lifts once the persisted level covers the tier.
+    landed: >-
+      Added render tests per component: sealed state hides the gated
+      text/link from the DOM entirely (queryByText/queryByRole absent) and a
+      persisted REVEAL_STORAGE_KEY at/above the tier reveals it.
+    evidence:
+      - "src/components/reveal/GatedCard.test.tsx — withholds name+summary when sealed; reveals at persisted level"
+      - "src/components/reveal/GatedRelationships.test.tsx — sealed item renders as non-link with no href"
+      - "src/components/reveal/RevealInline.test.tsx — DOM-seal coverage"
+    status: shipped
+
+  - candidate_id: CAND-52
+    title: "Security header values tested but never asserted wired into next.config"
+    category: "Static"
+    commit: d3c94fe
+    summary: >-
+      security-headers.test.ts asserted the SECURITY_HEADERS rule shapes were
+      correct, but nothing proved next.config.mjs actually attaches
+      securityHeaderRules — a config edit that silently dropped or replaced
+      the `headers` key would pass the existing suite.
+    landed: >-
+      Added a case asserting `nextConfig.headers` is the same function
+      reference as `securityHeaderRules` (not a copy), so deleting or
+      replacing the attach line fails the suite.
+    evidence:
+      - "src/lib/security-headers.test.ts:26-34 — nextConfig.headers === securityHeaderRules identity assertion"
+    status: shipped
+
+  - candidate_id: CAND-53
+    title: "Superseded ADRs (Astro/Netlify posture) have no supersession marker"
+    category: "Maintainability"
+    commit: 2116deb
+    summary: >-
+      ADR-0001/0008/0009 describe the pre-Next.js/pre-EC2 Astro+Netlify
+      posture and were never marked superseded after ADR-0010 (Next.js
+      migration) and ADR-0012 (EC2 hosting) landed, so a reader hitting them
+      first gets a stale architecture picture with no pointer forward.
+    landed: >-
+      Added explicit \"Status: superseded by ADR-0010/ADR-0012\" lines;
+      next.config.mjs comment corrected to say CI now also runs on push to
+      main (not PR-only), matching CAND-03's earlier fix.
+    evidence:
+      - "docs/adr/0001-static-site-third-party-services.md:5 — supersession line"
+      - "docs/adr/0008-stack-astro-typescript-vanilla-islands.md:7 — supersession line"
+      - "docs/adr/0009-cms-keystatic.md:14 — supersession line"
+      - "next.config.mjs:48-50 — CI-on-push comment corrected"
+    status: shipped
+
+  - candidate_id: CAND-54
+    title: "Sanity revalidate webhook trusts a request when its secret is unset"
+    category: "Other"
+    commit: 2d249af
+    summary: >-
+      next-sanity's parseBody treats a missing SANITY_REVALIDATE_SECRET as
+      \"accept any signature\" (open relay), so an unconfigured/misconfigured
+      env var would silently accept any revalidation request instead of
+      rejecting it.
+    landed: >-
+      POST fails closed before calling parseBody when the secret is unset,
+      empty, or whitespace-only, returning 401 without touching
+      revalidateTag; tests cover all three unset shapes.
+    evidence:
+      - "src/app/api/revalidate/route.ts:17-20 — fail-closed guard before parseBody"
+      - "src/app/api/revalidate/route.test.ts:52-65 — unset/empty/whitespace cases, parseBody+revalidateTag never called"
+    status: shipped
+
+  - candidate_id: CAND-55
+    title: "Regen formulas hand-roll term-by-term sums instead of the shared coefficient reducer"
+    category: "Maintainability"
+    commit: a8e9718
+    summary: >-
+      computeBase{HP,Mana,Stamina,Reserve}Regen each hand-wrote their
+      coefficient-times-attribute sum inline, while resources.ts already had
+      an equivalent private sumCoefficients reducer used elsewhere — a
+      four-way duplication of the same term-summing logic.
+    landed: >-
+      sumCoefficients exported from resources.ts; all four regen formulas now
+      call it against their *_REGEN_COEFFICIENTS record instead of re-deriving
+      the sum by hand. A locked-expansion test pins one formula's coefficients
+      against the doc-comment formula.
+    evidence:
+      - "src/lib/formulas/resources.ts:35-38 — sumCoefficients exported"
+      - "src/lib/formulas/regeneration.ts:16,26,36,46 — four formulas now call sumCoefficients"
+      - "src/lib/formulas/regeneration.test.ts:65-79 — locked 0.50·CON+0.30·END+0.20·WIS expansion test"
+    status: shipped
 
 candidates:
   - candidate_id: CAND-01
