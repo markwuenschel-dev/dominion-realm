@@ -10,13 +10,15 @@
 // for PDF, write). Draft chapters are always excluded from the sample.
 //
 // Both libraries are pure JavaScript (no native deps) and only used here at
-// build time, so they never enter the Next.js client bundle. If either fails to
-// load (e.g. a stripped-down container), we fall back to writing a readable
-// HTML document with the same chapter content and a `.html` companion, and log
-// loudly — the UI still links the EPUB/PDF hrefs, which then 404 until a full
-// build runs.
+// build time, so they never enter the Next.js client bundle. A failure in
+// either format (or zero readable chapters) is fatal (audit RHA-02): both
+// artifacts are staged in a sibling temp directory first and only moved into
+// the real download directory once BOTH succeed, so a failed run never
+// leaves partial or stale output behind, and the build fails loudly instead
+// of shipping a download link that 404s.
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { default as JSZipType } from 'jszip';
 import type PDFDocument from 'pdfkit';
 import { getReadingEntries } from '../src/lib/contentCore';
@@ -255,65 +257,86 @@ async function buildPdf(PDFDocument: PdfCtor, chapters: SampleChapter[]): Promis
   return done;
 }
 
-/** Documented fallback: a single readable HTML file when a generator lib is missing. */
-function writeHtmlFallback(format: string, chapters: SampleChapter[]) {
-  const body = chapters
-    .map(
-      (ch) =>
-        `<section><p class="kicker">${escapeXml(kindLabel(ch.kind))}</p><h1>${escapeXml(
-          ch.title,
-        )}</h1><p class="summary">${escapeXml(ch.summary)}</p><hr class="title-rule"/>${blocksToXhtml(
-          ch.blocks,
-        )}</section>`,
-    )
-    .join('\n');
-  const html = `<!DOCTYPE html><html lang="${BOOK.language}"><head><meta charset="utf-8"/><title>${escapeXml(
-    BOOK.title,
-  )}</title><style>${STYLE_CSS}</style></head><body><section class="title-page"><h1>${escapeXml(
-    BOOK.title,
-  )}</h1><p class="sub">${escapeXml(sampleSubtitle(chapters))}</p></section>${body}</body></html>`;
-  const file = path.join(OUT_DIR, `${format}-fallback.html`);
-  fs.writeFileSync(file, html, 'utf8');
-  console.warn(`[downloads] FALLBACK: wrote ${path.relative(process.cwd(), file)} (HTML).`);
+export interface GenerateDownloadsDeps {
+  /** Injectable for tests. Defaults to the real dynamic `import('jszip')`. */
+  loadJSZip: () => Promise<typeof JSZipType>;
+  /** Injectable for tests. Defaults to the real dynamic `import('pdfkit')`. */
+  loadPDFDocument: () => Promise<PdfCtor>;
+  /** Publish destination. Defaults to `public/downloads/`. */
+  outDir: string;
+  /** Injectable for tests. Defaults to the real `readSources()` (contentCore). */
+  sources: ReturnType<typeof readSources>;
+}
+
+const defaultLoadJSZip = async () => (await import('jszip')).default;
+const defaultLoadPDFDocument = async () => (await import('pdfkit')).default;
+
+/**
+ * Generate both download artifacts and publish them, or throw. Either
+ * format failing, or zero readable chapters, is fatal (audit RHA-02) — this
+ * function never silently produces a partial or empty result. Both
+ * artifacts are staged in a temp directory *next to* `outDir` (same
+ * filesystem, so the final move is a plain rename, not a cross-device
+ * copy) and only moved into `outDir` after both succeed, so a failed run
+ * never leaves stale or partial output in the published location.
+ */
+export async function generateDownloads(deps: Partial<GenerateDownloadsDeps> = {}): Promise<void> {
+  const loadJSZip = deps.loadJSZip ?? defaultLoadJSZip;
+  const loadPDFDocument = deps.loadPDFDocument ?? defaultLoadPDFDocument;
+  const outDir = deps.outDir ?? OUT_DIR;
+  const sources = deps.sources ?? readSources();
+
+  const chapters = buildChapters(sources);
+  if (chapters.length === 0) {
+    throw new Error('[downloads] no reading entries found — cannot generate downloads.');
+  }
+
+  const stagingDir = fs.mkdtempSync(path.join(path.dirname(outDir), '.downloads-staging-'));
+  try {
+    let epub: Buffer;
+    try {
+      const JSZip = await loadJSZip();
+      epub = await buildEpub(JSZip, chapters);
+    } catch (err) {
+      throw new Error('[downloads] EPUB generation failed', { cause: err });
+    }
+    fs.writeFileSync(path.join(stagingDir, EPUB_FILENAME), epub);
+
+    let pdf: Buffer;
+    try {
+      const PDFDocument = await loadPDFDocument();
+      pdf = await buildPdf(PDFDocument, chapters);
+    } catch (err) {
+      throw new Error('[downloads] PDF generation failed', { cause: err });
+    }
+    fs.writeFileSync(path.join(stagingDir, PDF_FILENAME), pdf);
+
+    // Both succeeded — publish. Clear the destination first so a stale file
+    // from a prior successful run (of a since-removed chapter, say) can
+    // never survive next to fresh output.
+    fs.rmSync(outDir, { recursive: true, force: true });
+    fs.mkdirSync(outDir, { recursive: true });
+    fs.renameSync(path.join(stagingDir, EPUB_FILENAME), path.join(outDir, EPUB_FILENAME));
+    fs.renameSync(path.join(stagingDir, PDF_FILENAME), path.join(outDir, PDF_FILENAME));
+    console.log(`[downloads] wrote ${DOWNLOAD_DIR}/${EPUB_FILENAME} (${epub.length} bytes)`);
+    console.log(`[downloads] wrote ${DOWNLOAD_DIR}/${PDF_FILENAME} (${pdf.length} bytes)`);
+  } finally {
+    fs.rmSync(stagingDir, { recursive: true, force: true });
+  }
 }
 
 async function main() {
-  const sources = readSources();
-  const chapters = buildChapters(sources);
-  if (chapters.length === 0) {
-    console.warn('[downloads] no reading entries found — skipping download generation.');
-    return;
-  }
-
-  fs.rmSync(OUT_DIR, { recursive: true, force: true });
-  fs.mkdirSync(OUT_DIR, { recursive: true });
-
-  // EPUB
-  try {
-    const { default: JSZip } = await import('jszip');
-    const epub = await buildEpub(JSZip, chapters);
-    fs.writeFileSync(path.join(OUT_DIR, EPUB_FILENAME), epub);
-    console.log(`[downloads] wrote ${DOWNLOAD_DIR}/${EPUB_FILENAME} (${epub.length} bytes)`);
-  } catch (err) {
-    console.error(
-      `[downloads] EPUB generation failed: ${err instanceof Error ? err.message : err}`,
-    );
-    writeHtmlFallback('epub', chapters);
-  }
-
-  // PDF
-  try {
-    const { default: PDFDocument } = await import('pdfkit');
-    const pdf = await buildPdf(PDFDocument, chapters);
-    fs.writeFileSync(path.join(OUT_DIR, PDF_FILENAME), pdf);
-    console.log(`[downloads] wrote ${DOWNLOAD_DIR}/${PDF_FILENAME} (${pdf.length} bytes)`);
-  } catch (err) {
-    console.error(`[downloads] PDF generation failed: ${err instanceof Error ? err.message : err}`);
-    writeHtmlFallback('pdf', chapters);
-  }
+  await generateDownloads();
 }
 
-main().catch((err: unknown) => {
-  console.error('[downloads] generation aborted:', err);
-  process.exit(1);
-});
+// Only auto-run when executed directly (`tsx scripts/generate-downloads.ts`,
+// per package.json's prebuild/predev) -- not when imported for its exports
+// (generate-downloads.test.ts imports `generateDownloads` directly).
+const isMainModule =
+  process.argv[1] != null && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+if (isMainModule) {
+  main().catch((err: unknown) => {
+    console.error('[downloads] generation aborted:', err);
+    process.exit(1);
+  });
+}
