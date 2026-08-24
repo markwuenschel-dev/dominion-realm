@@ -6,12 +6,21 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
  * (`KEYSTATIC_URL` → `SITE_URL`) and NEVER from a request header, so a spoofed
  * `x-forwarded-host` cannot steer the auth path. `makeRouteHandler` is mocked so
  * importing the route needs no GitHub credentials.
+ *
+ * The mock returns ONE stable handler object rather than a fresh one per call: the
+ * INT-07 suite below asserts that this exact instance is never invoked, and a
+ * factory handing back a new object each time would make that assertion vacuously
+ * true.
  */
-vi.mock('@keystatic/next/route-handler', () => ({
-  makeRouteHandler: () => ({ GET: vi.fn<() => void>(), POST: vi.fn<() => void>() }),
+const { innerHandler } = vi.hoisted(() => ({
+  innerHandler: { GET: vi.fn<() => void>(), POST: vi.fn<() => void>() },
 }));
 
-import { withPublicOrigin } from './route';
+vi.mock('@keystatic/next/route-handler', () => ({
+  makeRouteHandler: () => innerHandler,
+}));
+
+import { GET, POST, withPublicOrigin } from './route';
 import { SITE_URL } from '@/lib/site';
 
 afterEach(() => {
@@ -59,5 +68,47 @@ describe('withPublicOrigin (CAND-23)', () => {
     vi.stubEnv('KEYSTATIC_URL', '');
     const req = new Request(`${SITE_URL}/api/keystatic/github/oauth/callback`);
     expect(withPublicOrigin(req)).toBe(req);
+  });
+});
+
+/**
+ * INT-07 — the handler boundary itself. `keystaticAccess.test.ts` proves the gate's
+ * logic; this proves the route consults it BEFORE Keystatic runs, for every verb and
+ * every path including `tree`.
+ *
+ * The unit under test is the real exported handler, so a future refactor that moves
+ * the check after `keystatic.GET(...)` — or drops it from one verb — fails here.
+ */
+describe('INT-07: the route is sealed when authoring is disabled', () => {
+  const tree = () => new Request(`${SITE_URL}/api/keystatic/tree`, { headers: { 'no-cors': '1' } });
+
+  it.each([
+    ['GET', GET],
+    ['POST', POST],
+  ])('%s returns 404 in production with no authoring opt-in', async (_verb, handler) => {
+    vi.stubEnv('NODE_ENV', 'production');
+    const res = await handler(tree());
+    expect(res.status).toBe(404);
+  });
+
+  it('never reaches the unauthenticated Keystatic handler', async () => {
+    // The exact request that returned HTTP 200 and a 154-entry file inventory from
+    // the live box on 2026-08-24: the `no-cors: 1` header is Keystatic local mode's
+    // ONLY guard, so this must die at our gate, not at theirs.
+    vi.stubEnv('NODE_ENV', 'production');
+    innerHandler.GET.mockClear();
+    innerHandler.POST.mockClear();
+
+    await GET(tree());
+    await POST(tree());
+
+    expect(innerHandler.GET).not.toHaveBeenCalled();
+    expect(innerHandler.POST).not.toHaveBeenCalled();
+  });
+
+  it('setting only the public flag does not reopen it', async () => {
+    vi.stubEnv('NODE_ENV', 'production');
+    vi.stubEnv('NEXT_PUBLIC_KEYSTATIC_GITHUB', 'true');
+    expect((await GET(tree())).status).toBe(404);
   });
 });
