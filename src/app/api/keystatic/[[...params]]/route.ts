@@ -4,6 +4,7 @@
 import { makeRouteHandler } from '@keystatic/next/route-handler';
 import config from '../../../../../keystatic.config';
 import { SITE_URL } from '@/lib/site';
+import { keystaticAuthoringState, keystaticDisabledResponse } from '@/lib/keystaticAccess';
 
 const keystatic = makeRouteHandler({ config });
 
@@ -75,9 +76,26 @@ export function withPublicOrigin(req: Request): Request {
   return new Request(url.toString(), init);
 }
 
+/**
+ * Every verb passes the authoring gate before Keystatic sees the request.
+ *
+ * The gate runs FIRST and covers the whole handler, `tree` included. Keystatic's
+ * own path restriction (`getIsPathValid`) bounds the blob and update endpoints to
+ * the six content directories, but `tree` carries no such restriction: it walks and
+ * hashes every file under the working directory. A read-only inventory API with no
+ * credential is not something a path allow-list makes acceptable, so nothing is
+ * served rather than some of it (campaign decision Q22).
+ *
+ * Note what is NOT the gate: `withPublicOrigin` below returns the request untouched
+ * whenever the public flag is not `'true'` — it is OAuth plumbing, and it is inert
+ * in exactly the misconfigured state that opens the unauthenticated handler. It was
+ * never authorization and must not be mistaken for it.
+ */
 export function GET(req: Request) {
+  if (!keystaticAuthoringState().enabled) return keystaticDisabledResponse();
   return keystatic.GET(withPublicOrigin(req));
 }
 export function POST(req: Request) {
+  if (!keystaticAuthoringState().enabled) return keystaticDisabledResponse();
   return keystatic.POST(withPublicOrigin(req));
 }
