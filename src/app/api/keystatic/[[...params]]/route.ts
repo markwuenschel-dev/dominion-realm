@@ -6,7 +6,29 @@ import config from '../../../../../keystatic.config';
 import { SITE_URL } from '@/lib/site';
 import { keystaticAuthoringState, keystaticDisabledResponse } from '@/lib/keystaticAccess';
 
-const keystatic = makeRouteHandler({ config });
+/**
+ * Built on first authorized request, never at module load.
+ *
+ * `makeRouteHandler` validates its configuration eagerly: in `github` storage mode
+ * with any OAuth secret missing it THROWS. At module scope that throw happens during
+ * module evaluation, so the route module never finishes loading and neither `GET` nor
+ * `POST` ever runs — which silently disables the authoring gate below, because the
+ * gate lives inside those handlers.
+ *
+ * That is not hypothetical either. Observed on the production box on 2026-08-24 after
+ * the INT-07 containment put storage into `github` mode without secrets: every request
+ * to `/api/keystatic/*` returned 500 from a module-evaluation error at `route.js:6:3`,
+ * and the 404 this route is supposed to serve never happened. The endpoint failed
+ * closed by crashing, which is luck rather than design.
+ *
+ * Constructing lazily makes the gate genuinely authoritative: a shut gate returns 404
+ * without ever touching Keystatic's config validation, so no combination of missing or
+ * malformed secrets can change the response. It also keeps the original property that
+ * a misconfigured deploy cannot serve the CMS.
+ */
+let keystaticHandler: ReturnType<typeof makeRouteHandler> | undefined;
+
+const keystatic = () => (keystaticHandler ??= makeRouteHandler({ config }));
 
 /** Hosts that a browser can't reach — the internal bind address Next echoes back. */
 const isInternalHost = (host: string) => /^(127\.|0\.0\.0\.0|localhost|\[?::1\]?)/i.test(host);
@@ -93,9 +115,9 @@ export function withPublicOrigin(req: Request): Request {
  */
 export function GET(req: Request) {
   if (!keystaticAuthoringState().enabled) return keystaticDisabledResponse();
-  return keystatic.GET(withPublicOrigin(req));
+  return keystatic().GET(withPublicOrigin(req));
 }
 export function POST(req: Request) {
   if (!keystaticAuthoringState().enabled) return keystaticDisabledResponse();
-  return keystatic.POST(withPublicOrigin(req));
+  return keystatic().POST(withPublicOrigin(req));
 }

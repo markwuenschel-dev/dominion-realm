@@ -12,12 +12,16 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
  * factory handing back a new object each time would make that assertion vacuously
  * true.
  */
-const { innerHandler } = vi.hoisted(() => ({
-  innerHandler: { GET: vi.fn<() => void>(), POST: vi.fn<() => void>() },
-}));
+const { innerHandler, makeRouteHandlerSpy } = vi.hoisted(() => {
+  const handler = { GET: vi.fn<() => void>(), POST: vi.fn<() => void>() };
+  return {
+    innerHandler: handler,
+    makeRouteHandlerSpy: vi.fn<() => typeof handler>(() => handler),
+  };
+});
 
 vi.mock('@keystatic/next/route-handler', () => ({
-  makeRouteHandler: () => innerHandler,
+  makeRouteHandler: makeRouteHandlerSpy,
 }));
 
 import { GET, POST, withPublicOrigin } from './route';
@@ -81,6 +85,30 @@ describe('withPublicOrigin (CAND-23)', () => {
  */
 describe('INT-07: the route is sealed when authoring is disabled', () => {
   const tree = () => new Request(`${SITE_URL}/api/keystatic/tree`, { headers: { 'no-cors': '1' } });
+
+  /**
+   * The regression that reached production. `makeRouteHandler` validates eagerly and
+   * THROWS in github mode without OAuth secrets. Called at module scope, that throw
+   * happens during module evaluation, the route module never loads, and every request
+   * 500s from an import error -- so the gate below never runs at all. Observed live on
+   * 2026-08-24. Construction must therefore be lazy, and must never happen for a
+   * request the gate refuses.
+   *
+   * This assertion runs before anything in this file issues a request, so a non-zero
+   * count here means construction happened at import time.
+   */
+  it('never constructs the Keystatic handler at module load', () => {
+    expect(makeRouteHandlerSpy).not.toHaveBeenCalled();
+  });
+
+  it('does not construct the handler for a request it refuses', async () => {
+    vi.stubEnv('NODE_ENV', 'production');
+    await GET(tree());
+    await POST(tree());
+    // A shut gate must not touch Keystatic's config validation, so no combination of
+    // missing or malformed secrets can influence the response.
+    expect(makeRouteHandlerSpy).not.toHaveBeenCalled();
+  });
 
   it.each([
     ['GET', GET],
