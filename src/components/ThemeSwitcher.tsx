@@ -9,6 +9,7 @@ import {
   normalizeStoredTheme,
   type SiteThemeId,
 } from '@/data/site-themes';
+import { safeGetValue, safeSet } from '@/lib/safeStorage';
 
 export type SiteTheme = SiteThemeId;
 
@@ -21,7 +22,12 @@ export function ThemeSwitcher() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const initial = normalizeStoredTheme(localStorage.getItem(THEME_STORAGE_KEY));
+    // Guarded read. An unguarded `localStorage.getItem` throws outright in a
+    // storage-blocked browser, and because the throw happened before
+    // `setMounted(true)` the `if (!mounted) return null` below then removed the
+    // theme control from the page permanently — a lost preference became a
+    // missing UI element.
+    const initial = normalizeStoredTheme(safeGetValue(THEME_STORAGE_KEY));
     setTheme(initial);
     applyThemeToDocument(initial);
     setMounted(true);
@@ -29,8 +35,13 @@ export function ThemeSwitcher() {
 
   function select(next: SiteThemeId) {
     setTheme(next);
-    localStorage.setItem(THEME_STORAGE_KEY, next);
+    // Apply BEFORE persisting. The previous order wrote first, so a throwing
+    // store discarded the theme the reader had just chosen — the visible change
+    // was lost along with the saved one, when only the saved one had failed.
+    // A theme is machine-derived preference, so a failed write degrades to
+    // session-only in silence; reader-authored data does not get that treatment.
     applyThemeToDocument(next);
+    safeSet(THEME_STORAGE_KEY, next);
   }
 
   if (!mounted) return null;
