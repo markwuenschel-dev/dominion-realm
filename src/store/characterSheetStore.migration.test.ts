@@ -63,13 +63,13 @@ const V2_STATE = {
 beforeEach(() => {
   localStorage.removeItem(STORAGE_KEY);
   useCharacterSheetStore.getState().resetToDefaults();
-  useSheetMigrationNoticeStore.getState().clear();
+  useSheetMigrationNoticeStore.getState().resetForTests();
 });
 
 afterEach(() => {
   localStorage.removeItem(STORAGE_KEY);
   useCharacterSheetStore.getState().resetToDefaults();
-  useSheetMigrationNoticeStore.getState().clear();
+  useSheetMigrationNoticeStore.getState().resetForTests();
 });
 
 describe('characterSheetStore persist migrate (RHA-01)', () => {

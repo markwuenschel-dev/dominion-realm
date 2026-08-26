@@ -9,6 +9,12 @@ import { ATTRIBUTE_BASELINE } from '@/lib/formulas/pointBudget';
 import type { SpeciesKey, SoulLevelKey } from '@/lib/characterTemplates';
 import type { ClassKey } from '@/lib/classTaxonomy';
 import { parseSheetImport } from '@/lib/sheetImport';
+import { safeGet, safeRemove, safeSet } from '@/lib/safeStorage';
+import {
+  SHEET_STORAGE_KEY,
+  quarantineRejectedSheet,
+  readRawPersistedSheet,
+} from '@/lib/sheetRecovery';
 import { useSheetMigrationNoticeStore } from './sheetMigrationNoticeStore';
 
 interface CharacterSheetActions {
@@ -129,10 +135,43 @@ function migrate(persistedState: unknown, version: number): Partial<CharacterShe
       return mapped;
     }
   }
-  useSheetMigrationNoticeStore
-    .getState()
-    .setRejected('Your saved sheet could not be loaded and has been left unchanged.');
+  rejectPersistedSheet();
   throw new Error(`Unsupported or invalid saved character sheet (version ${version})`);
+}
+
+/**
+ * The single rejection contract, shared by both paths that can refuse a saved
+ * sheet: `migrate` (unsupported or unmigratable version) and `merge` (a
+ * same-version blob that fails the schema).
+ *
+ * To a reader those are one fact — "your saved sheet did not load" — but they
+ * previously produced opposite amounts of explanation: `migrate` alerted and
+ * threw, `merge` returned defaults in silence. Worse, they had different
+ * *durability*. `migrate`'s throw stops zustand writing over the raw payload;
+ * `merge` returns successfully, so the reader's next keystroke persists defaults
+ * over it. Routing both through here makes preservation the precondition rather
+ * than a side effect of which callback happened to run.
+ *
+ * Order matters and is the whole point: **preserve first, then decide whether a
+ * writable sheet may exist at all.** If the raw envelope cannot be quarantined,
+ * admitting a writable sheet would let the reader overwrite their only copy — so
+ * persistence is disabled for the session instead, and the notice says so.
+ */
+function rejectPersistedSheet(): void {
+  const notices = useSheetMigrationNoticeStore.getState();
+  const outcome = quarantineRejectedSheet(readRawPersistedSheet());
+
+  if (outcome.status === 'failed') {
+    notices.setPersistenceUnavailable(
+      'Your saved sheet could not be loaded, and this browser is not allowing anything to be saved. ' +
+        'You can keep working, but nothing will be kept when you leave.',
+    );
+    return;
+  }
+
+  notices.setRejected(
+    'Your saved sheet could not be loaded. A copy has been kept so you can download it below.',
+  );
 }
 
 export const useCharacterSheetStore = create<CharacterSheetStore>()(
@@ -189,9 +228,76 @@ export const useCharacterSheetStore = create<CharacterSheetStore>()(
           ),
       }),
       {
-        name: 'dominion-realm-character-sheet',
+        name: SHEET_STORAGE_KEY,
         version: 3, // bumped for Faith→CVN/Occult→MYS rename + classAcquisitionLevel removal
         migrate,
+        /**
+         * Hydration is owned by the sheet's render entry point, not by module
+         * import. Server and first client render must agree, and they cannot
+         * while the store rehydrates itself the moment this module loads —
+         * that is the `/sheet` mismatch: the server renders defaults while the
+         * client has already read storage.
+         *
+         * See CharacterSheetShell for the boundary that calls `rehydrate()` and,
+         * critically, releases the UI in a `finally`. Zustand catches the throw
+         * from a rejected `migrate` without ever setting `hasHydrated` or firing
+         * finish-hydration listeners, so anything that waits on those signals
+         * hangs forever on exactly the path this design exists to serve.
+         */
+        skipHydration: true,
+        /**
+         * Every access goes through the guarded seam, and every write asks the
+         * notice store whether persistence is still permitted. A rejected sheet
+         * that could not be quarantined disables writes here rather than relying
+         * on any component remembering not to save.
+         */
+        storage: {
+          getItem: (name) => {
+            const raw = safeGet(name).value;
+            if (raw === null) return null;
+            try {
+              return JSON.parse(raw) as ReturnType<
+                NonNullable<Parameters<typeof persist>[1]['storage']>['getItem']
+              >;
+            } catch {
+              // Unparseable at the envelope level — not even `{state,version}`.
+              // This is still the reader's sheet: a truncated write or a damaged
+              // profile is exactly the payload they would want back.
+              //
+              // Returning null alone was a data-loss path. `merge` and `migrate`
+              // never run for an absent value, so neither rejection path fired,
+              // nothing was quarantined, no notice appeared, and writes stayed
+              // enabled — the next edit overwrote the corrupted-but-recoverable
+              // bytes. Run the same rejection contract here so a malformed
+              // envelope is preserved on the terms every other rejection gets.
+              rejectPersistedSheet();
+              return null;
+            }
+          },
+          setItem: (name, value) => {
+            if (useSheetMigrationNoticeStore.getState().persistenceDisabled) return;
+            const written = safeSet(name, JSON.stringify(value));
+            if (!written.ok) {
+              // An ordinary write failure, with no rejected sheet anywhere in
+              // sight: a first-time reader in a storage-blocked browser, or a
+              // reader whose storage was revoked or filled mid-session. Both
+              // previously failed in silence, so someone could author a whole
+              // sheet and find on return that it had never been saved.
+              //
+              // Reader-authored data does not get silent degradation, so this
+              // says so and stops pretending later writes will work.
+              useSheetMigrationNoticeStore
+                .getState()
+                .setPersistenceUnavailable(
+                  'This browser is not allowing anything to be saved, so your sheet will not be ' +
+                    'kept when you leave. You can keep working, and you can download it below.',
+                );
+            }
+          },
+          removeItem: (name) => {
+            safeRemove(name);
+          },
+        },
         // currentResources is transient — not persisted
         partialize: (state) => ({
           name: state.name,
@@ -203,11 +309,18 @@ export const useCharacterSheetStore = create<CharacterSheetStore>()(
           conditionMods: state.conditionMods,
           currentXP: state.currentXP,
         }),
-        // Same-version blobs are schema-gated (CAND-38). Missing/invalid → keep current.
+        // Same-version blobs are schema-gated (CAND-38). Missing/invalid → keep
+        // current — but no longer *silently*: an invalid same-version blob is
+        // the same reader-facing failure as an unmigratable one, and previously
+        // this branch returned defaults with no notice and no preservation,
+        // leaving the next keystroke free to overwrite the payload.
         merge: (persistedState, currentState) => {
           if (persistedState == null) return currentState;
           const parsed = parseSheetImport(persistedState);
-          if (parsed == null) return currentState;
+          if (parsed == null) {
+            rejectPersistedSheet();
+            return currentState;
+          }
           return { ...currentState, ...parsed };
         },
       },
