@@ -1,6 +1,6 @@
 // Keystatic GitHub OAuth + read/write API (ADR-0009/0010). Reads its GitHub App
 // credentials from env: KEYSTATIC_GITHUB_CLIENT_ID, KEYSTATIC_GITHUB_CLIENT_SECRET,
-// KEYSTATIC_SECRET (set these in the deploy env, e.g. env/dominion-realm.env, not committed).
+// KEYSTATIC_SECRET (set these in the deploy env, not committed).
 import { makeRouteHandler } from '@keystatic/next/route-handler';
 import config from '../../../../../keystatic.config';
 import { SITE_URL } from '@/lib/site';
@@ -34,7 +34,7 @@ const keystatic = () => (keystaticHandler ??= makeRouteHandler({ config }));
 const isInternalHost = (host: string) => /^(127\.|0\.0\.0\.0|localhost|\[?::1\]?)/i.test(host);
 
 /**
- * Behind the reverse proxy (Caddy), Next builds the route handler's request URL
+ * Behind a reverse proxy, Next builds the route handler's request URL
  * from the INTERNAL bind address (the container's `localhost`, which Keystatic
  * then normalizes to `127.0.0.1`), so Keystatic's GitHub OAuth `redirect_uri` points at an
  * unreachable host and the browser can't finish sign-in ("127.0.0.1 refused to

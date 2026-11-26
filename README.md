@@ -198,7 +198,7 @@ visit `https://<your-domain>/keystatic` — with no app configured it shows a gu
      browser editor to use GitHub mode (the other three are server-only, so the
      UI can't see them). **Without this the editor loads in local mode and never
      shows the GitHub sign-in.**
-3. Rebuild the container. `/keystatic` is now in GitHub mode and commits to `main` for you.
+3. Rebuild and redeploy. `/keystatic` is now in GitHub mode and commits to `main` for you.
 
 Only `NEXT_PUBLIC_KEYSTATIC_GITHUB=true` flips the mode (`keystatic.config.ts`);
 CI and local dev leave it unset and use **local** storage, so `next build` never
