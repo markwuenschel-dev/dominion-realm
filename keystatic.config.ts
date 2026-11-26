@@ -7,7 +7,7 @@ import {
 
 /**
  * Keystatic CMS (ADR-0009, amended by ADR-0010) — a browser-based editor that
- * commits straight to this repo. On the EC2 deploy (a Node server) it ships with the
+ * commits straight to this repo. On a Node-server deploy it ships with the
  * main deploy and is served under `/keystatic`, backed by the GitHub-OAuth
  * route handler at `/api/keystatic`.
  *

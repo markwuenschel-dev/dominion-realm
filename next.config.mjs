@@ -10,7 +10,7 @@ const projectRoot = path.dirname(fileURLToPath(import.meta.url));
  * Next.js config for The Dominion Realm (migrated off Astro — ADR-0010; upgraded
  * to Next 16 for the Sanity media layer — ADR-0011).
  *
- * Served as a Node server on AWS EC2 (Docker container behind Caddy; `next start`),
+ * Built to run as a Node server (`next start`),
  * so there is no static
  * `output: export` and no project base path — the site lives at `/`. MDX is
  * wired via `@next/mdx`; the codex/journal/reading *bodies* are compiled per

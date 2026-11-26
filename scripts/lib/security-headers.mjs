@@ -5,7 +5,7 @@
  * This lives in `scripts/lib` next to `public-env.mjs` because `next.config.mjs`
  * is ESM JavaScript and cannot import a `.ts` module at config-load time.
  *
- * Why here and not in the Caddy reverse proxy: Caddy's config is in a different
+ * Why here and not in a reverse proxy: a proxy's config lives outside this
  * repository. A header enforced there is invisible to this repo's CI, so nothing
  * here could ever prove it is still set. The whole point of this list is that
  * `security-headers.test.ts` can fail when someone weakens it.
@@ -38,8 +38,8 @@ export const SECURITY_HEADERS = Object.freeze([
     key: 'Permissions-Policy',
     value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
   },
-  // Two years, subdomains included. Safe because the only host we serve is
-  // HTTPS-only behind Caddy with a real Let's Encrypt certificate. `preload` is
+  // Two years, subdomains included. Assumes whatever host serves the site is
+  // HTTPS-only with a real certificate. `preload` is
   // NOT set — that is a one-way door and belongs to a domain decision that has
   // not been made yet.
   { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains' },
