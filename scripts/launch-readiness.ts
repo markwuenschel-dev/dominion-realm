@@ -42,7 +42,8 @@ async function probe(url: string): Promise<number | null> {
 }
 
 async function main(): Promise<void> {
-  const siteHttpStatus = withNet ? await probe(SITE_URL) : undefined;
+  // No canonical origin configured -> nothing to probe; reported as unverified.
+  const siteHttpStatus = withNet && SITE_URL ? await probe(SITE_URL) : undefined;
 
   // Through the same alias rule the build uses, so the board and the bundle can
   // never disagree about which ids resolved.
@@ -57,7 +58,7 @@ async function main(): Promise<void> {
   });
 
   const width = Math.max(...report.checks.map((c) => c.label.length));
-  console.log(`\nPre-launch funnel — ${SITE_URL}\n`);
+  console.log(`\nPre-launch funnel — ${SITE_URL ?? 'NEXT_PUBLIC_SITE_URL unset'}\n`);
   for (const check of report.checks) {
     const mark = MARK[check.outcome];
     console.log(
@@ -68,6 +69,7 @@ async function main(): Promise<void> {
   const { pass, fail, unknown } = report.counts;
   console.log(`\n${pass} passing · ${fail} failing · ${unknown} unverified`);
   if (!withNet) console.log('Reachability not probed — re-run with `--net` to include it.');
+  else if (!SITE_URL) console.log('Reachability not probed — NEXT_PUBLIC_SITE_URL is unset.');
   console.log(
     report.ready ? '\nThe funnel is closed and observable.\n' : '\nThe funnel is not closed.\n',
   );

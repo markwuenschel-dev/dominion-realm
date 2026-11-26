@@ -23,8 +23,8 @@ export const PUBLIC_ENV_ALIASES = {
 
 /**
  * Ids the funnel cannot work without. `NEXT_PUBLIC_SITE_URL` is deliberately
- * absent: no Variable exists for it yet, and `src/lib/site.ts` falls back to
- * the canonical origin (ADR-0012 follow-up).
+ * absent: no Variable exists for it yet (the site has no domain), and
+ * `src/lib/site.ts` treats it as optional — unset means no canonical origin.
  */
 export const REQUIRED_PUBLIC_IDS = ['NEXT_PUBLIC_GA4_ID', 'NEXT_PUBLIC_KIT_FORM_ID'];
 

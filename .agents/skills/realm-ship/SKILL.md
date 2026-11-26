@@ -198,21 +198,13 @@ Only merge when local verification is **green** and the required check has passe
 
 Run the steps in [`CLEANUP.md`](CLEANUP.md) and report what was removed.
 
-## Phase 8 — Deploy (manual — merging does NOT deploy)
+## Phase 8 — Deploy (none — merging does NOT deploy)
 
-**Done when:** either the deploy ran and the public URL is confirmed, or the report states that production is still on the pre-merge revision.
+**Done when:** the report states that the merge is not live anywhere.
 
-There is no deploy workflow. The site runs as a Docker container on AWS EC2 behind Caddy
-(`next start` on the standalone build, per `docs/adr/0012-host-on-aws-ec2.md`), and CI does
-not deploy — pushing to `main` leaves production untouched. Production is updated by hand:
-
-```powershell
-./scripts/deploy.ps1            # deploy latest main
-./scripts/deploy.ps1 -WhatIf    # print the remote script, run nothing
-```
-
-Only run it when the user asks to deploy. If you don't, say so explicitly in the report —
-a merged PR is **not** live.
+There is no deploy target and no deploy workflow. The EC2 host from
+`docs/adr/0012-host-on-aws-ec2.md` was decommissioned 2026-11-26, and CI does not
+deploy. Say so explicitly in the report — a merged PR is **not** live.
 
 ## Phase 9 — Report
 
@@ -223,6 +215,6 @@ Report:
 - Merge SHA
 - Commits made
 - Verification commands and results (format / lint / types / tests / build)
-- Deploy status (deployed via `scripts/deploy.ps1`, or explicitly not deployed)
+- Deploy status (explicitly not deployed — no deploy target exists)
 - Remote/local branches deleted
 - Any branches intentionally left alone

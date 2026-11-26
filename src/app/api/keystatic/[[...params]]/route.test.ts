@@ -24,8 +24,17 @@ vi.mock('@keystatic/next/route-handler', () => ({
   makeRouteHandler: makeRouteHandlerSpy,
 }));
 
+/**
+ * `SITE_URL` has no fallback, so the canonical origin is stubbed before `site.ts`
+ * is evaluated. The `afterEach` unstub restores the env; the captured constant stays.
+ */
+const SITE_URL = vi.hoisted(() => {
+  const origin = 'https://site.example';
+  vi.stubEnv('NEXT_PUBLIC_SITE_URL', origin);
+  return origin;
+});
+
 import { GET, POST, withPublicOrigin } from './route';
-import { SITE_URL } from '@/lib/site';
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -65,6 +74,16 @@ describe('withPublicOrigin (CAND-23)', () => {
     expect(rewritten.url).not.toContain('evil.com');
     // The outbound header is overwritten to the pinned base, not passed through.
     expect(rewritten.headers.get('x-forwarded-host')).toBe(new URL(SITE_URL).host);
+  });
+
+  it('leaves an internal request untouched when no canonical origin is configured', async () => {
+    vi.stubEnv('NEXT_PUBLIC_KEYSTATIC_GITHUB', 'true');
+    vi.stubEnv('KEYSTATIC_URL', '');
+    vi.stubEnv('NEXT_PUBLIC_SITE_URL', '');
+    vi.resetModules();
+    const fresh = await import('./route');
+    const req = internalReq({ 'x-forwarded-host': 'evil.com' });
+    expect(fresh.withPublicOrigin(req)).toBe(req);
   });
 
   it('leaves an already-public request untouched', () => {

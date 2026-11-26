@@ -1,9 +1,9 @@
 name: CI
 
-# Validation gate for pull requests and for pushes to main (ADR-0012 — Next.js
-# on AWS EC2). The `verify` job is what branch protection should require before
-# merge; `a11y` is advisory for now. Production deploys are manual via
-# `scripts/deploy.ps1` — this workflow does not deploy.
+# Validation gate for pull requests and for pushes to main. The `verify` job is
+# what branch protection should require before merge; `a11y` is advisory for now.
+# This workflow does not deploy, and there is no deploy target (the EC2 host from
+# ADR-0012 was decommissioned 2026-11-26).
 on:
   pull_request:
   push:
@@ -36,8 +36,8 @@ jobs:
       # mapping here is what let dev and CI disagree.
       PUBLIC_KIT_FORM_ID: ${{ vars.PUBLIC_KIT_FORM_ID }}
       PUBLIC_GA4_ID: ${{ vars.PUBLIC_GA4_ID }}
-      # No Variable exists yet: unset until the domain cutover (ADR-0012
-      # follow-up). `src/lib/site.ts` falls back to the canonical URL.
+      # No Variable exists yet: the site has no domain. Unset is supported —
+      # `src/lib/site.ts` has no fallback origin.
       PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL }}
     steps:
       - uses: actions/checkout@v4
