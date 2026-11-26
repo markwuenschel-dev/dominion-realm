@@ -13,24 +13,22 @@
 /**
  * Canonical public origin — the single source of truth for absolute URLs
  * (OG/canonical metadata, the RSS feed, the Keystatic OAuth redirect). Set
- * `NEXT_PUBLIC_SITE_URL` as a build arg (`docker-compose.yml`, `dominion-realm`
- * service) — Next inlines `NEXT_PUBLIC_*` at build time, so the runtime
- * `env_file` cannot reach it.
+ * `NEXT_PUBLIC_SITE_URL` in the build environment — Next inlines `NEXT_PUBLIC_*`
+ * at build time, so a runtime-only env file cannot reach it.
  *
- * The fallback is the hostname the site actually serves from. There is no
- * registered domain yet, and the fallback must never name one we do not
- * control: it is emitted into `og:image` and the RSS `guid`, so a wrong value
- * silently points every share card and feed item at somebody else's site.
- * A previous fallback did exactly that.
+ * There is deliberately NO fallback. The site has no registered domain and no
+ * host (the EC2 box was decommissioned 2026-11-26), and a hard-coded origin is
+ * emitted into `og:image` and the RSS `guid`, so a wrong value silently points
+ * every share card and feed item at somebody else's site. Previous fallbacks
+ * did exactly that. Unset means `undefined`, and every caller handles it.
  *
- * Uses `|| ` (not `??`) and trims, so an env var present-but-empty — e.g. a bare
- * `NEXT_PUBLIC_SITE_URL=` line — also falls back rather than yielding `''` and
- * blowing up `new URL('')` (ERR_INVALID_URL) in `metadataBase`. Trailing slash
- * is stripped so callers can append `/path` unconditionally.
+ * Trims and uses `||`, so an env var present-but-empty — e.g. a bare
+ * `NEXT_PUBLIC_SITE_URL=` line — is `undefined` rather than `''` (which would
+ * blow up `new URL('')`). Trailing slash is stripped so callers can append
+ * `/path` unconditionally.
  */
-export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://dominionrealm.44-198-76-44.nip.io'
-).replace(/\/$/, '');
+export const SITE_URL: string | undefined =
+  process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, '') || undefined;
 
 export interface Social {
   label: string;

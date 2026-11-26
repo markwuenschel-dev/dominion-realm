@@ -50,7 +50,8 @@ const DESCRIPTION =
 export async function generateMetadata(): Promise<Metadata> {
   const image = await defaultSocialImage();
   return {
-    metadataBase: new URL(SITE_URL),
+    // No canonical origin configured -> no metadataBase (see `SITE_URL`).
+    metadataBase: SITE_URL ? new URL(SITE_URL) : null,
     title: {
       default: 'The Dominion Realm — An Interface Fantasy Novel',
       template: '%s — The Dominion Realm',

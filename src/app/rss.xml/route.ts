@@ -1,6 +1,6 @@
 import { getJournalPosts, journalUrl, CATEGORY_LABELS } from '@/lib/journal';
 import { isUngated } from '@/lib/reveal';
-import { SITE_URL as SITE } from '@/lib/site';
+import { SITE_URL } from '@/lib/site';
 
 /**
  * RSS 2.0 feed for the Author Journal (ADR-0003/0010). Replaces @astrojs/rss
@@ -28,6 +28,12 @@ function escapeXml(value: string): string {
     .replace(/'/g, '&apos;');
 }
 
+/**
+ * Absolute when a canonical origin is configured; otherwise root-relative, never a
+ * guessed host (see `SITE_URL` in `src/lib/site.ts`).
+ */
+const SITE = SITE_URL ?? '';
+
 export const dynamic = 'force-static';
 
 export function GET() {
@@ -51,7 +57,7 @@ export function GET() {
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>${escapeXml(TITLE)}</title>
-    <link>${escapeXml(SITE)}</link>
+    <link>${escapeXml(SITE || '/')}</link>
     <description>${escapeXml(DESCRIPTION)}</description>
     <language>en</language>
     <atom:link href="${escapeXml(`${SITE}/rss.xml`)}" rel="self" type="application/rss+xml" />

@@ -66,12 +66,14 @@ export function withPublicOrigin(req: Request): Request {
   let base: URL;
   if (process.env.KEYSTATIC_URL) {
     base = new URL(process.env.KEYSTATIC_URL);
-  } else if (isInternalHost(url.host)) {
+  } else if (isInternalHost(url.host) && SITE_URL) {
     // No public override and Next echoed its internal bind address: pin to the
     // canonical public origin. We do NOT read x-forwarded-host here (CAND-23).
     base = new URL(SITE_URL);
   } else {
-    return req; // request already carries a reachable public origin
+    // Either the request already carries a reachable public origin, or no
+    // canonical origin is configured — and a header is never a substitute.
+    return req;
   }
 
   if (url.protocol === base.protocol && url.host === base.host) return req;
@@ -79,7 +81,7 @@ export function withPublicOrigin(req: Request): Request {
   // Set hostname and port SEPARATELY. Assigning `url.host = base.host` leaves the
   // existing port in place when `base.host` carries none (WHATWG URL semantics), so
   // the internal `:8080` would leak into the redirect_uri as
-  // `dominionrealm.44-198-76-44.nip.io:8080` — which GitHub rejects
+  // `site.example:8080` — which GitHub rejects
   // ("redirect_uri is not associated"). `base.port` is '' for a default-port URL,
   // and assigning '' clears the port.
   url.hostname = base.hostname;

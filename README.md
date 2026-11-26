@@ -55,7 +55,7 @@ change is an ordinary Git commit.
 - **CMS** — **[Keystatic](https://keystatic.com)** in GitHub storage mode
 - **Search** — **[MiniSearch](https://lucaong.github.io/minisearch/)** · **Downloads** — JSZip (EPUB) + PDFKit (PDF)
 - **Tests** — **[Vitest](https://vitest.dev)** + Testing Library (jsdom)
-- **Hosting** — a Node service on **AWS EC2**, a Docker container behind a **[Caddy](https://caddyserver.com)** reverse proxy (TLS), served from `/`
+- **Hosting** — none provisioned (the AWS EC2 host was decommissioned 2026-11-26); the app builds as a standalone Node server served from `/`
 
 ## Quick start
 
@@ -149,8 +149,8 @@ See [ADR-0004](docs/adr/0004-reveal-tier-model.md) for the rationale.
 
 You don't need Explorer or a manual `git push` to update content or pictures.
 **Keystatic** is a browser editor at **`/keystatic`**; on the live site it commits
-your change straight to `main`. Reaching the live site then takes a deploy — a
-container rebuild on the EC2 host (currently manual; see [Deployment](#deployment)).
+your change straight to `main`. Reaching a live site then takes a deploy, and no
+host is currently provisioned (see [Deployment](#deployment)).
 *(Two picture paths coexist: **Sanity Studio** at `/studio` is the primary media
 layer — edits go live in seconds via webhook, no deploy ([ADR-0011](docs/adr/0011-media-layer-sanity.md)).
 The Keystatic **Image** fields below are the git fallback, committed to the repo
@@ -162,7 +162,7 @@ and shown when a subject has no Sanity media.)*
 2. Open an entry — a character, faction, a journal post, etc.
 3. Drag a picture onto its **Image** field (or edit any text).
 4. **Save.** Keystatic commits to `main`; the change goes live on the next deploy
-   (a container rebuild on the host — currently manual, see [Deployment](#deployment)).
+   (see [Deployment](#deployment)).
 
 Notes:
 - A character's **Image** feeds both its Codex page **and** its homepage cast card.
@@ -190,7 +190,7 @@ visit `https://<your-domain>/keystatic` — with no app configured it shows a gu
    - **Permissions:** Repository → **Contents: Read & write**, **Metadata: Read**.
    - Install it on the **`dominion-realm`** repo. Copy the **Client ID** and
      generate a **Client secret**.
-2. In the EC2 deploy env (`env/dominion-realm.env` on the host), add **four**:
+2. In the host's deploy env, add **four**:
    - `KEYSTATIC_GITHUB_CLIENT_ID`
    - `KEYSTATIC_GITHUB_CLIENT_SECRET`
    - `KEYSTATIC_SECRET` — any random 32+ char string (`openssl rand -hex 32`)
@@ -206,16 +206,15 @@ evaluates github mode without the secrets.
 
 ## Environment variables
 
-Copy `.env.example` to `.env` for local use and set the same values in the EC2
-deploy env (`env/dominion-realm.env` on the host) for production. Nothing here is
-required to run the public site.
+Copy `.env.example` to `.env` for local use and set the same values in the deploy
+env of whatever host serves production. Nothing here is required to run the public site.
 
 | Variable | Required for | Notes |
 | --- | --- | --- |
 | `KEYSTATIC_GITHUB_CLIENT_ID` | `/keystatic` admin | From the Keystatic GitHub App (ADR-0009) |
 | `KEYSTATIC_GITHUB_CLIENT_SECRET` | `/keystatic` admin | From the same GitHub App |
 | `KEYSTATIC_SECRET` | `/keystatic` admin | Any random 32+ char string (`openssl rand -hex 32`) |
-| `NEXT_PUBLIC_SITE_URL` | Canonical/OG tags, RSS | e.g. `https://dominionrealm.44-198-76-44.nip.io` |
+| `NEXT_PUBLIC_SITE_URL` | Canonical/OG tags, RSS | Canonical origin, e.g. `https://example.com`. No fallback: unset means no `metadataBase` and root-relative RSS links |
 | `NEXT_PUBLIC_GA4_ID` | Analytics | Google Analytics 4 measurement ID |
 | `NEXT_PUBLIC_KIT_FORM_ID` | Newsletter | Kit (ConvertKit) form ID |
 | `NEXT_PUBLIC_BUY_URL` | Buy button | Real product/checkout URL; unset → "Coming soon" newsletter fallback |
@@ -223,30 +222,16 @@ required to run the public site.
 
 ## Deployment
 
-Hosted on **AWS EC2** as a **Docker** container behind a **[Caddy](https://caddyserver.com)**
-reverse proxy that terminates TLS (automatic Let's Encrypt) and serves the app at
-the root of its own hostname. Deploys are **not** automatic on push to `main` —
-they are a container rebuild on the host:
+**No host is provisioned.** The AWS EC2 host described in
+[ADR-0012](docs/adr/0012-host-on-aws-ec2.md) was decommissioned on 2026-11-26, and
+its deploy script was removed with it. Nothing deploys on push to `main`.
 
-```bash
-# on the EC2 host, in the compose project directory
-docker compose build dominion-realm && docker compose up -d dominion-realm
-```
+Whatever host comes next: Next inlines every `NEXT_PUBLIC_*` into the client bundle
+when `next build` runs, so those ids must be present at **build** time — a runtime-only
+env file is too late. Putting them in the wrong place is why production once shipped
+with no analytics and a dead signup form. `NEXT_PUBLIC_SITE_URL` has no fallback.
 
-1. Get the code onto the host (git pull) and set the **runtime** variables above in
-   `env/dominion-realm.env` (not committed).
-2. Set the **build-time** ids — every `NEXT_PUBLIC_*` — in `.env` next to
-   `docker-compose.yml`, which feeds them to the service's `build.args`. Next inlines
-   `NEXT_PUBLIC_*` into the client bundle when `next build` runs, so `env_file` is too
-   late: it only reaches the running container. Putting them in the wrong file is why
-   production once shipped with no analytics and a dead signup form.
-   `NEXT_PUBLIC_SITE_URL` falls back to `https://dominionrealm.44-198-76-44.nip.io` if unset/empty.
-3. Point the Keystatic GitHub App's OAuth **callback URL** at
-   `https://<your-domain>/api/keystatic/github/oauth/callback`.
-4. Rebuild the container (above). Caddy issues/renews the TLS cert automatically.
-
-See [ADR-0012](docs/adr/0012-host-on-aws-ec2.md) for the hosting architecture and
-[ADR-0010](docs/adr/0010-migrate-astro-to-nextjs.md) for the original Astro → Next.js
+See [ADR-0010](docs/adr/0010-migrate-astro-to-nextjs.md) for the original Astro → Next.js
 migration.
 
 ## Testing & CI
